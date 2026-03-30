@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "fastify-best-practices": {
+      "source": "mcollina/skills",
+      "sourceType": "github",
+      "computedHash": "b3a771fa66bc5d8dac0af14e99e51fca2ff4a9add56f09d986778528bdf72c4c"
+    },
+    "linting-neostandard-eslint9": {
+      "source": "mcollina/skills",
+      "sourceType": "github",
+      "computedHash": "3035b5fa684cf3c62acd5ec7745510c30b57cfce5665e42569140153b264be1d"
+    },
+    "node": {
+      "source": "mcollina/skills",
+      "sourceType": "github",
+      "computedHash": "c92b3da4a4ea153207eb72d8f6a77c0e9f7b98d29f5092433143195d154d58c9"
+    },
+    "oauth": {
+      "source": "mcollina/skills",
+      "sourceType": "github",
+      "computedHash": "0911bf3d2d4fd8d6ef567b91f60a34e34bfd7887f506f4a4c37a198ee0020865"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "e3ba3d760c5f4cc43b02a91fb8924f726c7818f95cc35d79d0a606ca622b72f5"
+    },
+    "typescript-magician": {
+      "source": "mcollina/skills",
+      "sourceType": "github",
+      "computedHash": "f6374b47974b828435aabb03dcf474ac328c1439fb4afcb216e274435fc4bba7"
+    }
+  }
+}

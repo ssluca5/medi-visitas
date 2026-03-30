@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum PotencialPrescricao {
+  BAIXO
+  MEDIO
+  ALTO
+  ESTRATEGICO
+}
+
+enum EstagioPipeline {
+  PROSPECTADO
+  VISITADO
+  INTERESSADO
+  PRESCRITOR
+  FIDELIZADO
+}
+
+enum TipoContato {
+  TELEFONE
+  EMAIL
+  WHATSAPP
+  OUTRO
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id        String    @id @default(cuid())
+  clerkId   String    @unique
+  email     String    @unique
+  name      String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([clerkId])
+}
+
+model Organization {
+  id         String    @id @default(cuid())
+  clerkOrgId String    @unique
+  name       String
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Especialidade {
+  id        String    @id @default(cuid())
+  nome      String
+  categoria String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  profissionais Profissional[]
+
+  @@index([categoria])
+  @@index([deletedAt])
+}
+
+model Endereco {
+  id          String    @id @default(cuid())
+  logradouro  String?
+  numero      String?
+  complemento String?
+  bairro      String?
+  cidade      String?
+  estado      String?
+  cep         String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  profissionais Profissional[]
+}
+
+model Profissional {
+  id              String            @id @default(cuid())
+  nome            String
+  crm             String?
+  email           String?
+  telefone        String?
+  potencial       PotencialPrescricao @default(MEDIO)
+  estagioPipeline EstagioPipeline    @default(PROSPECTADO)
+  especialidadeId String?
+  enderecoId      String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  especialidade   Especialidade?    @relation(fields: [especialidadeId], references: [id], onDelete: Restrict)
+  endereco        Endereco?         @relation(fields: [enderecoId], references: [id], onDelete: Restrict)
+  contatos        ContatoProfissional[]
+  estagioLogs     EstagioLog[]
+
+  @@index([potencial])
+  @@index([estagioPipeline])
+  @@index([deletedAt])
+  @@index([especialidadeId])
+}
+
+model ContatoProfissional {
+  id            String       @id @default(cuid())
+  profissionalId String
+  tipo          TipoContato
+  valor         String
+  observacao    String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  profissional  Profissional @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
+
+  @@index([profissionalId])
+  @@index([deletedAt])
+}
+
+// EstagioLog é IMUTÁVEL por design — sem deletedAt, sem updatedAt
+model EstagioLog {
+  id              String         @id @default(cuid())
+  profissionalId  String
+  estagioAnterior EstagioPipeline?
+  estagioNovo     EstagioPipeline
+  userId          String
+  createdAt       DateTime       @default(now())
+
+  profissional    Profissional   @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
+
+  @@index([profissionalId])
+  @@index([userId])
+}
