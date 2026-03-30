@@ -19,17 +19,17 @@ Estabelecer a base do monorepo e implementar autenticação completa com Clerk, 
 
 ## Entregáveis
 
-| # | Artefato | Localização |
-|---|----------|-------------|
-| 1 | `pnpm-workspace.yaml` configurado | `/` |
-| 2 | `packages/database/prisma/schema.prisma` com `User` + `Organization` | `packages/database/` |
-| 3 | Migration inicial aplicada no Supabase | `packages/database/prisma/migrations/` |
-| 4 | Plugin Clerk no Fastify (`preHandler` hook) | `apps/api/src/hooks/auth.ts` |
-| 5 | Rota `GET /me` protegida | `apps/api/src/routes/me.ts` |
-| 6 | Middleware Clerk no Next.js (`middleware.ts`) | `apps/web/` |
-| 7 | Páginas `/login`, `/signup`, `/dashboard` (shell) | `apps/web/app/` |
-| 8 | Design system: CSS Variables + tema base | `apps/web/app/globals.css` |
-| 9 | Testes da rota `/me` (TDD) | `apps/api/src/routes/me.test.ts` |
+| #   | Artefato                                                             | Localização                            |
+| --- | -------------------------------------------------------------------- | -------------------------------------- |
+| 1   | `pnpm-workspace.yaml` configurado                                    | `/`                                    |
+| 2   | `packages/database/prisma/schema.prisma` com `User` + `Organization` | `packages/database/`                   |
+| 3   | Migration inicial aplicada no Supabase                               | `packages/database/prisma/migrations/` |
+| 4   | Plugin Clerk no Fastify (`preHandler` hook)                          | `apps/api/src/hooks/auth.ts`           |
+| 5   | Rota `GET /me` protegida                                             | `apps/api/src/routes/me.ts`            |
+| 6   | Middleware Clerk no Next.js (`middleware.ts`)                        | `apps/web/`                            |
+| 7   | Páginas `/login`, `/signup`, `/dashboard` (shell)                    | `apps/web/app/`                        |
+| 8   | Design system: CSS Variables + tema base                             | `apps/web/app/globals.css`             |
+| 9   | Testes da rota `/me` (TDD)                                           | `apps/api/src/routes/me.test.ts`       |
 
 ---
 
@@ -70,6 +70,7 @@ model Organization {
 ```
 
 > **Regras obrigatórias do CLAUDE.md aplicadas:**
+>
 > - `deletedAt DateTime?` em todas as entidades (soft delete)
 > - Sem `onDelete: Cascade` — FKs futuras usarão `Restrict`
 > - Campos de auditoria: `createdAt`, `updatedAt`, `deletedAt`
@@ -121,6 +122,7 @@ medivisitas/
 ## Variáveis de Ambiente
 
 ### `apps/web/.env.local`
+
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
@@ -132,6 +134,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ### `apps/api/.env`
+
 ```env
 CLERK_SECRET_KEY=sk_test_...
 DATABASE_URL=postgresql://...
@@ -146,17 +149,17 @@ PORT=3001
 /* apps/web/app/globals.css */
 :root {
   /* Paleta principal — azul farmacêutico profissional */
-  --color-brand-50:  240 248 255;
+  --color-brand-50: 240 248 255;
   --color-brand-100: 219 238 255;
   --color-brand-500: 37 99 235;
   --color-brand-600: 29 78 216;
   --color-brand-900: 30 58 138;
 
   /* Neutros */
-  --color-surface:   255 255 255;
+  --color-surface: 255 255 255;
   --color-surface-2: 248 250 252;
-  --color-border:    226 232 240;
-  --color-text:      15 23 42;
+  --color-border: 226 232 240;
+  --color-text: 15 23 42;
   --color-text-muted: 100 116 139;
 
   /* Semânticos */
@@ -165,10 +168,10 @@ PORT=3001
 }
 
 [data-theme="dark"] {
-  --color-surface:   15 23 42;
+  --color-surface: 15 23 42;
   --color-surface-2: 30 41 59;
-  --color-border:    51 65 85;
-  --color-text:      248 250 252;
+  --color-border: 51 65 85;
+  --color-text: 248 250 252;
   --color-text-muted: 148 163 184;
 }
 ```
@@ -179,13 +182,13 @@ PORT=3001
 
 ## Padrões de UI para esta Fase
 
-| Elemento | Implementação |
-|----------|--------------|
-| Botão primário | `style={{ backgroundColor: 'rgb(var(--accent))', borderRadius: '8px' }}` |
-| Cards | `style={{ backgroundColor: 'rgb(var(--color-surface-2))', border: '1px solid rgb(var(--color-border))' }}` |
-| Formulários de auth | Usar componentes nativos do Clerk (`<SignIn />`, `<SignUp />`) com `appearance` customizado |
-| Dashboard shell | Sidebar fixa esquerda + área de conteúdo principal |
-| FAB | Presente no dashboard shell (preparação para Fase 2) |
+| Elemento            | Implementação                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Botão primário      | `style={{ backgroundColor: 'rgb(var(--accent))', borderRadius: '8px' }}`                                   |
+| Cards               | `style={{ backgroundColor: 'rgb(var(--color-surface-2))', border: '1px solid rgb(var(--color-border))' }}` |
+| Formulários de auth | Usar componentes nativos do Clerk (`<SignIn />`, `<SignUp />`) com `appearance` customizado                |
+| Dashboard shell     | Sidebar fixa esquerda + área de conteúdo principal                                                         |
+| FAB                 | Presente no dashboard shell (preparação para Fase 2)                                                       |
 
 ---
 
@@ -193,17 +196,17 @@ PORT=3001
 
 Verificar instalação em `.kilocode/skills/` antes de iniciar:
 
-| Skill | Repositório | Obrigatória |
-|-------|-------------|-------------|
-| `brainstorming` | obra/superpowers | ✅ Sim — antes de qualquer feature |
-| `write-plan` | obra/superpowers | ✅ Sim — planejar antes de codificar |
-| `test-driven-development` | obra/superpowers | ✅ Sim — todo código de lógica |
-| `verification-before-completion` | obra/superpowers | ✅ Sim — antes de encerrar sessão |
-| `frontend-design` | anthropics/skills | ✅ Sim — UI/UX |
-| `fastify` | mcollina/skills | ✅ Sim — rotas e plugins |
-| `node` | mcollina/skills | ✅ Sim — async patterns |
-| `oauth` | mcollina/skills | ✅ Sim — fluxo Clerk JWT |
-| `supabase-postgres-best-practices` | supabase/agent-skills | ✅ Sim — migrations |
+| Skill                              | Repositório           | Obrigatória                          |
+| ---------------------------------- | --------------------- | ------------------------------------ |
+| `brainstorming`                    | obra/superpowers      | ✅ Sim — antes de qualquer feature   |
+| `write-plan`                       | obra/superpowers      | ✅ Sim — planejar antes de codificar |
+| `test-driven-development`          | obra/superpowers      | ✅ Sim — todo código de lógica       |
+| `verification-before-completion`   | obra/superpowers      | ✅ Sim — antes de encerrar sessão    |
+| `frontend-design`                  | anthropics/skills     | ✅ Sim — UI/UX                       |
+| `fastify`                          | mcollina/skills       | ✅ Sim — rotas e plugins             |
+| `node`                             | mcollina/skills       | ✅ Sim — async patterns              |
+| `oauth`                            | mcollina/skills       | ✅ Sim — fluxo Clerk JWT             |
+| `supabase-postgres-best-practices` | supabase/agent-skills | ✅ Sim — migrations                  |
 
 ---
 

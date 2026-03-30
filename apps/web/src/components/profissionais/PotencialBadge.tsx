@@ -1,31 +1,34 @@
-'use client'
+"use client";
 
-type PotencialPrescricao = 'BAIXO' | 'MEDIO' | 'ALTO' | 'ESTRATEGICO';
+type PotencialPrescricao = "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
 
 interface PotencialBadgeProps {
   potencial: PotencialPrescricao;
 }
 
-const potencialConfig: Record<PotencialPrescricao, { label: string; bg: string; text: string }> = {
+const potencialConfig: Record<
+  PotencialPrescricao,
+  { label: string; bg: string; text: string }
+> = {
   BAIXO: {
-    label: 'Baixo',
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    label: "Baixo",
+    bg: "bg-blue-50",
+    text: "text-blue-700",
   },
   MEDIO: {
-    label: 'Médio',
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
+    label: "Médio",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
   },
   ALTO: {
-    label: 'Alto',
-    bg: 'bg-orange-100',
-    text: 'text-orange-700',
+    label: "Alto",
+    bg: "bg-orange-100",
+    text: "text-orange-700",
   },
   ESTRATEGICO: {
-    label: 'Estratégico',
-    bg: 'bg-green-100',
-    text: 'text-green-800',
+    label: "Estratégico",
+    bg: "bg-green-100",
+    text: "text-green-800",
   },
 };
 

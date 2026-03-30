@@ -6,14 +6,14 @@
 
 ## Stack local
 
-| Item             | Detalhe                          |
-|------------------|----------------------------------|
-| Framework        | Fastify                          |
-| ORM              | Prisma (via `packages/database`) |
-| Validação        | Zod + `@fastify/type-provider-zod` |
-| Auth             | Clerk JWT em `preHandler`        |
-| Logger           | Pino (nativo do Fastify)         |
-| Porta dev        | `3001`                           |
+| Item      | Detalhe                            |
+| --------- | ---------------------------------- |
+| Framework | Fastify                            |
+| ORM       | Prisma (via `packages/database`)   |
+| Validação | Zod + `@fastify/type-provider-zod` |
+| Auth      | Clerk JWT em `preHandler`          |
+| Logger    | Pino (nativo do Fastify)           |
+| Porta dev | `3001`                             |
 
 ---
 
@@ -75,28 +75,28 @@ apps/api/src/
 ```typescript
 // ✅ Padrão obrigatório de rota
 fastify.get(
-  '/profissionais',
+  "/profissionais",
   {
-    preHandler: [verifyClerkToken],  // auth sempre aqui
+    preHandler: [verifyClerkToken], // auth sempre aqui
     schema: {
       querystring: ListProfissionaisSchema,
-      response: { 200: ProfissionaisResponseSchema }
-    }
+      response: { 200: ProfissionaisResponseSchema },
+    },
   },
   async (request, reply) => {
-    const { userId } = request  // injetado pelo hook
+    const { userId } = request; // injetado pelo hook
     // ...
-  }
-)
+  },
+);
 
 // ✅ Hook de auth (apps/api/src/hooks/auth.ts)
 export async function verifyClerkToken(request, reply) {
   try {
-    const token = request.headers.authorization?.replace('Bearer ', '')
-    const session = await clerkClient.verifyToken(token)
-    request.userId = session.sub
+    const token = request.headers.authorization?.replace("Bearer ", "");
+    const session = await clerkClient.verifyToken(token);
+    request.userId = session.sub;
   } catch {
-    reply.code(401).send({ error: 'Unauthorized' })
+    reply.code(401).send({ error: "Unauthorized" });
   }
 }
 ```
@@ -118,35 +118,35 @@ Fastify/Node.js (mcollina): `npx skills add mcollina/skills`
 
 ### ⚙️ Backend & API
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `fastify` | `mcollina/skills` | **Sempre** ao criar/editar rotas, plugins ou hooks Fastify |
-| `node` | `mcollina/skills` | Patterns async, error handling, streams, event loop |
-| `oauth` | `mcollina/skills` | Implementação de fluxo Clerk JWT / OAuth 2.0 |
-| `typescript-magician` | `mcollina/skills` | Tipagem avançada, generics, eliminação de `any` |
-| `linting-neostandard-eslint9` | `mcollina/skills` | Configuração de linting ESLint v9 flat config |
+| Skill                         | Repositório       | Quando usar                                                |
+| ----------------------------- | ----------------- | ---------------------------------------------------------- |
+| `fastify`                     | `mcollina/skills` | **Sempre** ao criar/editar rotas, plugins ou hooks Fastify |
+| `node`                        | `mcollina/skills` | Patterns async, error handling, streams, event loop        |
+| `oauth`                       | `mcollina/skills` | Implementação de fluxo Clerk JWT / OAuth 2.0               |
+| `typescript-magician`         | `mcollina/skills` | Tipagem avançada, generics, eliminação de `any`            |
+| `linting-neostandard-eslint9` | `mcollina/skills` | Configuração de linting ESLint v9 flat config              |
 
 ### 🗄️ Banco de dados (ver também `packages/database/README.md`)
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
+| Skill                              | Repositório             | Quando usar                              |
+| ---------------------------------- | ----------------------- | ---------------------------------------- |
 | `supabase-postgres-best-practices` | `supabase/agent-skills` | Queries Prisma que geram SQL no Supabase |
 
 ### 🧪 Qualidade & Testes
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `test-driven-development` | `obra/superpowers` | Toda rota ou service novo |
-| `systematic-debugging` | `obra/superpowers` | Erros de runtime, bugs de lógica |
-| `testing-anti-patterns` | `obra/superpowers` | Revisão de testes existentes |
-| `verification-before-completion` | `obra/superpowers` | Antes de encerrar sessão |
+| Skill                            | Repositório        | Quando usar                      |
+| -------------------------------- | ------------------ | -------------------------------- |
+| `test-driven-development`        | `obra/superpowers` | Toda rota ou service novo        |
+| `systematic-debugging`           | `obra/superpowers` | Erros de runtime, bugs de lógica |
+| `testing-anti-patterns`          | `obra/superpowers` | Revisão de testes existentes     |
+| `verification-before-completion` | `obra/superpowers` | Antes de encerrar sessão         |
 
 ### 📐 Processo
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `brainstorming` | `obra/superpowers` | Design de endpoints antes de codar |
-| `write-plan` | `obra/superpowers` | Refatorações ou novas features multi-rota |
+| Skill           | Repositório        | Quando usar                               |
+| --------------- | ------------------ | ----------------------------------------- |
+| `brainstorming` | `obra/superpowers` | Design de endpoints antes de codar        |
+| `write-plan`    | `obra/superpowers` | Refatorações ou novas features multi-rota |
 
 ---
 

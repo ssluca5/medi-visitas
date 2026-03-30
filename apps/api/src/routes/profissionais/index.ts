@@ -1,6 +1,6 @@
-import type { FastifyInstance } from 'fastify';
-import { verifyClerkToken } from '../../hooks/auth';
-import { prisma } from '../../lib/prisma';
+import type { FastifyInstance } from "fastify";
+import { verifyClerkToken } from "../../hooks/auth";
+import { prisma } from "../../lib/prisma";
 import {
   CreateProfissionalInputSchema,
   UpdateProfissionalInputSchema,
@@ -10,21 +10,23 @@ import {
   ProfissionaisListOutputSchema,
   PotencialPrescricaoSchema,
   EstagioPipelineSchema,
-} from './schemas';
+} from "./schemas";
 
-export default async function profissionaisRoutes(app: FastifyInstance): Promise<void> {
+export default async function profissionaisRoutes(
+  app: FastifyInstance,
+): Promise<void> {
   // ============================================
   // POST /profissionais - Criar profissional
   // ============================================
   app.post(
-    '/profissionais',
+    "/profissionais",
     {
       preHandler: [verifyClerkToken],
     },
     async (request, reply) => {
       const { userId } = request;
       if (!userId) {
-        return reply.code(401).send({ error: 'Unauthorized' });
+        return reply.code(401).send({ error: "Unauthorized" });
       }
 
       const data = CreateProfissionalInputSchema.parse(request.body);
@@ -80,21 +82,30 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
         },
       });
 
-      return reply.code(201).send(ProfissionalOutputSchema.parse(profissionalCompleto));
-    }
+      return reply
+        .code(201)
+        .send(ProfissionalOutputSchema.parse(profissionalCompleto));
+    },
   );
 
   // ============================================
   // GET /profissionais - Listar profissionais (paginado)
   // ============================================
   app.get(
-    '/profissionais',
+    "/profissionais",
     {
       preHandler: [verifyClerkToken],
     },
     async (request, reply) => {
       const query = ListProfissionaisQuerySchema.parse(request.query);
-      const { page, pageSize, busca, potencial, estagioPipeline, especialidadeId } = query;
+      const {
+        page,
+        pageSize,
+        busca,
+        potencial,
+        estagioPipeline,
+        especialidadeId,
+      } = query;
 
       const where: Record<string, unknown> = {
         deletedAt: null,
@@ -103,9 +114,9 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       // Filtro de busca textual (nome, crm, email)
       if (busca) {
         where.OR = [
-          { nome: { contains: busca, mode: 'insensitive' } },
-          { crm: { contains: busca, mode: 'insensitive' } },
-          { email: { contains: busca, mode: 'insensitive' } },
+          { nome: { contains: busca, mode: "insensitive" } },
+          { crm: { contains: busca, mode: "insensitive" } },
+          { email: { contains: busca, mode: "insensitive" } },
         ];
       }
 
@@ -133,7 +144,7 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
             where: { deletedAt: null },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
       });
@@ -147,14 +158,14 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
           totalPages: Math.ceil(total / pageSize),
         },
       });
-    }
+    },
   );
 
   // ============================================
   // GET /profissionais/:id - Buscar profissional por ID
   // ============================================
   app.get(
-    '/profissionais/:id',
+    "/profissionais/:id",
     {
       preHandler: [verifyClerkToken],
     },
@@ -173,18 +184,18 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       if (!profissional) {
-        return reply.code(404).send({ error: 'Profissional não encontrado' });
+        return reply.code(404).send({ error: "Profissional não encontrado" });
       }
 
       return reply.send(ProfissionalOutputSchema.parse(profissional));
-    }
+    },
   );
 
   // ============================================
   // PUT /profissionais/:id - Atualizar profissional
   // ============================================
   app.put(
-    '/profissionais/:id',
+    "/profissionais/:id",
     {
       preHandler: [verifyClerkToken],
     },
@@ -198,7 +209,7 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       if (!existente) {
-        return reply.code(404).send({ error: 'Profissional não encontrado' });
+        return reply.code(404).send({ error: "Profissional não encontrado" });
       }
 
       const { endereco, contatos, ...profissionalData } = data;
@@ -262,14 +273,14 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       return reply.send(ProfissionalOutputSchema.parse(profissionalCompleto));
-    }
+    },
   );
 
   // ============================================
   // DELETE /profissionais/:id - Soft delete
   // ============================================
   app.delete(
-    '/profissionais/:id',
+    "/profissionais/:id",
     {
       preHandler: [verifyClerkToken],
     },
@@ -281,7 +292,7 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       if (!profissional) {
-        return reply.code(404).send({ error: 'Profissional não encontrado' });
+        return reply.code(404).send({ error: "Profissional não encontrado" });
       }
 
       // Soft delete
@@ -291,21 +302,21 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       return reply.code(204).send();
-    }
+    },
   );
 
   // ============================================
   // PATCH /profissionais/:id/estagio - Atualizar estágio do pipeline
   // ============================================
   app.patch(
-    '/profissionais/:id/estagio',
+    "/profissionais/:id/estagio",
     {
       preHandler: [verifyClerkToken],
     },
     async (request, reply) => {
       const { userId } = request;
       if (!userId) {
-        return reply.code(401).send({ error: 'Unauthorized' });
+        return reply.code(401).send({ error: "Unauthorized" });
       }
 
       const { id } = request.params as { id: string };
@@ -317,12 +328,14 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       if (!profissional) {
-        return reply.code(404).send({ error: 'Profissional não encontrado' });
+        return reply.code(404).send({ error: "Profissional não encontrado" });
       }
 
       // Não fazer nada se já está no mesmo estágio
       if (profissional.estagioPipeline === estagioNovo) {
-        return reply.code(400).send({ error: 'Profissional já está neste estágio' });
+        return reply
+          .code(400)
+          .send({ error: "Profissional já está neste estágio" });
       }
 
       // Atualizar profissional e criar log na mesma transação
@@ -356,6 +369,6 @@ export default async function profissionaisRoutes(app: FastifyInstance): Promise
       });
 
       return reply.send(ProfissionalOutputSchema.parse(profissionalCompleto));
-    }
+    },
   );
 }

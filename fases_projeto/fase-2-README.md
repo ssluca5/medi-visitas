@@ -21,20 +21,20 @@ Implementar o cadastro completo de profissionais de saúde (médicos, farmacêut
 
 ## Entregáveis
 
-| # | Artefato | Localização |
-|---|----------|-------------|
-| 1 | Migration Prisma com todos os novos modelos | `packages/database/prisma/migrations/` |
-| 2 | Seed de especialidades | `packages/database/prisma/seed.ts` |
-| 3 | `POST /profissionais` — criação com validação Zod | `apps/api/src/routes/profissionais/create.ts` |
-| 4 | `GET /profissionais` — listagem com filtros + paginação | `apps/api/src/routes/profissionais/list.ts` |
-| 5 | `GET /profissionais/:id` — detalhe | `apps/api/src/routes/profissionais/get.ts` |
-| 6 | `PUT /profissionais/:id` — edição | `apps/api/src/routes/profissionais/update.ts` |
-| 7 | `DELETE /profissionais/:id` — soft delete | `apps/api/src/routes/profissionais/delete.ts` |
-| 8 | `PATCH /profissionais/:id/estagio` — mudança de estágio do pipeline | `apps/api/src/routes/profissionais/estagio.ts` |
-| 9 | Página `/dashboard/profissionais` — listagem + filtros | `apps/web/app/(protected)/dashboard/profissionais/page.tsx` |
-| 10 | Sheet lateral de criação/edição | `apps/web/components/profissionais/ProfissionalSheet.tsx` |
-| 11 | Badges de potencial e estágio | `apps/web/components/profissionais/PotencialBadge.tsx` + `EstagioBadge.tsx` |
-| 12 | Testes das 6 rotas (TDD) | `apps/api/src/routes/profissionais/*.test.ts` |
+| #   | Artefato                                                            | Localização                                                                 |
+| --- | ------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 1   | Migration Prisma com todos os novos modelos                         | `packages/database/prisma/migrations/`                                      |
+| 2   | Seed de especialidades                                              | `packages/database/prisma/seed.ts`                                          |
+| 3   | `POST /profissionais` — criação com validação Zod                   | `apps/api/src/routes/profissionais/create.ts`                               |
+| 4   | `GET /profissionais` — listagem com filtros + paginação             | `apps/api/src/routes/profissionais/list.ts`                                 |
+| 5   | `GET /profissionais/:id` — detalhe                                  | `apps/api/src/routes/profissionais/get.ts`                                  |
+| 6   | `PUT /profissionais/:id` — edição                                   | `apps/api/src/routes/profissionais/update.ts`                               |
+| 7   | `DELETE /profissionais/:id` — soft delete                           | `apps/api/src/routes/profissionais/delete.ts`                               |
+| 8   | `PATCH /profissionais/:id/estagio` — mudança de estágio do pipeline | `apps/api/src/routes/profissionais/estagio.ts`                              |
+| 9   | Página `/dashboard/profissionais` — listagem + filtros              | `apps/web/app/(protected)/dashboard/profissionais/page.tsx`                 |
+| 10  | Sheet lateral de criação/edição                                     | `apps/web/components/profissionais/ProfissionalSheet.tsx`                   |
+| 11  | Badges de potencial e estágio                                       | `apps/web/components/profissionais/PotencialBadge.tsx` + `EstagioBadge.tsx` |
+| 12  | Testes das 6 rotas (TDD)                                            | `apps/api/src/routes/profissionais/*.test.ts`                               |
 
 ---
 
@@ -148,6 +148,7 @@ model EstagioLog {
 ```
 
 > **Regras obrigatórias aplicadas:**
+>
 > - `deletedAt` em todas as entidades de negócio (exceto `EstagioLog` — imutável por design)
 > - `onDelete: Restrict` em **todas** as FKs — nunca Cascade
 > - Índices em colunas de filtro frequente: `potencial`, `estagioPipeline`, `deletedAt`
@@ -158,6 +159,7 @@ model EstagioLog {
 ## Contratos de API
 
 ### `POST /profissionais` → 201
+
 ```json
 // Body
 {
@@ -166,24 +168,29 @@ model EstagioLog {
   "especialidadeId": "cuid...",
   "potencial": "ALTO",
   "observacoes": "Preferência por visitas às terças",
-  "enderecos": [{
-    "logradouro": "Av. Paulista",
-    "numero": "1000",
-    "bairro": "Bela Vista",
-    "cidade": "São Paulo",
-    "estado": "SP",
-    "cep": "01310100",
-    "principal": true
-  }],
-  "contatos": [{
-    "tipo": "CELULAR",
-    "valor": "11999999999",
-    "principal": true
-  }]
+  "enderecos": [
+    {
+      "logradouro": "Av. Paulista",
+      "numero": "1000",
+      "bairro": "Bela Vista",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01310100",
+      "principal": true
+    }
+  ],
+  "contatos": [
+    {
+      "tipo": "CELULAR",
+      "valor": "11999999999",
+      "principal": true
+    }
+  ]
 }
 ```
 
 ### `GET /profissionais` → 200
+
 ```
 Query params:
   page            Int     default 1
@@ -204,6 +211,7 @@ Response:
 ```
 
 ### `PATCH /profissionais/:id/estagio` → 200
+
 ```json
 // Body
 { "estagioNovo": "VISITADO", "observacao": "Primeira visita realizada" }
@@ -224,23 +232,23 @@ Response:
 // packages/database/prisma/seed.ts
 const especialidades = [
   // Médicos — Clínica
-  { nome: 'Clínico Geral' },
-  { nome: 'Médico de Família' },
+  { nome: "Clínico Geral" },
+  { nome: "Médico de Família" },
   // Médicos — Especialistas
-  { nome: 'Cardiologista' },
-  { nome: 'Endocrinologista' },
-  { nome: 'Neurologista' },
-  { nome: 'Pediatra' },
-  { nome: 'Psiquiatra' },
-  { nome: 'Reumatologista' },
-  { nome: 'Ginecologista' },
-  { nome: 'Urologista' },
+  { nome: "Cardiologista" },
+  { nome: "Endocrinologista" },
+  { nome: "Neurologista" },
+  { nome: "Pediatra" },
+  { nome: "Psiquiatra" },
+  { nome: "Reumatologista" },
+  { nome: "Ginecologista" },
+  { nome: "Urologista" },
   // Farmácia
-  { nome: 'Farmacêutico' },
+  { nome: "Farmacêutico" },
   // Odontologia
-  { nome: 'Dentista' },
-  { nome: 'Ortodontista' },
-]
+  { nome: "Dentista" },
+  { nome: "Ortodontista" },
+];
 ```
 
 ---
@@ -284,29 +292,33 @@ apps/
 ## Padrões de UI para esta Fase
 
 ### Listagem de Profissionais
+
 - Tabela com colunas: **Nome · Especialidade · Potencial · Estágio · Ações**
 - Barra de filtros acima: busca textual + select de potencial + select de estágio
 - **FAB** no canto inferior direito (`+`) → abre Sheet em modo criação
 - Clicar em qualquer linha → abre Sheet em modo edição
 
 ### Badges de Potencial
-| Valor | Cor |
-|-------|-----|
-| `BAIXO` | cinza · `rgb(var(--color-text-muted))` |
-| `MEDIO` | azul · `rgb(var(--color-brand-500))` |
-| `ALTO` | âmbar · `rgb(220 150 30)` |
-| `ESTRATEGICO` | verde · `rgb(22 163 74)` |
+
+| Valor         | Cor                                    |
+| ------------- | -------------------------------------- |
+| `BAIXO`       | cinza · `rgb(var(--color-text-muted))` |
+| `MEDIO`       | azul · `rgb(var(--color-brand-500))`   |
+| `ALTO`        | âmbar · `rgb(220 150 30)`              |
+| `ESTRATEGICO` | verde · `rgb(22 163 74)`               |
 
 ### Badges de Estágio do Pipeline
-| Valor | Cor |
-|-------|-----|
+
+| Valor         | Cor          |
+| ------------- | ------------ |
 | `PROSPECTADO` | cinza neutro |
-| `VISITADO` | azul claro |
-| `INTERESSADO` | amarelo |
-| `PRESCRITOR` | verde claro |
-| `FIDELIZADO` | verde escuro |
+| `VISITADO`    | azul claro   |
+| `INTERESSADO` | amarelo      |
+| `PRESCRITOR`  | verde claro  |
+| `FIDELIZADO`  | verde escuro |
 
 ### Sheet Lateral (FAB + Sheet)
+
 - Largura: `min(480px, 100vw)` — full-width em mobile
 - Seções do formulário: **Dados Pessoais · Especialidade · Potencial · Endereço · Contatos**
 - Select de especialidade com `optgroup` separando Médicos / Farmácia / Odontologia
@@ -318,17 +330,17 @@ apps/
 
 ## Skills Necessárias para esta Fase
 
-| Skill | Repositório | Obrigatória |
-|-------|-------------|-------------|
-| `brainstorming` | obra/superpowers | ✅ Sim |
-| `write-plan` | obra/superpowers | ✅ Sim |
-| `test-driven-development` | obra/superpowers | ✅ Sim |
-| `verification-before-completion` | obra/superpowers | ✅ Sim |
-| `frontend-design` | anthropics/skills | ✅ Sim |
-| `fastify` | mcollina/skills | ✅ Sim |
-| `node` | mcollina/skills | ✅ Sim |
-| `typescript-magician` | mcollina/skills | ✅ Sim — enums + tipos complexos |
-| `supabase-postgres-best-practices` | supabase/agent-skills | ✅ Sim |
+| Skill                              | Repositório           | Obrigatória                      |
+| ---------------------------------- | --------------------- | -------------------------------- |
+| `brainstorming`                    | obra/superpowers      | ✅ Sim                           |
+| `write-plan`                       | obra/superpowers      | ✅ Sim                           |
+| `test-driven-development`          | obra/superpowers      | ✅ Sim                           |
+| `verification-before-completion`   | obra/superpowers      | ✅ Sim                           |
+| `frontend-design`                  | anthropics/skills     | ✅ Sim                           |
+| `fastify`                          | mcollina/skills       | ✅ Sim                           |
+| `node`                             | mcollina/skills       | ✅ Sim                           |
+| `typescript-magician`              | mcollina/skills       | ✅ Sim — enums + tipos complexos |
+| `supabase-postgres-best-practices` | supabase/agent-skills | ✅ Sim                           |
 
 ---
 

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { SignIn } from '@clerk/nextjs'
+import { SignIn } from "@clerk/nextjs";
 
 export default function LoginPage() {
   return (
@@ -8,11 +8,11 @@ export default function LoginPage() {
       <SignIn
         appearance={{
           variables: {
-            colorPrimary: '#2563eb',
-            borderRadius: '8px',
+            colorPrimary: "#2563eb",
+            borderRadius: "8px",
           },
         }}
       />
     </div>
-  )
+  );
 }

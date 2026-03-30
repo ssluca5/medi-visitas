@@ -6,14 +6,14 @@
 
 ## Stack local
 
-| Item             | Detalhe                          |
-|------------------|----------------------------------|
-| Framework        | Next.js 14 (App Router)          |
-| Estilização      | Tailwind CSS + CSS Variables     |
-| Componentes UI   | shadcn/ui                        |
-| Auth (client)    | Clerk (`@clerk/nextjs`)          |
-| HTTP client      | fetch nativo / React Query       |
-| Porta dev        | `3000`                           |
+| Item           | Detalhe                      |
+| -------------- | ---------------------------- |
+| Framework      | Next.js 14 (App Router)      |
+| Estilização    | Tailwind CSS + CSS Variables |
+| Componentes UI | shadcn/ui                    |
+| Auth (client)  | Clerk (`@clerk/nextjs`)      |
+| HTTP client    | fetch nativo / React Query   |
+| Porta dev      | `3000`                       |
 
 ---
 
@@ -110,28 +110,28 @@ Instalação única do `obra/superpowers`: `/plugin marketplace add obra/superpo
 
 ### 🎨 Design & UI/UX
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `frontend-design` | `anthropics/skills` _(nativo)_ | **Sempre** ao criar/editar componentes ou páginas |
-| `canvas-design` | `anthropics/skills` _(nativo)_ | Mockups e wireframes |
-| `web-artifacts-builder` | `anthropics/skills` _(nativo)_ | Artifacts HTML/React interativos |
+| Skill                   | Repositório                    | Quando usar                                       |
+| ----------------------- | ------------------------------ | ------------------------------------------------- |
+| `frontend-design`       | `anthropics/skills` _(nativo)_ | **Sempre** ao criar/editar componentes ou páginas |
+| `canvas-design`         | `anthropics/skills` _(nativo)_ | Mockups e wireframes                              |
+| `web-artifacts-builder` | `anthropics/skills` _(nativo)_ | Artifacts HTML/React interativos                  |
 
 ### 🧪 Qualidade & Testes
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `test-driven-development` | `obra/superpowers` | Toda implementação de lógica de componentes |
-| `webapp-testing` | `anthropics/skills` _(nativo)_ | Testes E2E e de componentes |
-| `systematic-debugging` | `obra/superpowers` | Investigação de bugs visuais ou de estado |
-| `testing-anti-patterns` | `obra/superpowers` | Revisão de cobertura de testes |
+| Skill                     | Repositório                    | Quando usar                                 |
+| ------------------------- | ------------------------------ | ------------------------------------------- |
+| `test-driven-development` | `obra/superpowers`             | Toda implementação de lógica de componentes |
+| `webapp-testing`          | `anthropics/skills` _(nativo)_ | Testes E2E e de componentes                 |
+| `systematic-debugging`    | `obra/superpowers`             | Investigação de bugs visuais ou de estado   |
+| `testing-anti-patterns`   | `obra/superpowers`             | Revisão de cobertura de testes              |
 
 ### 📐 Processo
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `brainstorming` | `obra/superpowers` | Antes de iniciar qualquer feature nova |
-| `write-plan` | `obra/superpowers` | Features com múltiplos arquivos ou fases |
-| `verification-before-completion` | `obra/superpowers` | Antes de encerrar cada sessão |
+| Skill                            | Repositório        | Quando usar                              |
+| -------------------------------- | ------------------ | ---------------------------------------- |
+| `brainstorming`                  | `obra/superpowers` | Antes de iniciar qualquer feature nova   |
+| `write-plan`                     | `obra/superpowers` | Features com múltiplos arquivos ou fases |
+| `verification-before-completion` | `obra/superpowers` | Antes de encerrar cada sessão            |
 
 ---
 

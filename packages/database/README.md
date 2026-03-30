@@ -6,11 +6,11 @@
 
 ## Stack local
 
-| Item             | Detalhe                                     |
-|------------------|---------------------------------------------|
-| ORM              | Prisma                                      |
-| Banco            | PostgreSQL via Supabase                     |
-| Pool de conexões | Supabase Pooler (Transaction mode)          |
+| Item             | Detalhe                            |
+| ---------------- | ---------------------------------- |
+| ORM              | Prisma                             |
+| Banco            | PostgreSQL via Supabase            |
+| Pool de conexões | Supabase Pooler (Transaction mode) |
 
 ---
 
@@ -86,17 +86,17 @@ model Exemplo {
 ```typescript
 // ✅ Correto — sempre filtrar deletedAt
 const profissionais = await prisma.profissional.findMany({
-  where: { deletedAt: null }
-})
+  where: { deletedAt: null },
+});
 
 // ✅ Correto — soft delete
 await prisma.profissional.update({
   where: { id },
-  data: { deletedAt: new Date() }
-})
+  data: { deletedAt: new Date() },
+});
 
 // ❌ NUNCA — hard delete em dados de negócio
-await prisma.profissional.delete({ where: { id } })
+await prisma.profissional.delete({ where: { id } });
 ```
 
 ### Foreign keys
@@ -188,17 +188,17 @@ Instalação Supabase: `npx skills add supabase/agent-skills`
 
 ### 🗄️ Banco de dados & Supabase
 
-| Skill | Repositório | Instalação | Quando usar |
-|-------|-------------|-----------|-------------|
+| Skill                              | Repositório             | Instalação                             | Quando usar                                       |
+| ---------------------------------- | ----------------------- | -------------------------------------- | ------------------------------------------------- |
 | `supabase-postgres-best-practices` | `supabase/agent-skills` | `npx skills add supabase/agent-skills` | **Sempre** ao escrever migrations, queries ou RLS |
-| `supabase-auth` | `supabase/agent-skills` | idem | Configuração de RLS com Clerk/auth |
-| `supabase-edge-functions` | `supabase/agent-skills` | idem | Funções Supabase (Fase 8 — notificações) |
+| `supabase-auth`                    | `supabase/agent-skills` | idem                                   | Configuração de RLS com Clerk/auth                |
+| `supabase-edge-functions`          | `supabase/agent-skills` | idem                                   | Funções Supabase (Fase 8 — notificações)          |
 
 ### 🧪 Qualidade
 
-| Skill | Repositório | Quando usar |
-|-------|-------------|-------------|
-| `test-driven-development` | `obra/superpowers` | Testes de migrations e queries críticas |
+| Skill                            | Repositório        | Quando usar                                 |
+| -------------------------------- | ------------------ | ------------------------------------------- |
+| `test-driven-development`        | `obra/superpowers` | Testes de migrations e queries críticas     |
 | `verification-before-completion` | `obra/superpowers` | Antes de rodar `migrate deploy` em produção |
 
 ---

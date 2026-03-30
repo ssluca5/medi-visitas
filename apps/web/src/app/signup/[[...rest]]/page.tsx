@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { SignUp } from '@clerk/nextjs'
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignupPage() {
   return (
@@ -8,11 +8,11 @@ export default function SignupPage() {
       <SignUp
         appearance={{
           variables: {
-            colorPrimary: 'rgb(var(--accent))',
-            borderRadius: '8px',
+            colorPrimary: "rgb(var(--accent))",
+            borderRadius: "8px",
           },
         }}
       />
     </div>
-  )
+  );
 }

@@ -15,6 +15,7 @@
 ### Task 1: Criar migration Prisma
 
 **Files:**
+
 - Create: `packages/database/prisma/migrations/YYYYMMDDHHMMSS_profissionais/migration.sql`
 - Modify: `packages/database/prisma/schema.prisma`
 - Modify: `packages/database/package.json`
@@ -221,11 +222,13 @@ model EstagioLog {
 ```
 
 - [ ] **Step 3: Executar migration**
+
 ```powershell
 pnpm --filter database prisma migrate dev --name profissionais
 ```
 
 - [ ] **Step 4: Verificar tabelas no banco**
+
 ```powershell
 pnpm --filter database prisma studio
 ```
@@ -233,54 +236,57 @@ pnpm --filter database prisma studio
 ### Task 2: Criar seed de especialidades
 
 **Files:**
+
 - Create: `packages/database/prisma/seed.ts`
 
 - [ ] **Step 1: Criar seed com especialidades por categoria**
 
 ```typescript
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
   const categorias = {
-    'Médicos': [
-      'Clínico Geral',
-      'Cardiologia',
-      'Dermatologia',
-      'Endocrinologia',
-      'Gastroenterologia',
-      'Neurologia',
-      'Oncologia',
-      'Ortopedia',
-      'Pediatria',
-      'Psiquiatria',
-      'Reumatologia',
-      'Urologia',
+    Médicos: [
+      "Clínico Geral",
+      "Cardiologia",
+      "Dermatologia",
+      "Endocrinologia",
+      "Gastroenterologia",
+      "Neurologia",
+      "Oncologia",
+      "Ortopedia",
+      "Pediatria",
+      "Psiquiatria",
+      "Reumatologia",
+      "Urologia",
     ],
-    'Farmácia': [
-      'Farmácia Clínica',
-      'Farmácia Hospitalar',
-      'Farmácia Magistral',
-      'Farmácia Oncológica',
+    Farmácia: [
+      "Farmácia Clínica",
+      "Farmácia Hospitalar",
+      "Farmácia Magistral",
+      "Farmácia Oncológica",
     ],
-    'Odontologia': [
-      'Cirurgia Bucomaxilofacial',
-      'Endodontia',
-      'Implantodontia',
-      'Odontopediatria',
-      'Ortodontia',
-      'Periodontia',
+    Odontologia: [
+      "Cirurgia Bucomaxilofacial",
+      "Endodontia",
+      "Implantodontia",
+      "Odontopediatria",
+      "Ortodontia",
+      "Periodontia",
     ],
   };
 
   for (const [categoria, especialidades] of Object.entries(categorias)) {
     for (const nome of especialidades) {
       await prisma.especialidade.upsert({
-        where: { id: `${categoria.toLowerCase().replace(/\s/g, '-')}-${nome.toLowerCase().replace(/\s/g, '-')}` },
+        where: {
+          id: `${categoria.toLowerCase().replace(/\s/g, "-")}-${nome.toLowerCase().replace(/\s/g, "-")}`,
+        },
         update: {},
         create: {
-          id: `${categoria.toLowerCase().replace(/\s/g, '-')}-${nome.toLowerCase().replace(/\s/g, '-')}`,
+          id: `${categoria.toLowerCase().replace(/\s/g, "-")}-${nome.toLowerCase().replace(/\s/g, "-")}`,
           nome,
           categoria,
         },
@@ -288,7 +294,7 @@ async function main() {
     }
   }
 
-  console.log('Seed de especialidades executado com sucesso!');
+  console.log("Seed de especialidades executado com sucesso!");
 }
 
 main()
@@ -302,6 +308,7 @@ main()
 ```
 
 - [ ] **Step 2: Executar seed**
+
 ```powershell
 pnpm --filter database prisma db seed
 ```
@@ -313,6 +320,7 @@ pnpm --filter database prisma db seed
 ### Task 3: ROTAS - POST /profissionais
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/create.test.ts`
 - Create: `apps/api/src/routes/profissionais/create.ts`
 - Create: `apps/api/src/routes/profissionais/schemas.ts`
@@ -321,39 +329,41 @@ pnpm --filter database prisma db seed
 
 ```typescript
 // apps/api/src/routes/profissionais/schemas.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const PotencialPrescricaoSchema = z.nativeEnum({
-  BAIXO: 'BAIXO',
-  MEDIO: 'MEDIO',
-  ALTO: 'ALTO',
-  ESTRATEGICO: 'ESTRATEGICO',
+  BAIXO: "BAIXO",
+  MEDIO: "MEDIO",
+  ALTO: "ALTO",
+  ESTRATEGICO: "ESTRATEGICO",
 });
 
 export const EstagioPipelineSchema = z.nativeEnum({
-  PROSPECTADO: 'PROSPECTADO',
-  VISITADO: 'VISITADO',
-  INTERESSADO: 'INTERESSADO',
-  PRESCRITOR: 'PRESCRITOR',
-  FIDELIZADO: 'FIDELIZADO',
+  PROSPECTADO: "PROSPECTADO",
+  VISITADO: "VISITADO",
+  INTERESSADO: "INTERESSADO",
+  PRESCRITOR: "PRESCRITOR",
+  FIDELIZADO: "FIDELIZADO",
 });
 
 export const TipoContatoSchema = z.nativeEnum({
-  TELEFONE: 'TELEFONE',
-  EMAIL: 'EMAIL',
-  WHATSAPP: 'WHATSAPP',
-  OUTRO: 'OUTRO',
+  TELEFONE: "TELEFONE",
+  EMAIL: "EMAIL",
+  WHATSAPP: "WHATSAPP",
+  OUTRO: "OUTRO",
 });
 
-export const EnderecoSchema = z.object({
-  logradouro: z.string().optional(),
-  numero: z.string().optional(),
-  complemento: z.string().optional(),
-  bairro: z.string().optional(),
-  cidade: z.string().optional(),
-  estado: z.string().optional(),
-  cep: z.string().optional(),
-}).optional();
+export const EnderecoSchema = z
+  .object({
+    logradouro: z.string().optional(),
+    numero: z.string().optional(),
+    complemento: z.string().optional(),
+    bairro: z.string().optional(),
+    cidade: z.string().optional(),
+    estado: z.string().optional(),
+    cep: z.string().optional(),
+  })
+  .optional();
 
 export const ContatoSchema = z.object({
   tipo: TipoContatoSchema,
@@ -362,12 +372,12 @@ export const ContatoSchema = z.object({
 });
 
 export const CreateProfissionalSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
+  nome: z.string().min(1, "Nome é obrigatório"),
   crm: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().email().optional().or(z.literal("")),
   telefone: z.string().optional(),
-  potencial: PotencialPrescricaoSchema.default('MEDIO'),
-  estagioPipeline: EstagioPipelineSchema.default('PROSPECTADO'),
+  potencial: PotencialPrescricaoSchema.default("MEDIO"),
+  estagioPipeline: EstagioPipelineSchema.default("PROSPECTADO"),
   especialidadeId: z.string().optional(),
   endereco: EnderecoSchema.optional(),
   contatos: z.array(ContatoSchema).optional(),
@@ -399,27 +409,33 @@ export const ProfissionalResponseSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   deletedAt: z.date().nullable(),
-  especialidade: z.object({
-    id: z.string(),
-    nome: z.string(),
-    categoria: z.string(),
-  }).nullable(),
-  endereco: z.object({
-    id: z.string(),
-    logradouro: z.string().nullable(),
-    numero: z.string().nullable(),
-    complemento: z.string().nullable(),
-    bairro: z.string().nullable(),
-    cidade: z.string().nullable(),
-    estado: z.string().nullable(),
-    cep: z.string().nullable(),
-  }).nullable(),
-  contatos: z.array(z.object({
-    id: z.string(),
-    tipo: TipoContatoSchema,
-    valor: z.string(),
-    observacao: z.string().nullable(),
-  })),
+  especialidade: z
+    .object({
+      id: z.string(),
+      nome: z.string(),
+      categoria: z.string(),
+    })
+    .nullable(),
+  endereco: z
+    .object({
+      id: z.string(),
+      logradouro: z.string().nullable(),
+      numero: z.string().nullable(),
+      complemento: z.string().nullable(),
+      bairro: z.string().nullable(),
+      cidade: z.string().nullable(),
+      estado: z.string().nullable(),
+      cep: z.string().nullable(),
+    })
+    .nullable(),
+  contatos: z.array(
+    z.object({
+      id: z.string(),
+      tipo: TipoContatoSchema,
+      valor: z.string(),
+      observacao: z.string().nullable(),
+    }),
+  ),
 });
 
 export const ProfissionaisListResponseSchema = z.object({
@@ -437,14 +453,14 @@ export const ProfissionaisListResponseSchema = z.object({
 
 ```typescript
 // apps/api/src/routes/profissionais/create.test.ts
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import buildApp from '../../app';
-import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import buildApp from "../../app";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const app = buildApp();
 
-describe('POST /profissionais', () => {
+describe("POST /profissionais", () => {
   beforeAll(async () => {
     await app.ready();
   });
@@ -454,71 +470,71 @@ describe('POST /profissionais', () => {
     await prisma.$disconnect();
   });
 
-  it('deve criar um profissional com dados mínimos', async () => {
+  it("deve criar um profissional com dados mínimos", async () => {
     const response = await app.inject({
-      method: 'POST',
-      url: '/profissionais',
+      method: "POST",
+      url: "/profissionais",
       headers: {
-        authorization: 'Bearer valid-test-token',
+        authorization: "Bearer valid-test-token",
       },
       payload: {
-        nome: 'Dr. João Silva',
+        nome: "Dr. João Silva",
       },
     });
 
     expect(response.statusCode).toBe(201);
     const body = JSON.parse(response.body);
-    expect(body.nome).toBe('Dr. João Silva');
-    expect(body.potencial).toBe('MEDIO');
-    expect(body.estagioPipeline).toBe('PROSPECTADO');
+    expect(body.nome).toBe("Dr. João Silva");
+    expect(body.potencial).toBe("MEDIO");
+    expect(body.estagioPipeline).toBe("PROSPECTADO");
   });
 
-  it('deve criar profissional com todos os campos', async () => {
+  it("deve criar profissional com todos os campos", async () => {
     const response = await app.inject({
-      method: 'POST',
-      url: '/profissionais',
+      method: "POST",
+      url: "/profissionais",
       headers: {
-        authorization: 'Bearer valid-test-token',
+        authorization: "Bearer valid-test-token",
       },
       payload: {
-        nome: 'Dra. Maria Santos',
-        crm: 'CRM/SP 123456',
-        email: 'maria.santos@email.com',
-        telefone: '(11) 99999-9999',
-        potencial: 'ALTO',
-        estagioPipeline: 'INTERESSADO',
+        nome: "Dra. Maria Santos",
+        crm: "CRM/SP 123456",
+        email: "maria.santos@email.com",
+        telefone: "(11) 99999-9999",
+        potencial: "ALTO",
+        estagioPipeline: "INTERESSADO",
         endereco: {
-          logradouro: 'Av. Paulista',
-          numero: '1000',
-          bairro: 'Bela Vista',
-          cidade: 'São Paulo',
-          estado: 'SP',
-          cep: '01310-100',
+          logradouro: "Av. Paulista",
+          numero: "1000",
+          bairro: "Bela Vista",
+          cidade: "São Paulo",
+          estado: "SP",
+          cep: "01310-100",
         },
         contatos: [
-          { tipo: 'TELEFONE', valor: '(11) 3333-3333' },
-          { tipo: 'WHATSAPP', valor: '(11) 99999-9999' },
+          { tipo: "TELEFONE", valor: "(11) 3333-3333" },
+          { tipo: "WHATSAPP", valor: "(11) 99999-9999" },
         ],
       },
     });
 
     expect(response.statusCode).toBe(201);
     const body = JSON.parse(response.body);
-    expect(body.nome).toBe('Dra. Maria Santos');
-    expect(body.crm).toBe('CRM/SP 123456');
-    expect(body.email).toBe('maria.santos@email.com');
-    expect(body.potencial).toBe('ALTO');
-    expect(body.estagioPipeline).toBe('INTERESSADO');
+    expect(body.nome).toBe("Dra. Maria Santos");
+    expect(body.crm).toBe("CRM/SP 123456");
+    expect(body.email).toBe("maria.santos@email.com");
+    expect(body.potencial).toBe("ALTO");
+    expect(body.estagioPipeline).toBe("INTERESSADO");
     expect(body.endereco).toBeDefined();
     expect(body.contatos).toHaveLength(2);
   });
 
-  it('deve retornar 400 para payload inválido', async () => {
+  it("deve retornar 400 para payload inválido", async () => {
     const response = await app.inject({
-      method: 'POST',
-      url: '/profissionais',
+      method: "POST",
+      url: "/profissionais",
       headers: {
-        authorization: 'Bearer valid-test-token',
+        authorization: "Bearer valid-test-token",
       },
       payload: {
         // nome é obrigatório
@@ -528,12 +544,12 @@ describe('POST /profissionais', () => {
     expect(response.statusCode).toBe(400);
   });
 
-  it('deve retornar 401 sem token', async () => {
+  it("deve retornar 401 sem token", async () => {
     const response = await app.inject({
-      method: 'POST',
-      url: '/profissionais',
+      method: "POST",
+      url: "/profissionais",
       payload: {
-        nome: 'Dr. Teste',
+        nome: "Dr. Teste",
       },
     });
 
@@ -546,19 +562,25 @@ describe('POST /profissionais', () => {
 
 ```typescript
 // apps/api/src/routes/profissionais/create.ts
-import type { FastifyInstance } from 'fastify';
-import { verifyClerkToken } from '../../hooks/auth';
-import { prisma } from '../../lib/prisma';
-import { CreateProfissionalSchema } from './schemas';
+import type { FastifyInstance } from "fastify";
+import { verifyClerkToken } from "../../hooks/auth";
+import { prisma } from "../../lib/prisma";
+import { CreateProfissionalSchema } from "./schemas";
 
 export async function createProfissionalRoutes(app: FastifyInstance) {
   app.post(
-    '/profissionais',
+    "/profissionais",
     {
       preHandler: [verifyClerkToken],
       schema: {
         body: CreateProfissionalSchema,
-        response: { 201: z.object({ /* response schema */ }).parse({}) },
+        response: {
+          201: z
+            .object({
+              /* response schema */
+            })
+            .parse({}),
+        },
       },
     },
     async (request, reply) => {
@@ -621,7 +643,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
       });
 
       return reply.code(201).send(profissionalCompleto);
-    }
+    },
   );
 }
 ```
@@ -631,6 +653,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 4: ROTAS - GET /profissionais (listagem com paginação e filtros)
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/list.test.ts`
 - Create: `apps/api/src/routes/profissionais/list.ts`
 
@@ -644,6 +667,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 5: ROTAS - GET /profissionais/:id
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/get.test.ts`
 - Create: `apps/api/src/routes/profissionais/get.ts`
 
@@ -656,6 +680,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 6: ROTAS - PUT /profissionais/:id
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/update.test.ts`
 - Create: `apps/api/src/routes/profissionais/update.ts`
 
@@ -668,6 +693,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 7: ROTAS - DELETE /profissionais/:id (soft delete)
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/delete.test.ts`
 - Create: `apps/api/src/routes/profissionais/delete.ts`
 
@@ -680,6 +706,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 8: ROTAS - PATCH /profissionais/:id/estagio
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/estagio.test.ts`
 - Create: `apps/api/src/routes/profissionais/estagio.ts`
 
@@ -693,6 +720,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 9: Registrar todas as rotas
 
 **Files:**
+
 - Create: `apps/api/src/routes/profissionais/index.ts`
 - Modify: `apps/api/src/routes/index.ts`
 
@@ -706,6 +734,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 10: Componentes de Badge
 
 **Files:**
+
 - Create: `apps/web/src/components/profissionais/PotencialBadge.tsx`
 - Create: `apps/web/src/components/profissionais/EstagioBadge.tsx`
 
@@ -720,6 +749,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 11: FiltrosProfissionais
 
 **Files:**
+
 - Create: `apps/web/src/components/profissionais/FiltrosProfissionais.tsx`
 
 - [ ] **Step 1: Componente com busca textual, select potencial, select estágio**
@@ -728,6 +758,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 12: ProfissionalSheet (FAB + Sheet lateral)
 
 **Files:**
+
 - Create: `apps/web/src/components/profissionais/ProfissionalSheet.tsx`
 
 - [ ] **Step 1: FAB fixo no canto inferior direito**
@@ -739,6 +770,7 @@ export async function createProfissionalRoutes(app: FastifyInstance) {
 ### Task 13: Página /dashboard/profissionais
 
 **Files:**
+
 - Create: `apps/web/src/app/(dashboard)/profissionais/page.tsx`
 
 - [ ] **Step 1: Integrar FiltrosProfissionais**

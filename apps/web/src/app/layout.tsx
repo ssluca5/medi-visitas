@@ -1,16 +1,17 @@
-import type { Metadata } from 'next'
-import { ClerkProvider } from '@clerk/nextjs'
-import './globals.css'
+import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'MediVisitas - CRM para Propagandistas Farmacêuticos',
-  description: 'Sistema de gestão de visitas médicas e relacionamento com profissionais de saúde',
-}
+  title: "MediVisitas - CRM para Propagandistas Farmacêuticos",
+  description:
+    "Sistema de gestão de visitas médicas e relacionamento com profissionais de saúde",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <ClerkProvider>
@@ -20,5 +21,5 @@ export default function RootLayout({
         </body>
       </html>
     </ClerkProvider>
-  )
+  );
 }

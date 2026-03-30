@@ -1,15 +1,15 @@
-import type { FastifyInstance } from 'fastify';
-import { verifyClerkToken } from '../../hooks/auth';
-import { prisma } from '../../lib/prisma';
-import { z } from 'zod';
+import type { FastifyInstance } from "fastify";
+import { verifyClerkToken } from "../../hooks/auth";
+import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 
 // ============================================
 // SCHEMAS
 // ============================================
 
 const CreateEspecialidadeSchema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  categoria: z.string().min(1, 'Categoria é obrigatória'),
+  nome: z.string().min(1, "Nome é obrigatório"),
+  categoria: z.string().min(1, "Categoria é obrigatória"),
 });
 
 const UpdateEspecialidadeSchema = z.object({
@@ -18,8 +18,8 @@ const UpdateEspecialidadeSchema = z.object({
 });
 
 const ListEspecialidadesQuerySchema = z.object({
-  ativo: z.enum(['true', 'false']).optional(),
-  incluirInativos: z.enum(['true', 'false']).optional(),
+  ativo: z.enum(["true", "false"]).optional(),
+  incluirInativos: z.enum(["true", "false"]).optional(),
   categoria: z.string().optional(),
 });
 
@@ -31,12 +31,14 @@ const ToggleAtivoSchema = z.object({
 // ROUTES
 // ============================================
 
-export default async function especialidadesRoutes(app: FastifyInstance): Promise<void> {
+export default async function especialidadesRoutes(
+  app: FastifyInstance,
+): Promise<void> {
   // ============================================
   // GET /especialidades - Listar especialidades
   // ============================================
   app.get(
-    '/especialidades',
+    "/especialidades",
     {
       preHandler: [verifyClerkToken],
     },
@@ -45,45 +47,54 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       const { ativo, categoria, incluirInativos } = query;
 
       const where: Record<string, unknown> = {};
-      
+
       // Filtro por ativo
       // Se ativo=true, retorna apenas ativas (deletedAt=null)
       // Se ativo=false, retorna apenas inativas (deletedAt != null)
       // Se incluirInativos=true, retorna todas
       if (ativo !== undefined) {
-        where.deletedAt = ativo === 'true' ? null : { not: null };
-      } else if (incluirInativos !== 'true') {
+        where.deletedAt = ativo === "true" ? null : { not: null };
+      } else if (incluirInativos !== "true") {
         // Por padrão, mostra apenas ativas (para backward compatibility)
         where.deletedAt = null;
       }
-      
+
       if (categoria) {
         where.categoria = categoria;
       }
 
       const especialidades = await prisma.especialidade.findMany({
         where,
-        orderBy: { nome: 'asc' },
+        orderBy: { nome: "asc" },
       });
 
       return reply.send({
-        data: especialidades.map((e: { id: string; nome: string; categoria: string; createdAt: Date; updatedAt: Date; deletedAt: Date | null }) => ({
-          id: e.id,
-          nome: e.nome,
-          categoria: e.categoria,
-          ativo: e.deletedAt === null,
-          createdAt: e.createdAt,
-          updatedAt: e.updatedAt,
-        })),
+        data: especialidades.map(
+          (e: {
+            id: string;
+            nome: string;
+            categoria: string;
+            createdAt: Date;
+            updatedAt: Date;
+            deletedAt: Date | null;
+          }) => ({
+            id: e.id,
+            nome: e.nome,
+            categoria: e.categoria,
+            ativo: e.deletedAt === null,
+            createdAt: e.createdAt,
+            updatedAt: e.updatedAt,
+          }),
+        ),
       });
-    }
+    },
   );
 
   // ============================================
   // GET /especialidades/:id - Buscar especialidade por ID
   // ============================================
   app.get(
-    '/especialidades/:id',
+    "/especialidades/:id",
     {
       preHandler: [verifyClerkToken],
     },
@@ -95,21 +106,21 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       });
 
       if (!especialidade) {
-        return reply.code(404).send({ error: 'Especialidade não encontrada' });
+        return reply.code(404).send({ error: "Especialidade não encontrada" });
       }
 
       return reply.send({
         ...especialidade,
         ativo: true,
       });
-    }
+    },
   );
 
   // ============================================
   // POST /especialidades - Criar especialidade
   // ============================================
   app.post(
-    '/especialidades',
+    "/especialidades",
     {
       preHandler: [verifyClerkToken],
     },
@@ -127,14 +138,14 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
         ...especialidade,
         ativo: true,
       });
-    }
+    },
   );
 
   // ============================================
   // PUT /especialidades/:id - Atualizar especialidade
   // ============================================
   app.put(
-    '/especialidades/:id',
+    "/especialidades/:id",
     {
       preHandler: [verifyClerkToken],
     },
@@ -148,7 +159,7 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       });
 
       if (!existente) {
-        return reply.code(404).send({ error: 'Especialidade não encontrada' });
+        return reply.code(404).send({ error: "Especialidade não encontrada" });
       }
 
       const especialidade = await prisma.especialidade.update({
@@ -163,14 +174,14 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
         ...especialidade,
         ativo: especialidade.deletedAt === null,
       });
-    }
+    },
   );
 
   // ============================================
   // PATCH /especialidades/:id/ativo - Ativar/Inativar especialidade
   // ============================================
   app.patch(
-    '/especialidades/:id/ativo',
+    "/especialidades/:id/ativo",
     {
       preHandler: [verifyClerkToken],
     },
@@ -184,7 +195,7 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       });
 
       if (!existente) {
-        return reply.code(404).send({ error: 'Especialidade não encontrada' });
+        return reply.code(404).send({ error: "Especialidade não encontrada" });
       }
 
       const especialidade = await prisma.especialidade.update({
@@ -198,14 +209,14 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
         ...especialidade,
         ativo: especialidade.deletedAt === null,
       });
-    }
+    },
   );
 
   // ============================================
   // DELETE /especialidades/:id - Excluir especialidade (soft delete)
   // ============================================
   app.delete(
-    '/especialidades/:id',
+    "/especialidades/:id",
     {
       preHandler: [verifyClerkToken],
     },
@@ -218,7 +229,7 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       });
 
       if (!existente) {
-        return reply.code(404).send({ error: 'Especialidade não encontrada' });
+        return reply.code(404).send({ error: "Especialidade não encontrada" });
       }
 
       // Verificar se tem profissionais vinculados
@@ -227,8 +238,8 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       });
 
       if (count > 0) {
-        return reply.code(400).send({ 
-          error: `Não é possível excluir. Esta especialidade está vinculada a ${count} profissional(is). Inative-a ao invés de excluí-la.` 
+        return reply.code(400).send({
+          error: `Não é possível excluir. Esta especialidade está vinculada a ${count} profissional(is). Inative-a ao invés de excluí-la.`,
         });
       }
 
@@ -239,14 +250,14 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       });
 
       return reply.code(204).send();
-    }
+    },
   );
 
   // ============================================
   // GET /especialidades/categorias - Listar categorias distintas
   // ============================================
   app.get(
-    '/especialidades/categorias',
+    "/especialidades/categorias",
     {
       preHandler: [verifyClerkToken],
     },
@@ -254,13 +265,13 @@ export default async function especialidadesRoutes(app: FastifyInstance): Promis
       const categorias = await prisma.especialidade.findMany({
         where: { deletedAt: null },
         select: { categoria: true },
-        distinct: ['categoria'],
-        orderBy: { categoria: 'asc' },
+        distinct: ["categoria"],
+        orderBy: { categoria: "asc" },
       });
 
       return reply.send({
         data: categorias.map((c: { categoria: string }) => c.categoria),
       });
-    }
+    },
   );
 }

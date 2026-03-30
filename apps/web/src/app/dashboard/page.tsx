@@ -1,32 +1,44 @@
-'use client'
+"use client";
 
-import { useUser, useClerk } from '@clerk/nextjs'
-import { Plus, Users, Calendar, FileText, BarChart3, LogOut, Stethoscope } from 'lucide-react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useUser, useClerk } from "@clerk/nextjs";
+import {
+  Plus,
+  Users,
+  Calendar,
+  FileText,
+  BarChart3,
+  LogOut,
+  Stethoscope,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navItems = [
-  { href: '/dashboard/profissionais', label: 'Profissionais', icon: Users },
-  { href: '/dashboard/agenda', label: 'Agenda', icon: Calendar },
-  { href: '/dashboard/visitas', label: 'Visitas', icon: FileText },
-  { href: '/dashboard/pipeline', label: 'Pipeline', icon: BarChart3 },
-]
+  { href: "/dashboard/profissionais", label: "Profissionais", icon: Users },
+  { href: "/dashboard/agenda", label: "Agenda", icon: Calendar },
+  { href: "/dashboard/visitas", label: "Visitas", icon: FileText },
+  { href: "/dashboard/pipeline", label: "Pipeline", icon: BarChart3 },
+];
 
 const cadAuxItems = [
-  { href: '/dashboard/especialidades', label: 'Especialidades', icon: Stethoscope },
-]
+  {
+    href: "/dashboard/especialidades",
+    label: "Especialidades",
+    icon: Stethoscope,
+  },
+];
 
 export default function DashboardPage() {
-  const { user, isLoaded } = useUser()
-  const { signOut } = useClerk()
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
 
   if (!isLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-muted-foreground">Carregando...</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -34,18 +46,21 @@ export default function DashboardPage() {
       {/* Sidebar - Desktop */}
       <aside
         className="hidden w-64 flex-col border-r p-4 lg:flex"
-        style={{ backgroundColor: 'rgb(var(--color-surface-2))', borderColor: 'rgb(var(--color-border))' }}
+        style={{
+          backgroundColor: "rgb(var(--color-surface-2))",
+          borderColor: "rgb(var(--color-border))",
+        }}
       >
         <div className="mb-8">
           <h1
             className="text-xl font-bold"
-            style={{ color: 'rgb(var(--color-text))' }}
+            style={{ color: "rgb(var(--color-text))" }}
           >
             MediVisitas
           </h1>
           <p
             className="text-sm"
-            style={{ color: 'rgb(var(--color-text-muted))' }}
+            style={{ color: "rgb(var(--color-text-muted))" }}
           >
             CRM para Propagandistas
           </p>
@@ -57,7 +72,7 @@ export default function DashboardPage() {
               key={item.href}
               href={item.href}
               className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
-              style={{ color: 'rgb(var(--color-text))' }}
+              style={{ color: "rgb(var(--color-text))" }}
             >
               <item.icon className="h-5 w-5" />
               <span>{item.label}</span>
@@ -66,7 +81,10 @@ export default function DashboardPage() {
 
           {/* Divisão Cadastros Auxiliares */}
           <div className="pt-4">
-            <div className="mb-2 px-3 text-xs font-medium uppercase" style={{ color: 'rgb(var(--color-text-muted))' }}>
+            <div
+              className="mb-2 px-3 text-xs font-medium uppercase"
+              style={{ color: "rgb(var(--color-text-muted))" }}
+            >
               Cadastros Auxiliares
             </div>
             {cadAuxItems.map((item) => (
@@ -74,7 +92,7 @@ export default function DashboardPage() {
                 key={item.href}
                 href={item.href}
                 className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
-                style={{ color: 'rgb(var(--color-text))' }}
+                style={{ color: "rgb(var(--color-text))" }}
               >
                 <item.icon className="h-5 w-5" />
                 <span>{item.label}</span>
@@ -86,14 +104,14 @@ export default function DashboardPage() {
         <div className="pt-4">
           <div
             className="mb-4 text-sm"
-            style={{ color: 'rgb(var(--color-text-muted))' }}
+            style={{ color: "rgb(var(--color-text-muted))" }}
           >
             {user?.fullName || user?.emailAddresses?.[0]?.emailAddress}
           </div>
           <Button
             variant="ghost"
             className="w-full justify-start gap-3"
-            onClick={() => signOut({ redirectUrl: '/login' })}
+            onClick={() => signOut({ redirectUrl: "/login" })}
           >
             <LogOut className="h-5 w-5" />
             Sair
@@ -107,13 +125,13 @@ export default function DashboardPage() {
           <div>
             <h2
               className="text-2xl font-bold"
-              style={{ color: 'rgb(var(--color-text))' }}
+              style={{ color: "rgb(var(--color-text))" }}
             >
               Dashboard
             </h2>
             <p
               className="text-sm"
-              style={{ color: 'rgb(var(--color-text-muted))' }}
+              style={{ color: "rgb(var(--color-text-muted))" }}
             >
               Bem-vindo ao MediVisitas
             </p>
@@ -122,11 +140,14 @@ export default function DashboardPage() {
 
         <div
           className="rounded-lg p-8 text-center"
-          style={{ backgroundColor: 'rgb(var(--color-surface-2))', border: '1px solid rgb(var(--color-border))' }}
+          style={{
+            backgroundColor: "rgb(var(--color-surface-2))",
+            border: "1px solid rgb(var(--color-border))",
+          }}
         >
           <p
             className="text-lg"
-            style={{ color: 'rgb(var(--color-text-muted))' }}
+            style={{ color: "rgb(var(--color-text-muted))" }}
           >
             Use o menu lateral para navegar entre as seções
           </p>
@@ -137,19 +158,22 @@ export default function DashboardPage() {
           <SheetTrigger asChild>
             <Button
               className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full shadow-lg lg:hidden"
-              style={{ backgroundColor: 'rgb(var(--accent))', borderRadius: '50%' }}
+              style={{
+                backgroundColor: "rgb(var(--accent))",
+                borderRadius: "50%",
+              }}
             >
               <Plus className="h-6 w-6 text-white" />
             </Button>
           </SheetTrigger>
           <SheetContent
             side="right"
-            style={{ backgroundColor: 'rgb(var(--color-surface))' }}
+            style={{ backgroundColor: "rgb(var(--color-surface))" }}
           >
             <div className="space-y-4 pt-4">
               <p
                 className="text-sm font-medium"
-                style={{ color: 'rgb(var(--color-text))' }}
+                style={{ color: "rgb(var(--color-text))" }}
               >
                 Menu Rápido
               </p>
@@ -158,7 +182,7 @@ export default function DashboardPage() {
                   key={item.href}
                   href={item.href}
                   className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-black/5"
-                  style={{ color: 'rgb(var(--color-text))' }}
+                  style={{ color: "rgb(var(--color-text))" }}
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
@@ -169,5 +193,5 @@ export default function DashboardPage() {
         </Sheet>
       </main>
     </div>
-  )
+  );
 }

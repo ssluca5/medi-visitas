@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Plus, ChevronDown, Check } from 'lucide-react';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { Plus, ChevronDown, Check } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 interface Especialidade {
   id: string;
@@ -27,35 +27,46 @@ interface EspecialidadeSheetProps {
 }
 
 const emptyFormData: EspecialidadeFormData = {
-  nome: '',
-  categoria: '',
+  nome: "",
+  categoria: "",
 };
 
 // Função para formatar categoria: primeira letra maiúscula, resto minúsculo
 const formatarCategoria = (categoria: string): string => {
-  if (!categoria) return '';
+  if (!categoria) return "";
   const lower = categoria.toLowerCase();
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 };
 
-export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, categoriasExistentes: categoriasFromProps = [] }: EspecialidadeSheetProps) {
-  const [formData, setFormData] = useState<EspecialidadeFormData>(emptyFormData);
+export function EspecialidadeSheet({
+  open,
+  onOpenChange,
+  especialidade,
+  onSave,
+  categoriasExistentes: categoriasFromProps = [],
+}: EspecialidadeSheetProps) {
+  const [formData, setFormData] =
+    useState<EspecialidadeFormData>(emptyFormData);
   const [saving, setSaving] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
-  const [categoriasExistentes, setCategoriasExistentes] = useState<string[]>([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [categoriasExistentes, setCategoriasExistentes] = useState<string[]>(
+    [],
+  );
 
   // Atualiza categorias quando recebidas do props e ordena alfabeticamente
   useEffect(() => {
     if (categoriasFromProps.length > 0) {
       const categoriasFormatadas = categoriasFromProps.map(formatarCategoria);
-      setCategoriasExistentes(prev => {
+      setCategoriasExistentes((prev) => {
         // Mescla as categorias existentes com as novas, removendo duplicatas
         const todas = [...prev, ...categoriasFormatadas];
         const unicas = [...new Set(todas)];
         // Ordena alfabeticamente
-        return unicas.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+        return unicas.sort((a, b) =>
+          a.toLowerCase().localeCompare(b.toLowerCase()),
+        );
       });
     }
   }, [categoriasFromProps]);
@@ -68,15 +79,23 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
         categoria: formatarCategoria(especialidade.categoria),
       });
       // Adiciona a categoria da especialidade editada às existentes se não existir
-      if (especialidade.categoria && !categoriasExistentes.includes(formatarCategoria(especialidade.categoria))) {
-        setCategoriasExistentes(prev => [...prev, formatarCategoria(especialidade.categoria)]);
+      if (
+        especialidade.categoria &&
+        !categoriasExistentes.includes(
+          formatarCategoria(especialidade.categoria),
+        )
+      ) {
+        setCategoriasExistentes((prev) => [
+          ...prev,
+          formatarCategoria(especialidade.categoria),
+        ]);
       }
     } else {
       setFormData(emptyFormData);
     }
     setShowDropdown(false);
     setShowNewCategoryInput(false);
-    setNewCategory('');
+    setNewCategory("");
   }, [especialidade, open]);
 
   const handleSelectCategoria = (categoria: string) => {
@@ -90,11 +109,11 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
       const categoriaFormatada = formatarCategoria(newCategory.trim());
       // Adiciona a nova categoria à lista de existentes
       if (!categoriasExistentes.includes(categoriaFormatada)) {
-        setCategoriasExistentes(prev => [...prev, categoriaFormatada]);
+        setCategoriasExistentes((prev) => [...prev, categoriaFormatada]);
       }
       setFormData({ ...formData, categoria: categoriaFormatada });
       setShowNewCategoryInput(false);
-      setNewCategory('');
+      setNewCategory("");
     }
   };
 
@@ -114,8 +133,8 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
       <SheetContent
         side="right"
         style={{
-          backgroundColor: 'rgb(var(--color-surface))',
-          width: 'min(640px, 100vw)',
+          backgroundColor: "rgb(var(--color-surface))",
+          width: "min(640px, 100vw)",
         }}
         className="overflow-y-auto"
       >
@@ -124,9 +143,11 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
           <div className="mb-6">
             <h2
               className="text-lg font-semibold"
-              style={{ color: 'rgb(var(--color-text))' }}
+              style={{ color: "rgb(var(--color-text))" }}
             >
-              {especialidade?.id ? 'Editar Especialidade' : 'Nova Especialidade'}
+              {especialidade?.id
+                ? "Editar Especialidade"
+                : "Nova Especialidade"}
             </h2>
           </div>
 
@@ -140,7 +161,9 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
                 type="text"
                 required
                 value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, nome: e.target.value })
+                }
                 className="w-full rounded-md border border-slate-200 py-2 px-3 text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-900"
                 placeholder="Ex: Cardiologia"
               />
@@ -150,7 +173,7 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
               <label className="mb-1 block text-sm font-normal text-slate-600">
                 Categoria *
               </label>
-              
+
               {/* Select customizado */}
               <div className="relative">
                 <button
@@ -158,8 +181,12 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="w-full rounded-md border border-slate-200 py-2 px-3 text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-left flex items-center justify-between cursor-pointer"
                 >
-                  <span className={formData.categoria ? 'text-slate-900' : 'text-slate-400'}>
-                    {formData.categoria || 'Selecione uma categoria'}
+                  <span
+                    className={
+                      formData.categoria ? "text-slate-900" : "text-slate-400"
+                    }
+                  >
+                    {formData.categoria || "Selecione uma categoria"}
                   </span>
                   <ChevronDown className="w-4 h-4 text-slate-400" />
                 </button>
@@ -175,12 +202,14 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
                         className="w-full px-3 py-2 text-sm text-left hover:bg-slate-50 flex items-center justify-between cursor-pointer text-slate-700"
                       >
                         {categoria}
-                        {formData.categoria && formData.categoria.toLowerCase() === categoria.toLowerCase() && (
-                          <Check className="w-4 h-4 text-blue-600" />
-                        )}
+                        {formData.categoria &&
+                          formData.categoria.toLowerCase() ===
+                            categoria.toLowerCase() && (
+                            <Check className="w-4 h-4 text-blue-600" />
+                          )}
                       </button>
                     ))}
-                    
+
                     {/* Opção de adicionar nova categoria */}
                     {!showNewCategoryInput && (
                       <button
@@ -204,7 +233,7 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
                           className="w-full rounded-md border border-slate-200 py-2 px-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-slate-900 mb-2"
                           autoFocus
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
+                            if (e.key === "Enter") {
                               e.preventDefault();
                               handleAddNewCategory();
                             }
@@ -225,7 +254,7 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
                             variant="outline"
                             onClick={() => {
                               setShowNewCategoryInput(false);
-                              setNewCategory('');
+                              setNewCategory("");
                             }}
                           >
                             Cancelar
@@ -242,14 +271,19 @@ export function EspecialidadeSheet({ open, onOpenChange, especialidade, onSave, 
           {/* Footer */}
           <div
             className="absolute bottom-0 left-0 right-0 border-t p-4"
-            style={{ backgroundColor: 'rgb(var(--color-surface))', borderColor: 'rgb(var(--color-border))' }}
+            style={{
+              backgroundColor: "rgb(var(--color-surface))",
+              borderColor: "rgb(var(--color-border))",
+            }}
           >
             <Button
               type="submit"
-              disabled={saving || !formData.nome.trim() || !formData.categoria.trim()}
+              disabled={
+                saving || !formData.nome.trim() || !formData.categoria.trim()
+              }
               className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
             >
-              {saving ? 'Salvando...' : 'Salvar'}
+              {saving ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </form>

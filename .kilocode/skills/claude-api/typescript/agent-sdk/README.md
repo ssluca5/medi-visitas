@@ -29,17 +29,17 @@ for await (const message of query({
 
 ## Built-in Tools
 
-| Tool      | Description                          |
-| --------- | ------------------------------------ |
-| Read      | Read files in the workspace          |
-| Write     | Create new files                     |
-| Edit      | Make precise edits to existing files |
-| Bash      | Execute shell commands               |
-| Glob      | Find files by pattern                |
-| Grep      | Search files by content              |
-| WebSearch | Search the web for information       |
+| Tool            | Description                          |
+| --------------- | ------------------------------------ |
+| Read            | Read files in the workspace          |
+| Write           | Create new files                     |
+| Edit            | Make precise edits to existing files |
+| Bash            | Execute shell commands               |
+| Glob            | Find files by pattern                |
+| Grep            | Search files by content              |
+| WebSearch       | Search the web for information       |
 | WebFetch        | Fetch and analyze web pages          |
-| AskUserQuestion | Ask user clarifying questions         |
+| AskUserQuestion | Ask user clarifying questions        |
 | Agent           | Spawn subagents                      |
 
 ---
@@ -88,12 +88,21 @@ for await (const message of query({
 You can define custom tools that run in-process using `tool()` and `createSdkMcpServer`:
 
 ```typescript
-import { query, tool, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
+import {
+  query,
+  tool,
+  createSdkMcpServer,
+} from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 
-const myTool = tool("my-tool", "Description", { input: z.string() }, async (args) => {
-  return { content: [{ type: "text", text: "result" }] };
-});
+const myTool = tool(
+  "my-tool",
+  "Description",
+  { input: z.string() },
+  async (args) => {
+    return { content: [{ type: "text", text: "result" }] };
+  },
+);
 
 const server = createSdkMcpServer({ name: "my-server", tools: [myTool] });
 
@@ -151,27 +160,27 @@ Available hook events: `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `Notif
 query({ prompt: "...", options: { ... } })
 ```
 
-| Option                              | Type   | Description                                                                |
-| ----------------------------------- | ------ | -------------------------------------------------------------------------- |
-| `cwd`                               | string | Working directory for file operations                                      |
-| `allowedTools`                      | array  | Tools the agent can use (e.g., `["Read", "Edit", "Bash"]`)                |
-| `tools`                             | array \| preset | Built-in tools to make available (`string[]` or `{type:'preset', preset:'claude_code'}`) |
-| `disallowedTools`                   | array  | Tools to explicitly disallow                                               |
-| `permissionMode`                    | string | How to handle permission prompts                                           |
-| `allowDangerouslySkipPermissions`   | bool   | Must be `true` to use `permissionMode: "bypassPermissions"`                |
-| `mcpServers`                        | object | MCP servers to connect to                                                  |
-| `hooks`                             | object | Hooks for customizing behavior                                             |
-| `systemPrompt`                      | string \| preset | Custom system prompt (`string` or `{type:'preset', preset:'claude_code', append?:string}`) |
-| `maxTurns`                          | number | Maximum agent turns before stopping                                        |
-| `maxBudgetUsd`                      | number | Maximum budget in USD for the query                                        |
-| `model`                             | string | Model ID (default: determined by CLI)                                      |
-| `agents`                            | object | Subagent definitions (`Record<string, AgentDefinition>`)                   |
-| `outputFormat`                      | object | Structured output schema                                                   |
-| `thinking`                          | object | Thinking/reasoning control                                                 |
-| `betas`                             | array  | Beta features to enable (e.g., `["context-1m-2025-08-07"]`)               |
-| `settingSources`                    | array  | Settings to load (e.g., `["project"]`). Default: none (no CLAUDE.md files) |
-| `env`                               | object | Environment variables to set for the session                               |
-| `agentProgressSummaries`            | bool   | Enable periodic AI-generated progress summaries on `task_progress` events  |
+| Option                            | Type             | Description                                                                                |
+| --------------------------------- | ---------------- | ------------------------------------------------------------------------------------------ |
+| `cwd`                             | string           | Working directory for file operations                                                      |
+| `allowedTools`                    | array            | Tools the agent can use (e.g., `["Read", "Edit", "Bash"]`)                                 |
+| `tools`                           | array \| preset  | Built-in tools to make available (`string[]` or `{type:'preset', preset:'claude_code'}`)   |
+| `disallowedTools`                 | array            | Tools to explicitly disallow                                                               |
+| `permissionMode`                  | string           | How to handle permission prompts                                                           |
+| `allowDangerouslySkipPermissions` | bool             | Must be `true` to use `permissionMode: "bypassPermissions"`                                |
+| `mcpServers`                      | object           | MCP servers to connect to                                                                  |
+| `hooks`                           | object           | Hooks for customizing behavior                                                             |
+| `systemPrompt`                    | string \| preset | Custom system prompt (`string` or `{type:'preset', preset:'claude_code', append?:string}`) |
+| `maxTurns`                        | number           | Maximum agent turns before stopping                                                        |
+| `maxBudgetUsd`                    | number           | Maximum budget in USD for the query                                                        |
+| `model`                           | string           | Model ID (default: determined by CLI)                                                      |
+| `agents`                          | object           | Subagent definitions (`Record<string, AgentDefinition>`)                                   |
+| `outputFormat`                    | object           | Structured output schema                                                                   |
+| `thinking`                        | object           | Thinking/reasoning control                                                                 |
+| `betas`                           | array            | Beta features to enable (e.g., `["context-1m-2025-08-07"]`)                                |
+| `settingSources`                  | array            | Settings to load (e.g., `["project"]`). Default: none (no CLAUDE.md files)                 |
+| `env`                             | object           | Environment variables to set for the session                                               |
+| `agentProgressSummaries`          | bool             | Enable periodic AI-generated progress summaries on `task_progress` events                  |
 
 ---
 
@@ -214,6 +223,7 @@ for await (const message of query({
 ```
 
 Task-related system messages are also emitted for subagent operations:
+
 - `task_started` — emitted when a subagent task is registered
 - `task_progress` — real-time progress updates with cumulative usage metrics, tool counts, and duration (enable `agentProgressSummaries` option for periodic AI-generated summaries via the `summary` field)
 - `task_notification` — task completion notifications (includes `tool_use_id` for correlating with originating tool calls)
@@ -225,7 +235,11 @@ Task-related system messages are also emitted for subagent operations:
 Retrieve past session data:
 
 ```typescript
-import { listSessions, getSessionMessages, getSessionInfo } from "@anthropic-ai/claude-agent-sdk";
+import {
+  listSessions,
+  getSessionMessages,
+  getSessionInfo,
+} from "@anthropic-ai/claude-agent-sdk";
 
 // List all past sessions (supports pagination via limit/offset)
 const sessions = await listSessions({ limit: 20, offset: 0 });
@@ -250,7 +264,11 @@ for (const msg of messages) {
 Rename, tag, or fork sessions:
 
 ```typescript
-import { renameSession, tagSession, forkSession } from "@anthropic-ai/claude-agent-sdk";
+import {
+  renameSession,
+  tagSession,
+  forkSession,
+} from "@anthropic-ai/claude-agent-sdk";
 
 // Rename a session
 await renameSession(sessionId, "My refactoring session");
@@ -276,7 +294,7 @@ Manage MCP servers at runtime on a running query:
 await queryHandle.reconnectMcpServer("my-server");
 
 // Toggle an MCP server on/off
-await queryHandle.toggleMcpServer("my-server", false);  // (name, enabled) — both required
+await queryHandle.toggleMcpServer("my-server", false); // (name, enabled) — both required
 
 // Get status of ALL configured MCP servers — returns an ARRAY
 const statuses: McpServerStatus[] = await queryHandle.mcpServerStatus();

@@ -22,7 +22,7 @@
   --radius: 8px;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --color-surface: 15 23 42;
   --color-surface-2: 30 41 59;
   --color-border: 51 65 85;
