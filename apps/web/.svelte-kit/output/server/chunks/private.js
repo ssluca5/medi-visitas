@@ -1,0 +1,4 @@
+const CLERK_SECRET_KEY = "sk_test_F2K84WCw3EptWZWMFnIKIn9aMOq7QsUo1m4YdSxkFP";
+export {
+  CLERK_SECRET_KEY as C
+};

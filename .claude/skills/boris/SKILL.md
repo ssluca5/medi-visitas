@@ -27,6 +27,7 @@ user-invocable: true
 **72 tips** across 60 topics, sourced from Boris Cherny (creator of Claude Code) and the Claude Code team at Anthropic. All tips are contained in this file — do not fetch from the website. Remember: everyone's setup is different. Experiment to see what works for you!
 
 **Parts:** The tips were shared across 9 threads:
+
 - **Part 1** (Jan 2, 2026, 13 tips): Sections 1–14 — parallel execution, web/mobile, Opus, CLAUDE.md, @.claude, plan mode, slash commands, subagents, hooks, permissions, MCP, long-running tasks, verification
 - **Part 2** (Jan 31, 2026, 10 tips): Sections 1, 3, 4, 5, 12, 10, 11, 6, 9, 15 — deeper dives on parallel work, plan mode, CLAUDE.md, skills, bug fixing, prompting, terminal setup, subagents, data/analytics, learning
 - **Part 3** (Feb 11, 2026, 12 tips): Sections 16–27 — terminal config, effort level, plugins, custom agents, permissions management, sandboxing, status line, keybindings, hooks (advanced), spinner verbs, output styles, customize everything
@@ -42,6 +43,7 @@ user-invocable: true
 ## 1. Parallel Execution
 
 ### Run Multiple Claude Sessions in Parallel
+
 The single biggest productivity unlock. Spin up 3-5 git worktrees at once, each running its own Claude session.
 
 ```bash
@@ -55,13 +57,16 @@ cd .claude/worktrees/my-worktree && claude
 **Why worktrees over checkouts:** The Claude Code team prefers worktrees - it's why native support was built into the Claude Desktop app.
 
 **Pro tips:**
+
 - Name your worktrees and set up shell aliases (za, zb, zc) to hop between them in one keystroke
 - Have a dedicated "analysis" worktree just for reading logs and running BigQuery
 - Use iTerm2/terminal notifications to know when any Claude needs attention
 - Color-code and name your terminal tabs, one per task/worktree
 
 ### Web and Mobile Sessions
+
 Beyond the terminal, run additional sessions on claude.ai/code. Use:
+
 - `&` command to background a session
 - `--teleport` flag to switch contexts between local and web
 - Claude iOS app to start sessions on the go, pick them up on desktop later
@@ -71,6 +76,7 @@ Beyond the terminal, run additional sessions on claude.ai/code. Use:
 ## 2. Model Selection
 
 ### Use Opus 4.5 with Thinking for Everything
+
 Boris's reasoning: "It's the best coding model I've ever used, and even though it's bigger & slower than Sonnet, since you have to steer it less and it's better at tool use, it is almost always faster than using a smaller model in the end."
 
 **The math:** Less steering + better tool use = faster overall results, even with a larger model.
@@ -80,11 +86,13 @@ Boris's reasoning: "It's the best coding model I've ever used, and even though i
 ## 3. Plan Mode
 
 ### Start Every Complex Task in Plan Mode
+
 Press `shift+tab` to cycle to plan mode. Pour your energy into the plan so Claude can 1-shot the implementation.
 
 **Workflow:** Plan mode -> Refine plan -> Auto-accept edits -> Claude 1-shots it
 
 **Team patterns:**
+
 - One person has one Claude write the plan, then spins up a second Claude to review it as a staff engineer
 - The moment something goes sideways, switch back to plan mode and re-plan
 - Explicitly tell Claude to enter plan mode for verification steps, not just for the build
@@ -96,6 +104,7 @@ Press `shift+tab` to cycle to plan mode. Pour your energy into the plan so Claud
 ## 4. CLAUDE.md Best Practices
 
 ### Invest in Your CLAUDE.md
+
 Share a single CLAUDE.md file for your repo, checked into git. The whole team should contribute.
 
 **Key practice:** "Anytime we see Claude do something incorrectly we add it to the CLAUDE.md, so Claude knows not to do it next time."
@@ -105,9 +114,11 @@ Share a single CLAUDE.md file for your repo, checked into git. The whole team sh
 **Advanced:** One engineer tells Claude to maintain a notes directory for every task/project, updated after every PR. They then point CLAUDE.md at it.
 
 ### @.claude in Code Reviews
+
 Tag @.claude on PRs to add learnings to the CLAUDE.md as part of the PR itself. Use the Claude Code GitHub Action (`/install-github-action`) for this.
 
 Example PR comment:
+
 ```
 nit: use a string literal, not ts enum
 
@@ -122,15 +133,18 @@ This is "Compounding Engineering" - Claude automatically updates the CLAUDE.md w
 ## 5. Skills & Slash Commands
 
 ### Create Your Own Skills
+
 Create skills and commit them to git. Reuse across every project.
 
 **Team tips:**
+
 - If you do something more than once a day, turn it into a skill or command
 - Build a `/techdebt` slash command and run it at the end of every session to find and kill duplicated code
 - Set up a slash command that syncs 7 days of Slack, GDrive, Asana, and GitHub into one context dump
 - Build analytics-engineer-style agents that write dbt models, review code, and test changes in dev
 
 ### Slash Commands for Inner Loops
+
 Use slash commands for workflows you do many times a day. Commands are checked into git under `.claude/commands/` and shared with the team.
 
 ```
@@ -144,6 +158,7 @@ Use slash commands for workflows you do many times a day. Commands are checked i
 ## 6. Subagents
 
 ### Use Subagents for Common Workflows
+
 Think of subagents as automations for the most common PR workflows:
 
 ```
@@ -157,10 +172,12 @@ Think of subagents as automations for the most common PR workflows:
 ```
 
 **Examples:**
+
 - `code-simplifier` - Cleans up code after Claude finishes
 - `verify-app` - Detailed instructions for end-to-end testing
 
 ### Leveraging Subagents
+
 - Append "use subagents" to any request where you want Claude to throw more compute at the problem
 - Offload individual tasks to subagents to keep your main agent's context window clean and focused
 - Route permission requests to Opus 4.5 via a hook - let it scan for attacks and auto-approve the safe ones
@@ -170,6 +187,7 @@ Think of subagents as automations for the most common PR workflows:
 ## 7. Hooks
 
 ### PostToolUse Hooks for Formatting
+
 Use a PostToolUse hook to auto-format Claude's code. While Claude generates well-formatted code 90% of the time, the hook catches edge cases to prevent CI failures.
 
 ```json
@@ -187,6 +205,7 @@ Use a PostToolUse hook to auto-format Claude's code. While Claude generates well
 ```
 
 ### Stop Hooks for Long-Running Tasks
+
 For very long-running tasks, use an agent Stop hook for deterministic checks, ensuring Claude can work uninterrupted.
 
 ---
@@ -194,6 +213,7 @@ For very long-running tasks, use an agent Stop hook for deterministic checks, en
 ## 8. Permissions
 
 ### Pre-Allow Safe Permissions
+
 Instead of `--dangerously-skip-permissions`, use `/permissions` to pre-allow common safe commands. Most are shared in `.claude/settings.json`.
 
 For sandboxed environments, use `--permission-mode=dontAsk` or `--dangerously-skip-permissions` to avoid blocks.
@@ -203,7 +223,9 @@ For sandboxed environments, use `--permission-mode=dontAsk` or `--dangerously-sk
 ## 9. MCP Integrations
 
 ### Tool Integrations
+
 Claude Code uses your tools autonomously:
+
 - Searches and posts to **Slack** (via MCP server)
 - Runs **BigQuery** queries with bq CLI
 - Grabs error logs from **Sentry**
@@ -220,6 +242,7 @@ Claude Code uses your tools autonomously:
 ```
 
 ### Data & Analytics
+
 Ask Claude Code to use the "bq" CLI to pull and analyze metrics on the fly. Have a BigQuery skill checked into the codebase.
 
 Boris's take: "Personally, I haven't written a line of SQL in 6+ months."
@@ -231,13 +254,16 @@ This works for any database that has a CLI, MCP, or API.
 ## 10. Prompting Tips
 
 ### Challenge Claude
+
 - Say "Grill me on these changes and don't make a PR until I pass your test."
 - Say "Prove to me this works" and have Claude diff behavior between main and your feature branch
 
 ### After a Mediocre Fix
+
 Say: "Knowing everything you know now, scrap this and implement the elegant solution."
 
 ### Write Detailed Specs
+
 Reduce ambiguity before handing work off. The more specific you are, the better the output.
 
 **Key insight:** Don't accept the first solution. Push Claude to do better - it usually can.
@@ -247,10 +273,12 @@ Reduce ambiguity before handing work off. The more specific you are, the better 
 ## 11. Terminal Setup
 
 ### Recommended Tools
+
 - **Ghostty** terminal - synchronized rendering, 24-bit color, proper unicode support
 - Use `/statusline` to customize your status bar to always show context usage and current git branch
 
 ### Voice Dictation
+
 Use voice dictation! You speak 3x faster than you type, and your prompts get way more detailed as a result. Hit `fn x2` on macOS.
 
 ---
@@ -258,6 +286,7 @@ Use voice dictation! You speak 3x faster than you type, and your prompts get way
 ## 12. Bug Fixing
 
 ### Let Claude Fix Bugs
+
 Enable the Slack MCP, then paste a Slack bug thread into Claude and just say "fix." Zero context switching required.
 
 Or just say "Go fix the failing CI tests." Don't micromanage how.
@@ -269,9 +298,11 @@ Or just say "Go fix the failing CI tests." Don't micromanage how.
 ## 13. Long-Running Tasks
 
 ### Handle Long-Running Tasks
+
 For very long-running tasks, ensure Claude can work uninterrupted:
 
 **Options:**
+
 - **(a)** Prompt Claude to verify with a background agent when done
 - **(b)** Use an agent Stop hook for deterministic checks
 - **(c)** Use the "ralph-wiggum" plugin (community idea by @GeoffreyHuntley)
@@ -283,9 +314,11 @@ For sandboxed environments, use `--permission-mode=dontAsk` or `--dangerously-sk
 ## 14. Verification (The #1 Tip)
 
 ### Give Claude a Way to Verify Its Work
+
 "Probably the most important thing to get great results out of Claude Code - give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality of the final result."
 
 **Verification varies by domain:**
+
 - Bash commands
 - Test suites
 - Simulators
@@ -298,7 +331,8 @@ The key is giving Claude a way to close the feedback loop. Invest in domain-spec
 ## 15. Learning with Claude
 
 ### Use Claude for Learning
-- Enable "Explanatory" or "Learning" output style in /config to have Claude explain the *why* behind changes
+
+- Enable "Explanatory" or "Learning" output style in /config to have Claude explain the _why_ behind changes
 - Have Claude generate visual HTML presentations explaining unfamiliar code
 - Ask Claude to draw ASCII diagrams of new protocols and codebases
 - Build a spaced-repetition learning skill: explain your understanding, Claude asks follow-ups to fill gaps
@@ -310,6 +344,7 @@ The key is giving Claude a way to close the feedback loop. Invest in domain-spec
 ## 16. Terminal Configuration
 
 ### Configure Your Terminal
+
 A few quick settings to make Claude Code feel right:
 
 - **Theme:** Run `/config` to set light/dark mode
@@ -322,6 +357,7 @@ A few quick settings to make Claude Code feel right:
 ## 17. Effort Level
 
 ### Adjust Effort Level
+
 Run `/model` to pick your preferred effort level:
 
 - **Low** — less tokens & faster responses
@@ -335,6 +371,7 @@ Boris uses High for everything.
 ## 18. Plugins
 
 ### Install Plugins, MCPs, and Skills
+
 Plugins let you install LSPs (now available for every major language), MCPs, skills, agents, and custom hooks.
 
 Install a plugin from the official Anthropic plugin marketplace, or create your own marketplace for your company. Then, check the `settings.json` into your codebase to auto-add the marketplaces for your team.
@@ -346,6 +383,7 @@ Run `/plugin` to get started.
 ## 19. Custom Agents
 
 ### Create Custom Agents
+
 Drop `.md` files in `.claude/agents`. Each agent can have a custom name, color, tool set, pre-allowed and pre-disallowed tools, permission mode, and model.
 
 **Little-known feature:** Set the default agent used for the main conversation. Just set the `"agent"` field in your `settings.json` or use the `--agent` flag.
@@ -357,6 +395,7 @@ Run `/agents` to get started.
 ## 20. Permissions Management
 
 ### Pre-Approve Common Permissions
+
 Claude Code uses a sophisticated permission system with prompt injection detection, static analysis, sandboxing, and human oversight.
 
 Out of the box, we pre-approve a small set of safe commands. To pre-approve more, run `/permissions` and add to the allow and block lists. Check these into your team's `settings.json`.
@@ -368,11 +407,13 @@ Out of the box, we pre-approve a small set of safe commands. To pre-approve more
 ## 21. Sandboxing
 
 ### Enable Sandboxing
+
 Opt into Claude Code's open source sandbox runtime to improve safety while reducing permission prompts.
 
 Run `/sandbox` to enable it. Sandboxing runs on your machine, and supports both file and network isolation.
 
 **Modes:**
+
 - Sandbox BashTool, with auto-allow
 - Sandbox BashTool, with regular permissions
 - No Sandbox
@@ -382,6 +423,7 @@ Run `/sandbox` to enable it. Sandboxing runs on your machine, and supports both 
 ## 22. Status Line
 
 ### Add a Status Line
+
 Custom status lines show up right below the composer. Show model, directory, remaining context, cost, and anything else you want to see while you work.
 
 Everyone on the Claude Code team has a different statusline. Use `/statusline` to get started — Claude will generate one based on your `.bashrc`/`.zshrc`.
@@ -391,6 +433,7 @@ Everyone on the Claude Code team has a different statusline. Use `/statusline` t
 ## 23. Keybindings
 
 ### Customize Your Keybindings
+
 Every key binding in Claude Code is customizable. Run `/keybindings` to re-map any key. Settings live reload so you can see how it feels immediately.
 
 Keybindings are stored in `~/.claude/keybindings.json`.
@@ -400,6 +443,7 @@ Keybindings are stored in `~/.claude/keybindings.json`.
 ## 24. Hooks (Advanced)
 
 ### Set Up Hooks
+
 Hooks are a way to deterministically hook into Claude's lifecycle. Use them to:
 
 - Automatically route permission requests to Slack or Opus
@@ -413,6 +457,7 @@ Ask Claude to add a hook to get started.
 ## 25. Spinner Verbs
 
 ### Customize Your Spinner Verbs
+
 It's the little things that make CC feel personal. Ask Claude to customize your spinner verbs to add or replace the default list with your own verbs.
 
 Check the `settings.json` into source control to share verbs with your team.
@@ -422,6 +467,7 @@ Check the `settings.json` into source control to share verbs with your team.
 ## 26. Output Styles
 
 ### Use Output Styles
+
 Run `/config` and set an output style to have Claude respond using a different tone or format.
 
 - **Explanatory** — great when getting familiar with a new codebase, to have Claude explain frameworks and code patterns as it works
@@ -433,6 +479,7 @@ Run `/config` and set an output style to have Claude respond using a different t
 ## 27. Customize Everything
 
 ### Customize All the Things!
+
 Claude Code is built to work great out of the box. When you do customize, check your `settings.json` into git so your team can benefit, too.
 
 We support configuring for your codebase, for a sub-folder, for just yourself, or via enterprise-wide policies.
@@ -444,6 +491,7 @@ We support configuring for your codebase, for a sub-folder, for just yourself, o
 ## 28. Built-in Git Worktree Support
 
 ### Use `claude --worktree` for Isolation
+
 Claude Code now has built-in git worktree support. Each agent gets its own worktree and can work independently, without interfering with other sessions.
 
 ```bash
@@ -457,11 +505,13 @@ claude --worktree my_worktree --tmux
 **Desktop app:** Head to the Code tab in the Claude Desktop app and check the **worktree** checkbox.
 
 ### Subagents Support Worktrees
+
 Subagents can also use worktree isolation to do more work in parallel. This is especially powerful for large batched changes and code migrations. Available in CLI, Desktop app, IDE extensions, web, and Claude Code mobile app.
 
 **Example prompt:** "Migrate all sync io to async. Batch up the changes, and launch 10 parallel agents with worktree isolation. Make sure each agent tests its changes end to end, then have it put up a PR."
 
 ### Custom Agents with Worktree Isolation
+
 Make subagents always run in their own worktree by adding `isolation: worktree` to your agent frontmatter:
 
 ```yaml
@@ -474,6 +524,7 @@ isolation: worktree
 ```
 
 ### Non-Git Source Control
+
 Mercurial, Perforce, or SVN users can define `WorktreeCreate` and `WorktreeRemove` hooks in `settings.json` to benefit from isolation without Git.
 
 ---
@@ -710,6 +761,7 @@ Source: https://x.com/bcherny/status/2038454339933548804
 Two of the most powerful features in Claude Code. Use these to schedule Claude to run automatically at a set interval, for up to a week at a time.
 
 Boris's running loops:
+
 - `/loop 5m /babysit` — auto-address code review, auto-rebase, and shepherd PRs to production
 - `/loop 30m /slack-feedback` — automatically put up PRs for Slack feedback every 30 mins
 - `/loop /post-merge-sweeper` — put up PRs to address code review comments I missed
@@ -722,6 +774,7 @@ Source: https://x.com/bcherny/status/2038454341884154269
 ## 49. Hooks — Deterministic Agent Lifecycle Logic
 
 Use hooks to deterministically run logic as part of the agent lifecycle:
+
 - Dynamically load in context each time you start Claude (SessionStart)
 - Log every bash command the model runs (PreToolUse)
 - Route permission prompts to WhatsApp for you to approve/deny (PermissionRequest)
@@ -846,7 +899,6 @@ description: Read-only agent restricted to the Read tool only
 color: blue
 tools: Read
 ---
-
 You are a read-only agent that cannot edit files or run bash.
 ```
 
@@ -857,6 +909,7 @@ Source: https://x.com/bcherny/status/2038454360418787764
 ## 60. /voice — Voice Input
 
 Boris does most of his coding by speaking to Claude, rather than typing. To do the same:
+
 - CLI: run /voice then hold the space bar
 - Desktop: press the voice button
 - iOS: enable dictation in your iOS settings
@@ -867,42 +920,42 @@ Source: https://x.com/bcherny/status/2038454362226467112
 
 ## Quick Reference
 
-| Tip | Key Action |
-|-----|------------|
-| Parallel work | Use git worktrees, 3-5 sessions |
-| Model | Opus with thinking |
-| Planning | Start in plan mode for complex tasks |
-| CLAUDE.md | Update after every correction |
-| Skills | /simplify, /batch, /btw, custom workflows |
-| Subagents | Offload to keep context clean |
-| Hooks | PostToolUse, SessionStart, PermissionRequest, Stop |
-| Permissions | Pre-allow safe commands, wildcards |
-| MCP | Integrate Slack, BigQuery, Sentry |
-| Long-running | Use Stop hooks, background agents |
-| Verification | Chrome extension, browser testing |
-| Learning | Use Claude to explain and teach |
-| Terminal | /config, /voice, /color, keybindings |
-| Effort | /effort max for deeper thinking |
-| Plugins & Agents | LSPs, MCPs, --agent, custom agents |
-| Sandboxing | /sandbox for file & network isolation |
-| Status line | /statusline for custom info display |
-| Customize | Spinners, output styles, 37 settings, 84 env vars |
-| Worktrees | claude -w, Desktop, subagent isolation, non-git VCS |
-| Scheduled Tasks | /loop, /schedule, automated workflows |
-| Code Review | Agent-powered PR reviews that catch real bugs |
-| Remote Control | Teleport, mobile app, /remote-control |
-| Session Management | --name, /branch, --fork-session, auto-naming |
-| Setup Scripts | Automate cloud environment setup |
-| PostCompact | Hook for context compression events |
-| Auto Mode | Safer permission skipping with classifiers |
-| iMessage | Text Claude from any Apple device |
-| Auto-Memory & Dream | Persistent, self-cleaning memory system |
-| Mobile App | Code from iOS/Android Claude app |
-| Cowork Dispatch | Remote control for Claude Desktop |
-| Desktop App | Auto start and test web servers |
-| --bare | 10x faster SDK startup |
-| --add-dir | Give Claude access to more folders |
+| Tip                 | Key Action                                          |
+| ------------------- | --------------------------------------------------- |
+| Parallel work       | Use git worktrees, 3-5 sessions                     |
+| Model               | Opus with thinking                                  |
+| Planning            | Start in plan mode for complex tasks                |
+| CLAUDE.md           | Update after every correction                       |
+| Skills              | /simplify, /batch, /btw, custom workflows           |
+| Subagents           | Offload to keep context clean                       |
+| Hooks               | PostToolUse, SessionStart, PermissionRequest, Stop  |
+| Permissions         | Pre-allow safe commands, wildcards                  |
+| MCP                 | Integrate Slack, BigQuery, Sentry                   |
+| Long-running        | Use Stop hooks, background agents                   |
+| Verification        | Chrome extension, browser testing                   |
+| Learning            | Use Claude to explain and teach                     |
+| Terminal            | /config, /voice, /color, keybindings                |
+| Effort              | /effort max for deeper thinking                     |
+| Plugins & Agents    | LSPs, MCPs, --agent, custom agents                  |
+| Sandboxing          | /sandbox for file & network isolation               |
+| Status line         | /statusline for custom info display                 |
+| Customize           | Spinners, output styles, 37 settings, 84 env vars   |
+| Worktrees           | claude -w, Desktop, subagent isolation, non-git VCS |
+| Scheduled Tasks     | /loop, /schedule, automated workflows               |
+| Code Review         | Agent-powered PR reviews that catch real bugs       |
+| Remote Control      | Teleport, mobile app, /remote-control               |
+| Session Management  | --name, /branch, --fork-session, auto-naming        |
+| Setup Scripts       | Automate cloud environment setup                    |
+| PostCompact         | Hook for context compression events                 |
+| Auto Mode           | Safer permission skipping with classifiers          |
+| iMessage            | Text Claude from any Apple device                   |
+| Auto-Memory & Dream | Persistent, self-cleaning memory system             |
+| Mobile App          | Code from iOS/Android Claude app                    |
+| Cowork Dispatch     | Remote control for Claude Desktop                   |
+| Desktop App         | Auto start and test web servers                     |
+| --bare              | 10x faster SDK startup                              |
+| --add-dir           | Give Claude access to more folders                  |
 
 ---
 
-*Source: [howborisusesclaudecode.com](https://howborisusesclaudecode.com) - Tips from Boris Cherny's January–March 2026 threads*
+_Source: [howborisusesclaudecode.com](https://howborisusesclaudecode.com) - Tips from Boris Cherny's January–March 2026 threads_

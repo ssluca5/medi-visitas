@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth";
 import { prisma } from "../../lib/prisma";
+import { z } from "zod";
 import {
   CreateProfissionalInputSchema,
   UpdateProfissionalInputSchema,
@@ -75,6 +76,7 @@ export default async function profissionaisRoutes(
         where: { id: profissional.id },
         include: {
           especialidade: true,
+          subEspecialidade: true,
           endereco: true,
           contatos: {
             where: { deletedAt: null },
@@ -139,6 +141,7 @@ export default async function profissionaisRoutes(
         where,
         include: {
           especialidade: true,
+          subEspecialidade: true,
           endereco: true,
           contatos: {
             where: { deletedAt: null },
@@ -176,6 +179,7 @@ export default async function profissionaisRoutes(
         where: { id, deletedAt: null },
         include: {
           especialidade: true,
+          subEspecialidade: true,
           endereco: true,
           contatos: {
             where: { deletedAt: null },
@@ -265,6 +269,7 @@ export default async function profissionaisRoutes(
         where: { id: profissional.id },
         include: {
           especialidade: true,
+          subEspecialidade: true,
           endereco: true,
           contatos: {
             where: { deletedAt: null },
@@ -273,6 +278,43 @@ export default async function profissionaisRoutes(
       });
 
       return reply.send(ProfissionalOutputSchema.parse(profissionalCompleto));
+    },
+  );
+
+  // ============================================
+  // PATCH /profissionais/:id/ativo - Ativar/Inativar profissional
+  // ============================================
+  app.patch(
+    "/profissionais/:id/ativo",
+    {
+      preHandler: [verifyClerkToken],
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const { ativo } = z.object({ ativo: z.boolean() }).parse(request.body);
+
+      const profissional = await prisma.profissional.findUnique({
+        where: { id },
+      });
+
+      if (!profissional) {
+        return reply.code(404).send({ error: "Profissional não encontrado" });
+      }
+
+      const profissionalAtualizado = await prisma.profissional.update({
+        where: { id },
+        data: { deletedAt: ativo ? null : new Date() },
+        include: {
+          especialidade: true,
+          subEspecialidade: true,
+          endereco: true,
+          contatos: {
+            where: { deletedAt: null },
+          },
+        },
+      });
+
+      return reply.send(ProfissionalOutputSchema.parse(profissionalAtualizado));
     },
   );
 
@@ -361,6 +403,7 @@ export default async function profissionaisRoutes(
         where: { id: profissionalAtualizado.id },
         include: {
           especialidade: true,
+          subEspecialidade: true,
           endereco: true,
           contatos: {
             where: { deletedAt: null },

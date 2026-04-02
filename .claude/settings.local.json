@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_context-mode_context-mode__ctx_search",
+      "Bash(pnpm:*)",
+      "Bash(rm:*)",
+      "Bash(npx tsc:*)",
+      "Bash(rm -rf apps/web/.next)",
+      "Bash(rm -rf apps/web/node_modules/.cache)",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}

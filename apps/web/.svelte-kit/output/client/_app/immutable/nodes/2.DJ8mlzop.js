@@ -1,0 +1,1 @@
+import"../chunks/Bzak7iHL.js";import"../chunks/DB99LtZg.js";import{g as r,j as e}from"../chunks/CXr_JAAF.js";var p=e('<p class="text-center py-12 text-[rgb(var(--color-text-muted))]">Redirecionando...</p>');function c(t){var o=p();r(t,o)}export{c as component};

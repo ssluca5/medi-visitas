@@ -12,6 +12,21 @@ datasource db {
 // ENUMS
 // ============================================
 
+enum StatusVisita {
+  AGENDADA
+  REALIZADA
+  CANCELADA
+  NAO_REALIZADA
+}
+
+enum TipoMaterial {
+  BULA
+  FOLDER
+  APRESENTACAO
+  AMOSTRA
+  OUTRO
+}
+
 enum PotencialPrescricao {
   BAIXO
   MEDIO
@@ -27,11 +42,32 @@ enum EstagioPipeline {
   FIDELIZADO
 }
 
+enum ClassificacaoRelacionamento {
+  FORTE
+  INTERMEDIARIO
+  FRACO
+}
+
 enum TipoContato {
   TELEFONE
   EMAIL
   WHATSAPP
   OUTRO
+}
+
+enum Sexo {
+  MASCULINO
+  FEMININO
+  NAO_INFORMADO
+}
+
+enum Tratamento {
+  DR
+  DRA
+  PROF
+  PROFA
+  SR
+  SRA
 }
 
 // ============================================
@@ -68,6 +104,7 @@ model Especialidade {
   deletedAt DateTime?
 
   profissionais Profissional[]
+  subEspecialidades SubEspecialidade[]
 
   @@index([categoria])
   @@index([deletedAt])
@@ -89,6 +126,21 @@ model Endereco {
   profissionais Profissional[]
 }
 
+model SubEspecialidade {
+  id              String    @id @default(cuid())
+  nome            String
+  especialidadeId String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  especialidade   Especialidade @relation(fields: [especialidadeId], references: [id], onDelete: Restrict)
+  profissionais   Profissional[]
+
+  @@unique([nome, especialidadeId])
+  @@index([especialidadeId, deletedAt])
+}
+
 model Profissional {
   id              String            @id @default(cuid())
   nome            String
@@ -97,21 +149,34 @@ model Profissional {
   telefone        String?
   potencial       PotencialPrescricao @default(MEDIO)
   estagioPipeline EstagioPipeline    @default(PROSPECTADO)
+  classificacao   ClassificacaoRelacionamento?
   especialidadeId String?
+  subEspecialidadeId String?
   enderecoId      String?
+  cpfCnpj         String?
+  sexo            Sexo?
+  dataNascimento  DateTime?
+  tratamento      Tratamento?
+  observacoes     String?
+  nomeConjuge     String?
+  dataNascConjuge DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?
 
   especialidade   Especialidade?    @relation(fields: [especialidadeId], references: [id], onDelete: Restrict)
+  subEspecialidade SubEspecialidade? @relation(fields: [subEspecialidadeId], references: [id], onDelete: Restrict)
   endereco        Endereco?         @relation(fields: [enderecoId], references: [id], onDelete: Restrict)
   contatos        ContatoProfissional[]
   estagioLogs     EstagioLog[]
+  visitas         Visita[]
 
   @@index([potencial])
   @@index([estagioPipeline])
   @@index([deletedAt])
   @@index([especialidadeId])
+  @@index([classificacao])
+  @@index([subEspecialidadeId])
 }
 
 model ContatoProfissional {
@@ -143,4 +208,56 @@ model EstagioLog {
 
   @@index([profissionalId])
   @@index([userId])
+}
+
+model Visita {
+  id             String           @id @default(cuid())
+  profissionalId String
+  profissional   Profissional     @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
+  userId         String           // Clerk userId — sem FK (sistema externo)
+  dataVisita     DateTime
+  duracaoMinutos Int?
+  status         StatusVisita     @default(AGENDADA)
+  objetivoVisita String?
+  resumo         String?
+  proximaAcao    String?
+  materiais      VisitaMaterial[]
+  // SEM deletedAt — cancelar via status (regra CLAUDE.md)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([profissionalId])
+  @@index([userId])
+  @@index([status])
+  @@index([dataVisita])
+}
+
+model MaterialTecnico {
+  id         String           @id @default(cuid())
+  nome       String
+  descricao  String?
+  tipo       TipoMaterial
+  arquivoUrl String?
+  visitas    VisitaMaterial[]
+  deletedAt  DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([tipo])
+  @@index([deletedAt])
+}
+
+model VisitaMaterial {
+  id                String          @id @default(cuid())
+  visitaId          String
+  visita            Visita          @relation(fields: [visitaId], references: [id], onDelete: Restrict)
+  materialTecnicoId String
+  materialTecnico   MaterialTecnico @relation(fields: [materialTecnicoId], references: [id], onDelete: Restrict)
+  quantidade        Int             @default(1)
+  // Imutável — sem deletedAt, sem updatedAt
+  createdAt         DateTime        @default(now())
+
+  @@unique([visitaId, materialTecnicoId])
+  @@index([visitaId])
+  @@index([materialTecnicoId])
 }

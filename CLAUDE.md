@@ -9,7 +9,8 @@
 
 | Camada          | Tecnologia                    |
 | --------------- | ----------------------------- |
-| Frontend        | Next.js 14 (App Router)       |
+| Frontend        | SvelteKit 2 (Svelte 5 Runes)  |
+| Styling         | Tailwind CSS v4 (CSS-first)   |
 | Backend         | Fastify 4.28                  |
 | ORM             | Prisma 5.22                   |
 | Banco           | PostgreSQL via Supabase       |
@@ -38,16 +39,19 @@
 ### Autenticação e Autorização
 
 - Backend: Clerk JWT em `preHandler` hook — **nunca inline** nas rotas.
-- Frontend: `clerkMiddleware` + `createRouteMatcher` (API Clerk v5).
+- Frontend: `hooks.server.ts` valida JWT do Clerk via `verifyToken` e injeta `event.locals.userId`.
 - Verificar `userId` em **toda** rota protegida.
 
 ### UI/UX
 
 - **CSS Variables para todas as cores** — nunca hex hardcoded.
+- **Tailwind v4 @theme** para design tokens (cores, fontes, radius).
 - **FAB + Sheet lateral** para create/edit — nunca modal centralizado.
-- `DropdownMenuContent` com `style` inline para `backgroundColor`.
-- Botões: `style={{ backgroundColor: 'rgb(var(--accent))', borderRadius: '8px' }}`.
-- Optgroup em selects para separar categorias.
+- **View Transitions API** via `onNavigate` no layout root.
+- **svelte/transition** (fly, fade, scale) para Sheet, Toast e ConfirmDialog.
+- Botões: usar componente `Button.svelte` com variantes (default, outline, ghost, destructive).
+- Svelte 5 Runes: usar `$state`, `$derived`, `$effect` — nunca stores reativas clássicas para estado local.
+- Componentes dinâmicos: `{@const Icon = item.icon}` no bloco `{#each}`, nunca `<svelte:component>`.
 
 ### Pipeline Comercial
 
@@ -64,9 +68,11 @@ Prospectado → Visitado → Interessado → Prescritor → Fidelizado
 
 ```powershell
 # Dev
-pnpm dev                  # Frontend (Next.js, porta 3000)
-pnpm dev:api              # Backend (Fastify, porta 3001)
-pnpm build                # Build completo monorepo
+pnpm --filter @medivisitas/web dev   # Frontend SvelteKit (porta 5173)
+pnpm dev:api                          # Backend Fastify (porta 3002)
+
+# Build
+pnpm --filter @medivisitas/web build  # Build SvelteKit
 
 # Database
 pnpm --filter database prisma migrate dev   # Migration
@@ -85,7 +91,7 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | ---- | ---------------------------------- | ------------ |
 | 1    | Setup + Autenticação (Clerk)       | ✅ Concluída |
 | 2    | Cadastro profissionais + Potencial | ✅ Concluída |
-| 3    | Histórico de visitas + Materiais   | ⬜ Pendente  |
+| 3    | Histórico de visitas + Materiais   | ✅ Concluída |
 | 4    | Agenda inteligente                 | ⬜ Pendente  |
 | 5    | IA — transcrição MiniMax 2.7       | ⬜ Pendente  |
 | 6    | Dashboard + CRM avançado           | ⬜ Pendente  |
@@ -130,3 +136,21 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-03-25] Clerk middleware novo (API v5) → `clerkMiddleware` + `createRouteMatcher`
 - [2026-03-25] Prisma 7.x breaking changes → Prisma 5.22.0 fixo
 - [2026-03-25] Enum string literals no frontend para evitar dependência circular com Prisma
+- [2026-04-01] Migração frontend Next.js 14 → SvelteKit 2 + Svelte 5 + Tailwind v4
+- [2026-04-01] `svelte:component` deprecado em Svelte 5 → usar `{@const Icon = item.icon}` no bloco `{#each}`
+- [2026-04-01] `{@const}` inválido dentro de `<a>` → mover para nível do bloco `{#each}`
+- [2026-04-01] SvelteKit env vars: usar `PUBLIC_` prefix (não `NEXT_PUBLIC_`)
+
+## Design System
+
+Para TODA tarefa de frontend carregue obrigatoriamente:
+**Skill:** `medivisitas-design`
+
+Invoke: "Use the medivisitas-design skill before writing any UI code."
+
+### Regras visuais críticas
+- Fundo da aplicação: #f8f9fa — nunca branco puro
+- Azul #2563eb para botões primários e itens ativos
+- Estágios são unidirecionais — nunca regredir
+- AlertDialog obrigatório para ações destrutivas
+- EstagioLog é imutável — nunca editar ou deletar

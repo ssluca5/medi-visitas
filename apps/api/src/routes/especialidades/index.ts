@@ -103,6 +103,13 @@ export default async function especialidadesRoutes(
 
       const especialidade = await prisma.especialidade.findUnique({
         where: { id, deletedAt: null },
+        include: {
+          subEspecialidades: {
+            where: { deletedAt: null },
+            select: { id: true, nome: true },
+            orderBy: { nome: "asc" },
+          },
+        },
       });
 
       if (!especialidade) {
@@ -113,6 +120,43 @@ export default async function especialidadesRoutes(
         ...especialidade,
         ativo: true,
       });
+    },
+  );
+
+  // ============================================
+  // GET /especialidades/:id/subespecialidades - Listar subespecialidades
+  // ============================================
+  app.get(
+    "/especialidades/:id/subespecialidades",
+    {
+      preHandler: [verifyClerkToken],
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const query = z
+        .object({ incluirInativas: z.enum(["true", "false"]).optional() })
+        .parse(request.query);
+
+      const especialidade = await prisma.especialidade.findUnique({
+        where: { id },
+      });
+
+      if (!especialidade) {
+        return reply.code(404).send({ error: "Especialidade não encontrada" });
+      }
+
+      const subWhere: Record<string, unknown> = { especialidadeId: id };
+      if (query.incluirInativas !== "true") {
+        subWhere.deletedAt = null;
+      }
+
+      const subespecialidades = await prisma.subEspecialidade.findMany({
+        where: subWhere,
+        select: { id: true, nome: true, deletedAt: true },
+        orderBy: { nome: "asc" },
+      });
+
+      return reply.send({ data: subespecialidades });
     },
   );
 
@@ -189,7 +233,6 @@ export default async function especialidadesRoutes(
       const { id } = request.params as { id: string };
       const { ativo } = ToggleAtivoSchema.parse(request.body);
 
-      // Verificar se especialidade existe
       const existente = await prisma.especialidade.findUnique({
         where: { id },
       });
@@ -198,17 +241,82 @@ export default async function especialidadesRoutes(
         return reply.code(404).send({ error: "Especialidade não encontrada" });
       }
 
-      const especialidade = await prisma.especialidade.update({
+      let filhasInativadas = 0;
+
+      if (!ativo) {
+        // Inativar especialidade E suas subespecialidades ativas (cascata)
+        const result = await prisma.$transaction([
+          prisma.subEspecialidade.updateMany({
+            where: {
+              especialidadeId: id,
+              deletedAt: null,
+            },
+            data: { deletedAt: new Date() },
+          }),
+          prisma.especialidade.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+          }),
+        ]);
+        filhasInativadas = result[0].count;
+      } else {
+        // Reativar especialidade E todas as subespecialidades (cascata)
+        const result = await prisma.$transaction([
+          prisma.subEspecialidade.updateMany({
+            where: { especialidadeId: id, deletedAt: { not: null } },
+            data: { deletedAt: null },
+          }),
+          prisma.especialidade.update({
+            where: { id },
+            data: { deletedAt: null },
+          }),
+        ]);
+        const especialidade = await prisma.especialidade.findUnique({
+          where: { id },
+        });
+        return reply.send({
+          ...especialidade,
+          ativo: true,
+          filhasReativadas: result[0].count,
+        });
+      }
+
+      const especialidade = await prisma.especialidade.findUnique({
         where: { id },
-        data: {
-          deletedAt: ativo ? null : new Date(),
-        },
       });
 
       return reply.send({
         ...especialidade,
-        ativo: especialidade.deletedAt === null,
+        ativo: false,
+        filhasInativadas,
       });
+    },
+  );
+
+  // ============================================
+  // GET /especialidades/:id/profissionais-ativos - Verificar profissionais ativos
+  // ============================================
+  app.get(
+    "/especialidades/:id/profissionais-ativos",
+    {
+      preHandler: [verifyClerkToken],
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+
+      const existente = await prisma.especialidade.findUnique({
+        where: { id },
+      });
+
+      if (!existente) {
+        return reply.code(404).send({ error: "Especialidade não encontrada" });
+      }
+
+      const count = await prisma.profissional.count({
+        where: { especialidadeId: id, deletedAt: null },
+      });
+
+      return reply.send({ temProfissionaisAtivos: count > 0, count });
     },
   );
 
@@ -223,9 +331,9 @@ export default async function especialidadesRoutes(
     async (request, reply) => {
       const { id } = request.params as { id: string };
 
-      // Verificar se especialidade existe
+      // Verificar se especialidade existe (busca sem filtro de deletedAt)
       const existente = await prisma.especialidade.findUnique({
-        where: { id, deletedAt: null },
+        where: { id },
       });
 
       if (!existente) {
@@ -243,13 +351,63 @@ export default async function especialidadesRoutes(
         });
       }
 
-      // Soft delete
-      await prisma.especialidade.update({
-        where: { id },
-        data: { deletedAt: new Date() },
-      });
+      // Exclusão física em cascata (subespecialidades + especialidade)
+      await prisma.$transaction([
+        prisma.subEspecialidade.deleteMany({ where: { especialidadeId: id } }),
+        prisma.especialidade.delete({ where: { id } }),
+      ]);
 
       return reply.code(204).send();
+    },
+  );
+
+  // ============================================
+  // DELETE /especialidades/categorias/:categoria - Excluir categoria inteira
+  // ============================================
+  app.delete(
+    "/especialidades/categorias/:categoria",
+    {
+      preHandler: [verifyClerkToken],
+    },
+    async (request, reply) => {
+      const { categoria } = request.params as { categoria: string };
+
+      // Buscar todas as especialidades da categoria
+      const especialidades = await prisma.especialidade.findMany({
+        where: { categoria, deletedAt: null },
+        select: { id: true },
+      });
+
+      if (especialidades.length === 0) {
+        return reply.code(404).send({ error: "Categoria não encontrada" });
+      }
+
+      const espIds = especialidades.map((e) => e.id);
+
+      // Verificar se há profissionais ativos vinculados
+      const count = await prisma.profissional.count({
+        where: { especialidadeId: { in: espIds }, deletedAt: null },
+      });
+
+      if (count > 0) {
+        return reply.code(400).send({
+          error: `Não é possível excluir. ${count} profissional(is) ativo(s) vinculado(s) a especialidade(s) desta categoria.`,
+        });
+      }
+
+      // Exclusão física em cascata: subespecialidades + especialidades
+      await prisma.$transaction([
+        prisma.subEspecialidade.deleteMany({
+          where: { especialidadeId: { in: espIds } },
+        }),
+        prisma.especialidade.deleteMany({
+          where: { id: { in: espIds } },
+        }),
+      ]);
+
+      return reply.send({
+        excluidas: espIds.length,
+      });
     },
   );
 
@@ -261,7 +419,7 @@ export default async function especialidadesRoutes(
     {
       preHandler: [verifyClerkToken],
     },
-    async (request, reply) => {
+    async (_request, reply) => {
       const categorias = await prisma.especialidade.findMany({
         where: { deletedAt: null },
         select: { categoria: true },

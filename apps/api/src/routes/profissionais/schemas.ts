@@ -23,6 +23,24 @@ export const TipoContatoSchema = z.enum([
   "WHATSAPP",
   "OUTRO",
 ]);
+export const ClassificacaoRelacionamentoSchema = z.enum([
+  "FORTE",
+  "INTERMEDIARIO",
+  "FRACO",
+]);
+export const SexoSchema = z.enum([
+  "MASCULINO",
+  "FEMININO",
+  "NAO_INFORMADO",
+]);
+export const TratamentoSchema = z.enum([
+  "DR",
+  "DRA",
+  "PROF",
+  "PROFA",
+  "SR",
+  "SRA",
+]);
 
 // Default values
 export const DEFAULT_POTENCIAL = "MEDIO" as const;
@@ -57,7 +75,16 @@ export const CreateProfissionalInputSchema = z.object({
   telefone: z.string().optional(),
   potencial: PotencialPrescricaoSchema.default("MEDIO"),
   estagioPipeline: EstagioPipelineSchema.default("PROSPECTADO"),
-  especialidadeId: z.string().optional(),
+  especialidadeId: z.string().nullable().optional(),
+  subEspecialidadeId: z.string().nullable().optional(),
+  classificacao: ClassificacaoRelacionamentoSchema.nullable().optional(),
+  cpfCnpj: z.string().optional(),
+  sexo: SexoSchema.optional(),
+  dataNascimento: z.string().datetime().optional(),
+  tratamento: TratamentoSchema.optional(),
+  observacoes: z.string().optional(),
+  nomeConjuge: z.string().optional(),
+  dataNascConjuge: z.string().datetime().optional(),
   endereco: EnderecoInputSchema,
   contatos: z.array(ContatoInputSchema).optional(),
 });
@@ -72,6 +99,7 @@ export const ListProfissionaisQuerySchema = z.object({
   potencial: PotencialPrescricaoSchema.optional(),
   estagioPipeline: EstagioPipelineSchema.optional(),
   especialidadeId: z.string().optional(),
+  classificacao: ClassificacaoRelacionamentoSchema.optional(),
 });
 
 export const UpdateEstagioInputSchema = z.object({
@@ -99,6 +127,11 @@ export const EspecialidadeOutputSchema = z.object({
   categoria: z.string(),
 });
 
+export const SubEspecialidadeOutputSchema = z.object({
+  id: z.string(),
+  nome: z.string(),
+});
+
 export const ContatoOutputSchema = z.object({
   id: z.string(),
   tipo: TipoContatoSchema,
@@ -116,12 +149,21 @@ export const ProfissionalOutputSchema = z.object({
   estagioPipeline: EstagioPipelineSchema,
   especialidadeId: z.string().nullable(),
   enderecoId: z.string().nullable(),
+  cpfCnpj: z.string().nullable(),
+  sexo: SexoSchema.nullable(),
+  dataNascimento: z.date().nullable(),
+  tratamento: TratamentoSchema.nullable(),
+  observacoes: z.string().nullable(),
+  nomeConjuge: z.string().nullable(),
+  dataNascConjuge: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   deletedAt: z.date().nullable(),
   especialidade: EspecialidadeOutputSchema.nullable(),
+  subEspecialidade: SubEspecialidadeOutputSchema.nullable(),
   endereco: EnderecoOutputSchema.nullable(),
   contatos: z.array(ContatoOutputSchema),
+  classificacao: ClassificacaoRelacionamentoSchema.nullable(),
 });
 
 export const PaginationMetaSchema = z.object({
@@ -150,6 +192,9 @@ export type ListProfissionaisQuery = z.infer<
   typeof ListProfissionaisQuerySchema
 >;
 export type UpdateEstagioInput = z.infer<typeof UpdateEstagioInputSchema>;
+export type ClassificacaoRelacionamento = z.infer<
+  typeof ClassificacaoRelacionamentoSchema
+>;
 export type ProfissionalOutput = z.infer<typeof ProfissionalOutputSchema>;
 export type ProfissionaisListOutput = z.infer<
   typeof ProfissionaisListOutputSchema
