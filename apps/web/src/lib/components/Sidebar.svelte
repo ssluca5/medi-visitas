@@ -11,12 +11,14 @@
 		Package
 	} from 'lucide-svelte';
 	import type { NavItem } from '$lib/types';
+	import BuscaGlobal from '$lib/components/dashboard/BuscaGlobal.svelte';
 
 	interface Props {
 		userName: string;
+		sessionToken?: string | null;
 	}
 
-	let { userName }: Props = $props();
+	let { userName, sessionToken }: Props = $props();
 
 	const navItems: NavItem[] = [
 		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -40,8 +42,8 @@
 
 	function navClass(active: boolean): string {
 		return active
-			? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-slate-100/80 text-slate-900 transition-all duration-200 ease-out active:scale-[0.98]'
-			: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]';
+			? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-slate-100/80 text-slate-900 transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]'
+			: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]';
 	}
 
 	function iconClass(active: boolean): string {
@@ -58,6 +60,11 @@
 	<div class="px-5 pt-5 pb-4">
 		<h1 class="text-lg font-semibold tracking-tight text-slate-900">MediVisitas</h1>
 		<p class="text-xs text-slate-400 mt-0.5">CRM para Propagandistas</p>
+	</div>
+
+	<!-- Busca -->
+	<div class="px-3 pb-3">
+		<BuscaGlobal sessionToken={sessionToken ?? null} />
 	</div>
 
 	<!-- Navigation -->
