@@ -92,10 +92,10 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | 1    | Setup + Autenticação (Clerk)       | ✅ Concluída |
 | 2    | Cadastro profissionais + Potencial | ✅ Concluída |
 | 3    | Histórico de visitas + Materiais   | ✅ Concluída |
-| 4    | Agenda inteligente                 | ⬜ Pendente  |
+| 4    | Agenda inteligente                 | ✅ Concluída |
 | 5    | IA — transcrição MiniMax 2.7       | ⬜ Pendente  |
-| 6    | Dashboard + CRM avançado           | ⬜ Pendente  |
-| 7    | Pipeline comercial + Analytics     | ⬜ Pendente  |
+| 6    | Dashboard + CRM avançado           | ✅ Concluída |
+| 7    | Pipeline comercial + Analytics     | ✅ Concluída |
 | 8    | Notificações + Lembretes           | ⬜ Pendente  |
 | 9    | Integração API farmácia            | ⬜ Pendente  |
 | 10   | Multi-tenant SaaS                  | ⬜ Pendente  |
@@ -117,14 +117,14 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 
 ## Referências Detalhadas
 
-| Módulo      | Referência                                        |
-| ----------- | ------------------------------------------------- |
-| Backend     | `apps/api/README.md`                              |
-| Frontend    | `apps/web/README.md`                              |
-| Banco       | `packages/database/README.md`                     |
-| Convenções  | `.claude/skills/medivisitas-conventions/SKILL.md` |
-| Entidades   | `.claude/skills/domain-model/refs/entities.md`    |
-| Verificação | `.claude/skills/verify-app/SKILL.md`              |
+| Módulo      | Referência                                               |
+| ----------- | -------------------------------------------------------- |
+| Backend     | `apps/api/README.md`                                     |
+| Frontend    | `apps/web/README.md`                                     |
+| Banco       | `packages/database/README.md`                            |
+| Convenções  | `.claude/skills/medivisitas-conventions/SKILL.md`        |
+| Entidades   | `.claude/skills/domain-model/refs/entities.md`           |
+| Verificação | `.claude/skills/verification-before-completion/SKILL.md` |
 
 ---
 
@@ -149,6 +149,7 @@ Para TODA tarefa de frontend carregue obrigatoriamente:
 Invoke: "Use the medivisitas-design skill before writing any UI code."
 
 ### Regras visuais críticas
+
 - Fundo da aplicação: #f8f9fa — nunca branco puro
 - Azul #2563eb para botões primários e itens ativos
 - Estágios são unidirecionais — nunca regredir
