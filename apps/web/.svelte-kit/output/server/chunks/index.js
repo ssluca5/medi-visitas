@@ -1,7 +1,19 @@
-import { i as is_primitive, g as get_type, D as DevalueError, a as is_plain_object, e as enumerable_symbols, s as stringify_key, b as stringify_string, v as valid_array_indices, c as escaped, B as BROWSER } from "./utils.js";
+import {
+  i as is_primitive,
+  g as get_type,
+  D as DevalueError,
+  a as is_plain_object,
+  e as enumerable_symbols,
+  s as stringify_key,
+  b as stringify_string,
+  v as valid_array_indices,
+  c as escaped,
+  B as BROWSER,
+} from "./utils.js";
 const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$";
 const unsafe_chars = /[<\b\f\n\r\t\0\u2028\u2029]/g;
-const reserved = /^(?:do|if|in|for|int|let|new|try|var|byte|case|char|else|enum|goto|long|this|void|with|await|break|catch|class|const|final|float|short|super|throw|while|yield|delete|double|export|import|native|return|switch|throws|typeof|boolean|default|extends|finally|package|private|abstract|continue|debugger|function|volatile|interface|protected|transient|implements|instanceof|synchronized)$/;
+const reserved =
+  /^(?:do|if|in|for|int|let|new|try|var|byte|case|char|else|enum|goto|long|this|void|with|await|break|catch|class|const|final|float|short|super|throw|while|yield|delete|double|export|import|native|return|switch|throws|typeof|boolean|default|extends|finally|package|private|abstract|continue|debugger|function|volatile|interface|protected|transient|implements|instanceof|synchronized)$/;
 function uneval(value, replacer) {
   const counts = /* @__PURE__ */ new Map();
   const keys = [];
@@ -21,7 +33,12 @@ function uneval(value, replacer) {
         }
       }
       if (typeof thing === "function") {
-        throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
+        throw new DevalueError(
+          `Cannot stringify a function`,
+          keys,
+          thing,
+          value,
+        );
       }
       const type = get_type(thing);
       switch (type) {
@@ -47,7 +64,7 @@ function uneval(value, replacer) {
         case "Map":
           for (const [key, value2] of thing) {
             keys.push(
-              `.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`
+              `.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`,
             );
             walk(value2);
             keys.pop();
@@ -83,7 +100,7 @@ function uneval(value, replacer) {
               `Cannot stringify arbitrary non-POJOs`,
               keys,
               thing,
-              value
+              value,
             );
           }
           if (enumerable_symbols(thing).length > 0) {
@@ -91,7 +108,7 @@ function uneval(value, replacer) {
               `Cannot stringify POJOs with symbolic keys`,
               keys,
               thing,
-              value
+              value,
             );
           }
           for (const key of Object.keys(thing)) {
@@ -100,7 +117,7 @@ function uneval(value, replacer) {
                 `Cannot stringify objects with __proto__ keys`,
                 keys,
                 thing,
-                value
+                value,
               );
             }
             keys.push(stringify_key(key));
@@ -112,9 +129,12 @@ function uneval(value, replacer) {
   }
   walk(value);
   const names = /* @__PURE__ */ new Map();
-  Array.from(counts).filter((entry) => entry[1] > 1).sort((a, b) => b[1] - a[1]).forEach((entry, i) => {
-    names.set(entry[0], get_name(i));
-  });
+  Array.from(counts)
+    .filter((entry) => entry[1] > 1)
+    .sort((a, b) => b[1] - a[1])
+    .forEach((entry, i) => {
+      names.set(entry[0], get_name(i));
+    });
   function stringify2(thing) {
     if (names.has(thing)) {
       return names.get(thing);
@@ -149,14 +169,16 @@ function uneval(value, replacer) {
           } else if (!has_holes) {
             const populated_keys = valid_array_indices(
               /** @type {any[]} */
-              thing
+              thing,
             );
             const population = populated_keys.length;
             const d = String(thing.length).length;
             const hole_cost = thing.length + 2;
             const sparse_cost = 25 + d + population * (d + 2);
             if (hole_cost > sparse_cost) {
-              const entries = populated_keys.map((k) => `${k}:${stringify2(thing[k])}`).join(",");
+              const entries = populated_keys
+                .map((k) => `${k}:${stringify2(thing[k])}`)
+                .join(",");
               return `Object.assign(Array(${thing.length}),{${entries}})`;
             }
             has_holes = true;
@@ -210,10 +232,14 @@ function uneval(value, replacer) {
         return `${type}.from(${stringify_string(thing.toString())})`;
       default:
         const keys2 = Object.keys(thing);
-        const obj = keys2.map((key) => `${safe_key(key)}:${stringify2(thing[key])}`).join(",");
+        const obj = keys2
+          .map((key) => `${safe_key(key)}:${stringify2(thing[key])}`)
+          .join(",");
         const proto = Object.getPrototypeOf(thing);
         if (proto === null) {
-          return keys2.length > 0 ? `{${obj},__proto__:null}` : `{__proto__:null}`;
+          return keys2.length > 0
+            ? `{${obj},__proto__:null}`
+            : `{__proto__:null}`;
         }
         return `{${obj}}`;
     }
@@ -228,7 +254,7 @@ function uneval(value, replacer) {
       if (custom.has(thing)) {
         values.push(
           /** @type {string} */
-          custom.get(thing)
+          custom.get(thing),
         );
         return;
       }
@@ -258,34 +284,40 @@ function uneval(value, replacer) {
         case "Set":
           values.push(`new Set`);
           statements.push(
-            `${name}.${Array.from(thing).map((v) => `add(${stringify2(v)})`).join(".")}`
+            `${name}.${Array.from(thing)
+              .map((v) => `add(${stringify2(v)})`)
+              .join(".")}`,
           );
           break;
         case "Map":
           values.push(`new Map`);
           statements.push(
-            `${name}.${Array.from(thing).map(([k, v]) => `set(${stringify2(k)}, ${stringify2(v)})`).join(".")}`
+            `${name}.${Array.from(thing)
+              .map(([k, v]) => `set(${stringify2(k)}, ${stringify2(v)})`)
+              .join(".")}`,
           );
           break;
         case "ArrayBuffer":
           values.push(
-            `new Uint8Array([${new Uint8Array(thing).join(",")}]).buffer`
+            `new Uint8Array([${new Uint8Array(thing).join(",")}]).buffer`,
           );
           break;
         default:
           values.push(
-            Object.getPrototypeOf(thing) === null ? "Object.create(null)" : "{}"
+            Object.getPrototypeOf(thing) === null
+              ? "Object.create(null)"
+              : "{}",
           );
           Object.keys(thing).forEach((key) => {
             statements.push(
-              `${name}${safe_prop(key)}=${stringify2(thing[key])}`
+              `${name}${safe_prop(key)}=${stringify2(thing[key])}`,
             );
           });
       }
     });
     statements.push(`return ${str}`);
     return `(function(${params.join(",")}){${statements.join(
-      ";"
+      ";",
     )}}(${values.join(",")}))`;
   } else {
     return str;
@@ -306,10 +338,14 @@ function escape_unsafe_chars(str) {
   return str.replace(unsafe_chars, escape_unsafe_char);
 }
 function safe_key(key) {
-  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key) ? key : escape_unsafe_chars(JSON.stringify(key));
+  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key)
+    ? key
+    : escape_unsafe_chars(JSON.stringify(key));
 }
 function safe_prop(key) {
-  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key) ? `.${key}` : `[${escape_unsafe_chars(JSON.stringify(key))}]`;
+  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key)
+    ? `.${key}`
+    : `[${escape_unsafe_chars(JSON.stringify(key))}]`;
 }
 function stringify_primitive(thing) {
   if (typeof thing === "string") return stringify_string(thing);
@@ -331,8 +367,7 @@ var array_prototype = Array.prototype;
 var get_prototype_of = Object.getPrototypeOf;
 var is_extensible = Object.isExtensible;
 var has_own_property = Object.prototype.hasOwnProperty;
-const noop = () => {
-};
+const noop = () => {};
 function run_all(arr) {
   for (var i = 0; i < arr.length; i++) {
     arr[i]();
@@ -348,19 +383,23 @@ function deferred() {
   return { promise, resolve, reject };
 }
 function fallback(value, fallback2, lazy = false) {
-  return value === void 0 ? lazy ? (
-    /** @type {() => V} */
-    fallback2()
-  ) : (
-    /** @type {V} */
-    fallback2
-  ) : value;
+  return value === void 0
+    ? lazy
+      ? /** @type {() => V} */
+        fallback2()
+      : /** @type {V} */
+        fallback2
+    : value;
 }
 function equals(value) {
   return value === this.v;
 }
 function safe_not_equal(a, b) {
-  return a != a ? b == b : a !== b || a !== null && typeof a === "object" || typeof a === "function";
+  return a != a
+    ? b == b
+    : a !== b ||
+        (a !== null && typeof a === "object") ||
+        typeof a === "function";
 }
 function safe_equals(value) {
   return !safe_not_equal(value, this.v);
@@ -392,10 +431,11 @@ const ASYNC = 1 << 22;
 const ERROR_VALUE = 1 << 23;
 const STATE_SYMBOL = Symbol("$state");
 const LEGACY_PROPS = Symbol("legacy props");
-const STALE_REACTION = new class StaleReactionError extends Error {
+const STALE_REACTION = new (class StaleReactionError extends Error {
   name = "StaleReactionError";
-  message = "The reaction that called `getAbortSignal()` was re-run or destroyed";
-}();
+  message =
+    "The reaction that called `getAbortSignal()` was re-run or destroyed";
+})();
 const COMMENT_NODE = 8;
 function lifecycle_outside_component(name) {
   {
@@ -454,18 +494,16 @@ function push$1(props, runes = false, fn) {
     e: null,
     s: props,
     x: null,
-    r: (
+    r:
       /** @type {Effect} */
-      active_effect
-    ),
-    l: null
+      active_effect,
+    l: null,
   };
 }
 function pop$1(component) {
-  var context = (
+  var context =
     /** @type {ComponentContext} */
-    component_context
-  );
+    component_context;
   var effects = context.e;
   if (effects !== null) {
     context.e = null;
@@ -533,7 +571,7 @@ function invoke_error_boundary(error, effect) {
 }
 const STATUS_MASK = -7169;
 function set_signal_status(signal, status) {
-  signal.f = signal.f & STATUS_MASK | status;
+  signal.f = (signal.f & STATUS_MASK) | status;
 }
 function update_derived_status(derived2) {
   if ((derived2.f & CONNECTED) !== 0 || derived2.deps === null) {
@@ -551,7 +589,7 @@ function clear_marked(deps) {
     dep.f ^= WAS_MARKED;
     clear_marked(
       /** @type {Derived} */
-      dep.deps
+      dep.deps,
     );
   }
 }
@@ -717,9 +755,9 @@ class Batch {
     const roots = this.#roots;
     this.#roots = [];
     this.apply();
-    var effects = collected_effects = [];
+    var effects = (collected_effects = []);
     var render_effects = [];
-    var updates = legacy_updates = [];
+    var updates = (legacy_updates = []);
     for (const root of roots) {
       try {
         this.#traverse(root, effects, render_effects);
@@ -755,14 +793,15 @@ class Batch {
       flush_queued_effects(effects);
       this.#deferred?.resolve();
     }
-    var next_batch = (
+    var next_batch =
       /** @type {Batch | null} */
       /** @type {unknown} */
-      current_batch
-    );
+      current_batch;
     if (this.#roots.length > 0) {
-      const batch2 = next_batch ??= this;
-      batch2.#roots.push(...this.#roots.filter((r2) => !batch2.#roots.includes(r2)));
+      const batch2 = (next_batch ??= this);
+      batch2.#roots.push(
+        ...this.#roots.filter((r2) => !batch2.#roots.includes(r2)),
+      );
     }
     if (next_batch !== null) {
       batches.add(next_batch);
@@ -786,14 +825,18 @@ class Batch {
       var flags = effect.f;
       var is_branch = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) !== 0;
       var is_skippable_branch = is_branch && (flags & CLEAN) !== 0;
-      var skip = is_skippable_branch || (flags & INERT) !== 0 || this.#skipped_branches.has(effect);
+      var skip =
+        is_skippable_branch ||
+        (flags & INERT) !== 0 ||
+        this.#skipped_branches.has(effect);
       if (!skip && effect.fn !== null) {
         if (is_branch) {
           effect.f ^= CLEAN;
         } else if ((flags & EFFECT) !== 0) {
           effects.push(effect);
         } else if (is_dirty(effect)) {
-          if ((flags & BLOCK_EFFECT) !== 0) this.#maybe_dirty_effects.add(effect);
+          if ((flags & BLOCK_EFFECT) !== 0)
+            this.#maybe_dirty_effects.add(effect);
           update_effect(effect);
         }
         var child = effect.first;
@@ -876,10 +919,9 @@ class Batch {
       var sources = [];
       for (const [source3, [value, is_derived]] of this.current) {
         if (batch.current.has(source3)) {
-          var batch_value = (
+          var batch_value =
             /** @type {[any, boolean]} */
-            batch.current.get(source3)[0]
-          );
+            batch.current.get(source3)[0];
           if (is_earlier && value !== batch_value) {
             batch.current.set(source3, [value, is_derived]);
           } else {
@@ -888,7 +930,9 @@ class Batch {
         }
         sources.push(source3);
       }
-      var others = [...batch.current.keys()].filter((s) => !this.current.has(s));
+      var others = [...batch.current.keys()].filter(
+        (s) => !this.current.has(s),
+      );
       if (others.length === 0) {
         if (is_earlier) {
           batch.discard();
@@ -901,14 +945,17 @@ class Batch {
           mark_effects(source2, others, marked, checked);
         }
         checked = /* @__PURE__ */ new Map();
-        var current_unequal = [...batch.current.keys()].filter(
-          (c) => this.current.has(c) ? (
-            /** @type {[any, boolean]} */
-            this.current.get(c)[0] !== c
-          ) : true
+        var current_unequal = [...batch.current.keys()].filter((c) =>
+          this.current.has(c)
+            ? /** @type {[any, boolean]} */
+              this.current.get(c)[0] !== c
+            : true,
         );
         for (const effect of this.#new_effects) {
-          if ((effect.f & (DESTROYED | INERT | EAGER_EFFECT)) === 0 && depends_on(effect, current_unequal, checked)) {
+          if (
+            (effect.f & (DESTROYED | INERT | EAGER_EFFECT)) === 0 &&
+            depends_on(effect, current_unequal, checked)
+          ) {
             if ((effect.f & (ASYNC | BLOCK_EFFECT)) !== 0) {
               set_signal_status(effect, DIRTY);
               batch.schedule(effect);
@@ -1003,7 +1050,7 @@ class Batch {
   }
   static ensure() {
     if (current_batch === null) {
-      const batch = current_batch = new Batch();
+      const batch = (current_batch = new Batch());
       if (!is_processing) {
         batches.add(current_batch);
         if (!is_flushing_sync) {
@@ -1030,7 +1077,11 @@ class Batch {
    */
   schedule(effect) {
     last_scheduled_effect = effect;
-    if (effect.b?.is_pending && (effect.f & (EFFECT | RENDER_EFFECT | MANAGED_EFFECT)) !== 0 && (effect.f & REACTION_RAN) === 0) {
+    if (
+      effect.b?.is_pending &&
+      (effect.f & (EFFECT | RENDER_EFFECT | MANAGED_EFFECT)) !== 0 &&
+      (effect.f & REACTION_RAN) === 0
+    ) {
       effect.b.defer_effect(effect);
       return;
     }
@@ -1039,7 +1090,10 @@ class Batch {
       e = e.parent;
       var flags = e.f;
       if (collected_effects !== null && e === active_effect) {
-        if ((active_reaction === null || (active_reaction.f & DERIVED) === 0) && true) {
+        if (
+          (active_reaction === null || (active_reaction.f & DERIVED) === 0) &&
+          true
+        ) {
           return;
         }
       }
@@ -1058,7 +1112,7 @@ function flushSync(fn) {
   is_flushing_sync = true;
   try {
     var result;
-    if (fn) ;
+    if (fn);
     while (true) {
       flush_tasks();
       if (current_batch === null) {
@@ -1090,7 +1144,13 @@ function flush_queued_effects(effects) {
     if ((effect.f & (DESTROYED | INERT)) === 0 && is_dirty(effect)) {
       eager_block_effects = /* @__PURE__ */ new Set();
       update_effect(effect);
-      if (effect.deps === null && effect.first === null && effect.nodes === null && effect.teardown === null && effect.ac === null) {
+      if (
+        effect.deps === null &&
+        effect.first === null &&
+        effect.nodes === null &&
+        effect.teardown === null &&
+        effect.ac === null
+      ) {
         unlink_effect(effect);
       }
       if (eager_block_effects?.size > 0) {
@@ -1130,13 +1190,17 @@ function mark_effects(value, sources, marked, checked) {
           reaction,
           sources,
           marked,
-          checked
+          checked,
         );
-      } else if ((flags & (ASYNC | BLOCK_EFFECT)) !== 0 && (flags & DIRTY) === 0 && depends_on(reaction, sources, checked)) {
+      } else if (
+        (flags & (ASYNC | BLOCK_EFFECT)) !== 0 &&
+        (flags & DIRTY) === 0 &&
+        depends_on(reaction, sources, checked)
+      ) {
         set_signal_status(reaction, DIRTY);
         schedule_effect(
           /** @type {Effect} */
-          reaction
+          reaction,
         );
       }
     }
@@ -1150,16 +1214,19 @@ function depends_on(reaction, sources, checked) {
       if (includes.call(sources, dep)) {
         return true;
       }
-      if ((dep.f & DERIVED) !== 0 && depends_on(
-        /** @type {Derived} */
-        dep,
-        sources,
-        checked
-      )) {
+      if (
+        (dep.f & DERIVED) !== 0 &&
+        depends_on(
+          /** @type {Derived} */
+          dep,
+          sources,
+          checked,
+        )
+      ) {
         checked.set(
           /** @type {Derived} */
           dep,
-          true
+          true,
         );
         return true;
       }
@@ -1202,7 +1269,7 @@ function destroy_derived_effects(derived2) {
     for (var i = 0; i < effects.length; i += 1) {
       destroy_effect(
         /** @type {Effect} */
-        effects[i]
+        effects[i],
       );
     }
   }
@@ -1211,10 +1278,7 @@ function get_derived_parent_effect(derived2) {
   var parent = derived2.parent;
   while (parent !== null) {
     if ((parent.f & DERIVED) === 0) {
-      return (parent.f & DESTROYED) === 0 ? (
-        /** @type {Effect} */
-        parent
-      ) : null;
+      return (parent.f & DESTROYED) === 0 ? /** @type {Effect} */ parent : null;
     }
     parent = parent.parent;
   }
@@ -1292,7 +1356,7 @@ function source(v, stack) {
     reactions: null,
     equals,
     rv: 0,
-    wv: 0
+    wv: 0,
   };
   return signal;
 }
@@ -1311,9 +1375,15 @@ function mutable_source(initial_value, immutable = false, trackable = true) {
   return s;
 }
 function set(source2, value, should_proxy = false) {
-  if (active_reaction !== null && // since we are untracking the function inside `$inspect.with` we need to add this check
-  // to ensure we error if state is set inside an inspect effect
-  (!untracking || (active_reaction.f & EAGER_EFFECT) !== 0) && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT | ASYNC | EAGER_EFFECT)) !== 0 && (current_sources === null || !includes.call(current_sources, source2))) {
+  if (
+    active_reaction !== null && // since we are untracking the function inside `$inspect.with` we need to add this check
+    // to ensure we error if state is set inside an inspect effect
+    (!untracking || (active_reaction.f & EAGER_EFFECT) !== 0) &&
+    is_runes() &&
+    (active_reaction.f & (DERIVED | BLOCK_EFFECT | ASYNC | EAGER_EFFECT)) !==
+      0 &&
+    (current_sources === null || !includes.call(current_sources, source2))
+  ) {
     state_unsafe_mutation();
   }
   let new_value = should_proxy ? proxy(value) : value;
@@ -1331,10 +1401,9 @@ function internal_set(source2, value, updated_during_traversal = null) {
     var batch = Batch.ensure();
     batch.capture(source2, old_value);
     if ((source2.f & DERIVED) !== 0) {
-      const derived2 = (
+      const derived2 =
         /** @type {Derived} */
-        source2
-      );
+        source2;
       if ((source2.f & DIRTY) !== 0) {
         execute_derived(derived2);
       }
@@ -1344,7 +1413,11 @@ function internal_set(source2, value, updated_during_traversal = null) {
     }
     source2.wv = increment_write_version();
     mark_reactions(source2, DIRTY, updated_during_traversal);
-    if (active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
+    if (
+      active_effect !== null &&
+      (active_effect.f & CLEAN) !== 0 &&
+      (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0
+    ) {
       if (untracked_writes === null) {
         set_untracked_writes([source2]);
       } else {
@@ -1384,10 +1457,9 @@ function mark_reactions(signal, status, updated_during_traversal) {
       set_signal_status(reaction, status);
     }
     if ((flags & DERIVED) !== 0) {
-      var derived2 = (
+      var derived2 =
         /** @type {Derived} */
-        reaction
-      );
+        reaction;
       batch_values?.delete(derived2);
       if ((flags & WAS_MARKED) === 0) {
         if (flags & CONNECTED) {
@@ -1396,10 +1468,9 @@ function mark_reactions(signal, status, updated_during_traversal) {
         mark_reactions(derived2, MAYBE_DIRTY, updated_during_traversal);
       }
     } else if (not_dirty) {
-      var effect = (
+      var effect =
         /** @type {Effect} */
-        reaction
-      );
+        reaction;
       if ((flags & BLOCK_EFFECT) !== 0 && eager_block_effects !== null) {
         eager_block_effects.add(effect);
       }
@@ -1437,17 +1508,25 @@ function proxy(value) {
     return result;
   };
   if (is_proxied_array) {
-    sources.set("length", /* @__PURE__ */ state(
-      /** @type {any[]} */
-      value.length
-    ));
+    sources.set(
+      "length",
+      /* @__PURE__ */ state(
+        /** @type {any[]} */
+        value.length,
+      ),
+    );
   }
   return new Proxy(
     /** @type {any} */
     value,
     {
       defineProperty(_, prop, descriptor) {
-        if (!("value" in descriptor) || descriptor.configurable === false || descriptor.enumerable === false || descriptor.writable === false) {
+        if (
+          !("value" in descriptor) ||
+          descriptor.configurable === false ||
+          descriptor.enumerable === false ||
+          descriptor.writable === false
+        ) {
           state_descriptors_fixed();
         }
         var s = sources.get(prop);
@@ -1482,7 +1561,10 @@ function proxy(value) {
         }
         var s = sources.get(prop);
         var exists = prop in target;
-        if (s === void 0 && (!exists || get_descriptor(target, prop)?.writable)) {
+        if (
+          s === void 0 &&
+          (!exists || get_descriptor(target, prop)?.writable)
+        ) {
           s = with_parent(() => {
             var p = proxy(exists ? target[prop] : UNINITIALIZED);
             var s2 = /* @__PURE__ */ state(p);
@@ -1509,7 +1591,7 @@ function proxy(value) {
               enumerable: true,
               configurable: true,
               value: value2,
-              writable: true
+              writable: true,
             };
           }
         }
@@ -1520,8 +1602,13 @@ function proxy(value) {
           return true;
         }
         var s = sources.get(prop);
-        var has = s !== void 0 && s.v !== UNINITIALIZED || Reflect.has(target, prop);
-        if (s !== void 0 || active_effect !== null && (!has || get_descriptor(target, prop)?.writable)) {
+        var has =
+          (s !== void 0 && s.v !== UNINITIALIZED) || Reflect.has(target, prop);
+        if (
+          s !== void 0 ||
+          (active_effect !== null &&
+            (!has || get_descriptor(target, prop)?.writable))
+        ) {
           if (s === void 0) {
             s = with_parent(() => {
               var p = has ? proxy(target[prop]) : UNINITIALIZED;
@@ -1541,8 +1628,7 @@ function proxy(value) {
         var s = sources.get(prop);
         var has = prop in target;
         if (is_proxied_array && prop === "length") {
-          for (var i = value2; i < /** @type {Source<number>} */
-          s.v; i += 1) {
+          for (var i = value2; i < /** @type {Source<number>} */ s.v; i += 1) {
             var other_s = sources.get(i + "");
             if (other_s !== void 0) {
               set(other_s, UNINITIALIZED);
@@ -1569,10 +1655,9 @@ function proxy(value) {
         }
         if (!has) {
           if (is_proxied_array && typeof prop === "string") {
-            var ls = (
+            var ls =
               /** @type {Source<number>} */
-              sources.get("length")
-            );
+              sources.get("length");
             var n = Number(prop);
             if (Number.isInteger(n) && n >= ls.v) {
               set(ls, n + 1);
@@ -1597,8 +1682,8 @@ function proxy(value) {
       },
       setPrototypeOf() {
         state_prototype_fixed();
-      }
-    }
+      },
+    },
   );
 }
 var $window;
@@ -1686,7 +1771,7 @@ function create_effect(type, fn) {
     prev: null,
     teardown: null,
     wv: 0,
-    ac: null
+    ac: null,
   };
   current_batch?.register_created_effect(effect);
   var e = effect;
@@ -1703,10 +1788,19 @@ function create_effect(type, fn) {
       destroy_effect(effect);
       throw e2;
     }
-    if (e.deps === null && e.teardown === null && e.nodes === null && e.first === e.last && // either `null`, or a singular child
-    (e.f & EFFECT_PRESERVED) === 0) {
+    if (
+      e.deps === null &&
+      e.teardown === null &&
+      e.nodes === null &&
+      e.first === e.last && // either `null`, or a singular child
+      (e.f & EFFECT_PRESERVED) === 0
+    ) {
       e = e.first;
-      if ((type & BLOCK_EFFECT) !== 0 && (type & EFFECT_TRANSPARENT) !== 0 && e !== null) {
+      if (
+        (type & BLOCK_EFFECT) !== 0 &&
+        (type & EFFECT_TRANSPARENT) !== 0 &&
+        e !== null
+      ) {
         e.f |= EFFECT_TRANSPARENT;
       }
     }
@@ -1716,11 +1810,14 @@ function create_effect(type, fn) {
     if (parent !== null) {
       push_effect(e, parent);
     }
-    if (active_reaction !== null && (active_reaction.f & DERIVED) !== 0 && (type & ROOT_EFFECT) === 0) {
-      var derived2 = (
+    if (
+      active_reaction !== null &&
+      (active_reaction.f & DERIVED) !== 0 &&
+      (type & ROOT_EFFECT) === 0
+    ) {
+      var derived2 =
         /** @type {Derived} */
-        active_reaction
-      );
+        active_reaction;
       (derived2.effects ??= []).push(e);
     }
   }
@@ -1805,11 +1902,15 @@ function destroy_block_effect_children(signal) {
 }
 function destroy_effect(effect, remove_dom = true) {
   var removed = false;
-  if ((remove_dom || (effect.f & HEAD_EFFECT) !== 0) && effect.nodes !== null && effect.nodes.end !== null) {
+  if (
+    (remove_dom || (effect.f & HEAD_EFFECT) !== 0) &&
+    effect.nodes !== null &&
+    effect.nodes.end !== null
+  ) {
     remove_effect_dom(
       effect.nodes.start,
       /** @type {TemplateNode} */
-      effect.nodes.end
+      effect.nodes.end,
     );
     removed = true;
   }
@@ -1829,7 +1930,16 @@ function destroy_effect(effect, remove_dom = true) {
   if (parent !== null && parent.first !== null) {
     unlink_effect(effect);
   }
-  effect.next = effect.prev = effect.teardown = effect.ctx = effect.deps = effect.fn = effect.nodes = effect.ac = effect.b = null;
+  effect.next =
+    effect.prev =
+    effect.teardown =
+    effect.ctx =
+    effect.deps =
+    effect.fn =
+    effect.nodes =
+    effect.ac =
+    effect.b =
+      null;
 }
 function remove_effect_dom(node, end) {
   while (node !== null) {
@@ -1880,10 +1990,11 @@ function pause_children(effect, transitions, local) {
   var child = effect.first;
   while (child !== null) {
     var sibling = child.next;
-    var transparent = (child.f & EFFECT_TRANSPARENT) !== 0 || // If this is a branch effect without a block effect parent,
-    // it means the parent block effect was pruned. In that case,
-    // transparency information was transferred to the branch effect.
-    (child.f & BRANCH_EFFECT) !== 0 && (effect.f & BLOCK_EFFECT) !== 0;
+    var transparent =
+      (child.f & EFFECT_TRANSPARENT) !== 0 || // If this is a branch effect without a block effect parent,
+      // it means the parent block effect was pruned. In that case,
+      // transparency information was transferred to the branch effect.
+      ((child.f & BRANCH_EFFECT) !== 0 && (effect.f & BLOCK_EFFECT) !== 0);
     pause_children(child, transitions, transparent ? local : false);
     child = sibling;
   }
@@ -1946,35 +2057,42 @@ function is_dirty(reaction) {
     reaction.f &= ~WAS_MARKED;
   }
   if ((flags & MAYBE_DIRTY) !== 0) {
-    var dependencies = (
+    var dependencies =
       /** @type {Value[]} */
-      reaction.deps
-    );
+      reaction.deps;
     var length = dependencies.length;
     for (var i = 0; i < length; i++) {
       var dependency = dependencies[i];
-      if (is_dirty(
-        /** @type {Derived} */
-        dependency
-      )) {
+      if (
+        is_dirty(
+          /** @type {Derived} */
+          dependency,
+        )
+      ) {
         update_derived(
           /** @type {Derived} */
-          dependency
+          dependency,
         );
       }
       if (dependency.wv > reaction.wv) {
         return true;
       }
     }
-    if ((flags & CONNECTED) !== 0 && // During time traveling we don't want to reset the status so that
-    // traversal of the graph in the other batches still happens
-    batch_values === null) {
+    if (
+      (flags & CONNECTED) !== 0 && // During time traveling we don't want to reset the status so that
+      // traversal of the graph in the other batches still happens
+      batch_values === null
+    ) {
       set_signal_status(reaction, CLEAN);
     }
   }
   return false;
 }
-function schedule_possible_effect_self_invalidation(signal, effect, root = true) {
+function schedule_possible_effect_self_invalidation(
+  signal,
+  effect,
+  root = true,
+) {
   var reactions = signal.reactions;
   if (reactions === null) return;
   if (current_sources !== null && includes.call(current_sources, signal)) {
@@ -1987,7 +2105,7 @@ function schedule_possible_effect_self_invalidation(signal, effect, root = true)
         /** @type {Derived} */
         reaction,
         effect,
-        false
+        false,
       );
     } else if (effect === reaction) {
       if (root) {
@@ -1997,7 +2115,7 @@ function schedule_possible_effect_self_invalidation(signal, effect, root = true)
       }
       schedule_effect(
         /** @type {Effect} */
-        reaction
+        reaction,
       );
     }
   }
@@ -2012,11 +2130,11 @@ function update_reaction(reaction) {
   var previous_untracking = untracking;
   var previous_update_version = update_version;
   var flags = reaction.f;
-  new_deps = /** @type {null | Value[]} */
-  null;
+  new_deps = /** @type {null | Value[]} */ null;
   skipped_deps = 0;
   untracked_writes = null;
-  active_reaction = (flags & (BRANCH_EFFECT | ROOT_EFFECT)) === 0 ? reaction : null;
+  active_reaction =
+    (flags & (BRANCH_EFFECT | ROOT_EFFECT)) === 0 ? reaction : null;
   current_sources = null;
   set_component_context(reaction.ctx);
   untracking = false;
@@ -2029,10 +2147,9 @@ function update_reaction(reaction) {
   }
   try {
     reaction.f |= REACTION_IS_UPDATING;
-    var fn = (
+    var fn =
       /** @type {Function} */
-      reaction.fn
-    );
+      reaction.fn;
     var result = fn();
     reaction.f |= REACTION_RAN;
     var deps = reaction.deps;
@@ -2059,13 +2176,18 @@ function update_reaction(reaction) {
       remove_reactions(reaction, skipped_deps);
       deps.length = skipped_deps;
     }
-    if (is_runes() && untracked_writes !== null && !untracking && deps !== null && (reaction.f & (DERIVED | MAYBE_DIRTY | DIRTY)) === 0) {
-      for (i = 0; i < /** @type {Source[]} */
-      untracked_writes.length; i++) {
+    if (
+      is_runes() &&
+      untracked_writes !== null &&
+      !untracking &&
+      deps !== null &&
+      (reaction.f & (DERIVED | MAYBE_DIRTY | DIRTY)) === 0
+    ) {
+      for (i = 0; i < /** @type {Source[]} */ untracked_writes.length; i++) {
         schedule_possible_effect_self_invalidation(
           untracked_writes[i],
           /** @type {Effect} */
-          reaction
+          reaction,
         );
       }
     }
@@ -2085,8 +2207,10 @@ function update_reaction(reaction) {
         if (previous_untracked_writes === null) {
           previous_untracked_writes = untracked_writes;
         } else {
-          previous_untracked_writes.push(.../** @type {Source[]} */
-          untracked_writes);
+          previous_untracked_writes.push(
+            .../** @type {Source[]} */
+            untracked_writes,
+          );
         }
       }
     }
@@ -2122,14 +2246,16 @@ function remove_reaction(signal, dependency) {
       }
     }
   }
-  if (reactions === null && (dependency.f & DERIVED) !== 0 && // Destroying a child effect while updating a parent effect can cause a dependency to appear
-  // to be unused, when in fact it is used by the currently-updating parent. Checking `new_deps`
-  // allows us to skip the expensive work of disconnecting and immediately reconnecting it
-  (new_deps === null || !includes.call(new_deps, dependency))) {
-    var derived2 = (
+  if (
+    reactions === null &&
+    (dependency.f & DERIVED) !== 0 && // Destroying a child effect while updating a parent effect can cause a dependency to appear
+    // to be unused, when in fact it is used by the currently-updating parent. Checking `new_deps`
+    // allows us to skip the expensive work of disconnecting and immediately reconnecting it
+    (new_deps === null || !includes.call(new_deps, dependency))
+  ) {
+    var derived2 =
       /** @type {Derived} */
-      dependency
-    );
+      dependency;
     if ((derived2.f & CONNECTED) !== 0) {
       derived2.f ^= CONNECTED;
       derived2.f &= ~WAS_MARKED;
@@ -2167,7 +2293,12 @@ function update_effect(effect) {
     effect.teardown = typeof teardown === "function" ? teardown : null;
     effect.wv = write_version;
     var dep;
-    if (BROWSER && tracing_mode_flag && (effect.f & DIRTY) !== 0 && effect.deps !== null) ;
+    if (
+      BROWSER &&
+      tracing_mode_flag &&
+      (effect.f & DIRTY) !== 0 &&
+      effect.deps !== null
+    );
   } finally {
     is_updating_effect = was_updating_effect;
     active_effect = previous_effect;
@@ -2177,13 +2308,21 @@ function get(signal) {
   var flags = signal.f;
   var is_derived = (flags & DERIVED) !== 0;
   if (active_reaction !== null && !untracking) {
-    var destroyed = active_effect !== null && (active_effect.f & DESTROYED) !== 0;
-    if (!destroyed && (current_sources === null || !includes.call(current_sources, signal))) {
+    var destroyed =
+      active_effect !== null && (active_effect.f & DESTROYED) !== 0;
+    if (
+      !destroyed &&
+      (current_sources === null || !includes.call(current_sources, signal))
+    ) {
       var deps = active_reaction.deps;
       if ((active_reaction.f & REACTION_IS_UPDATING) !== 0) {
         if (signal.rv < read_version) {
           signal.rv = read_version;
-          if (new_deps === null && deps !== null && deps[skipped_deps] === signal) {
+          if (
+            new_deps === null &&
+            deps !== null &&
+            deps[skipped_deps] === signal
+          ) {
             skipped_deps++;
           } else if (new_deps === null) {
             new_deps = [signal];
@@ -2206,19 +2345,25 @@ function get(signal) {
     return old_values.get(signal);
   }
   if (is_derived) {
-    var derived2 = (
+    var derived2 =
       /** @type {Derived} */
-      signal
-    );
+      signal;
     if (is_destroying_effect) {
       var value = derived2.v;
-      if ((derived2.f & CLEAN) === 0 && derived2.reactions !== null || depends_on_old_values(derived2)) {
+      if (
+        ((derived2.f & CLEAN) === 0 && derived2.reactions !== null) ||
+        depends_on_old_values(derived2)
+      ) {
         value = execute_derived(derived2);
       }
       old_values.set(derived2, value);
       return value;
     }
-    var should_connect = (derived2.f & CONNECTED) === 0 && !untracking && active_reaction !== null && (is_updating_effect || (active_reaction.f & CONNECTED) !== 0);
+    var should_connect =
+      (derived2.f & CONNECTED) === 0 &&
+      !untracking &&
+      active_reaction !== null &&
+      (is_updating_effect || (active_reaction.f & CONNECTED) !== 0);
     var is_new = (derived2.f & REACTION_RAN) === 0;
     if (is_dirty(derived2)) {
       if (should_connect) {
@@ -2247,11 +2392,11 @@ function reconnect(derived2) {
     if ((dep.f & DERIVED) !== 0 && (dep.f & CONNECTED) === 0) {
       unfreeze_derived_effects(
         /** @type {Derived} */
-        dep
+        dep,
       );
       reconnect(
         /** @type {Derived} */
-        dep
+        dep,
       );
     }
   }
@@ -2263,10 +2408,13 @@ function depends_on_old_values(derived2) {
     if (old_values.has(dep)) {
       return true;
     }
-    if ((dep.f & DERIVED) !== 0 && depends_on_old_values(
-      /** @type {Derived} */
-      dep
-    )) {
+    if (
+      (dep.f & DERIVED) !== 0 &&
+      depends_on_old_values(
+        /** @type {Derived} */
+        dep,
+      )
+    ) {
       return true;
     }
   }
@@ -2286,12 +2434,12 @@ function subscribe_to_store(store, run, invalidate) {
     run(void 0);
     return noop;
   }
-  const unsub = untrack(
-    () => store.subscribe(
+  const unsub = untrack(() =>
+    store.subscribe(
       run,
       // @ts-expect-error
-      invalidate
-    )
+      invalidate,
+    ),
   );
   return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
 }
@@ -2311,7 +2459,7 @@ const VOID_ELEMENT_NAMES = [
   "param",
   "source",
   "track",
-  "wbr"
+  "wbr",
 ];
 function is_void(name) {
   return VOID_ELEMENT_NAMES.includes(name) || name.toLowerCase() === "!doctype";
@@ -2344,7 +2492,7 @@ const DOM_BOOLEAN_ATTRIBUTES = [
   "webkitdirectory",
   "defer",
   "disablepictureinpicture",
-  "disableremoteplayback"
+  "disableremoteplayback",
 ];
 function is_boolean_attribute(name) {
   return DOM_BOOLEAN_ATTRIBUTES.includes(name);
@@ -2353,17 +2501,17 @@ const PASSIVE_EVENTS = ["touchstart", "touchmove"];
 function is_passive_event(name) {
   return PASSIVE_EVENTS.includes(name);
 }
-const RAW_TEXT_ELEMENTS = (
+const RAW_TEXT_ELEMENTS =
   /** @type {const} */
-  ["textarea", "script", "style", "title"]
-);
+  ["textarea", "script", "style", "title"];
 function is_raw_text_element(name) {
   return RAW_TEXT_ELEMENTS.includes(
     /** @type {typeof RAW_TEXT_ELEMENTS[number]} */
-    name
+    name,
   );
 }
-const REGEX_VALID_TAG_NAME = /^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9.\-_\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{EFFFF}]+)*$/u;
+const REGEX_VALID_TAG_NAME =
+  /^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9.\-_\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{EFFFF}]+)*$/u;
 const ATTR_REGEX = /[&"<]/g;
 const CONTENT_REGEX = /[&<]/g;
 function escape_html(value, is_attr) {
@@ -2375,36 +2523,46 @@ function escape_html(value, is_attr) {
   while (pattern.test(str)) {
     const i = pattern.lastIndex - 1;
     const ch = str[i];
-    escaped2 += str.substring(last, i) + (ch === "&" ? "&amp;" : ch === '"' ? "&quot;" : "&lt;");
+    escaped2 +=
+      str.substring(last, i) +
+      (ch === "&" ? "&amp;" : ch === '"' ? "&quot;" : "&lt;");
     last = i + 1;
   }
   return escaped2 + str.substring(last);
 }
 function r(e) {
-  var t, f, n = "";
+  var t,
+    f,
+    n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
-  else if ("object" == typeof e) if (Array.isArray(e)) {
-    var o = e.length;
-    for (t = 0; t < o; t++) e[t] && (f = r(e[t])) && (n && (n += " "), n += f);
-  } else for (f in e) e[f] && (n && (n += " "), n += f);
+  else if ("object" == typeof e)
+    if (Array.isArray(e)) {
+      var o = e.length;
+      for (t = 0; t < o; t++)
+        e[t] && (f = r(e[t])) && (n && (n += " "), (n += f));
+    } else for (f in e) e[f] && (n && (n += " "), (n += f));
   return n;
 }
 function clsx$1() {
-  for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
+  for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++)
+    (e = arguments[f]) && (t = r(e)) && (n && (n += " "), (n += t));
   return n;
 }
 const replacements = {
   translate: /* @__PURE__ */ new Map([
     [true, "yes"],
-    [false, "no"]
-  ])
+    [false, "no"],
+  ]),
 };
 function attr(name, value, is_boolean = false) {
   if (name === "hidden" && value !== "until-found") {
     is_boolean = true;
   }
-  if (value == null || !value && is_boolean) return "";
-  const normalized = has_own_property.call(replacements, name) && replacements[name].get(value) || value;
+  if (value == null || (!value && is_boolean)) return "";
+  const normalized =
+    (has_own_property.call(replacements, name) &&
+      replacements[name].get(value)) ||
+    value;
   const assignment = is_boolean ? `=""` : `="${escape_html(normalized, true)}"`;
   return ` ${name}${assignment}`;
 }
@@ -2430,8 +2588,13 @@ function to_class(value, hash, directives) {
         var a = 0;
         while ((a = classname.indexOf(key, a)) >= 0) {
           var b = a + len;
-          if ((a === 0 || whitespace.includes(classname[a - 1])) && (b === classname.length || whitespace.includes(classname[b]))) {
-            classname = (a === 0 ? "" : classname.substring(0, a)) + classname.substring(b + 1);
+          if (
+            (a === 0 || whitespace.includes(classname[a - 1])) &&
+            (b === classname.length || whitespace.includes(classname[b]))
+          ) {
+            classname =
+              (a === 0 ? "" : classname.substring(0, a)) +
+              classname.substring(b + 1);
           } else {
             a = b;
           }
@@ -2470,7 +2633,9 @@ function to_style(value, styles) {
       normal_styles = styles;
     }
     if (value) {
-      value = String(value).replaceAll(/\s*\/\*.*?\*\/\s*/g, "").trim();
+      value = String(value)
+        .replaceAll(/\s*\/\*.*?\*\/\s*/g, "")
+        .trim();
       var in_str = false;
       var in_apo = 0;
       var in_comment = false;
@@ -2508,7 +2673,9 @@ function to_style(value, styles) {
             name_index = i;
           } else if (c === ";" || i === len - 1) {
             if (name_index !== -1) {
-              var name = to_css_name(value.substring(start_index, name_index).trim());
+              var name = to_css_name(
+                value.substring(start_index, name_index).trim(),
+              );
               if (!reserved_names.includes(name)) {
                 if (c !== ";") {
                   i++;
@@ -2576,10 +2743,9 @@ function set_ssr_context(v) {
 }
 function getContext(key) {
   const context_map = get_or_init_context_map();
-  const result = (
+  const result =
     /** @type {T} */
-    context_map.get(key)
-  );
+    context_map.get(key);
   return result;
 }
 function setContext(key, context) {
@@ -2590,14 +2756,13 @@ function get_or_init_context_map(name) {
   if (ssr_context === null) {
     lifecycle_outside_component();
   }
-  return ssr_context.c ??= new Map(get_parent_context(ssr_context) || void 0);
+  return (ssr_context.c ??= new Map(get_parent_context(ssr_context) || void 0));
 }
 function push(fn) {
   ssr_context = { p: ssr_context, c: null, r: null };
 }
 function pop() {
-  ssr_context = /** @type {SSRContext} */
-  ssr_context.p;
+  ssr_context = /** @type {SSRContext} */ ssr_context.p;
 }
 function get_parent_context(ssr_context2) {
   let parent = ssr_context2.p;
@@ -2625,18 +2790,22 @@ function get_render_context() {
 let als = null;
 let text_encoder;
 let crypto;
-const obfuscated_import = (module_name) => import(
-  /* @vite-ignore */
-  module_name
-);
+const obfuscated_import = (module_name) =>
+  import(
+    /* @vite-ignore */
+    module_name
+  );
 async function sha256(data) {
   text_encoder ??= new TextEncoder();
-  crypto ??= globalThis.crypto?.subtle?.digest ? globalThis.crypto : (
-    // @ts-ignore - we don't install node types in the prod build
-    // don't use import('node:crypto') directly because static analysers will think we rely on node when we don't
-    (await obfuscated_import("node:crypto")).webcrypto
+  crypto ??= globalThis.crypto?.subtle?.digest
+    ? globalThis.crypto
+    : // @ts-ignore - we don't install node types in the prod build
+      // don't use import('node:crypto') directly because static analysers will think we rely on node when we don't
+      (await obfuscated_import("node:crypto")).webcrypto;
+  const hash_buffer = await crypto.subtle.digest(
+    "SHA-256",
+    text_encoder.encode(data),
   );
-  const hash_buffer = await crypto.subtle.digest("SHA-256", text_encoder.encode(data));
   return base64_encode(hash_buffer);
 }
 function base64_encode(bytes) {
@@ -2795,7 +2964,7 @@ class Renderer {
       ...ssr_context,
       p: parent,
       c: null,
-      r: child
+      r: child,
     });
     const result = fn(child);
     set_ssr_context(parent);
@@ -2825,14 +2994,14 @@ class Renderer {
       child.#boundary = {
         failed: props.failed,
         transformError: this.global.transformError,
-        context: parent_context
+        context: parent_context,
       };
     }
     set_ssr_context({
       ...ssr_context,
       p: parent_context,
       c: null,
-      r: child
+      r: child,
     });
     try {
       const result = children_fn(child);
@@ -2855,13 +3024,14 @@ class Renderer {
         if (this.global.mode === "sync") {
           await_invalid();
         }
-        child.promise = /** @type {Promise<unknown>} */
-        result.then((transformed) => {
-          set_ssr_context(parent_context);
-          child.#out.push(Renderer.#serialize_failed_boundary(transformed));
-          failed_snippet(child, transformed, noop);
-          child.#out.push(BLOCK_CLOSE);
-        });
+        child.promise =
+          /** @type {Promise<unknown>} */
+          result.then((transformed) => {
+            set_ssr_context(parent_context);
+            child.#out.push(Renderer.#serialize_failed_boundary(transformed));
+            failed_snippet(child, transformed, noop);
+            child.#out.push(BLOCK_CLOSE);
+          });
         child.promise.catch(noop);
       } else {
         child.#out.push(Renderer.#serialize_failed_boundary(result));
@@ -2895,7 +3065,9 @@ class Renderer {
    */
   select(attrs, fn, css_hash, classes, styles, flags, is_rich) {
     const { value, ...select_attrs } = attrs;
-    this.push(`<select${attributes(select_attrs, css_hash, classes, styles, flags)}>`);
+    this.push(
+      `<select${attributes(select_attrs, css_hash, classes, styles, flags)}>`,
+    );
     this.child((renderer) => {
       renderer.local.select_value = value;
       fn(renderer);
@@ -2912,7 +3084,9 @@ class Renderer {
    * @param {boolean | undefined} [is_rich]
    */
   option(attrs, body, css_hash, classes, styles, flags, is_rich) {
-    this.#out.push(`<option${attributes(attrs, css_hash, classes, styles, flags)}`);
+    this.#out.push(
+      `<option${attributes(attrs, css_hash, classes, styles, flags)}`,
+    );
     const close = (renderer, value, { head: head2, body: body2 }) => {
       if (has_own_property.call(attrs, "value")) {
         value = attrs.value;
@@ -2983,14 +3157,18 @@ class Renderer {
    * @returns {number[]}
    */
   get_path() {
-    return this.#parent ? [...this.#parent.get_path(), this.#parent.#out.indexOf(this)] : [];
+    return this.#parent
+      ? [...this.#parent.get_path(), this.#parent.#out.indexOf(this)]
+      : [];
   }
   /**
    * @deprecated this is needed for legacy component bindings
    */
   copy() {
     const copy = new Renderer(this.global, this.#parent);
-    copy.#out = this.#out.map((item) => item instanceof Renderer ? item.copy() : item);
+    copy.#out = this.#out.map((item) =>
+      item instanceof Renderer ? item.copy() : item,
+    );
     copy.promise = this.promise;
     return copy;
   }
@@ -3001,7 +3179,7 @@ class Renderer {
   subsume(other) {
     if (this.global.mode !== other.global.mode) {
       throw new Error(
-        "invariant: A renderer cannot switch modes. If you're seeing this, there's a compiler bug. File an issue!"
+        "invariant: A renderer cannot switch modes. If you're seeing this, there's a compiler bug. File an issue!",
       );
     }
     this.local = other.local;
@@ -3043,33 +3221,32 @@ class Renderer {
    */
   static render(component, options = {}) {
     let sync;
-    const result = (
+    const result =
       /** @type {RenderOutput} */
-      {}
-    );
+      {};
     Object.defineProperties(result, {
       html: {
         get: () => {
           return (sync ??= Renderer.#render(component, options)).body;
-        }
+        },
       },
       head: {
         get: () => {
           return (sync ??= Renderer.#render(component, options)).head;
-        }
+        },
       },
       body: {
         get: () => {
           return (sync ??= Renderer.#render(component, options)).body;
-        }
+        },
       },
       hashes: {
         value: {
-          script: ""
-        }
+          script: "",
+        },
       },
       then: {
-        value: (
+        value:
           /**
            * this is not type-safe, but honestly it's the best I can do right now, and it's a straightforward function.
            *
@@ -3080,18 +3257,17 @@ class Renderer {
            */
           (onfulfilled, onrejected) => {
             {
-              const result2 = sync ??= Renderer.#render(component, options);
+              const result2 = (sync ??= Renderer.#render(component, options));
               const user_result = onfulfilled({
                 head: result2.head,
                 body: result2.body,
                 html: result2.body,
-                hashes: { script: [] }
+                hashes: { script: [] },
               });
               return Promise.resolve(user_result);
             }
-          }
-        )
-      }
+          },
+      },
     });
     return result;
   }
@@ -3217,7 +3393,9 @@ class Renderer {
             let transformed = await transformError(error);
             const failed_renderer = new Renderer(item.global, item);
             failed_renderer.type = item.type;
-            failed_renderer.#out.push(Renderer.#serialize_failed_boundary(transformed));
+            failed_renderer.#out.push(
+              Renderer.#serialize_failed_boundary(transformed),
+            );
             failed(failed_renderer, transformed, noop);
             failed_renderer.#out.push(BLOCK_CLOSE);
             await failed_renderer.#collect_content_async(content);
@@ -3232,7 +3410,10 @@ class Renderer {
   async #collect_hydratables() {
     const ctx = get_render_context().hydratable;
     for (const [_, key] of ctx.unresolved_promises) {
-      unresolved_hydratable(key, ctx.lookup.get(key)?.stack ?? "<missing stack trace>");
+      unresolved_hydratable(
+        key,
+        ctx.lookup.get(key)?.stack ?? "<missing stack trace>",
+      );
     }
     for (const comparison of ctx.comparisons) {
       await comparison;
@@ -3254,8 +3435,8 @@ class Renderer {
           mode,
           options.idPrefix ? options.idPrefix + "-" : "",
           options.csp,
-          options.transformError
-        )
+          options.transformError,
+        ),
       );
       const context = { p: null, c: options.context ?? null, r: renderer };
       set_ssr_context(context);
@@ -3285,8 +3466,8 @@ class Renderer {
       head: head2,
       body,
       hashes: {
-        script: renderer.global.csp.script_hashes
-      }
+        script: renderer.global.csp.script_hashes,
+      },
     };
   }
   /**
@@ -3358,9 +3539,11 @@ class SSRState {
   constructor(mode, id_prefix = "", csp = { hash: false }, transformError) {
     this.mode = mode;
     this.csp = { ...csp, script_hashes: [] };
-    this.transformError = transformError ?? ((error) => {
-      throw error;
-    });
+    this.transformError =
+      transformError ??
+      ((error) => {
+        throw error;
+      });
     let uid2 = 1;
     this.uid = () => `${id_prefix}s${uid2++}`;
   }
@@ -3385,7 +3568,8 @@ class SSRState {
     }
   }
 }
-const INVALID_ATTR_NAME_CHAR_REGEX = /[\s'">/=\u{FDD0}-\u{FDEF}\u{FFFE}\u{FFFF}\u{1FFFE}\u{1FFFF}\u{2FFFE}\u{2FFFF}\u{3FFFE}\u{3FFFF}\u{4FFFE}\u{4FFFF}\u{5FFFE}\u{5FFFF}\u{6FFFE}\u{6FFFF}\u{7FFFE}\u{7FFFF}\u{8FFFE}\u{8FFFF}\u{9FFFE}\u{9FFFF}\u{AFFFE}\u{AFFFF}\u{BFFFE}\u{BFFFF}\u{CFFFE}\u{CFFFF}\u{DFFFE}\u{DFFFF}\u{EFFFE}\u{EFFFF}\u{FFFFE}\u{FFFFF}\u{10FFFE}\u{10FFFF}]/u;
+const INVALID_ATTR_NAME_CHAR_REGEX =
+  /[\s'">/=\u{FDD0}-\u{FDEF}\u{FFFE}\u{FFFF}\u{1FFFE}\u{1FFFF}\u{2FFFE}\u{2FFFF}\u{3FFFE}\u{3FFFF}\u{4FFFE}\u{4FFFF}\u{5FFFE}\u{5FFFF}\u{6FFFE}\u{6FFFF}\u{7FFFE}\u{7FFFF}\u{8FFFE}\u{8FFFF}\u{9FFFE}\u{9FFFF}\u{AFFFE}\u{AFFFF}\u{BFFFE}\u{BFFFF}\u{CFFFE}\u{CFFFF}\u{DFFFE}\u{DFFFF}\u{EFFFE}\u{EFFFF}\u{FFFFE}\u{FFFFF}\u{10FFFE}\u{10FFFF}]/u;
 function element(renderer, tag, attributes_fn = noop, children_fn = noop) {
   renderer.push("<!---->");
   if (tag) {
@@ -3412,7 +3596,7 @@ function render(component, options = {}) {
   return Renderer.render(
     /** @type {Component<Props>} */
     component,
-    options
+    options,
   );
 }
 function head(hash, renderer, fn) {
@@ -3479,6 +3663,10 @@ function attr_class(value, hash, directives) {
   var result = to_class(value, hash, directives);
   return result ? ` class="${escape_html(result, true)}"` : "";
 }
+function attr_style(value, directives) {
+  var result = to_style(value, directives);
+  return result ? ` style="${escape_html(result, true)}"` : "";
+}
 function store_get(store_values, store_name, store) {
   if (store_name in store_values && store_values[store_name][0] === store) {
     return store_values[store_name][2];
@@ -3488,7 +3676,7 @@ function store_get(store_values, store_name, store) {
   const unsub = subscribe_to_store(
     store,
     /** @param {any} v */
-    (v) => store_values[store_name][2] = v
+    (v) => (store_values[store_name][2] = v),
   );
   store_values[store_name][1] = unsub;
   return store_values[store_name][2];
@@ -3525,22 +3713,27 @@ function bind_props(props_parent, props_now) {
   for (const key of Object.keys(props_now)) {
     const initial_value = props_parent[key];
     const value = props_now[key];
-    if (initial_value === void 0 && value !== void 0 && Object.getOwnPropertyDescriptor(props_parent, key)?.set) {
+    if (
+      initial_value === void 0 &&
+      value !== void 0 &&
+      Object.getOwnPropertyDescriptor(props_parent, key)?.set
+    ) {
       props_parent[key] = value;
     }
   }
 }
 function ensure_array_like(array_like_or_iterator) {
   if (array_like_or_iterator) {
-    return array_like_or_iterator.length !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
+    return array_like_or_iterator.length !== void 0
+      ? array_like_or_iterator
+      : Array.from(array_like_or_iterator);
   }
   return [];
 }
 function once(get_value) {
-  let value = (
+  let value =
     /** @type {V} */
-    UNINITIALIZED
-  );
+    UNINITIALIZED;
   return () => {
     if (value === UNINITIALIZED) {
       value = get_value();
@@ -3551,7 +3744,7 @@ function once(get_value) {
 function derived(fn) {
   const get_value = ssr_context === null ? fn : once(fn);
   let updated_value;
-  return function(new_value) {
+  return function (new_value) {
     if (arguments.length === 0) {
       return updated_value ?? get_value();
     }
@@ -3560,78 +3753,80 @@ function derived(fn) {
   };
 }
 export {
-  define_property as $,
-  increment as A,
-  queue_micro_task as B,
+  EFFECT_TRANSPARENT as $,
+  source as A,
+  untrack as B,
   COMMENT_NODE as C,
-  active_effect as D,
-  BOUNDARY_EFFECT as E,
-  block as F,
-  branch as G,
+  increment as D,
+  queue_micro_task as E,
+  active_effect as F,
+  BOUNDARY_EFFECT as G,
   HYDRATION_ERROR as H,
-  create_text as I,
-  pause_effect as J,
-  current_batch as K,
-  move_effect as L,
-  defer_effect as M,
-  set_active_effect as N,
-  set_active_reaction as O,
-  set_component_context as P,
-  Batch as Q,
-  handle_error as R,
-  active_reaction as S,
-  component_context as T,
-  internal_set as U,
-  destroy_effect as V,
-  invoke_error_boundary as W,
-  svelte_boundary_reset_onerror as X,
-  HYDRATION_START_FAILED as Y,
-  EFFECT_TRANSPARENT as Z,
-  EFFECT_PRESERVED as _,
+  block as I,
+  branch as J,
+  create_text as K,
+  pause_effect as L,
+  current_batch as M,
+  move_effect as N,
+  defer_effect as O,
+  set_active_effect as P,
+  set_active_reaction as Q,
+  set_component_context as R,
+  Batch as S,
+  handle_error as T,
+  active_reaction as U,
+  component_context as V,
+  internal_set as W,
+  destroy_effect as X,
+  invoke_error_boundary as Y,
+  svelte_boundary_reset_onerror as Z,
+  HYDRATION_START_FAILED as _,
   spread_props as a,
-  init_operations as a0,
-  get_first_child as a1,
-  hydration_failed as a2,
-  clear_text_content as a3,
-  component_root as a4,
-  array_from as a5,
-  is_passive_event as a6,
-  push$1 as a7,
-  pop$1 as a8,
-  set as a9,
-  LEGACY_PROPS as aa,
-  flushSync as ab,
-  mutable_source as ac,
-  render as ad,
-  setContext as ae,
-  bind_props as af,
-  attributes as ag,
-  rest_props as ah,
-  fallback as ai,
-  element as aj,
+  EFFECT_PRESERVED as a0,
+  define_property as a1,
+  init_operations as a2,
+  get_first_child as a3,
+  hydration_failed as a4,
+  clear_text_content as a5,
+  component_root as a6,
+  array_from as a7,
+  is_passive_event as a8,
+  push$1 as a9,
+  pop$1 as aa,
+  set as ab,
+  LEGACY_PROPS as ac,
+  flushSync as ad,
+  mutable_source as ae,
+  render as af,
+  setContext as ag,
+  bind_props as ah,
+  attributes as ai,
+  rest_props as aj,
+  fallback as ak,
+  element as al,
   slot as b,
   store_get as c,
   stringify as d,
   ensure_array_like as e,
   escape_html as f,
   unsubscribe_stores as g,
-  attr as h,
-  attr_class as i,
+  attr_class as h,
+  attr as i,
   clsx as j,
   derived as k,
   head as l,
   getContext as m,
-  noop as n,
-  safe_not_equal as o,
-  HYDRATION_END as p,
-  HYDRATION_START as q,
-  HYDRATION_START_ELSE as r,
+  ssr_context as n,
+  attr_style as o,
+  noop as p,
+  safe_not_equal as q,
+  HYDRATION_END as r,
   sanitize_props as s,
-  get_next_sibling as t,
+  HYDRATION_START as t,
   uneval as u,
-  effect_tracking as v,
-  get as w,
-  render_effect as x,
-  source as y,
-  untrack as z
+  HYDRATION_START_ELSE as v,
+  get_next_sibling as w,
+  effect_tracking as x,
+  get as y,
+  render_effect as z,
 };

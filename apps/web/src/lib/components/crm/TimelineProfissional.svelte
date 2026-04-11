@@ -51,18 +51,21 @@
     <p class="text-sm text-slate-400">Nenhum evento no histórico</p>
   </div>
 {:else}
-  <div class="border-l-2 border-slate-100 ml-3 pl-6 space-y-5">
+  <div class="relative ml-3 pl-6 space-y-5">
+    <!-- Vertical line -->
+    <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-slate-100"></div>
+
     {#each itens as item}
       <div class="relative">
-        <!-- Dot indicator -->
+        <!-- Dot centered on the vertical line, vertically centered on the card -->
         {#if item.tipo === 'VISITA'}
-          <div class="absolute -left-[31px] top-[6px] w-3 h-3 rounded-full ring-4 ring-slate-50 shadow-sm
+          <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-slate-50 shadow-sm
             {item.status === 'REALIZADA' ? 'bg-emerald-500' : item.status === 'CANCELADA' ? 'bg-red-500' : item.status === 'NAO_REALIZADA' ? 'bg-slate-500' : 'bg-blue-500'}
           "></div>
         {:else if item.tipo === 'ESTAGIO'}
-          <div class="absolute -left-[31px] top-[6px] w-3 h-3 rounded-full ring-4 ring-slate-50 shadow-sm bg-violet-500"></div>
+          <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-slate-50 shadow-sm bg-violet-500"></div>
         {:else}
-          <div class="absolute -left-[31px] top-[6px] w-3 h-3 rounded-full ring-4 ring-slate-50 shadow-sm bg-amber-500"></div>
+          <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-slate-50 shadow-sm bg-amber-500"></div>
         {/if}
 
         <!-- Card -->

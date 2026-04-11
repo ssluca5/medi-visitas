@@ -1,34 +1,25 @@
 {
-	"/": [
-		"src/routes/+page.server.ts",
-		"src/routes/+layout.server.ts",
-		"src/routes/+layout.server.ts"
-	],
-	"/api/token": [
-		"src/routes/api/token/+server.ts"
-	],
-	"/dashboard": [
-		"src/routes/+layout.server.ts"
-	],
-	"/dashboard/especialidades": [
-		"src/routes/+layout.server.ts"
-	],
-	"/dashboard/materiais": [
-		"src/routes/+layout.server.ts"
-	],
-	"/dashboard/profissionais": [
-		"src/routes/+layout.server.ts"
-	],
-	"/dashboard/profissionais/[id]": [
-		"src/routes/+layout.server.ts"
-	],
-	"/dashboard/visitas": [
-		"src/routes/+layout.server.ts"
-	],
-	"/login": [
-		"src/routes/+layout.server.ts"
-	],
-	"/signup": [
-		"src/routes/+layout.server.ts"
-	]
+  "/": [
+    "src/routes/+page.server.ts",
+    "src/routes/+layout.server.ts",
+    "src/routes/+layout.server.ts"
+  ],
+  "/api/token": ["src/routes/api/token/+server.ts"],
+  "/dashboard": [
+    "src/routes/dashboard/+page.server.ts",
+    "src/routes/+layout.server.ts"
+  ],
+  "/dashboard/agenda": ["src/routes/+layout.server.ts"],
+  "/dashboard/especialidades": ["src/routes/+layout.server.ts"],
+  "/dashboard/materiais": ["src/routes/+layout.server.ts"],
+  "/dashboard/notificacoes": [
+    "src/routes/dashboard/notificacoes/+page.server.ts",
+    "src/routes/+layout.server.ts"
+  ],
+  "/dashboard/pipeline": ["src/routes/+layout.server.ts"],
+  "/dashboard/profissionais": ["src/routes/+layout.server.ts"],
+  "/dashboard/profissionais/[id]": ["src/routes/+layout.server.ts"],
+  "/dashboard/visitas": ["src/routes/+layout.server.ts"],
+  "/login": ["src/routes/+layout.server.ts"],
+  "/signup": ["src/routes/+layout.server.ts"]
 }

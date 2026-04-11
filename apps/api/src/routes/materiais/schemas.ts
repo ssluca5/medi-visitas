@@ -9,10 +9,16 @@ export const TipoMaterialSchema = z.enum([
 ]);
 
 export const CreateMaterialInputSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório"),
-  descricao: z.string().optional().nullable(),
+  nome: z.string().min(1, "Nome é obrigatório").max(255),
+  descricao: z.string().max(2000).optional().nullable(),
   tipo: TipoMaterialSchema,
-  arquivoUrl: z.string().url("URL inválida").optional().or(z.literal("")).nullable(),
+  arquivoUrl: z
+    .string()
+    .url("URL inválida")
+    .max(2048)
+    .optional()
+    .or(z.literal(""))
+    .nullable(),
 });
 
 export const UpdateMaterialInputSchema = CreateMaterialInputSchema.partial();

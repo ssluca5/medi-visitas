@@ -1,4 +1,58 @@
-import { H as HYDRATION_ERROR, C as COMMENT_NODE, p as HYDRATION_END, q as HYDRATION_START, r as HYDRATION_START_ELSE, t as get_next_sibling, v as effect_tracking, w as get, x as render_effect, y as source, z as untrack, A as increment, B as queue_micro_task, D as active_effect, E as BOUNDARY_EFFECT, F as block, G as branch, I as create_text, J as pause_effect, K as current_batch, L as move_effect, M as defer_effect, N as set_active_effect, O as set_active_reaction, P as set_component_context, Q as Batch, R as handle_error, S as active_reaction, T as component_context, U as internal_set, V as destroy_effect, W as invoke_error_boundary, X as svelte_boundary_reset_onerror, Y as HYDRATION_START_FAILED, Z as EFFECT_TRANSPARENT, _ as EFFECT_PRESERVED, $ as define_property, a0 as init_operations, a1 as get_first_child, a2 as hydration_failed, a3 as clear_text_content, a4 as component_root, a5 as array_from, a6 as is_passive_event, a7 as push, a8 as pop, a9 as set, aa as LEGACY_PROPS, ab as flushSync, ac as mutable_source, ad as render, ae as setContext, k as derived } from "./index.js";
+import {
+  H as HYDRATION_ERROR,
+  C as COMMENT_NODE,
+  r as HYDRATION_END,
+  t as HYDRATION_START,
+  v as HYDRATION_START_ELSE,
+  w as get_next_sibling,
+  x as effect_tracking,
+  y as get,
+  z as render_effect,
+  A as source,
+  B as untrack,
+  D as increment,
+  E as queue_micro_task,
+  F as active_effect,
+  G as BOUNDARY_EFFECT,
+  I as block,
+  J as branch,
+  K as create_text,
+  L as pause_effect,
+  M as current_batch,
+  N as move_effect,
+  O as defer_effect,
+  P as set_active_effect,
+  Q as set_active_reaction,
+  R as set_component_context,
+  S as Batch,
+  T as handle_error,
+  U as active_reaction,
+  V as component_context,
+  W as internal_set,
+  X as destroy_effect,
+  Y as invoke_error_boundary,
+  Z as svelte_boundary_reset_onerror,
+  _ as HYDRATION_START_FAILED,
+  $ as EFFECT_TRANSPARENT,
+  a0 as EFFECT_PRESERVED,
+  a1 as define_property,
+  a2 as init_operations,
+  a3 as get_first_child,
+  a4 as hydration_failed,
+  a5 as clear_text_content,
+  a6 as component_root,
+  a7 as array_from,
+  a8 as is_passive_event,
+  a9 as push,
+  aa as pop,
+  ab as set,
+  ac as LEGACY_PROPS,
+  ad as flushSync,
+  ae as mutable_source,
+  af as render,
+  ag as setContext,
+  k as derived,
+} from "./index.js";
 function hydration_mismatch(location) {
   {
     console.warn(`https://svelte.dev/e/hydration_mismatch`);
@@ -19,7 +73,7 @@ function set_hydrate_node(node) {
     hydration_mismatch();
     throw HYDRATION_ERROR;
   }
-  return hydrate_node = node;
+  return (hydrate_node = node);
 }
 function hydrate_next() {
   return set_hydrate_node(get_next_sibling(hydrate_node));
@@ -29,8 +83,7 @@ function next(count = 1) {
     var i = count;
     var node = hydrate_node;
     while (i--) {
-      node = /** @type {TemplateNode} */
-      get_next_sibling(node);
+      node = /** @type {TemplateNode} */ get_next_sibling(node);
     }
     hydrate_node = node;
   }
@@ -40,22 +93,23 @@ function skip_nodes(remove = true) {
   var node = hydrate_node;
   while (true) {
     if (node.nodeType === COMMENT_NODE) {
-      var data = (
+      var data =
         /** @type {Comment} */
-        node.data
-      );
+        node.data;
       if (data === HYDRATION_END) {
         if (depth === 0) return node;
         depth -= 1;
-      } else if (data === HYDRATION_START || data === HYDRATION_START_ELSE || // "[1", "[2", etc. for if blocks
-      data[0] === "[" && !isNaN(Number(data.slice(1)))) {
+      } else if (
+        data === HYDRATION_START ||
+        data === HYDRATION_START_ELSE || // "[1", "[2", etc. for if blocks
+        (data[0] === "[" && !isNaN(Number(data.slice(1))))
+      ) {
         depth += 1;
       }
     }
-    var next2 = (
+    var next2 =
       /** @type {TemplateNode} */
-      get_next_sibling(node)
-    );
+      get_next_sibling(node);
     if (remove) node.remove();
     node = next2;
   }
@@ -149,28 +203,30 @@ class Boundary {
     this.#anchor = node;
     this.#props = props;
     this.#children = (anchor) => {
-      var effect = (
+      var effect =
         /** @type {Effect} */
-        active_effect
-      );
+        active_effect;
       effect.b = this;
       effect.f |= BOUNDARY_EFFECT;
       children(anchor);
     };
-    this.parent = /** @type {Effect} */
-    active_effect.b;
-    this.transform_error = transform_error ?? this.parent?.transform_error ?? ((e) => e);
+    this.parent = /** @type {Effect} */ active_effect.b;
+    this.transform_error =
+      transform_error ?? this.parent?.transform_error ?? ((e) => e);
     this.#effect = block(() => {
       if (hydrating) {
-        const comment = (
+        const comment =
           /** @type {Comment} */
-          this.#hydrate_open
-        );
+          this.#hydrate_open;
         hydrate_next();
         const server_rendered_pending = comment.data === HYDRATION_START_ELSE;
-        const server_rendered_failed = comment.data.startsWith(HYDRATION_START_FAILED);
+        const server_rendered_failed = comment.data.startsWith(
+          HYDRATION_START_FAILED,
+        );
         if (server_rendered_failed) {
-          const serialized_error = JSON.parse(comment.data.slice(HYDRATION_START_FAILED.length));
+          const serialized_error = JSON.parse(
+            comment.data.slice(HYDRATION_START_FAILED.length),
+          );
           this.#hydrate_failed_content(serialized_error);
         } else if (server_rendered_pending) {
           this.#hydrate_pending_content();
@@ -202,8 +258,7 @@ class Boundary {
       failed(
         this.#anchor,
         () => error,
-        () => () => {
-        }
+        () => () => {},
       );
     });
   }
@@ -213,7 +268,8 @@ class Boundary {
     this.is_pending = true;
     this.#pending_effect = branch(() => pending(this.#anchor));
     queue_micro_task(() => {
-      var fragment = this.#offscreen_fragment = document.createDocumentFragment();
+      var fragment = (this.#offscreen_fragment =
+        document.createDocumentFragment());
       var anchor = create_text();
       fragment.append(anchor);
       this.#main_effect = this.#run(() => {
@@ -227,11 +283,11 @@ class Boundary {
           this.#pending_effect,
           () => {
             this.#pending_effect = null;
-          }
+          },
         );
         this.#resolve(
           /** @type {Batch} */
-          current_batch
+          current_batch,
         );
       }
     });
@@ -245,17 +301,17 @@ class Boundary {
         this.#children(this.#anchor);
       });
       if (this.#pending_count > 0) {
-        var fragment = this.#offscreen_fragment = document.createDocumentFragment();
+        var fragment = (this.#offscreen_fragment =
+          document.createDocumentFragment());
         move_effect(this.#main_effect, fragment);
-        const pending = (
+        const pending =
           /** @type {(anchor: Node) => void} */
-          this.#props.pending
-        );
+          this.#props.pending;
         this.#pending_effect = branch(() => pending(this.#anchor));
       } else {
         this.#resolve(
           /** @type {Batch} */
-          current_batch
+          current_batch,
         );
       }
     } catch (error) {
@@ -359,7 +415,7 @@ class Boundary {
     this.#effect_pending_subscriber();
     return get(
       /** @type {Source<number>} */
-      this.#effect_pending
+      this.#effect_pending,
     );
   }
   /** @param {unknown} error */
@@ -384,7 +440,7 @@ class Boundary {
     if (hydrating) {
       set_hydrate_node(
         /** @type {TemplateNode} */
-        this.#hydrate_open
+        this.#hydrate_open,
       );
       next();
       set_hydrate_node(skip_nodes());
@@ -421,23 +477,22 @@ class Boundary {
         this.#failed_effect = this.#run(() => {
           try {
             return branch(() => {
-              var effect = (
+              var effect =
                 /** @type {Effect} */
-                active_effect
-              );
+                active_effect;
               effect.b = this;
               effect.f |= BOUNDARY_EFFECT;
               failed(
                 this.#anchor,
                 () => transformed_error,
-                () => reset
+                () => reset,
               );
             });
           } catch (error2) {
             invoke_error_boundary(
               error2,
               /** @type {Effect} */
-              this.#effect.parent
+              this.#effect.parent,
             );
             return null;
           }
@@ -452,12 +507,15 @@ class Boundary {
         invoke_error_boundary(e, this.#effect && this.#effect.parent);
         return;
       }
-      if (result !== null && typeof result === "object" && typeof /** @type {any} */
-      result.then === "function") {
+      if (
+        result !== null &&
+        typeof result === "object" &&
+        typeof (/** @type {any} */ result.then) === "function"
+      ) {
         result.then(
           handle_error_result,
           /** @param {unknown} e */
-          (e) => invoke_error_boundary(e, this.#effect && this.#effect.parent)
+          (e) => invoke_error_boundary(e, this.#effect && this.#effect.parent),
         );
       } else {
         handle_error_result(result);
@@ -471,23 +529,24 @@ const root_event_handles = /* @__PURE__ */ new Set();
 let last_propagated_event = null;
 function handle_event_propagation(event) {
   var handler_element = this;
-  var owner_document = (
+  var owner_document =
     /** @type {Node} */
-    handler_element.ownerDocument
-  );
+    handler_element.ownerDocument;
   var event_name = event.type;
   var path = event.composedPath?.() || [];
-  var current_target = (
+  var current_target =
     /** @type {null | Element} */
-    path[0] || event.target
-  );
+    path[0] || event.target;
   last_propagated_event = event;
   var path_idx = 0;
   var handled_at = last_propagated_event === event && event[event_symbol];
   if (handled_at) {
     var at_idx = path.indexOf(handled_at);
-    if (at_idx !== -1 && (handler_element === document || handler_element === /** @type {any} */
-    window)) {
+    if (
+      at_idx !== -1 &&
+      (handler_element === document ||
+        handler_element === /** @type {any} */ window)
+    ) {
       event[event_symbol] = handler_element;
       return;
     }
@@ -499,14 +558,13 @@ function handle_event_propagation(event) {
       path_idx = at_idx;
     }
   }
-  current_target = /** @type {Element} */
-  path[path_idx] || event.target;
+  current_target = /** @type {Element} */ path[path_idx] || event.target;
   if (current_target === handler_element) return;
   define_property(event, "currentTarget", {
     configurable: true,
     get() {
       return current_target || owner_document;
-    }
+    },
   });
   var previous_reaction = active_reaction;
   var previous_effect = active_effect;
@@ -516,14 +574,20 @@ function handle_event_propagation(event) {
     var throw_error;
     var other_errors = [];
     while (current_target !== null) {
-      var parent_element = current_target.assignedSlot || current_target.parentNode || /** @type {any} */
-      current_target.host || null;
+      var parent_element =
+        current_target.assignedSlot ||
+        current_target.parentNode ||
+        /** @type {any} */
+        current_target.host ||
+        null;
       try {
         var delegated = current_target[event_symbol]?.[event_name];
-        if (delegated != null && (!/** @type {any} */
-        current_target.disabled || // DOM could've been updated already by the time this is reached, so we check this as well
-        // -> the target could not have been disabled because it emits the event in the first place
-        event.target === current_target)) {
+        if (
+          delegated != null &&
+          (!(/** @type {any} */ current_target.disabled) || // DOM could've been updated already by the time this is reached, so we check this as well
+            // -> the target could not have been disabled because it emits the event in the first place
+            event.target === current_target)
+        ) {
           delegated.call(current_target, event);
         }
       } catch (error) {
@@ -533,7 +597,11 @@ function handle_event_propagation(event) {
           throw_error = error;
         }
       }
-      if (event.cancelBubble || parent_element === handler_element || parent_element === null) {
+      if (
+        event.cancelBubble ||
+        parent_element === handler_element ||
+        parent_element === null
+      ) {
         break;
       }
       current_target = parent_element;
@@ -554,10 +622,9 @@ function handle_event_propagation(event) {
   }
 }
 function assign_nodes(start, end) {
-  var effect = (
+  var effect =
     /** @type {Effect} */
-    active_effect
-  );
+    active_effect;
   if (effect.nodes === null) {
     effect.nodes = { start, end, a: null, t: null };
   }
@@ -573,8 +640,12 @@ function hydrate(component, options) {
   const previous_hydrate_node = hydrate_node;
   try {
     var anchor = get_first_child(target);
-    while (anchor && (anchor.nodeType !== COMMENT_NODE || /** @type {Comment} */
-    anchor.data !== HYDRATION_START)) {
+    while (
+      anchor &&
+      (anchor.nodeType !== COMMENT_NODE ||
+        /** @type {Comment} */
+        anchor.data !== HYDRATION_START)
+    ) {
       anchor = get_next_sibling(anchor);
     }
     if (!anchor) {
@@ -583,7 +654,7 @@ function hydrate(component, options) {
     set_hydrating(true);
     set_hydrate_node(
       /** @type {Comment} */
-      anchor
+      anchor,
     );
     const instance = _mount(component, { ...options, anchor });
     set_hydrating(false);
@@ -592,7 +663,12 @@ function hydrate(component, options) {
       instance
     );
   } catch (error) {
-    if (error instanceof Error && error.message.split("\n").some((line) => line.startsWith("https://svelte.dev/e/"))) {
+    if (
+      error instanceof Error &&
+      error.message
+        .split("\n")
+        .some((line) => line.startsWith("https://svelte.dev/e/"))
+    ) {
       throw error;
     }
     if (error !== HYDRATION_ERROR) {
@@ -611,7 +687,10 @@ function hydrate(component, options) {
   }
 }
 const listeners = /* @__PURE__ */ new Map();
-function _mount(Component, { target, anchor, props = {}, events, context, intro = true, transformError }) {
+function _mount(
+  Component,
+  { target, anchor, props = {}, events, context, intro = true, transformError },
+) {
   init_operations();
   var component = void 0;
   var unmount2 = component_root(() => {
@@ -620,15 +699,13 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
       /** @type {TemplateNode} */
       anchor_node,
       {
-        pending: () => {
-        }
+        pending: () => {},
       },
       (anchor_node2) => {
         push({});
-        var ctx = (
+        var ctx =
           /** @type {ComponentContext} */
-          component_context
-        );
+          component_context;
         if (context) ctx.c = context;
         if (events) {
           props.$$events = events;
@@ -637,21 +714,25 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
           assign_nodes(
             /** @type {TemplateNode} */
             anchor_node2,
-            null
+            null,
           );
         }
         component = Component(anchor_node2, props) || {};
         if (hydrating) {
           active_effect.nodes.end = hydrate_node;
-          if (hydrate_node === null || hydrate_node.nodeType !== COMMENT_NODE || /** @type {Comment} */
-          hydrate_node.data !== HYDRATION_END) {
+          if (
+            hydrate_node === null ||
+            hydrate_node.nodeType !== COMMENT_NODE ||
+            /** @type {Comment} */
+            hydrate_node.data !== HYDRATION_END
+          ) {
             hydration_mismatch();
             throw HYDRATION_ERROR;
           }
         }
         pop();
       },
-      transformError
+      transformError,
     );
     var registered_events = /* @__PURE__ */ new Set();
     var event_handle = (events2) => {
@@ -668,7 +749,9 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
           }
           var count = counts.get(event_name);
           if (count === void 0) {
-            node.addEventListener(event_name, handle_event_propagation, { passive });
+            node.addEventListener(event_name, handle_event_propagation, {
+              passive,
+            });
             counts.set(event_name, 1);
           } else {
             counts.set(event_name, count + 1);
@@ -681,14 +764,12 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
     return () => {
       for (var event_name of registered_events) {
         for (const node of [target, document]) {
-          var counts = (
+          var counts =
             /** @type {Map<string, number>} */
-            listeners.get(node)
-          );
-          var count = (
+            listeners.get(node);
+          var count =
             /** @type {number} */
-            counts.get(event_name)
-          );
+            counts.get(event_name);
           if (--count == 0) {
             node.removeEventListener(event_name, handle_event_propagation);
             counts.delete(event_name);
@@ -724,7 +805,7 @@ function asClassComponent$1(component) {
     constructor(options) {
       super({
         component,
-        ...options
+        ...options,
       });
     }
   };
@@ -747,10 +828,12 @@ class Svelte4Component {
       return s;
     };
     const props = new Proxy(
-      { ...options.props || {}, $$events: {} },
+      { ...(options.props || {}), $$events: {} },
       {
         get(target, prop) {
-          return get(sources.get(prop) ?? add_source(prop, Reflect.get(target, prop)));
+          return get(
+            sources.get(prop) ?? add_source(prop, Reflect.get(target, prop)),
+          );
         },
         has(target, prop) {
           if (prop === LEGACY_PROPS) return true;
@@ -760,8 +843,8 @@ class Svelte4Component {
         set(target, prop, value) {
           set(sources.get(prop) ?? add_source(prop, value), value);
           return Reflect.set(target, prop, value);
-        }
-      }
+        },
+      },
     );
     this.#instance = (options.hydrate ? hydrate : mount)(options.component, {
       target: options.target,
@@ -770,7 +853,7 @@ class Svelte4Component {
       context: options.context,
       intro: options.intro ?? false,
       recover: options.recover,
-      transformError: options.transformError
+      transformError: options.transformError,
     });
     if (!options?.props?.$$host || options.sync === false) {
       flushSync();
@@ -786,13 +869,14 @@ class Svelte4Component {
         set(value) {
           this.#instance[key] = value;
         },
-        enumerable: true
+        enumerable: true,
       });
     }
-    this.#instance.$set = /** @param {Record<string, any>} next */
-    (next2) => {
-      Object.assign(props, next2);
-    };
+    this.#instance.$set =
+      /** @param {Record<string, any>} next */
+      (next2) => {
+        Object.assign(props, next2);
+      };
     this.#instance.$destroy = () => {
       unmount(this.#instance);
     };
@@ -813,7 +897,7 @@ class Svelte4Component {
     return () => {
       this.#events[event] = this.#events[event].filter(
         /** @param {any} fn */
-        (fn) => fn !== cb
+        (fn) => fn !== cb,
       );
     };
   }
@@ -830,13 +914,13 @@ function asClassComponent(component) {
       {},
       {
         css: {
-          value: { code: "", map: null }
+          value: { code: "", map: null },
         },
         head: {
-          get: () => result.head
+          get: () => result.head,
         },
         html: {
-          get: () => result.body
+          get: () => result.body,
         },
         then: {
           /**
@@ -852,13 +936,13 @@ function asClassComponent(component) {
               const user_result = onfulfilled({
                 css: munged.css,
                 head: munged.head,
-                html: munged.html
+                html: munged.html,
               });
               return Promise.resolve(user_result);
             }
-          }
-        }
-      }
+          },
+        },
+      },
     );
     return munged;
   };
@@ -874,7 +958,7 @@ function Root($$renderer, $$props) {
       components = [],
       form,
       data_0 = null,
-      data_1 = null
+      data_1 = null,
     } = $$props;
     {
       setContext("__svelte__", stores);
@@ -895,14 +979,18 @@ function Root($$renderer, $$props) {
           children: ($$renderer3) => {
             if (Pyramid_1()) {
               $$renderer3.push("<!--[-->");
-              Pyramid_1()($$renderer3, { data: data_1, form, params: page.params });
+              Pyramid_1()($$renderer3, {
+                data: data_1,
+                form,
+                params: page.params,
+              });
               $$renderer3.push("<!--]-->");
             } else {
               $$renderer3.push("<!--[!-->");
               $$renderer3.push("<!--]-->");
             }
           },
-          $$slots: { default: true }
+          $$slots: { default: true },
         });
         $$renderer2.push("<!--]-->");
       } else {
@@ -929,6 +1017,4 @@ function Root($$renderer, $$props) {
   });
 }
 const root = asClassComponent(Root);
-export {
-  root as r
-};
+export { root as r };

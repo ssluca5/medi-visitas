@@ -12,6 +12,4 @@ function createToastStore() {
   return { subscribe, show, dismiss };
 }
 const toasts = createToastStore();
-export {
-  toasts as t
-};
+export { toasts as t };

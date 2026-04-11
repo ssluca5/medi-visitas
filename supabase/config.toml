@@ -1,0 +1,2 @@
+[functions.gerar-lembretes]
+verify_jwt = false

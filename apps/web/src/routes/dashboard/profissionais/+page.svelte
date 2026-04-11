@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import {
 		Plus,
 		ChevronLeft,
 		ChevronRight,
-		Pencil,
 		ArrowRight,
 		ArrowLeft,
 		Power,
@@ -17,13 +18,16 @@
 		X,
 		Loader2,
 		Eye,
-		Calendar
+		Calendar,
+		Clock,
+		Package
 	} from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
 	import { toasts } from '$lib/stores/toast';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Sheet from '$lib/components/ui/Sheet.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+	import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
 	import type {
 		Profissional,
 		ProfissionalFormData,
@@ -34,7 +38,8 @@
 		SubEspecialidade,
 		ContatoTipo,
 		Sexo,
-		Tratamento
+		Tratamento,
+		Visita
 	} from '$lib/types';
 
 	interface Props {
@@ -101,6 +106,25 @@
 	// Modal de consulta rápida
 	let profissionalConsulta = $state<Profissional | null>(null);
 	let consultaOpen = $state(false);
+	let consultaTab = $state<'dados' | 'visitas'>('dados');
+	let visitasDoProfissional = $state<Visita[]>([]);
+	let loadingVisitas = $state(false);
+
+	async function loadVisitasProfissional(profissionalId: string) {
+		loadingVisitas = true;
+		try {
+			const res = await apiFetch(`/visitas?profissionalId=${profissionalId}&pageSize=20`, data.sessionToken);
+			if (res.ok) {
+				const json = await res.json();
+				visitasDoProfissional = json.data || json;
+			}
+		} catch (e) {
+			console.error('Erro ao carregar visitas:', e);
+			visitasDoProfissional = [];
+		} finally {
+			loadingVisitas = false;
+		}
+	}
 
 	// ── ViaCEP ──
 	async function buscarCep() {
@@ -260,6 +284,22 @@
 	onMount(() => {
 		fetchProfissionais(1);
 		fetchEspecialidades();
+	});
+
+	// ── Auto-open edit Sheet when navigated from profile "Editar Cadastro" ──
+	let editIdFromUrl = $derived($page.url.searchParams.get('editId'));
+	let editAutoOpened = $state(false);
+
+	$effect(() => {
+		const eid = editIdFromUrl;
+		if (!eid || editAutoOpened || profissionais.length === 0) return;
+		editAutoOpened = true;
+		const prof = profissionais.find(p => p.id === eid);
+		if (prof) {
+			handleEditarProfissional(prof);
+			// Clean the URL param so refreshing doesn't re-open
+			goto('/dashboard/profissionais', { replaceState: true, keepFocus: true });
+		}
 	});
 
 	// ── Ações ──
@@ -532,16 +572,23 @@
 </svelte:head>
 
 <!-- Page Header -->
-<header class="mb-6 flex items-center justify-between">
-	<div>
-		<h2 class="text-2xl font-semibold tracking-tight text-slate-900">Profissionais</h2>
-		<p class="text-sm text-slate-400 mt-1">{pagination.total} profissionais cadastrados</p>
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+	<div class="flex items-center gap-3">
+		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+			<Users class="h-4.5 w-4.5 text-white" />
+		</div>
+		<div>
+			<h1 class="text-lg font-bold text-slate-800">Profissionais</h1>
+			<p class="text-[11px] text-slate-400">Gerencie o cadastro e a classificação dos médicos</p>
+		</div>
 	</div>
-	<Button onclick={handleNovoProfissional} class="hidden sm:inline-flex gap-2">
-		<Plus class="h-4 w-4" />
-		Novo Profissional
-	</Button>
-</header>
+	<div class="flex items-center gap-2">
+		<Button onclick={handleNovoProfissional} class="hidden sm:inline-flex gap-2">
+			<Plus class="h-4 w-4" />
+			Novo Profissional
+		</Button>
+	</div>
+</div>
 
 <!-- Filters -->
 <div class="card-surface p-4 mb-6">
@@ -689,7 +736,7 @@
 						<td class="p-3.5">
 							<div class="flex justify-center items-center gap-0.5">
 								<button
-									onclick={(e) => { e.stopPropagation(); profissionalConsulta = prof; consultaOpen = true; }}
+									onclick={(e) => { e.stopPropagation(); profissionalConsulta = prof; consultaTab = 'dados'; consultaOpen = true; }}
 									title="Ver detalhes"
 									class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
 								>
@@ -729,13 +776,6 @@
 									{:else}
 										<Play class="w-3.5 h-3.5" />
 									{/if}
-								</button>
-								<button
-									onclick={(e) => { e.stopPropagation(); handleEditarProfissional(prof); }}
-									title="Editar"
-									class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:text-blue-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
-								>
-									<Pencil class="w-3.5 h-3.5" />
 								</button>
 								<button
 									onclick={(e) => { e.stopPropagation(); handleExcluirProfissional(prof); }}
@@ -1229,122 +1269,198 @@
 				</button>
 			</div>
 
+			<!-- Abas -->
+			<div class="flex border-b border-slate-100">
+				<button
+					type="button"
+					onclick={() => { consultaTab = 'dados'; }}
+					class="flex-1 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
+						{consultaTab === 'dados' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}"
+				>
+					Dados
+				</button>
+				<button
+					type="button"
+					onclick={() => { consultaTab = 'visitas'; if (profissionalConsulta) loadVisitasProfissional(profissionalConsulta.id); }}
+					class="flex-1 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
+						{consultaTab === 'visitas' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}"
+				>
+					Últimas Visitas
+				</button>
+			</div>
+
 			<!-- Conteúdo -->
 			<div class="p-6">
-
-				<!-- Bloco: Dados Pessoais -->
-				<div>
-					<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Dados Pessoais</p>
-					<div class="grid grid-cols-2 gap-x-8 gap-y-4">
-						<!-- CRM -->
-						<div>
-							<p class="text-xs text-slate-500 mb-1">CRM</p>
-							<p class="text-sm font-semibold {profissionalConsulta.crm ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.crm || '—'}</p>
-						</div>
-						<!-- CPF/CNPJ -->
-						<div>
-							<p class="text-xs text-slate-500 mb-1">CPF/CNPJ</p>
-							<p class="text-sm font-semibold {profissionalConsulta.cpfCnpj ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.cpfCnpj || '—'}</p>
-						</div>
-						<!-- Sexo -->
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Sexo</p>
-							<p class="text-sm font-semibold {profissionalConsulta.sexo ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.sexo ? (sexoLabels[profissionalConsulta.sexo] ?? profissionalConsulta.sexo) : '—'}</p>
-						</div>
-						<!-- Nascimento -->
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Nascimento</p>
-							<p class="text-sm font-semibold {profissionalConsulta.dataNascimento ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.dataNascimento ? new Date(profissionalConsulta.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'}</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- Bloco: Contato -->
-				<div class="mt-8">
-					<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Contato</p>
-					<div class="grid grid-cols-2 gap-x-8 gap-y-4">
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Telefone</p>
-							<p class="text-sm font-semibold {profissionalConsulta.telefone ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.telefone || '—'}</p>
-						</div>
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Email</p>
-							<p class="text-sm font-semibold {profissionalConsulta.email ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.email || '—'}</p>
+				{#if consultaTab === 'dados'}
+					<!-- Bloco: Dados Pessoais -->
+					<div>
+						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Dados Pessoais</p>
+						<div class="grid grid-cols-2 gap-x-8 gap-y-4">
+							<!-- CRM -->
+							<div>
+								<p class="text-xs text-slate-500 mb-1">CRM</p>
+								<p class="text-sm font-semibold {profissionalConsulta.crm ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.crm || '—'}</p>
+							</div>
+							<!-- CPF/CNPJ -->
+							<div>
+								<p class="text-xs text-slate-500 mb-1">CPF/CNPJ</p>
+								<p class="text-sm font-semibold {profissionalConsulta.cpfCnpj ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.cpfCnpj || '—'}</p>
+							</div>
+							<!-- Sexo -->
+							<div>
+								<p class="text-xs text-slate-500 mb-1">Sexo</p>
+								<p class="text-sm font-semibold {profissionalConsulta.sexo ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.sexo ? (sexoLabels[profissionalConsulta.sexo] ?? profissionalConsulta.sexo) : '—'}</p>
+							</div>
+							<!-- Nascimento -->
+							<div>
+								<p class="text-xs text-slate-500 mb-1">Nascimento</p>
+								<p class="text-sm font-semibold {profissionalConsulta.dataNascimento ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.dataNascimento ? new Date(profissionalConsulta.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'}</p>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<!-- Bloco: Endereço -->
-				{#if profissionalConsulta.endereco}
-					{@const end = profissionalConsulta.endereco}
-					{@const logradouroFull = [end.logradouro, end.numero, end.complemento].filter(Boolean).join(', ')}
-					{@const cidadeUf = [end.cidade, end.estado].filter(Boolean).join('/')}
+					<!-- Bloco: Contato -->
 					<div class="mt-8">
-						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Endereço</p>
+						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Contato</p>
 						<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 							<div>
-								<p class="text-xs text-slate-500 mb-1">CEP</p>
-								<p class="text-sm font-semibold {end.cep ? 'text-slate-800' : 'text-slate-300'}">{end.cep || '—'}</p>
+								<p class="text-xs text-slate-500 mb-1">Telefone</p>
+								<p class="text-sm font-semibold {profissionalConsulta.telefone ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.telefone || '—'}</p>
 							</div>
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Logradouro</p>
-								<p class="text-sm font-semibold {logradouroFull ? 'text-slate-800' : 'text-slate-300'}">{logradouroFull || '—'}</p>
-							</div>
-							<div>
-								<p class="text-xs text-slate-500 mb-1">Bairro</p>
-								<p class="text-sm font-semibold {end.bairro ? 'text-slate-800' : 'text-slate-300'}">{end.bairro || '—'}</p>
-							</div>
-							<div>
-								<p class="text-xs text-slate-500 mb-1">Cidade/UF</p>
-								<p class="text-sm font-semibold {cidadeUf ? 'text-slate-800' : 'text-slate-300'}">{cidadeUf || '—'}</p>
+								<p class="text-xs text-slate-500 mb-1">Email</p>
+								<p class="text-sm font-semibold {profissionalConsulta.email ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.email || '—'}</p>
 							</div>
 						</div>
 					</div>
-				{/if}
 
-				<!-- Bloco: Classificação -->
-				<div class="mt-8">
-					<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Classificação</p>
-					<div class="grid grid-cols-3 gap-x-8 gap-y-4">
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Potencial</p>
-							{#if profissionalConsulta.potencial && potencialConfig[profissionalConsulta.potencial]}
-								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {potencialConfig[profissionalConsulta.potencial].class}">
-									{potencialConfig[profissionalConsulta.potencial].label}
-								</span>
-							{:else}
-								<p class="text-sm font-semibold text-slate-300">—</p>
-							{/if}
+					<!-- Bloco: Endereço -->
+					{#if profissionalConsulta.endereco}
+						{@const end = profissionalConsulta.endereco}
+						{@const logradouroFull = [end.logradouro, end.numero, end.complemento].filter(Boolean).join(', ')}
+						{@const cidadeUf = [end.cidade, end.estado].filter(Boolean).join('/')}
+						<div class="mt-8">
+							<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Endereço</p>
+							<div class="grid grid-cols-2 gap-x-8 gap-y-4">
+								<div>
+									<p class="text-xs text-slate-500 mb-1">CEP</p>
+									<p class="text-sm font-semibold {end.cep ? 'text-slate-800' : 'text-slate-300'}">{end.cep || '—'}</p>
+								</div>
+								<div>
+									<p class="text-xs text-slate-500 mb-1">Logradouro</p>
+									<p class="text-sm font-semibold {logradouroFull ? 'text-slate-800' : 'text-slate-300'}">{logradouroFull || '—'}</p>
+								</div>
+								<div>
+									<p class="text-xs text-slate-500 mb-1">Bairro</p>
+									<p class="text-sm font-semibold {end.bairro ? 'text-slate-800' : 'text-slate-300'}">{end.bairro || '—'}</p>
+								</div>
+								<div>
+									<p class="text-xs text-slate-500 mb-1">Cidade/UF</p>
+									<p class="text-sm font-semibold {cidadeUf ? 'text-slate-800' : 'text-slate-300'}">{cidadeUf || '—'}</p>
+								</div>
+							</div>
 						</div>
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Estágio</p>
-							{#if profissionalConsulta.estagioPipeline && estagioConfig[profissionalConsulta.estagioPipeline]}
-								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {estagioConfig[profissionalConsulta.estagioPipeline].class}">
-									{estagioConfig[profissionalConsulta.estagioPipeline].label}
-								</span>
-							{:else}
-								<p class="text-sm font-semibold text-slate-300">—</p>
-							{/if}
-						</div>
-						<div>
-							<p class="text-xs text-slate-500 mb-1">Relacionamento</p>
-							{#if profissionalConsulta.classificacao && classificacaoConfig[profissionalConsulta.classificacao]}
-								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {classificacaoConfig[profissionalConsulta.classificacao].class}">
-									{classificacaoConfig[profissionalConsulta.classificacao].label}
-								</span>
-							{:else}
-								<p class="text-sm font-semibold text-slate-300">—</p>
-							{/if}
-						</div>
-					</div>
-				</div>
+					{/if}
 
-				<!-- Observações -->
-				{#if profissionalConsulta.observacoes}
+					<!-- Bloco: Classificação -->
 					<div class="mt-8">
-						<p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Observações</p>
-						<p class="text-sm font-semibold text-slate-800">{profissionalConsulta.observacoes}</p>
+						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Classificação</p>
+						<div class="grid grid-cols-3 gap-x-8 gap-y-4">
+							<div>
+								<p class="text-xs text-slate-500 mb-1">Potencial</p>
+								{#if profissionalConsulta.potencial && potencialConfig[profissionalConsulta.potencial]}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {potencialConfig[profissionalConsulta.potencial].class}">
+										{potencialConfig[profissionalConsulta.potencial].label}
+									</span>
+								{:else}
+									<p class="text-sm font-semibold text-slate-300">—</p>
+								{/if}
+							</div>
+							<div>
+								<p class="text-xs text-slate-500 mb-1">Estágio</p>
+								{#if profissionalConsulta.estagioPipeline && estagioConfig[profissionalConsulta.estagioPipeline]}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {estagioConfig[profissionalConsulta.estagioPipeline].class}">
+										{estagioConfig[profissionalConsulta.estagioPipeline].label}
+									</span>
+								{:else}
+									<p class="text-sm font-semibold text-slate-300">—</p>
+								{/if}
+							</div>
+							<div>
+								<p class="text-xs text-slate-500 mb-1">Relacionamento</p>
+								{#if profissionalConsulta.classificacao && classificacaoConfig[profissionalConsulta.classificacao]}
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {classificacaoConfig[profissionalConsulta.classificacao].class}">
+										{classificacaoConfig[profissionalConsulta.classificacao].label}
+									</span>
+								{:else}
+									<p class="text-sm font-semibold text-slate-300">—</p>
+								{/if}
+							</div>
+						</div>
 					</div>
+
+					<!-- Observações -->
+					{#if profissionalConsulta.observacoes}
+						<div class="mt-8">
+							<p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Observações</p>
+							<p class="text-sm font-semibold text-slate-800">{profissionalConsulta.observacoes}</p>
+						</div>
+					{/if}
+
+				{:else}
+					<!-- Aba: Últimas Visitas -->
+					{#if loadingVisitas}
+						<div class="flex justify-center py-12">
+							<div class="h-7 w-7 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
+						</div>
+					{:else if visitasDoProfissional.length === 0}
+						<div class="text-center py-16">
+							<div class="flex justify-center mb-3">
+								<div class="bg-slate-100 p-3 rounded-full">
+									<Calendar class="w-6 h-6 text-slate-400" />
+								</div>
+							</div>
+							<p class="text-sm font-medium text-slate-500">Nenhuma visita registrada</p>
+							<p class="text-xs text-slate-400 mt-1">Este profissional ainda não possui visitas cadastradas.</p>
+						</div>
+					{:else}
+						<div class="space-y-3">
+							{#each visitasDoProfissional as visita}
+								<div class="bg-slate-50 rounded-xl p-4 border border-slate-100 hover:border-slate-200 transition-colors">
+									<div class="flex items-center justify-between mb-2">
+										<div class="flex items-center gap-2 text-sm">
+											<Calendar class="w-3.5 h-3.5 text-slate-400" />
+											<span class="font-semibold text-slate-700">
+												{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
+												às {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
+											</span>
+										</div>
+										<StatusVisitaBadge status={visita.status} />
+									</div>
+									<div class="flex items-center gap-4 text-xs text-slate-500">
+										{#if visita.duracaoMinutos}
+											<div class="flex items-center gap-1">
+												<Clock class="w-3 h-3 text-slate-400" />
+												<span>{visita.duracaoMinutos} min</span>
+											</div>
+										{/if}
+										{#if visita.materiais && visita.materiais.length > 0}
+											<div class="flex items-center gap-1">
+												<Package class="w-3 h-3 text-slate-400" />
+												<span>{visita.materiais.length} materiais</span>
+											</div>
+										{/if}
+									</div>
+									{#if visita.objetivoVisita}
+										<p class="text-xs text-slate-600 mt-2 line-clamp-2"><span class="font-medium">Objetivo:</span> {visita.objetivoVisita}</p>
+									{/if}
+									{#if visita.resumo}
+										<p class="text-xs text-slate-600 mt-1 line-clamp-2"><span class="font-medium">Resumo:</span> {visita.resumo}</p>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					{/if}
 				{/if}
 			</div>
 

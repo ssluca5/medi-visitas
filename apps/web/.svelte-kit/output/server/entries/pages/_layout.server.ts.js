@@ -10,9 +10,7 @@ const load = async ({ locals, url }) => {
   return {
     userId: locals.userId,
     sessionToken: locals.sessionToken,
-    userName: locals.userName ?? "Usuário"
+    userName: locals.userName ?? "Usuário",
   };
 };
-export {
-  load
-};
+export { load };

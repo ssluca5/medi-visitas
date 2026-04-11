@@ -9,10 +9,16 @@ const GET = async ({ locals }) => {
   try {
     let tokenInfo;
     try {
-      tokenInfo = await clerk.sessions.getToken(locals.sessionId, "access_token");
+      tokenInfo = await clerk.sessions.getToken(
+        locals.sessionId,
+        "access_token",
+      );
     } catch (tokenError) {
       console.error("Falha ao obter access_token:", tokenError);
-      tokenInfo = await clerk.sessions.getToken(locals.sessionId, "session_token");
+      tokenInfo = await clerk.sessions.getToken(
+        locals.sessionId,
+        "session_token",
+      );
     }
     if (tokenInfo && tokenInfo.jwt) {
       return json({ token: tokenInfo.jwt });
@@ -23,6 +29,4 @@ const GET = async ({ locals }) => {
     return json({ error: "Error refreshing token" }, { status: 500 });
   }
 };
-export {
-  GET
-};
+export { GET };

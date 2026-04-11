@@ -7,7 +7,24 @@
       "Bash(npx tsc:*)",
       "Bash(rm -rf apps/web/.next)",
       "Bash(rm -rf apps/web/node_modules/.cache)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(node --experimental-vm-modules node_modules/jest/bin/jest.js src/routes/pipeline/index.test.ts --no-coverage)",
+      "Bash(node --experimental-vm-modules node_modules/jest/bin/jest.js src/routes/me.test.ts --no-coverage)",
+      "WebSearch",
+      "mcp__plugin_context-mode_context-mode__ctx_fetch_and_index",
+      "Read(//c/Users/lukas/**)",
+      "Bash(ls ~/.claude/*.json)",
+      "Bash(npx prisma:*)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\lukas\\\\.vscode\\\\projects\\\\medivisitas\\\\apps\\\\web\\\\src\\\\lib\\\\components\\\\notificacoes\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\lukas\\\\.vscode\\\\projects\\\\medivisitas\\\\apps\\\\web\\\\src\\\\lib\\\\components\\\\layout\")",
+      "Bash(nc -zv db.iediyaalqoukolmfrboq.supabase.com 5432 5)",
+      "Bash(powershell -Command \"Test-NetConnection -ComputerName aws-1-sa-east-1.pooler.supabase.com -Port 5432 -InformationLevel Quiet\")",
+      "Bash(powershell -Command \"Test-NetConnection -ComputerName aws-1-sa-east-1.pooler.supabase.com -Port 6543 -InformationLevel Quiet\")",
+      "Bash(PRISMA_MIGRATION_LOCK_TIMEOUT=30000 pnpm exec prisma migrate dev --name notificacoes)"
     ]
+  },
+  "enabledPlugins": {
+    "impeccable@impeccable": true,
+    "caveman@caveman": true
   }
 }

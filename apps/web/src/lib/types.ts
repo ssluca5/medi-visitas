@@ -326,3 +326,29 @@ export interface TimelineItem {
   prioridade?: string;
   observacoes?: string | null;
 }
+
+// ── Notificações (Fase 8) ──
+
+export type TipoNotificacao =
+  | "VISITA_HOJE"
+  | "VISITA_ATRASADA"
+  | "SEM_VISITA_30_DIAS"
+  | "SEM_VISITA_60_DIAS"
+  | "PROSPECTADO_PENDENTE"
+  | "SISTEMA";
+
+export type PrioridadeNotificacao = "INFO" | "NORMAL" | "ALTA" | "URGENTE";
+
+export interface Notificacao {
+  id: string;
+  tipo: TipoNotificacao;
+  prioridade: PrioridadeNotificacao;
+  titulo: string;
+  mensagem: string;
+  lida: boolean;
+  lidaEm: string | null;
+  profissionalId: string | null;
+  agendaItemId: string | null;
+  visitaId: string | null;
+  createdAt: string;
+}

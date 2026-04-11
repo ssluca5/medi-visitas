@@ -6,6 +6,4 @@ const load = async ({ locals }) => {
     redirect(303, "/login");
   }
 };
-export {
-  load
-};
+export { load };

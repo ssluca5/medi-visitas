@@ -28,11 +28,7 @@ export const ClassificacaoRelacionamentoSchema = z.enum([
   "INTERMEDIARIO",
   "FRACO",
 ]);
-export const SexoSchema = z.enum([
-  "MASCULINO",
-  "FEMININO",
-  "NAO_INFORMADO",
-]);
+export const SexoSchema = z.enum(["MASCULINO", "FEMININO", "NAO_INFORMADO"]);
 export const TratamentoSchema = z.enum([
   "DR",
   "DRA",
@@ -52,38 +48,52 @@ export const DEFAULT_ESTAGIO = "PROSPECTADO" as const;
 
 export const EnderecoInputSchema = z
   .object({
-    logradouro: z.string().optional(),
-    numero: z.string().optional(),
-    complemento: z.string().optional(),
-    bairro: z.string().optional(),
-    cidade: z.string().optional(),
-    estado: z.string().optional(),
-    cep: z.string().optional(),
+    logradouro: z.string().max(255).optional(),
+    numero: z.string().max(20).optional(),
+    complemento: z.string().max(255).optional(),
+    bairro: z.string().max(100).optional(),
+    cidade: z.string().max(100).optional(),
+    estado: z.string().max(2).optional(),
+    cep: z
+      .string()
+      .regex(/^\d{5}-?\d{3}$/, "CEP inválido (formato: 00000-000)")
+      .optional(),
   })
   .optional();
 
 export const ContatoInputSchema = z.object({
   tipo: TipoContatoSchema,
-  valor: z.string().min(1, "Valor do contato é obrigatório"),
-  observacao: z.string().optional(),
+  valor: z.string().min(1, "Valor do contato é obrigatório").max(255),
+  observacao: z.string().max(500).optional(),
 });
 
 export const CreateProfissionalInputSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório"),
-  crm: z.string().optional(),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
-  telefone: z.string().optional(),
+  nome: z.string().min(1, "Nome é obrigatório").max(255),
+  crm: z.string().max(20).optional(),
+  email: z
+    .string()
+    .email("Email inválido")
+    .max(255)
+    .optional()
+    .or(z.literal("")),
+  telefone: z.string().max(20).optional(),
   potencial: PotencialPrescricaoSchema.default("MEDIO"),
   estagioPipeline: EstagioPipelineSchema.default("PROSPECTADO"),
   especialidadeId: z.string().nullable().optional(),
   subEspecialidadeId: z.string().nullable().optional(),
   classificacao: ClassificacaoRelacionamentoSchema.nullable().optional(),
-  cpfCnpj: z.string().optional(),
+  cpfCnpj: z
+    .string()
+    .regex(
+      /^(\d{3}\.\d{3}\.\d{3}-\d{2}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}|\d{11}|\d{14})$/,
+      "CPF/CNPJ inválido",
+    )
+    .optional(),
   sexo: SexoSchema.optional(),
   dataNascimento: z.string().datetime().optional(),
   tratamento: TratamentoSchema.optional(),
-  observacoes: z.string().optional(),
-  nomeConjuge: z.string().optional(),
+  observacoes: z.string().max(5000).optional(),
+  nomeConjuge: z.string().max(255).optional(),
   dataNascConjuge: z.string().datetime().optional(),
   endereco: EnderecoInputSchema,
   contatos: z.array(ContatoInputSchema).optional(),

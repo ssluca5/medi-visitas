@@ -96,7 +96,7 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | 5    | IA — transcrição MiniMax 2.7       | ⬜ Pendente  |
 | 6    | Dashboard + CRM avançado           | ✅ Concluída |
 | 7    | Pipeline comercial + Analytics     | ✅ Concluída |
-| 8    | Notificações + Lembretes           | ⬜ Pendente  |
+| 8    | Notificações + Lembretes           | ✅ Concluída |
 | 9    | Integração API farmácia            | ⬜ Pendente  |
 | 10   | Multi-tenant SaaS                  | ⬜ Pendente  |
 
@@ -140,6 +140,15 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-04-01] `svelte:component` deprecado em Svelte 5 → usar `{@const Icon = item.icon}` no bloco `{#each}`
 - [2026-04-01] `{@const}` inválido dentro de `<a>` → mover para nível do bloco `{#each}`
 - [2026-04-01] SvelteKit env vars: usar `PUBLIC_` prefix (não `NEXT_PUBLIC_`)
+- [2026-04-01] `{@const}` só funciona dentro de `{#each}`, `{#if}`, etc. — nunca diretamente dentro de `<div>`
+
+### Fase 8 — Notificações + Lembretes Automáticos
+
+- **Concluída em:** 2026-04-08
+- **Migration:** `notificacoes` (Notificacao model + TipoNotificacao + PrioridadeNotificacao)
+- **Edge Function:** gerar-lembretes (cron 09:00 UTC = 06:00 BRT)
+- **Polling:** 60s no SinoNotificacoes com cleanup via `$effect` return
+- **Decisões:** profissionalId/agendaItemId/visitaId sem FK (referências opcionais), polling 60s (não SSE), `{@const}` → `$derived` para ícone/cor no ItemNotificacao
 
 ## Design System
 

@@ -23,7 +23,7 @@
       <p class="text-sm text-slate-400">Nenhum alerta no momento</p>
     </div>
   {:else}
-    <div class="space-y-2.5">
+    <div class="space-y-2.5 max-h-[400px] overflow-y-auto pr-2">
       {#each alertas as alerta}
         {@const config = severidadeConfig[alerta.severidade] ?? severidadeConfig.info}
         {@const Icon = config.icon}

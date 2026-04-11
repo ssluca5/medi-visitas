@@ -17,13 +17,17 @@ export const CreateVisitaInputSchema = z.object({
   dataVisita: z.coerce.date().or(z.string()),
   duracaoMinutos: z.number().int().nullable().optional(),
   status: StatusVisitaSchema.default("AGENDADA"),
-  objetivoVisita: z.string().nullable().optional(),
-  resumo: z.string().nullable().optional(),
-  proximaAcao: z.string().nullable().optional(),
+  objetivoVisita: z.string().max(1000).nullable().optional(),
+  resumo: z.string().max(5000).nullable().optional(),
+  proximaAcao: z.string().max(1000).nullable().optional(),
+  motivoCancelamento: z.string().max(2000).nullable().optional(),
+  motivoNaoRealizacao: z.string().max(2000).nullable().optional(),
   materiais: z.array(VisitaMaterialInputSchema).default([]),
 });
 
-export const UpdateVisitaInputSchema = CreateVisitaInputSchema.omit({ profissionalId: true }).partial();
+export const UpdateVisitaInputSchema = CreateVisitaInputSchema.omit({
+  profissionalId: true,
+}).partial();
 
 export const PatchVisitaStatusInputSchema = z.object({
   status: StatusVisitaSchema,
@@ -36,4 +40,5 @@ export const ListVisitasQuerySchema = z.object({
   status: StatusVisitaSchema.optional(),
   dataInicio: z.coerce.date().or(z.string()).optional(),
   dataFim: z.coerce.date().or(z.string()).optional(),
+  q: z.string().optional(),
 });

@@ -53,7 +53,7 @@
     </div>
 
     <div>
-      <button type="button" onclick={adicionarMaterial} disabled={!selectedId || isReadOnly} class="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-transparent font-medium rounded-lg px-4 py-[0.55rem] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Add</button>
+      <button type="button" onclick={adicionarMaterial} disabled={!selectedId || isReadOnly} class="flex items-center justify-center w-9 h-9 text-white bg-indigo-600 hover:bg-indigo-700 border border-transparent font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg leading-none cursor-pointer" title="Adicionar material">+</button>
     </div>
   </div>
 

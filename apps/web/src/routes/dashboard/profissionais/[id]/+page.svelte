@@ -219,7 +219,7 @@
           <!-- Botão Editar -->
           <div class="mt-auto pt-6">
             <a
-              href="/dashboard/profissionais"
+              href="/dashboard/profissionais?editId={profissional.id}"
               class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm rounded-lg py-2.5 transition-all outline-none cursor-pointer"
             >
               <Pencil class="w-3.5 h-3.5 text-slate-400" />
@@ -283,10 +283,12 @@
               </button>
             </div>
           {:else}
-            <div class="border-l-2 border-slate-100 ml-3 pl-6 space-y-6">
+            <div class="relative ml-3 pl-6 space-y-6">
+              <!-- Vertical line -->
+              <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-slate-100"></div>
               {#each visitas as visita}
                 <div class="relative">
-                  <div class="absolute -left-[31px] top-[26px] w-3 h-3 rounded-full ring-4 ring-slate-50 shadow-sm
+                  <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-slate-50 shadow-sm
                     {visita.status === 'REALIZADA' ? 'bg-emerald-500' : visita.status === 'CANCELADA' ? 'bg-red-500' : visita.status === 'NAO_REALIZADA' ? 'bg-slate-500' : 'bg-blue-500'}
                   "></div>
 

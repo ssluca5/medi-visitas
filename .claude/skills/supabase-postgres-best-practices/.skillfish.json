@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "supabase-postgres-best-practices",
+  "owner": "supabase",
+  "repo": "agent-skills",
+  "path": "skills/supabase-postgres-best-practices",
+  "branch": "main",
+  "sha": "95fe6d29daaf88aa9bc3b505ca4defe19ceabf92",
+  "source": "manual"
+}

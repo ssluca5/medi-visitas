@@ -351,10 +351,16 @@ export default async function especialidadesRoutes(
         });
       }
 
-      // Exclusão física em cascata (subespecialidades + especialidade)
+      // Soft delete em cascata (subespecialidades + especialidade)
       await prisma.$transaction([
-        prisma.subEspecialidade.deleteMany({ where: { especialidadeId: id } }),
-        prisma.especialidade.delete({ where: { id } }),
+        prisma.subEspecialidade.updateMany({
+          where: { especialidadeId: id, deletedAt: null },
+          data: { deletedAt: new Date() },
+        }),
+        prisma.especialidade.update({
+          where: { id },
+          data: { deletedAt: new Date() },
+        }),
       ]);
 
       return reply.code(204).send();
@@ -395,13 +401,15 @@ export default async function especialidadesRoutes(
         });
       }
 
-      // Exclusão física em cascata: subespecialidades + especialidades
+      // Soft delete em cascata: subespecialidades + especialidades
       await prisma.$transaction([
-        prisma.subEspecialidade.deleteMany({
-          where: { especialidadeId: { in: espIds } },
+        prisma.subEspecialidade.updateMany({
+          where: { especialidadeId: { in: espIds }, deletedAt: null },
+          data: { deletedAt: new Date() },
         }),
-        prisma.especialidade.deleteMany({
-          where: { id: { in: espIds } },
+        prisma.especialidade.updateMany({
+          where: { id: { in: espIds }, deletedAt: null },
+          data: { deletedAt: new Date() },
         }),
       ]);
 

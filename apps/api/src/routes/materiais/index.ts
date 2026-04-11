@@ -28,7 +28,7 @@ const materiaisRoutes: FastifyPluginAsync = async (app) => {
     if (incluirInativos !== "true") {
       where.deletedAt = null;
     }
-    
+
     if (query.busca) {
       where.OR = [
         { nome: { contains: query.busca, mode: "insensitive" } },

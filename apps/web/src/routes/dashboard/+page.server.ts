@@ -13,8 +13,8 @@ export const load: PageServerLoad = async ({ locals }) => {
     const resumo = resumoRes.ok ? await resumoRes.json() : null;
     const alertas = alertasRes.ok ? await alertasRes.json() : [];
 
-    return { resumo, alertas };
+    return { resumo, alertas, sessionToken: token };
   } catch {
-    return { resumo: null, alertas: [] };
+    return { resumo: null, alertas: [], sessionToken: token };
   }
 };

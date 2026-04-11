@@ -1,0 +1,11 @@
+﻿c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\routes\dashboard\visitas\+page.svelte[39m:142:11
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+
+c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\routes\dashboard\visitas\+page.svelte[39m:142:11
+[33mWarn[39m: Non-interactive element `<li>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+
+====================================
+[33msvelte-check found 0 errors and 2 warnings in 1 file
+[39m

@@ -1,4 +1,14 @@
-import { s as sanitize_props, ah as rest_props, ai as fallback, ag as attributes, j as clsx, e as ensure_array_like, aj as element, b as slot, af as bind_props } from "./index.js";
+import {
+  s as sanitize_props,
+  aj as rest_props,
+  ak as fallback,
+  ai as attributes,
+  j as clsx,
+  e as ensure_array_like,
+  al as element,
+  b as slot,
+  ah as bind_props,
+} from "./index.js";
 /**
  * @license lucide-svelte v0.469.0 - ISC
  *
@@ -14,7 +24,7 @@ const defaultAttributes = {
   stroke: "currentColor",
   "stroke-width": 2,
   "stroke-linecap": "round",
-  "stroke-linejoin": "round"
+  "stroke-linejoin": "round",
 };
 function Icon($$renderer, $$props) {
   const $$sanitized_props = sanitize_props($$props);
@@ -24,7 +34,7 @@ function Icon($$renderer, $$props) {
     "size",
     "strokeWidth",
     "absoluteStrokeWidth",
-    "iconNode"
+    "iconNode",
   ]);
   $$renderer.component(($$renderer2) => {
     let name = fallback($$props["name"], void 0);
@@ -33,29 +43,49 @@ function Icon($$renderer, $$props) {
     let strokeWidth = fallback($$props["strokeWidth"], 2);
     let absoluteStrokeWidth = fallback($$props["absoluteStrokeWidth"], false);
     let iconNode = fallback($$props["iconNode"], () => [], true);
-    const mergeClasses = (...classes) => classes.filter((className, index, array) => {
-      return Boolean(className) && array.indexOf(className) === index;
-    }).join(" ");
-    $$renderer2.push(`<svg${attributes(
-      {
-        ...defaultAttributes,
-        ...$$restProps,
-        width: size,
-        height: size,
-        stroke: color,
-        "stroke-width": absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-        class: clsx(mergeClasses("lucide-icon", "lucide", name ? `lucide-${name}` : "", $$sanitized_props.class))
-      },
-      void 0,
-      void 0,
-      void 0,
-      3
-    )}><!--[-->`);
+    const mergeClasses = (...classes) =>
+      classes
+        .filter((className, index, array) => {
+          return Boolean(className) && array.indexOf(className) === index;
+        })
+        .join(" ");
+    $$renderer2.push(
+      `<svg${attributes(
+        {
+          ...defaultAttributes,
+          ...$$restProps,
+          width: size,
+          height: size,
+          stroke: color,
+          "stroke-width": absoluteStrokeWidth
+            ? (Number(strokeWidth) * 24) / Number(size)
+            : strokeWidth,
+          class: clsx(
+            mergeClasses(
+              "lucide-icon",
+              "lucide",
+              name ? `lucide-${name}` : "",
+              $$sanitized_props.class,
+            ),
+          ),
+        },
+        void 0,
+        void 0,
+        void 0,
+        3,
+      )}><!--[-->`,
+    );
     const each_array = ensure_array_like(iconNode);
-    for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+    for (
+      let $$index = 0, $$length = each_array.length;
+      $$index < $$length;
+      $$index++
+    ) {
       let [tag, attrs] = each_array[$$index];
       element($$renderer2, tag, () => {
-        $$renderer2.push(`${attributes({ ...attrs }, void 0, void 0, void 0, 3)}`);
+        $$renderer2.push(
+          `${attributes({ ...attrs }, void 0, void 0, void 0, 3)}`,
+        );
       });
     }
     $$renderer2.push(`<!--]--><!--[-->`);
@@ -67,10 +97,8 @@ function Icon($$renderer, $$props) {
       size,
       strokeWidth,
       absoluteStrokeWidth,
-      iconNode
+      iconNode,
     });
   });
 }
-export {
-  Icon as I
-};
+export { Icon as I };

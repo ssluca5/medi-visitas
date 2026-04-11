@@ -1,0 +1,25 @@
+﻿c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\lib\components\ui\AgendaItemSheet.svelte[39m:119:51
+[31mError[39m: Logical expressions and coalesce expressions cannot be mixed. Wrap either by parentheses
+https://svelte.dev/e/js_parse_error (svelte)
+
+c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\lib\components\ui\AgendaItemSheet.svelte[39m:119:51
+[31mError[39m: Logical expressions and coalesce expressions cannot be mixed. Wrap either by parentheses
+https://svelte.dev/e/js_parse_error (ts)
+
+c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\routes\dashboard\agenda\+page.svelte[39m:13:9
+[31mError[39m: Module '"c:/Users/lukas/.vscode/projects/medivisitas/apps/web/src/lib/components/ui/AgendaItemSheet.svelte"' has no default export. (ts)
+
+c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\routes\dashboard\agenda\+page.svelte[39m:320:2
+[31mError[39m: Object literal may only specify known properties, and '"message"' does not exist in type 'Props'. (ts)
+
+c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\routes\dashboard\visitas\+page.svelte[39m:142:11
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+
+c:\Users\lukas\.vscode\projects\medivisitas\apps\web\[32msrc\routes\dashboard\visitas\+page.svelte[39m:142:11
+[33mWarn[39m: Non-interactive element `<li>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+
+====================================
+[31msvelte-check found 4 errors and 2 warnings in 3 files
+[39m

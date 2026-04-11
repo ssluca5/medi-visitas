@@ -15,8 +15,7 @@ function set_assets(path) {
   assets = initial.assets = path;
 }
 let prerendering = false;
-function set_building() {
-}
+function set_building() {}
 function set_prerendering() {
   prerendering = true;
 }
@@ -30,5 +29,5 @@ export {
   override as o,
   prerendering as p,
   relative as r,
-  set_assets as s
+  set_assets as s,
 };

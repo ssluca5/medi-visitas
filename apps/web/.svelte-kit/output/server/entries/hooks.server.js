@@ -11,21 +11,6 @@ setInterval(() => {
     if (val.expiresAt < now) authCache.delete(key);
   }
 }, 5 * 6e4);
-function decodeJwtPayload(jwt) {
-  try {
-    const parts = jwt.split(".");
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(
-      Buffer.from(
-        parts[1].replace(/-/g, "+").replace(/_/g, "/"),
-        "base64"
-      ).toString()
-    );
-    return payload;
-  } catch {
-    return null;
-  }
-}
 async function getUserFromToken(token) {
   const cached = authCache.get(token);
   if (cached && cached.expiresAt > Date.now()) {
@@ -33,27 +18,27 @@ async function getUserFromToken(token) {
       userId: cached.userId,
       sessionId: cached.sessionId,
       sessionToken: cached.sessionToken,
-      userName: cached.userName
+      userName: cached.userName,
     };
   }
   let result = null;
   if (token.startsWith("eyJ")) {
     try {
       const payload = await verifyToken(token, {
-        secretKey: CLERK_SECRET_KEY
+        secretKey: CLERK_SECRET_KEY,
       });
       const firstName = payload.firstName;
       const lastName = payload.lastName;
       const email = payload.email;
-      const name = [firstName, lastName].filter(Boolean).join(" ") || email || null;
+      const name =
+        [firstName, lastName].filter(Boolean).join(" ") || email || null;
       result = {
         userId: payload.sub ?? null,
         sessionId: payload.sid ?? null,
         sessionToken: token,
-        userName: name
+        userName: name,
       };
-    } catch {
-    }
+    } catch {}
   }
   if (!result && !token.startsWith("eyJ")) {
     try {
@@ -62,26 +47,27 @@ async function getUserFromToken(token) {
       if (session) {
         let sessionToken = token;
         try {
-          const tokenObj = await clerk.sessions.getToken(session.id, "medivisitas");
+          const tokenObj = await clerk.sessions.getToken(
+            session.id,
+            "medivisitas",
+          );
           if (tokenObj && tokenObj.jwt) {
             sessionToken = tokenObj.jwt;
           }
-        } catch {
-        }
+        } catch {}
         result = {
           userId: session.userId,
           sessionId: session.id,
           sessionToken,
-          userName: null
+          userName: null,
         };
       }
-    } catch {
-    }
+    } catch {}
   }
   if (result) {
     authCache.set(token, {
       ...result,
-      expiresAt: Date.now() + CACHE_TTL_MS
+      expiresAt: Date.now() + CACHE_TTL_MS,
     });
   }
   return result;
@@ -89,20 +75,28 @@ async function getUserFromToken(token) {
 const handle = async ({ event, resolve }) => {
   const { url, cookies, locals } = event;
   const { pathname } = url;
-  if (pathname.startsWith("/_app/") || pathname.startsWith("/favicon") || pathname.startsWith("/api/token")) {
+  if (
+    pathname.startsWith("/_app/") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/api/token")
+  ) {
     return resolve(event);
   }
-  const clerkToken = url.searchParams.get("__clerk_db_jwt") ?? url.searchParams.get("__session_token");
+  const clerkToken =
+    url.searchParams.get("__clerk_db_jwt") ??
+    url.searchParams.get("__session_token");
   if (clerkToken) {
     const user = await getUserFromToken(clerkToken);
     if (user) {
-      const jwtToStore = user.sessionToken.startsWith("eyJ") ? user.sessionToken : clerkToken;
+      const jwtToStore = user.sessionToken.startsWith("eyJ")
+        ? user.sessionToken
+        : clerkToken;
       cookies.set(COOKIE_NAME, jwtToStore, {
         path: "/",
         httpOnly: true,
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60 * 8
+        maxAge: 60 * 60 * 8,
         // 8 horas
       });
       authCache.set(jwtToStore, {
@@ -110,7 +104,7 @@ const handle = async ({ event, resolve }) => {
         sessionId: user.sessionId,
         sessionToken: user.sessionToken,
         userName: user.userName,
-        expiresAt: Date.now() + CACHE_TTL_MS
+        expiresAt: Date.now() + CACHE_TTL_MS,
       });
       locals.userId = user.userId;
       locals.sessionId = user.sessionId;
@@ -131,29 +125,9 @@ const handle = async ({ event, resolve }) => {
       locals.sessionToken = user.sessionToken;
       locals.userName = user.userName;
     } else {
-      if (token.startsWith("eyJ")) {
-        const payload = decodeJwtPayload(token);
-        if (payload) {
-          const exp = payload.exp * 1e3;
-          const isExpired = exp < Date.now();
-          if (!isExpired) {
-            locals.userId = payload.sub ?? null;
-            locals.sessionId = payload.sid ?? null;
-            locals.sessionToken = token;
-            locals.userName = [payload.firstName, payload.lastName].filter(Boolean).join(" ") || payload.email || null;
-          } else {
-            cookies.delete(COOKIE_NAME, { path: "/" });
-          }
-        } else {
-          cookies.delete(COOKIE_NAME, { path: "/" });
-        }
-      } else {
-        cookies.delete(COOKIE_NAME, { path: "/" });
-      }
+      cookies.delete(COOKIE_NAME, { path: "/" });
     }
   }
   return resolve(event);
 };
-export {
-  handle
-};
+export { handle };

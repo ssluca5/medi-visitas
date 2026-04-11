@@ -12,15 +12,15 @@ function create_updated_store() {
     return {
       subscribe,
       // eslint-disable-next-line @typescript-eslint/require-await
-      check: async () => false
+      check: async () => false,
     };
   }
 }
 const stores = {
-  updated: /* @__PURE__ */ create_updated_store()
+  updated: /* @__PURE__ */ create_updated_store(),
 };
 ({
-  check: stores.updated.check
+  check: stores.updated.check,
 });
 function context() {
   return getContext("__request__");
@@ -34,9 +34,7 @@ const page$1 = {
   },
   get url() {
     return context().page.url;
-  }
+  },
 };
 const page = page$1;
-export {
-  page as p
-};
+export { page as p };

@@ -30,18 +30,24 @@
   <!-- Contato principal -->
   {#if telefone || email}
     <div>
-      <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Contato Principal</h3>
-      <div class="space-y-2">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Contato Principal</h3>
+      <div class="space-y-3">
         {#if telefone}
-          <a href="tel:{telefone.replace(/\D/g, '')}" class="flex items-center gap-2 text-[13px] text-blue-600 hover:text-blue-700 hover:underline">
-            <Phone class="w-3.5 h-3.5 text-slate-400" />
-            {telefone}
+          <a href="tel:{telefone.replace(/\D/g, '')}" class="flex items-center gap-3 mb-4">
+            <Phone class="w-4 h-4 text-slate-400 shrink-0" />
+            <div>
+              <span class="block text-xs font-bold text-slate-400 uppercase">Telefone</span>
+              <span class="block text-sm font-semibold text-blue-600 hover:text-blue-700">{telefone}</span>
+            </div>
           </a>
         {/if}
         {#if email}
-          <a href="mailto:{email}" class="flex items-center gap-2 text-[13px] text-blue-600 hover:text-blue-700 hover:underline break-all">
-            <Mail class="w-3.5 h-3.5 text-slate-400" />
-            {email}
+          <a href="mailto:{email}" class="flex items-center gap-3 mb-4">
+            <Mail class="w-4 h-4 text-slate-400 shrink-0" />
+            <div>
+              <span class="block text-xs font-bold text-slate-400 uppercase">E-mail</span>
+              <span class="block text-sm font-semibold text-blue-600 hover:text-blue-700 break-all">{email}</span>
+            </div>
           </a>
         {/if}
       </div>
@@ -51,15 +57,15 @@
   <!-- Contatos adicionais -->
   {#if contatos.length > 0}
     <div>
-      <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Contatos Adicionais</h3>
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Contatos Adicionais</h3>
       <div class="space-y-3">
         {#each contatos as contato}
           {@const Icon = contatoIcon[contato.tipo] ?? Phone}
-          <div class="flex items-start gap-2">
-            <Icon class="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+          <div class="flex items-center gap-3 mb-4">
+            <Icon class="w-4 h-4 text-slate-400 shrink-0" />
             <div>
-              <span class="block text-[10px] font-semibold text-slate-400 uppercase">{contatoLabel[contato.tipo] ?? contato.tipo}</span>
-              <span class="block text-[13px] font-medium text-slate-800">{contato.valor}</span>
+              <span class="block text-xs font-bold text-slate-400 uppercase">{contatoLabel[contato.tipo] ?? contato.tipo}</span>
+              <span class="block text-sm font-semibold text-slate-800">{contato.valor}</span>
               {#if contato.observacao}
                 <span class="block text-xs text-slate-500 italic mt-0.5">{contato.observacao}</span>
               {/if}
@@ -76,15 +82,15 @@
     {@const cidadeUf = [endereco.cidade, endereco.estado].filter(Boolean).join(' / ')}
     {#if enderecoStr || cidadeUf}
       <div>
-        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Endereço</h3>
-        <div class="flex items-start gap-2">
-          <MapPin class="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Endereço</h3>
+        <div class="flex items-start gap-3">
+          <MapPin class="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
           <div>
             {#if enderecoStr}
-              <span class="block text-[13px] font-medium text-slate-800">{enderecoStr}</span>
+              <span class="block text-sm font-semibold text-slate-800">{enderecoStr}</span>
             {/if}
             {#if endereco.bairro}
-              <span class="block text-xs text-slate-600 mt-0.5">{endereco.bairro}</span>
+              <span class="block text-xs text-slate-500 mt-0.5">{endereco.bairro}</span>
             {/if}
             {#if cidadeUf}
               <span class="block text-xs text-slate-500 mt-0.5">{cidadeUf}{endereco.cep ? ` · CEP ${endereco.cep}` : ''}</span>

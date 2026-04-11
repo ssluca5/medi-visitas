@@ -95,18 +95,20 @@ async function main() {
 
   // Materiais Técnicos
   const materiais = [
-    { nome: 'Bula Produto A',             tipo: 'BULA' },
-    { nome: 'Bula Produto B',             tipo: 'BULA' },
-    { nome: 'Folder Cardiologia',         tipo: 'FOLDER' },
-    { nome: 'Folder Neurologia',          tipo: 'FOLDER' },
-    { nome: 'Apresentação Pipeline 2026', tipo: 'APRESENTACAO' },
-    { nome: 'Amostra Produto A — 10mg',   tipo: 'AMOSTRA' },
-    { nome: 'Amostra Produto B — 20mg',   tipo: 'AMOSTRA' },
+    { nome: "Bula Produto A", tipo: "BULA" },
+    { nome: "Bula Produto B", tipo: "BULA" },
+    { nome: "Folder Cardiologia", tipo: "FOLDER" },
+    { nome: "Folder Neurologia", tipo: "FOLDER" },
+    { nome: "Apresentação Pipeline 2026", tipo: "APRESENTACAO" },
+    { nome: "Amostra Produto A — 10mg", tipo: "AMOSTRA" },
+    { nome: "Amostra Produto B — 20mg", tipo: "AMOSTRA" },
   ];
 
   console.log("\nIniciando seed de materiais técnicos...");
   for (const mat of materiais) {
-    const existing = await prisma.materialTecnico.findFirst({ where: { nome: mat.nome } });
+    const existing = await prisma.materialTecnico.findFirst({
+      where: { nome: mat.nome },
+    });
     if (!existing) {
       await prisma.materialTecnico.create({ data: mat });
       console.log(`  ✓ Material: ${mat.nome}`);

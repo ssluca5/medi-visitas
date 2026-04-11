@@ -59,7 +59,7 @@
 	>
 		<!-- Backdrop -->
 		<div
-			class="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+			class="absolute inset-0 bg-black/30"
 			onclick={onclose}
 			role="presentation"
 		></div>

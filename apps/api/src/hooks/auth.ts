@@ -25,10 +25,9 @@ export async function verifyClerkToken(
       jwtKey: process.env.CLERK_JWT_KEY!,
     });
 
-    console.log("Token válido para userId:", payload.sub);
     request.userId = payload.sub;
   } catch (err) {
-    console.error("Clerk token error:", err);
+    request.log.error({ err }, "Clerk token verification failed");
     reply.code(401).send({ error: "Unauthorized" });
   }
 }

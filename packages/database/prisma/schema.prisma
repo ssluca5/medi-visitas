@@ -61,6 +61,20 @@ enum Sexo {
   NAO_INFORMADO
 }
 
+enum StatusAgenda {
+  PLANEJADO
+  CONFIRMADO
+  REALIZADO
+  CANCELADO
+}
+
+enum PrioridadeAgenda {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
 enum Tratamento {
   DR
   DRA
@@ -170,6 +184,7 @@ model Profissional {
   contatos        ContatoProfissional[]
   estagioLogs     EstagioLog[]
   visitas         Visita[]
+  agendaItems     AgendaItem[]
 
   @@index([potencial])
   @@index([estagioPipeline])
@@ -221,7 +236,10 @@ model Visita {
   objetivoVisita String?
   resumo         String?
   proximaAcao    String?
+  motivoCancelamento String?
+  motivoNaoRealizacao String?
   materiais      VisitaMaterial[]
+  agendaItems    AgendaItem[]
   // SEM deletedAt — cancelar via status (regra CLAUDE.md)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -260,4 +278,72 @@ model VisitaMaterial {
   @@unique([visitaId, materialTecnicoId])
   @@index([visitaId])
   @@index([materialTecnicoId])
+}
+
+model AgendaItem {
+  id              String           @id @default(cuid())
+  userId          String           // Clerk userId — sem FK (sistema externo)
+  profissionalId  String
+  profissional    Profissional     @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
+  visitaId        String?
+  visita          Visita?          @relation(fields: [visitaId], references: [id], onDelete: Restrict)
+  dataHoraInicio  DateTime
+  dataHoraFim     DateTime
+  status          StatusAgenda     @default(PLANEJADO)
+  prioridade      PrioridadeAgenda @default(MEDIA)
+  observacoes     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?        // soft delete
+
+  @@index([userId])
+  @@index([profissionalId])
+  @@index([dataHoraInicio])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+// ============================================
+// NOTIFICAÇÕES (Fase 8)
+// ============================================
+
+enum TipoNotificacao {
+  VISITA_HOJE
+  VISITA_ATRASADA
+  SEM_VISITA_30_DIAS
+  SEM_VISITA_60_DIAS
+  PROSPECTADO_PENDENTE
+  SISTEMA
+}
+
+enum PrioridadeNotificacao {
+  INFO
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+model Notificacao {
+  id             String                @id @default(cuid())
+  userId         String                // Clerk userId — sem FK
+  tipo           TipoNotificacao
+  prioridade     PrioridadeNotificacao @default(NORMAL)
+  titulo         String
+  mensagem       String
+  lida           Boolean               @default(false)
+  lidaEm         DateTime?
+  // Referências opcionais — sem FK (evita Restrict em cascata)
+  profissionalId String?
+  agendaItemId   String?
+  visitaId       String?
+  // Soft delete padrão
+  deletedAt      DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([userId])
+  @@index([userId, lida])
+  @@index([tipo])
+  @@index([createdAt])
+  @@index([deletedAt])
 }

@@ -13,6 +13,7 @@ import agendaRoutes from "./routes/agenda/index.js";
 import pipelineRoutes from "./routes/pipeline/index.js";
 import dashboardRoutes from "./routes/dashboard/index.js";
 import buscaRoutes from "./routes/busca/index.js";
+import notificacoesRoutes from "./routes/notificacoes/index.js";
 import { timelineRoutes } from "./routes/profissionais/timeline.js";
 
 export async function buildApp() {
@@ -74,6 +75,7 @@ export async function buildApp() {
   await app.register(pipelineRoutes, { prefix: "/pipeline" });
   await app.register(dashboardRoutes, { prefix: "/dashboard" });
   await app.register(buscaRoutes, { prefix: "/busca" });
+  await app.register(notificacoesRoutes, { prefix: "/notificacoes" });
   await app.register(timelineRoutes);
 
   return app;

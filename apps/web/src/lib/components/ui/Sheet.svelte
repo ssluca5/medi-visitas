@@ -34,7 +34,7 @@
 {#if open}
 	<!-- Overlay -->
 	<div
-		class="fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px]"
+		class="fixed inset-0 z-50 bg-black/30"
 		transition:fade={{ duration: 200 }}
 		onclick={onclose}
 		role="presentation"

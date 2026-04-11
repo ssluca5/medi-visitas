@@ -72,14 +72,14 @@ Use a `+page.ts` (universal) or `+page.server.ts` (server-only) file alongside t
 
 ```typescript
 // src/routes/blog/[slug]/+page.server.ts
-import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { error } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
-  const post = await fetch(`/api/posts/${params.slug}`).then(r => r.json());
+  const post = await fetch(`/api/posts/${params.slug}`).then((r) => r.json());
 
   if (!post) {
-    error(404, 'Post not found');
+    error(404, "Post not found");
   }
 
   return { post };
@@ -103,11 +103,11 @@ Create `+server.ts` files for REST-style endpoints:
 
 ```typescript
 // src/routes/api/posts/+server.ts
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import { json } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ url }) => {
-  const limit = Number(url.searchParams.get('limit') ?? 10);
+  const limit = Number(url.searchParams.get("limit") ?? 10);
   const posts = await db.post.findMany({ take: limit });
   return json(posts);
 };
@@ -125,21 +125,21 @@ Form actions are the SvelteKit-native way to handle mutations — no client-side
 
 ```typescript
 // src/routes/contact/+page.server.ts
-import { fail, redirect } from '@sveltejs/kit';
-import type { Actions } from './$types';
+import { fail, redirect } from "@sveltejs/kit";
+import type { Actions } from "./$types";
 
 export const actions: Actions = {
   default: async ({ request }) => {
     const data = await request.formData();
-    const email = data.get('email');
+    const email = data.get("email");
 
     if (!email) {
       return fail(400, { email, missing: true });
     }
 
     await sendEmail(String(email));
-    redirect(303, '/thank-you');
-  }
+    redirect(303, "/thank-you");
+  },
 };
 ```
 
@@ -180,7 +180,7 @@ export const actions: Actions = {
 
 ```typescript
 // src/routes/+layout.server.ts
-import type { LayoutServerLoad } from './$types';
+import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals }) => {
   return { user: locals.user ?? null };
@@ -193,9 +193,9 @@ Control per-route rendering with page options:
 
 ```typescript
 // src/routes/docs/+page.ts
-export const prerender = true;   // Static — generated at build time
-export const ssr = true;         // Default — rendered on server per request
-export const csr = false;        // Disable client-side hydration entirely
+export const prerender = true; // Static — generated at build time
+export const ssr = true; // Default — rendered on server per request
+export const csr = false; // Disable client-side hydration entirely
 ```
 
 ## Examples
@@ -204,12 +204,12 @@ export const csr = false;        // Disable client-side hydration entirely
 
 ```typescript
 // src/routes/dashboard/+layout.server.ts
-import { redirect } from '@sveltejs/kit';
-import type { LayoutServerLoad } from './$types';
+import { redirect } from "@sveltejs/kit";
+import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals }) => {
   if (!locals.user) {
-    redirect(303, '/login');
+    redirect(303, "/login");
   }
   return { user: locals.user };
 };
@@ -219,11 +219,11 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 
 ```typescript
 // src/hooks.server.ts
-import type { Handle } from '@sveltejs/kit';
-import { verifyToken } from '$lib/server/auth';
+import type { Handle } from "@sveltejs/kit";
+import { verifyToken } from "$lib/server/auth";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const token = event.cookies.get('session');
+  const token = event.cookies.get("session");
   if (token) {
     event.locals.user = await verifyToken(token);
   }

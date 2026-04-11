@@ -18,28 +18,28 @@
 
 ## Entregáveis
 
-| #  | Artefato | Localização |
-|----|----------|-------------|
-| 1  | Migration Prisma | `packages/database/prisma/migrations/` |
-| 2  | Seed de materiais | `packages/database/prisma/seed.ts` |
-| 3  | `POST /visitas` | `apps/api/src/routes/visitas/create.ts` |
-| 4  | `GET /visitas` | `apps/api/src/routes/visitas/list.ts` |
-| 5  | `GET /visitas/:id` | `apps/api/src/routes/visitas/get.ts` |
-| 6  | `PUT /visitas/:id` | `apps/api/src/routes/visitas/update.ts` |
-| 7  | `PATCH /visitas/:id/status` | `apps/api/src/routes/visitas/status.ts` |
-| 8  | `POST /materiais` | `apps/api/src/routes/materiais/create.ts` |
-| 9  | `GET /materiais` | `apps/api/src/routes/materiais/list.ts` |
-| 10 | `PUT /materiais/:id` | `apps/api/src/routes/materiais/update.ts` |
-| 11 | `DELETE /materiais/:id` | `apps/api/src/routes/materiais/delete.ts` |
-| 12 | Página listagem geral | `apps/web/src/routes/dashboard/visitas/+page.svelte` |
-| 13 | Server load listagem | `apps/web/src/routes/dashboard/visitas/+page.server.ts` |
-| 14 | Detalhe profissional + aba Histórico | `apps/web/src/routes/dashboard/profissionais/[id]/+page.svelte` |
-| 15 | Server load profissional | `apps/web/src/routes/dashboard/profissionais/[id]/+page.server.ts` |
-| 16 | VisitaSheet.svelte | `apps/web/src/lib/components/visitas/VisitaSheet.svelte` |
-| 17 | StatusVisitaBadge.svelte | `apps/web/src/lib/components/visitas/StatusVisitaBadge.svelte` |
-| 18 | HistoricoVisitas.svelte | `apps/web/src/lib/components/visitas/HistoricoVisitas.svelte` |
-| 19 | MaterialSelector.svelte | `apps/web/src/lib/components/visitas/MaterialSelector.svelte` |
-| 20 | Testes TDD | `apps/api/src/routes/visitas/*.test.ts` + `materiais/*.test.ts` |
+| #   | Artefato                             | Localização                                                        |
+| --- | ------------------------------------ | ------------------------------------------------------------------ |
+| 1   | Migration Prisma                     | `packages/database/prisma/migrations/`                             |
+| 2   | Seed de materiais                    | `packages/database/prisma/seed.ts`                                 |
+| 3   | `POST /visitas`                      | `apps/api/src/routes/visitas/create.ts`                            |
+| 4   | `GET /visitas`                       | `apps/api/src/routes/visitas/list.ts`                              |
+| 5   | `GET /visitas/:id`                   | `apps/api/src/routes/visitas/get.ts`                               |
+| 6   | `PUT /visitas/:id`                   | `apps/api/src/routes/visitas/update.ts`                            |
+| 7   | `PATCH /visitas/:id/status`          | `apps/api/src/routes/visitas/status.ts`                            |
+| 8   | `POST /materiais`                    | `apps/api/src/routes/materiais/create.ts`                          |
+| 9   | `GET /materiais`                     | `apps/api/src/routes/materiais/list.ts`                            |
+| 10  | `PUT /materiais/:id`                 | `apps/api/src/routes/materiais/update.ts`                          |
+| 11  | `DELETE /materiais/:id`              | `apps/api/src/routes/materiais/delete.ts`                          |
+| 12  | Página listagem geral                | `apps/web/src/routes/dashboard/visitas/+page.svelte`               |
+| 13  | Server load listagem                 | `apps/web/src/routes/dashboard/visitas/+page.server.ts`            |
+| 14  | Detalhe profissional + aba Histórico | `apps/web/src/routes/dashboard/profissionais/[id]/+page.svelte`    |
+| 15  | Server load profissional             | `apps/web/src/routes/dashboard/profissionais/[id]/+page.server.ts` |
+| 16  | VisitaSheet.svelte                   | `apps/web/src/lib/components/visitas/VisitaSheet.svelte`           |
+| 17  | StatusVisitaBadge.svelte             | `apps/web/src/lib/components/visitas/StatusVisitaBadge.svelte`     |
+| 18  | HistoricoVisitas.svelte              | `apps/web/src/lib/components/visitas/HistoricoVisitas.svelte`      |
+| 19  | MaterialSelector.svelte              | `apps/web/src/lib/components/visitas/MaterialSelector.svelte`      |
+| 20  | Testes TDD                           | `apps/api/src/routes/visitas/*.test.ts` + `materiais/*.test.ts`    |
 
 ---
 
@@ -115,6 +115,7 @@ model VisitaMaterial {
 ```
 
 **Regras obrigatórias:**
+
 - `Visita` sem `deletedAt` — cancelamento via `status` (regra CLAUDE.md)
 - `VisitaMaterial` imutável — sem `deletedAt`, sem `updatedAt`
 - `onDelete: Restrict` em todas as FKs
@@ -125,39 +126,41 @@ model VisitaMaterial {
 ## Contratos de API
 
 ### `POST /visitas` → 201
+
 ```json
 {
   "profissionalId": "cuid...",
   "dataVisita": "2026-03-30T14:00:00.000Z",
   "duracaoMinutos": 30,
   "objetivoVisita": "Apresentar novo produto linha cardiologia",
-  "materiais": [
-    { "materialTecnicoId": "cuid...", "quantidade": 2 }
-  ]
+  "materiais": [{ "materialTecnicoId": "cuid...", "quantidade": 2 }]
 }
 ```
+
 userId preenchido via token Clerk no preHandler — nunca via body.
 VisitaMaterial criados em transação atômica com a Visita.
 
 ### `GET /visitas` — Query params
+
 - `page`, `pageSize` (default 1 / 20)
 - `profissionalId`, `status`, `dataInicio`, `dataFim`
 
 ### `PATCH /visitas/:id/status`
+
 ```json
 { "status": "REALIZADA", "resumo": "...", "proximaAcao": "..." }
 ```
 
 ### Transições de Status
 
-| De | Para | Observação |
-|----|------|------------|
-| `AGENDADA` | `REALIZADA` | Visita concluída |
-| `AGENDADA` | `CANCELADA` | Cancelada antes |
-| `AGENDADA` | `NAO_REALIZADA` | Não foi possível realizar |
-| `REALIZADA` | — | Status final |
-| `CANCELADA` | — | Status final |
-| `NAO_REALIZADA` | — | Status final |
+| De              | Para            | Observação                |
+| --------------- | --------------- | ------------------------- |
+| `AGENDADA`      | `REALIZADA`     | Visita concluída          |
+| `AGENDADA`      | `CANCELADA`     | Cancelada antes           |
+| `AGENDADA`      | `NAO_REALIZADA` | Não foi possível realizar |
+| `REALIZADA`     | —               | Status final              |
+| `CANCELADA`     | —               | Status final              |
+| `NAO_REALIZADA` | —               | Status final              |
 
 ---
 
@@ -321,32 +324,32 @@ Acessar via `import.meta.env.PUBLIC_API_URL` — não `process.env.NEXT_PUBLIC_`
 
 ```typescript
 const materiais = [
-  { nome: 'Bula Produto A',             tipo: 'BULA' },
-  { nome: 'Bula Produto B',             tipo: 'BULA' },
-  { nome: 'Folder Cardiologia',         tipo: 'FOLDER' },
-  { nome: 'Folder Neurologia',          tipo: 'FOLDER' },
-  { nome: 'Apresentação Pipeline 2026', tipo: 'APRESENTACAO' },
-  { nome: 'Amostra Produto A — 10mg',   tipo: 'AMOSTRA' },
-  { nome: 'Amostra Produto B — 20mg',   tipo: 'AMOSTRA' },
-]
+  { nome: "Bula Produto A", tipo: "BULA" },
+  { nome: "Bula Produto B", tipo: "BULA" },
+  { nome: "Folder Cardiologia", tipo: "FOLDER" },
+  { nome: "Folder Neurologia", tipo: "FOLDER" },
+  { nome: "Apresentação Pipeline 2026", tipo: "APRESENTACAO" },
+  { nome: "Amostra Produto A — 10mg", tipo: "AMOSTRA" },
+  { nome: "Amostra Produto B — 20mg", tipo: "AMOSTRA" },
+];
 ```
 
 ---
 
 ## Skills Necessárias
 
-| Skill | Repositório | Obrigatória |
-|-------|-------------|-------------|
-| `brainstorming` | obra/superpowers | ✅ Sim |
-| `write-plan` | obra/superpowers | ✅ Sim |
-| `test-driven-development` | obra/superpowers | ✅ Sim |
-| `verification-before-completion` | obra/superpowers | ✅ Sim |
-| `medivisitas-design` | `.kilocode/skills/` | ✅ Sim — **antes de qualquer UI** |
-| `frontend-design` | anthropics/skills | ✅ Sim |
-| `fastify` | mcollina/skills | ✅ Sim |
-| `node` | mcollina/skills | ✅ Sim |
-| `typescript-magician` | mcollina/skills | ✅ Sim |
-| `supabase-postgres-best-practices` | supabase/agent-skills | ✅ Sim |
+| Skill                              | Repositório           | Obrigatória                       |
+| ---------------------------------- | --------------------- | --------------------------------- |
+| `brainstorming`                    | obra/superpowers      | ✅ Sim                            |
+| `write-plan`                       | obra/superpowers      | ✅ Sim                            |
+| `test-driven-development`          | obra/superpowers      | ✅ Sim                            |
+| `verification-before-completion`   | obra/superpowers      | ✅ Sim                            |
+| `medivisitas-design`               | `.kilocode/skills/`   | ✅ Sim — **antes de qualquer UI** |
+| `frontend-design`                  | anthropics/skills     | ✅ Sim                            |
+| `fastify`                          | mcollina/skills       | ✅ Sim                            |
+| `node`                             | mcollina/skills       | ✅ Sim                            |
+| `typescript-magician`              | mcollina/skills       | ✅ Sim                            |
+| `supabase-postgres-best-practices` | supabase/agent-skills | ✅ Sim                            |
 
 ---
 

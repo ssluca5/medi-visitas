@@ -4,21 +4,14 @@
     "name": "remote-entry",
     "src": "../../node_modules/.pnpm/@sveltejs+kit@2.55.0_@sveltejs+vite-plugin-svelte@5.1.1_svelte@5.55.1_vite@6.4.1_@types+node@_5fnvpbjw4bq7jzceumkybvnkcm/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
     "isEntry": true,
-    "imports": [
-      "_shared.js",
-      "_utils.js",
-      "_environment.js"
-    ]
+    "imports": ["_shared.js", "_utils.js", "_environment.js"]
   },
   "../../node_modules/.pnpm/@sveltejs+kit@2.55.0_@sveltejs+vite-plugin-svelte@5.1.1_svelte@5.55.1_vite@6.4.1_@types+node@_5fnvpbjw4bq7jzceumkybvnkcm/node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte": {
     "file": "entries/fallbacks/error.svelte.js",
     "name": "entries/fallbacks/error.svelte",
     "src": "../../node_modules/.pnpm/@sveltejs+kit@2.55.0_@sveltejs+vite-plugin-svelte@5.1.1_svelte@5.55.1_vite@6.4.1_@types+node@_5fnvpbjw4bq7jzceumkybvnkcm/node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte",
     "isEntry": true,
-    "imports": [
-      "_index.js",
-      "_index3.js"
-    ]
+    "imports": ["_index.js", "_index3.js"]
   },
   "../../node_modules/.pnpm/@sveltejs+kit@2.55.0_@sveltejs+vite-plugin-svelte@5.1.1_svelte@5.55.1_vite@6.4.1_@types+node@_5fnvpbjw4bq7jzceumkybvnkcm/node_modules/@sveltejs/kit/src/runtime/server/index.js": {
     "file": "index.js",
@@ -41,68 +34,98 @@
     "name": "internal",
     "src": ".svelte-kit/generated/server/internal.js",
     "isEntry": true,
-    "imports": [
-      "_root.js",
-      "_environment.js",
-      "_internal.js"
-    ]
+    "imports": ["_root.js", "_environment.js", "_internal.js"]
+  },
+  "_Button.js": {
+    "file": "chunks/Button.js",
+    "name": "Button",
+    "imports": ["_index.js"]
   },
   "_ConfirmDialog.js": {
     "file": "chunks/ConfirmDialog.js",
     "name": "ConfirmDialog",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_x.js", "_triangle-alert.js", "_Icon.js"]
   },
   "_Icon.js": {
     "file": "chunks/Icon.js",
     "name": "Icon",
-    "imports": [
-      "_index.js"
-    ]
+    "imports": ["_index.js"]
   },
-  "_Sheet.js": {
-    "file": "chunks/Sheet.js",
-    "name": "Sheet",
-    "imports": [
-      "_public.js",
-      "_index.js",
-      "_x.js"
-    ]
+  "_StatusVisitaBadge.js": {
+    "file": "chunks/StatusVisitaBadge.js",
+    "name": "StatusVisitaBadge",
+    "imports": ["_index.js"]
   },
   "_VisitaSheet.js": {
     "file": "chunks/VisitaSheet.js",
     "name": "VisitaSheet",
     "imports": [
       "_index.js",
-      "_Sheet.js",
+      "_ConfirmDialog.js",
+      "_Button.js",
+      "_api.js",
       "_search.js"
     ]
+  },
+  "_api.js": {
+    "file": "chunks/api.js",
+    "name": "api",
+    "imports": ["_public.js"]
+  },
+  "_arrow-left.js": {
+    "file": "chunks/arrow-left.js",
+    "name": "arrow-left",
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_bell.js": {
+    "file": "chunks/bell.js",
+    "name": "bell",
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_calendar-check.js": {
+    "file": "chunks/calendar-check.js",
+    "name": "calendar-check",
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_calendar-days.js": {
+    "file": "chunks/calendar-days.js",
+    "name": "calendar-days",
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_calendar-plus.js": {
+    "file": "chunks/calendar-plus.js",
+    "name": "calendar-plus",
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_calendar.js": {
     "file": "chunks/calendar.js",
     "name": "calendar",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_chart-column.js": {
+    "file": "chunks/chart-column.js",
+    "name": "chart-column",
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_chevron-left.js": {
     "file": "chunks/chevron-left.js",
     "name": "chevron-left",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_chevron-right.js": {
     "file": "chunks/chevron-right.js",
     "name": "chevron-right",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_circle-alert.js": {
+    "file": "chunks/circle-alert.js",
+    "name": "circle-alert",
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_clock.js": {
+    "file": "chunks/clock.js",
+    "name": "clock",
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_environment.js": {
     "file": "chunks/environment.js",
@@ -115,16 +138,12 @@
   "_index.js": {
     "file": "chunks/index.js",
     "name": "index",
-    "imports": [
-      "_utils.js"
-    ]
+    "imports": ["_utils.js"]
   },
   "_index2.js": {
     "file": "chunks/index2.js",
     "name": "index",
-    "imports": [
-      "_index.js"
-    ]
+    "imports": ["_index.js"]
   },
   "_index3.js": {
     "file": "chunks/index3.js",
@@ -138,32 +157,31 @@
       "_index.js"
     ]
   },
+  "_info.js": {
+    "file": "chunks/info.js",
+    "name": "info",
+    "imports": ["_index.js", "_Icon.js"]
+  },
   "_internal.js": {
     "file": "chunks/internal.js",
     "name": "internal",
-    "imports": [
-      "_root.js",
-      "_environment.js"
-    ],
-    "dynamicImports": [
-      "src/hooks.server.ts"
-    ]
+    "imports": ["_root.js", "_environment.js"],
+    "dynamicImports": ["src/hooks.server.ts"]
   },
   "_package.js": {
     "file": "chunks/package.js",
     "name": "package",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_plus.js": {
+    "file": "chunks/plus.js",
+    "name": "plus",
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_power.js": {
     "file": "chunks/power.js",
     "name": "power",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_private.js": {
     "file": "chunks/private.js",
@@ -176,57 +194,47 @@
   "_root.js": {
     "file": "chunks/root.js",
     "name": "root",
-    "imports": [
-      "_index.js"
-    ]
+    "imports": ["_index.js"]
   },
   "_search.js": {
     "file": "chunks/search.js",
     "name": "search",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_shared.js": {
     "file": "chunks/shared.js",
     "name": "shared",
-    "imports": [
-      "_utils2.js",
-      "_utils.js"
-    ]
+    "imports": ["_utils2.js", "_utils.js"]
   },
   "_state.svelte.js": {
     "file": "chunks/state.svelte.js",
     "name": "state.svelte",
-    "imports": [
-      "_index.js",
-      "_exports.js",
-      "_root.js"
-    ]
+    "imports": ["_index.js", "_exports.js", "_root.js"]
   },
   "_stethoscope.js": {
     "file": "chunks/stethoscope.js",
     "name": "stethoscope",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_toast.js": {
     "file": "chunks/toast.js",
     "name": "toast",
-    "imports": [
-      "_index2.js"
-    ]
+    "imports": ["_index2.js"]
+  },
+  "_trending-up.js": {
+    "file": "chunks/trending-up.js",
+    "name": "trending-up",
+    "imports": ["_index.js", "_Icon.js"]
+  },
+  "_triangle-alert.js": {
+    "file": "chunks/triangle-alert.js",
+    "name": "triangle-alert",
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_users.js": {
     "file": "chunks/users.js",
     "name": "users",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
   },
   "_utils.js": {
     "file": "chunks/utils.js",
@@ -239,10 +247,7 @@
   "_x.js": {
     "file": "chunks/x.js",
     "name": "x",
-    "imports": [
-      "_index.js",
-      "_Icon.js"
-    ]
+    "imports": ["_index.js", "_Icon.js"]
   },
   "src/hooks.server.ts": {
     "file": "entries/hooks.server.js",
@@ -250,9 +255,7 @@
     "src": "src/hooks.server.ts",
     "isEntry": true,
     "isDynamicEntry": true,
-    "imports": [
-      "_private.js"
-    ]
+    "imports": ["_private.js"]
   },
   "src/routes/+layout.server.ts": {
     "file": "entries/pages/_layout.server.ts.js",
@@ -273,16 +276,17 @@
       "_state.svelte.js",
       "_index3.js",
       "_toast.js",
+      "_info.js",
       "_Icon.js",
       "_x.js",
+      "_bell.js",
       "_calendar.js",
+      "_chart-column.js",
       "_users.js",
       "_stethoscope.js",
       "_package.js"
     ],
-    "css": [
-      "_app/immutable/assets/_layout.Bg036cuJ.css"
-    ]
+    "css": ["_app/immutable/assets/_layout.C27LAg9R.css"]
   },
   "src/routes/+page.server.ts": {
     "file": "entries/pages/_page.server.ts.js",
@@ -301,9 +305,14 @@
     "name": "entries/endpoints/api/token/_server.ts",
     "src": "src/routes/api/token/+server.ts",
     "isEntry": true,
-    "imports": [
-      "_private.js"
-    ]
+    "imports": ["_private.js"]
+  },
+  "src/routes/dashboard/+page.server.ts": {
+    "file": "entries/pages/dashboard/_page.server.ts.js",
+    "name": "entries/pages/dashboard/_page.server.ts",
+    "src": "src/routes/dashboard/+page.server.ts",
+    "isEntry": true,
+    "imports": ["_api.js"]
   },
   "src/routes/dashboard/+page.svelte": {
     "file": "entries/pages/dashboard/_page.svelte.js",
@@ -312,8 +321,38 @@
     "isEntry": true,
     "imports": [
       "_index.js",
+      "_exports.js",
+      "_utils2.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_circle-alert.js",
+      "_triangle-alert.js",
+      "_info.js",
+      "_clock.js",
+      "_StatusVisitaBadge.js",
+      "_trending-up.js",
+      "_search.js",
       "_users.js",
       "_stethoscope.js",
+      "_calendar-check.js",
+      "_calendar.js"
+    ]
+  },
+  "src/routes/dashboard/agenda/+page.svelte": {
+    "file": "entries/pages/dashboard/agenda/_page.svelte.js",
+    "name": "entries/pages/dashboard/agenda/_page.svelte",
+    "src": "src/routes/dashboard/agenda/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_api.js",
+      "_clock.js",
+      "_chevron-left.js",
+      "_chevron-right.js",
+      "_trending-up.js",
+      "_calendar-plus.js",
+      "_VisitaSheet.js",
+      "_calendar-days.js",
       "_Icon.js"
     ]
   },
@@ -324,11 +363,13 @@
     "isEntry": true,
     "imports": [
       "_index.js",
-      "_Sheet.js",
+      "_api.js",
       "_toast.js",
+      "_Button.js",
       "_ConfirmDialog.js",
-      "_Icon.js",
       "_stethoscope.js",
+      "_plus.js",
+      "_Icon.js",
       "_chevron-right.js",
       "_power.js"
     ]
@@ -340,12 +381,56 @@
     "isEntry": true,
     "imports": [
       "_index.js",
-      "_Sheet.js",
+      "_api.js",
       "_toast.js",
+      "_Button.js",
       "_ConfirmDialog.js",
-      "_Icon.js",
       "_package.js",
+      "_plus.js",
+      "_search.js",
+      "_Icon.js",
       "_power.js"
+    ]
+  },
+  "src/routes/dashboard/notificacoes/+page.server.ts": {
+    "file": "entries/pages/dashboard/notificacoes/_page.server.ts.js",
+    "name": "entries/pages/dashboard/notificacoes/_page.server.ts",
+    "src": "src/routes/dashboard/notificacoes/+page.server.ts",
+    "isEntry": true,
+    "imports": ["_api.js"]
+  },
+  "src/routes/dashboard/notificacoes/+page.svelte": {
+    "file": "entries/pages/dashboard/notificacoes/_page.svelte.js",
+    "name": "entries/pages/dashboard/notificacoes/_page.svelte",
+    "src": "src/routes/dashboard/notificacoes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_x.js",
+      "_circle-alert.js",
+      "_triangle-alert.js",
+      "_bell.js",
+      "_info.js",
+      "_Icon.js"
+    ]
+  },
+  "src/routes/dashboard/pipeline/+page.svelte": {
+    "file": "entries/pages/dashboard/pipeline/_page.svelte.js",
+    "name": "entries/pages/dashboard/pipeline/_page.svelte",
+    "src": "src/routes/dashboard/pipeline/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_api.js",
+      "_Button.js",
+      "_toast.js",
+      "_search.js",
+      "_x.js",
+      "_Icon.js",
+      "_chart-column.js",
+      "_users.js",
+      "_calendar-check.js",
+      "_trending-up.js"
     ]
   },
   "src/routes/dashboard/profissionais/+page.svelte": {
@@ -355,14 +440,21 @@
     "isEntry": true,
     "imports": [
       "_index.js",
-      "_Sheet.js",
+      "_exports.js",
+      "_utils2.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_api.js",
       "_toast.js",
+      "_Button.js",
       "_ConfirmDialog.js",
-      "_search.js",
       "_users.js",
+      "_plus.js",
+      "_search.js",
       "_Icon.js",
       "_x.js",
       "_calendar.js",
+      "_arrow-left.js",
       "_power.js",
       "_chevron-left.js",
       "_chevron-right.js"
@@ -379,10 +471,14 @@
       "_utils2.js",
       "_root.js",
       "_state.svelte.js",
-      "_Sheet.js",
+      "_api.js",
       "_VisitaSheet.js",
-      "_chevron-left.js",
-      "_Icon.js"
+      "_calendar.js",
+      "_trending-up.js",
+      "_clock.js",
+      "_arrow-left.js",
+      "_Icon.js",
+      "_calendar-plus.js"
     ]
   },
   "src/routes/dashboard/visitas/+page.svelte": {
@@ -392,12 +488,20 @@
     "isEntry": true,
     "imports": [
       "_index.js",
-      "_Sheet.js",
-      "_VisitaSheet.js",
+      "_api.js",
+      "_StatusVisitaBadge.js",
+      "_Button.js",
       "_ConfirmDialog.js",
+      "_VisitaSheet.js",
+      "_calendar-days.js",
+      "_plus.js",
+      "_search.js",
       "_calendar.js",
+      "_clock.js",
+      "_package.js",
       "_Icon.js",
-      "_package.js"
+      "_chevron-left.js",
+      "_chevron-right.js"
     ]
   },
   "src/routes/login/+page.svelte": {
@@ -405,19 +509,13 @@
     "name": "entries/pages/login/_page.svelte",
     "src": "src/routes/login/+page.svelte",
     "isEntry": true,
-    "imports": [
-      "_index.js",
-      "_public.js"
-    ]
+    "imports": ["_index.js", "_public.js"]
   },
   "src/routes/signup/+page.svelte": {
     "file": "entries/pages/signup/_page.svelte.js",
     "name": "entries/pages/signup/_page.svelte",
     "src": "src/routes/signup/+page.svelte",
     "isEntry": true,
-    "imports": [
-      "_index.js",
-      "_public.js"
-    ]
+    "imports": ["_index.js", "_public.js"]
   }
 }

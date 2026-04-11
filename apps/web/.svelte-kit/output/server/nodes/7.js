@@ -1,8 +1,28 @@
-
+import * as server from "../entries/pages/dashboard/notificacoes/_page.server.ts.js";
 
 export const index = 7;
 let component_cache;
-export const component = async () => component_cache ??= (await import('../entries/pages/dashboard/profissionais/_id_/_page.svelte.js')).default;
-export const imports = ["_app/immutable/nodes/7.CcfFb26c.js","_app/immutable/chunks/Bzak7iHL.js","_app/immutable/chunks/Cv8w_ml4.js","_app/immutable/chunks/CXr_JAAF.js","_app/immutable/chunks/DDGEypSB.js","_app/immutable/chunks/C7gqJRyU.js","_app/immutable/chunks/I_vi0e1d.js","_app/immutable/chunks/D0RLiUbJ.js","_app/immutable/chunks/Bn_4tQtf.js","_app/immutable/chunks/DB99LtZg.js","_app/immutable/chunks/C_RRjdrt.js","_app/immutable/chunks/Barlo0bl.js","_app/immutable/chunks/CD8SjCPA.js","_app/immutable/chunks/D1oOiBoR.js","_app/immutable/chunks/CS3PVsBL.js","_app/immutable/chunks/CabskoH2.js","_app/immutable/chunks/CtFljABB.js","_app/immutable/chunks/B_pGkZ5p.js","_app/immutable/chunks/DAtXb9Bd.js"];
+export const component = async () =>
+  (component_cache ??= (
+    await import("../entries/pages/dashboard/notificacoes/_page.svelte.js")
+  ).default);
+export { server };
+export const server_id = "src/routes/dashboard/notificacoes/+page.server.ts";
+export const imports = [
+  "_app/immutable/nodes/7.B1dhsiXB.js",
+  "_app/immutable/chunks/Bzak7iHL.js",
+  "_app/immutable/chunks/CZsNqhY1.js",
+  "_app/immutable/chunks/D4SvF6kG.js",
+  "_app/immutable/chunks/BLFvJadL.js",
+  "_app/immutable/chunks/CsBhEEN0.js",
+  "_app/immutable/chunks/D_ntMQAe.js",
+  "_app/immutable/chunks/CUONaVJB.js",
+  "_app/immutable/chunks/DDioZlon.js",
+  "_app/immutable/chunks/Cat8nRvO.js",
+  "_app/immutable/chunks/CwQHtGrs.js",
+  "_app/immutable/chunks/Bj1gaHN5.js",
+  "_app/immutable/chunks/CkHy_-7l.js",
+  "_app/immutable/chunks/DYTuZaAl.js",
+];
 export const stylesheets = [];
 export const fonts = [];

@@ -419,18 +419,23 @@
 </svelte:head>
 
 <!-- Page Header -->
-<header class="mb-6 flex items-center justify-between">
-	<div>
-		<h2 class="text-2xl font-semibold tracking-tight text-slate-900">Especialidades</h2>
-		<p class="text-sm text-slate-400 mt-1">
-			{especialidades.length} especialidade(s) cadastrada(s)
-		</p>
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+	<div class="flex items-center gap-3">
+		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+			<Stethoscope class="h-4.5 w-4.5 text-white" />
+		</div>
+		<div>
+			<h1 class="text-lg font-bold text-slate-800">Especialidades</h1>
+			<p class="text-[11px] text-slate-400">Gerencie as especialidades e subespecialidades médicas</p>
+		</div>
 	</div>
-	<Button onclick={handleNovaEspecialidade} class="hidden sm:inline-flex gap-2">
-		<Plus class="h-4 w-4" />
-		Nova Especialidade
-	</Button>
-</header>
+	<div class="flex items-center gap-2">
+		<Button onclick={handleNovaEspecialidade} class="hidden sm:inline-flex gap-2">
+			<Plus class="h-4 w-4" />
+			Nova Especialidade
+		</Button>
+	</div>
+</div>
 
 <!-- Content -->
 {#if loading}
@@ -698,7 +703,7 @@
 					{especialidadeEmEdicao ? 'Editar Especialidade' : 'Nova Especialidade'}
 				</h3>
 				<p class="text-sm text-slate-400 mt-1">
-					{especialidadeEmEdicao ? 'Atualize os dados abaixo' : 'Preencha os dados para criar'}
+					{especialidadeEmEdicao ? 'Atualize os dados abaixo' : 'Preencha os dados para cadastrar'}
 				</p>
 			</div>
 

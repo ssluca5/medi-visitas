@@ -267,14 +267,11 @@ export default async function subespecialidadesRoutes(
         });
       }
 
-      // Physical delete (hard delete) — wrapped in try/catch for safety
-      try {
-        await prisma.subEspecialidade.delete({ where: { id } });
-      } catch (err) {
-        return reply.code(409).send({
-          error: "Não foi possível excluir a subespecialidade",
-        });
-      }
+      // Soft delete
+      await prisma.subEspecialidade.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
 
       return reply.code(204).send();
     },

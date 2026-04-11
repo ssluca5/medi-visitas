@@ -33,11 +33,11 @@
 </svelte:head>
 
 {#if isDashboard}
-	<div class="flex min-h-screen bg-slate-50/80">
+	<div class="flex h-screen w-full overflow-hidden bg-slate-50">
 		<Sidebar userName={data.userName ?? 'Usuário'} sessionToken={data.sessionToken} />
 
-		<main class="flex-1 overflow-y-auto">
-			<div class="px-5 py-5 lg:px-6">
+		<main class="flex-1 min-w-0 h-full overflow-y-auto">
+			<div class="p-8">
 				{@render children()}
 			</div>
 		</main>

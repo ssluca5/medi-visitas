@@ -1,10 +1,31 @@
 import { json, text } from "@sveltejs/kit";
 import { SvelteKitError, HttpError } from "@sveltejs/kit/internal";
 import { with_request_store } from "@sveltejs/kit/internal/server";
-import { t as text_decoder, b as base64_encode, c as base64_decode } from "./utils2.js";
-import { D as DevalueError, i as is_primitive, g as get_type, a as is_plain_object, e as enumerable_symbols, s as stringify_key, b as stringify_string, v as valid_array_indices } from "./utils.js";
+import {
+  t as text_decoder,
+  b as base64_encode,
+  c as base64_decode,
+} from "./utils2.js";
+import {
+  D as DevalueError,
+  i as is_primitive,
+  g as get_type,
+  a as is_plain_object,
+  e as enumerable_symbols,
+  s as stringify_key,
+  b as stringify_string,
+  v as valid_array_indices,
+} from "./utils.js";
 const SVELTE_KIT_ASSETS = "/_svelte_kit_assets";
-const ENDPOINT_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
+const ENDPOINT_METHODS = [
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "OPTIONS",
+  "HEAD",
+];
 const MUTATIVE_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
 const PAGE_METHODS = ["GET", "POST", "HEAD"];
 function encode64(arraybuffer) {
@@ -24,7 +45,8 @@ function decode64(string) {
   }
   return arraybuffer;
 }
-const KEY_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const KEY_STRING =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 function asciiToBinary(data) {
   if (data.length % 4 === 0) {
     data = data.replace(/==?$/, "");
@@ -92,10 +114,9 @@ function unflatten(parsed, revivers) {
   if (!Array.isArray(parsed) || parsed.length === 0) {
     throw new Error("Invalid input");
   }
-  const values = (
+  const values =
     /** @type {any[]} */
-    parsed
-  );
+    parsed;
   const hydrated = Array(values.length);
   let hydrating = null;
   function hydrate(index, standalone = false) {
@@ -114,7 +135,8 @@ function unflatten(parsed, revivers) {
     } else if (Array.isArray(value)) {
       if (typeof value[0] === "string") {
         const type = value[0];
-        const reviver = revivers && Object.hasOwn(revivers, type) ? revivers[type] : void 0;
+        const reviver =
+          revivers && Object.hasOwn(revivers, type) ? revivers[type] : void 0;
         if (reviver) {
           let i = value[1];
           if (typeof i !== "number") {
@@ -153,7 +175,9 @@ function unflatten(parsed, revivers) {
           case "Object":
             const object = Object(value[1]);
             if (Object.hasOwn(object, "__proto__")) {
-              throw new Error("Cannot parse an object with a `__proto__` property");
+              throw new Error(
+                "Cannot parse an object with a `__proto__` property",
+              );
             }
             hydrated[index] = object;
             break;
@@ -165,7 +189,9 @@ function unflatten(parsed, revivers) {
             hydrated[index] = obj;
             for (let i = 1; i < value.length; i += 2) {
               if (value[i] === "__proto__") {
-                throw new Error("Cannot parse an object with a `__proto__` property");
+                throw new Error(
+                  "Cannot parse an object with a `__proto__` property",
+                );
               }
               obj[value[i]] = hydrate(value[i + 1]);
             }
@@ -187,7 +213,10 @@ function unflatten(parsed, revivers) {
             const TypedArrayConstructor = globalThis[type];
             const buffer = hydrate(value[1]);
             const typedArray = new TypedArrayConstructor(buffer);
-            hydrated[index] = value[2] !== void 0 ? typedArray.subarray(value[2], value[3]) : typedArray;
+            hydrated[index] =
+              value[2] !== void 0
+                ? typedArray.subarray(value[2], value[3])
+                : typedArray;
             break;
           }
           case "ArrayBuffer": {
@@ -318,7 +347,9 @@ function stringify$1(value, reducers) {
           break;
         case "RegExp":
           const { source, flags } = thing;
-          str = flags ? `["RegExp",${stringify_string(source)},"${flags}"]` : `["RegExp",${stringify_string(source)}]`;
+          str = flags
+            ? `["RegExp",${stringify_string(source)},"${flags}"]`
+            : `["RegExp",${stringify_string(source)}]`;
           break;
         case "Array": {
           let mostly_dense = false;
@@ -334,7 +365,7 @@ function stringify$1(value, reducers) {
             } else {
               const populated_keys = valid_array_indices(
                 /** @type {any[]} */
-                thing
+                thing,
               );
               const population = populated_keys.length;
               const d = String(thing.length).length;
@@ -369,7 +400,7 @@ function stringify$1(value, reducers) {
           str = '["Map"';
           for (const [key, value2] of thing) {
             keys.push(
-              `.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`
+              `.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`,
             );
             str += `,${flatten(key)},${flatten(value2)}`;
             keys.pop();
@@ -420,7 +451,7 @@ function stringify$1(value, reducers) {
               `Cannot stringify arbitrary non-POJOs`,
               keys,
               thing,
-              value
+              value,
             );
           }
           if (enumerable_symbols(thing).length > 0) {
@@ -428,7 +459,7 @@ function stringify$1(value, reducers) {
               `Cannot stringify POJOs with symbolic keys`,
               keys,
               thing,
-              value
+              value,
             );
           }
           if (Object.getPrototypeOf(thing) === null) {
@@ -439,7 +470,7 @@ function stringify$1(value, reducers) {
                   `Cannot stringify objects with __proto__ keys`,
                   keys,
                   thing,
-                  value
+                  value,
                 );
               }
               keys.push(stringify_key(key));
@@ -456,7 +487,7 @@ function stringify$1(value, reducers) {
                   `Cannot stringify objects with __proto__ keys`,
                   keys,
                   thing,
-                  value
+                  value,
                 );
               }
               if (started) str += ",";
@@ -502,17 +533,24 @@ function convert_formdata(data) {
     let values = data.getAll(key);
     if (is_array) key = key.slice(0, -2);
     if (values.length > 1 && !is_array) {
-      throw new Error(`Form cannot contain duplicated keys — "${key}" has ${values.length} values`);
+      throw new Error(
+        `Form cannot contain duplicated keys — "${key}" has ${values.length} values`,
+      );
     }
     values = values.filter(
-      (entry) => typeof entry === "string" || entry.name !== "" || entry.size > 0
+      (entry) =>
+        typeof entry === "string" || entry.name !== "" || entry.size > 0,
     );
     if (key.startsWith("n:")) {
       key = key.slice(2);
-      values = values.map((v) => v === "" ? void 0 : parseFloat(
-        /** @type {string} */
-        v
-      ));
+      values = values.map((v) =>
+        v === ""
+          ? void 0
+          : parseFloat(
+              /** @type {string} */
+              v,
+            ),
+      );
     } else if (key.startsWith("b:")) {
       key = key.slice(2);
       values = values.map((v) => v === "on");
@@ -562,7 +600,10 @@ async function deserialize_binary_form(request) {
       chunk_start = chunk_end;
     }
     if (offset + length <= chunk_start + start_chunk.byteLength) {
-      return start_chunk.subarray(offset - chunk_start, offset + length - chunk_start);
+      return start_chunk.subarray(
+        offset - chunk_start,
+        offset + length - chunk_start,
+      );
     }
     const chunks2 = [start_chunk.subarray(offset - chunk_start)];
     let cursor = start_chunk.byteLength - offset + chunk_start;
@@ -587,9 +628,15 @@ async function deserialize_binary_form(request) {
   const header = await get_buffer(0, HEADER_BYTES);
   if (!header) throw deserialize_error("too short");
   if (header[0] !== BINARY_FORM_VERSION) {
-    throw deserialize_error(`got version ${header[0]}, expected version ${BINARY_FORM_VERSION}`);
+    throw deserialize_error(
+      `got version ${header[0]}, expected version ${BINARY_FORM_VERSION}`,
+    );
   }
-  const header_view = new DataView(header.buffer, header.byteOffset, header.byteLength);
+  const header_view = new DataView(
+    header.buffer,
+    header.byteOffset,
+    header.byteLength,
+  );
   const data_length = header_view.getUint32(1, true);
   if (HEADER_BYTES + data_length > content_length) {
     throw deserialize_error("data overflow");
@@ -603,20 +650,34 @@ async function deserialize_binary_form(request) {
   let file_offsets;
   let files_start_offset;
   if (file_offsets_length > 0) {
-    const file_offsets_buffer = await get_buffer(HEADER_BYTES + data_length, file_offsets_length);
-    if (!file_offsets_buffer) throw deserialize_error("file offset table too short");
+    const file_offsets_buffer = await get_buffer(
+      HEADER_BYTES + data_length,
+      file_offsets_length,
+    );
+    if (!file_offsets_buffer)
+      throw deserialize_error("file offset table too short");
     const parsed_offsets = JSON.parse(text_decoder.decode(file_offsets_buffer));
-    if (!Array.isArray(parsed_offsets) || parsed_offsets.some((n) => typeof n !== "number" || !Number.isInteger(n) || n < 0)) {
+    if (
+      !Array.isArray(parsed_offsets) ||
+      parsed_offsets.some(
+        (n) => typeof n !== "number" || !Number.isInteger(n) || n < 0,
+      )
+    ) {
       throw deserialize_error("invalid file offset table");
     }
-    file_offsets = /** @type {Array<number>} */
-    parsed_offsets;
+    file_offsets = /** @type {Array<number>} */ parsed_offsets;
     files_start_offset = HEADER_BYTES + data_length + file_offsets_length;
   }
   const file_spans = [];
   const [data, meta] = parse(text_decoder.decode(data_buffer), {
     File: ([name, type, size, last_modified, index]) => {
-      if (typeof name !== "string" || typeof type !== "string" || typeof size !== "number" || typeof last_modified !== "number" || typeof index !== "number") {
+      if (
+        typeof name !== "string" ||
+        typeof type !== "string" ||
+        typeof size !== "number" ||
+        typeof last_modified !== "number" ||
+        typeof index !== "number"
+      ) {
         throw deserialize_error("invalid file metadata");
       }
       let offset = file_offsets[index];
@@ -629,12 +690,15 @@ async function deserialize_binary_form(request) {
         throw deserialize_error("file data overflow");
       }
       file_spans.push({ offset, size });
-      return new Proxy(new LazyFile(name, type, size, last_modified, get_chunk, offset), {
-        getPrototypeOf() {
-          return File.prototype;
-        }
-      });
-    }
+      return new Proxy(
+        new LazyFile(name, type, size, last_modified, get_chunk, offset),
+        {
+          getPrototypeOf() {
+            return File.prototype;
+          },
+        },
+      );
+    },
   });
   file_spans.sort((a, b) => a.offset - b.offset || a.size - b.size);
   for (let i = 1; i < file_spans.length; i++) {
@@ -658,7 +722,11 @@ async function deserialize_binary_form(request) {
   return { data, meta, form_data: null };
 }
 function deserialize_error(message) {
-  return new SvelteKitError(400, "Bad Request", `Could not deserialize binary form: ${message}`);
+  return new SvelteKitError(
+    400,
+    "Bad Request",
+    `Could not deserialize binary form: ${message}`,
+  );
 }
 class LazyFile {
   /** @type {(index: number) => Promise<Uint8Array<ArrayBuffer> | undefined>} */
@@ -719,7 +787,7 @@ class LazyFile {
       size,
       this.lastModified,
       this.#get_chunk,
-      this.#offset + start
+      this.#offset + start,
     );
     return file;
   }
@@ -742,7 +810,10 @@ class LazyFile {
         }
         if (this.#offset + this.size <= chunk_start + start_chunk.byteLength) {
           controller.enqueue(
-            start_chunk.subarray(this.#offset - chunk_start, this.#offset + this.size - chunk_start)
+            start_chunk.subarray(
+              this.#offset - chunk_start,
+              this.#offset + this.size - chunk_start,
+            ),
           );
           controller.close();
         } else {
@@ -766,7 +837,7 @@ class LazyFile {
         if (cursor >= this.size) {
           controller.close();
         }
-      }
+      },
     });
   }
   async text() {
@@ -782,9 +853,7 @@ function split_path(path) {
 }
 function check_prototype_pollution(key) {
   if (key === "__proto__" || key === "constructor" || key === "prototype") {
-    throw new Error(
-      `Invalid key "${key}"`
-    );
+    throw new Error(`Invalid key "${key}"`);
   }
 }
 function deep_set(object, keys, value) {
@@ -812,10 +881,9 @@ function normalize_issue(issue, server = false) {
   if (issue.path !== void 0) {
     let name = "";
     for (const segment of issue.path) {
-      const key = (
+      const key =
         /** @type {string | number} */
-        typeof segment === "object" ? segment.key : segment
-      );
+        typeof segment === "object" ? segment.key : segment;
       normalized.path.push(key);
       if (typeof key === "number") {
         name += `[${key}]`;
@@ -855,7 +923,13 @@ function deep_get(object, path) {
   }
   return current;
 }
-function create_field_proxy(target, get_input, set_input, get_issues, path = []) {
+function create_field_proxy(
+  target,
+  get_input,
+  set_input,
+  get_issues,
+  path = [],
+) {
   const get_value = () => {
     return deep_get(get_input(), path);
   };
@@ -865,19 +939,25 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
       if (/^\d+$/.test(prop)) {
         return create_field_proxy({}, get_input, set_input, get_issues, [
           ...path,
-          parseInt(prop, 10)
+          parseInt(prop, 10),
         ]);
       }
       const key = build_path_string(path);
       if (prop === "set") {
-        const set_func = function(newValue) {
+        const set_func = function (newValue) {
           set_input(path, newValue);
           return newValue;
         };
-        return create_field_proxy(set_func, get_input, set_input, get_issues, [...path, prop]);
+        return create_field_proxy(set_func, get_input, set_input, get_issues, [
+          ...path,
+          prop,
+        ]);
       }
       if (prop === "value") {
-        return create_field_proxy(get_value, get_input, set_input, get_issues, [...path, prop]);
+        return create_field_proxy(get_value, get_input, set_input, get_issues, [
+          ...path,
+          prop,
+        ]);
       }
       if (prop === "issues" || prop === "allIssues") {
         const issues_func = () => {
@@ -885,33 +965,53 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
           if (prop === "allIssues") {
             return all_issues?.map((issue) => ({
               path: issue.path,
-              message: issue.message
+              message: issue.message,
             }));
           }
-          return all_issues?.filter((issue) => issue.name === key)?.map((issue) => ({
-            path: issue.path,
-            message: issue.message
-          }));
+          return all_issues
+            ?.filter((issue) => issue.name === key)
+            ?.map((issue) => ({
+              path: issue.path,
+              message: issue.message,
+            }));
         };
-        return create_field_proxy(issues_func, get_input, set_input, get_issues, [...path, prop]);
+        return create_field_proxy(
+          issues_func,
+          get_input,
+          set_input,
+          get_issues,
+          [...path, prop],
+        );
       }
       if (prop === "as") {
         const as_func = (type, input_value) => {
-          const is_array = type === "file multiple" || type === "select multiple" || type === "checkbox" && typeof input_value === "string";
-          const prefix = type === "number" || type === "range" ? "n:" : type === "checkbox" && !is_array ? "b:" : "";
+          const is_array =
+            type === "file multiple" ||
+            type === "select multiple" ||
+            (type === "checkbox" && typeof input_value === "string");
+          const prefix =
+            type === "number" || type === "range"
+              ? "n:"
+              : type === "checkbox" && !is_array
+                ? "b:"
+                : "";
           const base_props = {
             name: prefix + key + (is_array ? "[]" : ""),
             get "aria-invalid"() {
               const issues = get_issues();
               return key in issues ? "true" : void 0;
-            }
+            },
           };
-          if (type !== "text" && type !== "select" && type !== "select multiple") {
+          if (
+            type !== "text" &&
+            type !== "select" &&
+            type !== "select multiple"
+          ) {
             base_props.type = type === "file multiple" ? "file" : type;
           }
           if (type === "submit" || type === "hidden") {
             return Object.defineProperties(base_props, {
-              value: { value: input_value, enumerable: true }
+              value: { value: input_value, enumerable: true },
             });
           }
           if (type === "select" || type === "select multiple") {
@@ -921,8 +1021,8 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
                 enumerable: true,
                 get() {
                   return get_value();
-                }
-              }
+                },
+              },
             });
           }
           if (type === "checkbox" || type === "radio") {
@@ -939,8 +1039,8 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
                     return (value ?? []).includes(input_value);
                   }
                   return value;
-                }
-              }
+                },
+              },
             });
           }
           if (type === "file" || type === "file multiple") {
@@ -958,7 +1058,10 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
                     }
                     return { 0: value, length: 1 };
                   }
-                  if (Array.isArray(value) && value.every((f) => f instanceof File)) {
+                  if (
+                    Array.isArray(value) &&
+                    value.every((f) => f instanceof File)
+                  ) {
                     if (typeof DataTransfer !== "undefined") {
                       const fileList = new DataTransfer();
                       value.forEach((file) => fileList.items.add(file));
@@ -971,8 +1074,8 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
                     return fileListLike;
                   }
                   return null;
-                }
-              }
+                },
+              },
             });
           }
           return Object.defineProperties(base_props, {
@@ -981,14 +1084,20 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
               get() {
                 const value = get_value();
                 return value != null ? String(value) : "";
-              }
-            }
+              },
+            },
           });
         };
-        return create_field_proxy(as_func, get_input, set_input, get_issues, [...path, "as"]);
+        return create_field_proxy(as_func, get_input, set_input, get_issues, [
+          ...path,
+          "as",
+        ]);
       }
-      return create_field_proxy({}, get_input, set_input, get_issues, [...path, prop]);
-    }
+      return create_field_proxy({}, get_input, set_input, get_issues, [
+        ...path,
+        prop,
+      ]);
+    },
   });
 }
 function build_path_string(path) {
@@ -1005,7 +1114,9 @@ function build_path_string(path) {
 function negotiate(accept, types) {
   const parts = [];
   accept.split(",").forEach((str, i) => {
-    const match = /([^/ \t]+)\/([^; \t]+)[ \t]*(?:;[ \t]*q=([0-9.]+))?/.exec(str);
+    const match = /([^/ \t]+)\/([^; \t]+)[ \t]*(?:;[ \t]*q=([0-9.]+))?/.exec(
+      str,
+    );
     if (match) {
       const [, type, subtype, q = "1"] = match;
       parts.push({ type, subtype, q: +q, i });
@@ -1015,10 +1126,10 @@ function negotiate(accept, types) {
     if (a.q !== b.q) {
       return b.q - a.q;
     }
-    if (a.subtype === "*" !== (b.subtype === "*")) {
+    if ((a.subtype === "*") !== (b.subtype === "*")) {
       return a.subtype === "*" ? 1 : -1;
     }
-    if (a.type === "*" !== (b.type === "*")) {
+    if ((a.type === "*") !== (b.type === "*")) {
       return a.type === "*" ? 1 : -1;
     }
     return a.i - b.i;
@@ -1028,7 +1139,9 @@ function negotiate(accept, types) {
   for (const mimetype of types) {
     const [type, subtype] = mimetype.split("/");
     const priority = parts.findIndex(
-      (part) => (part.type === type || part.type === "*") && (part.subtype === subtype || part.subtype === "*")
+      (part) =>
+        (part.type === type || part.type === "*") &&
+        (part.subtype === subtype || part.subtype === "*"),
     );
     if (priority !== -1 && priority < min_priority) {
       accepted = mimetype;
@@ -1038,7 +1151,8 @@ function negotiate(accept, types) {
   return accepted;
 }
 function is_content_type(request, ...types) {
-  const type = request.headers.get("content-type")?.split(";", 1)[0].trim() ?? "";
+  const type =
+    request.headers.get("content-type")?.split(";", 1)[0].trim() ?? "";
   return types.includes(type.toLowerCase());
 }
 function is_form_content_type(request) {
@@ -1047,16 +1161,15 @@ function is_form_content_type(request) {
     "application/x-www-form-urlencoded",
     "multipart/form-data",
     "text/plain",
-    BINARY_FORM_CONTENT_TYPE
+    BINARY_FORM_CONTENT_TYPE,
   );
 }
 function coalesce_to_error(err) {
-  return err instanceof Error || err && /** @type {any} */
-  err.name && /** @type {any} */
-  err.message ? (
-    /** @type {Error} */
-    err
-  ) : new Error(JSON.stringify(err));
+  return err instanceof Error ||
+    (err && /** @type {any} */ err.name && /** @type {any} */ err.message)
+    ? /** @type {Error} */
+      err
+    : new Error(JSON.stringify(err));
 }
 function normalize_error(error) {
   return (
@@ -1065,42 +1178,46 @@ function normalize_error(error) {
   );
 }
 function get_status(error) {
-  return error instanceof HttpError || error instanceof SvelteKitError ? error.status : 500;
+  return error instanceof HttpError || error instanceof SvelteKitError
+    ? error.status
+    : 500;
 }
 function get_message(error) {
   return error instanceof SvelteKitError ? error.text : "Internal Error";
 }
 const escape_html_attr_dict = {
   "&": "&amp;",
-  '"': "&quot;"
+  '"': "&quot;",
   // Svelte also escapes < because the escape function could be called inside a `noscript` there
   // https://github.com/sveltejs/svelte/security/advisories/GHSA-8266-84wp-wv5c
   // However, that doesn't apply in SvelteKit
 };
 const escape_html_dict = {
   "&": "&amp;",
-  "<": "&lt;"
+  "<": "&lt;",
 };
-const surrogates = (
+const surrogates =
   // high surrogate without paired low surrogate
-  "[\\ud800-\\udbff](?![\\udc00-\\udfff])|[\\ud800-\\udbff][\\udc00-\\udfff]|[\\udc00-\\udfff]"
-);
+  "[\\ud800-\\udbff](?![\\udc00-\\udfff])|[\\ud800-\\udbff][\\udc00-\\udfff]|[\\udc00-\\udfff]";
 const escape_html_attr_regex = new RegExp(
   `[${Object.keys(escape_html_attr_dict).join("")}]|` + surrogates,
-  "g"
+  "g",
 );
 const escape_html_regex = new RegExp(
   `[${Object.keys(escape_html_dict).join("")}]|` + surrogates,
-  "g"
+  "g",
 );
 function escape_html(str, is_attr) {
   const dict = is_attr ? escape_html_attr_dict : escape_html_dict;
-  const escaped_str = str.replace(is_attr ? escape_html_attr_regex : escape_html_regex, (match) => {
-    if (match.length === 2) {
-      return match;
-    }
-    return dict[match] ?? `&#${match.charCodeAt(0)};`;
-  });
+  const escaped_str = str.replace(
+    is_attr ? escape_html_attr_regex : escape_html_regex,
+    (match) => {
+      if (match.length === 2) {
+        return match;
+      }
+      return dict[match] ?? `&#${match.charCodeAt(0)};`;
+    },
+  );
   return escaped_str;
 }
 function method_not_allowed(mod, method) {
@@ -1109,8 +1226,8 @@ function method_not_allowed(mod, method) {
     headers: {
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405
       // "The server must generate an Allow header field in a 405 status code response"
-      allow: allowed_methods(mod).join(", ")
-    }
+      allow: allowed_methods(mod).join(", "),
+    },
   });
 }
 function allowed_methods(mod) {
@@ -1127,7 +1244,7 @@ function static_error_page(options, status, message) {
   let page = options.templates.error({ status, message: escape_html(message) });
   return text(page, {
     headers: { "content-type": "text/html; charset=utf-8" },
-    status
+    status,
   });
 }
 async function handle_fatal_error(event, state, options, error) {
@@ -1136,11 +1253,11 @@ async function handle_fatal_error(event, state, options, error) {
   const body = await handle_error_and_jsonify(event, state, options, error);
   const type = negotiate(event.request.headers.get("accept") || "text/html", [
     "application/json",
-    "text/html"
+    "text/html",
   ]);
   if (event.isDataRequest || type === "application/json") {
     return json(body, {
-      status
+      status,
     });
   }
   return static_error_page(options, status, body.message);
@@ -1151,15 +1268,16 @@ async function handle_error_and_jsonify(event, state, options, error) {
   }
   const status = get_status(error);
   const message = get_message(error);
-  return await with_request_store(
-    { event, state },
-    () => options.hooks.handleError({ error, event, status, message })
-  ) ?? { message };
+  return (
+    (await with_request_store({ event, state }, () =>
+      options.hooks.handleError({ error, event, status, message }),
+    )) ?? { message }
+  );
 }
 function redirect_response(status, location) {
   const response = new Response(void 0, {
     status,
-    headers: { location }
+    headers: { location },
   });
   return response;
 }
@@ -1189,7 +1307,11 @@ function serialize_uses(node) {
   return uses;
 }
 function has_prerendered_path(manifest, pathname) {
-  return manifest._.prerendered_routes.has(pathname) || pathname.at(-1) === "/" && manifest._.prerendered_routes.has(pathname.slice(0, -1));
+  return (
+    manifest._.prerendered_routes.has(pathname) ||
+    (pathname.at(-1) === "/" &&
+      manifest._.prerendered_routes.has(pathname.slice(0, -1)))
+  );
 }
 function format_server_error(status, error, event) {
   const formatted_text = `
@@ -1210,22 +1332,29 @@ function get_node_type(node_id) {
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
 const TRAILING_SLASH_PARAM = "x-sveltekit-trailing-slash";
 function stringify(data, transport) {
-  const encoders = Object.fromEntries(Object.entries(transport).map(([k, v]) => [k, v.encode]));
+  const encoders = Object.fromEntries(
+    Object.entries(transport).map(([k, v]) => [k, v.encode]),
+  );
   return stringify$1(data, encoders);
 }
 function stringify_remote_arg(value, transport) {
   if (value === void 0) return "";
   const json_string = stringify(value, transport);
   const bytes = new TextEncoder().encode(json_string);
-  return base64_encode(bytes).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
+  return base64_encode(bytes)
+    .replaceAll("=", "")
+    .replaceAll("+", "-")
+    .replaceAll("/", "_");
 }
 function parse_remote_arg(string, transport) {
   if (!string) return void 0;
   const json_string = text_decoder.decode(
     // no need to add back `=` characters, atob can handle it
-    base64_decode(string.replaceAll("-", "+").replaceAll("_", "/"))
+    base64_decode(string.replaceAll("-", "+").replaceAll("_", "/")),
   );
-  const decoders = Object.fromEntries(Object.entries(transport).map(([k, v]) => [k, v.decode]));
+  const decoders = Object.fromEntries(
+    Object.entries(transport).map(([k, v]) => [k, v.decode]),
+  );
   return parse(json_string, decoders);
 }
 function create_remote_key(id, payload) {
@@ -1265,5 +1394,5 @@ export {
   parse as w,
   create_field_proxy as x,
   normalize_issue as y,
-  set_nested_value as z
+  set_nested_value as z,
 };

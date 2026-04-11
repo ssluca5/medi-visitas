@@ -11,6 +11,7 @@ date_added: "2026-02-27"
 Manage Linear issues, projects, and teams
 
 Use this skill when working with manage linear issues, projects, and teams.
+
 # Linear
 
 Tools and workflows for managing issues, projects, and teams in Linear.
@@ -21,7 +22,7 @@ Tools and workflows for managing issues, projects, and teams in Linear.
 
 **This skill supports multiple tool backends. Use whichever is available:**
 
-1. **MCP Tools (mcp__linear)** - Use if available in your tool set
+1. **MCP Tools (mcp\_\_linear)** - Use if available in your tool set
 2. **Linear CLI (`linear` command)** - Always available via Bash
 3. **Helper Scripts** - For complex operations
 
@@ -48,12 +49,12 @@ linear issues list
 
 ---
 
-
 ## When to Use This Skill
 
 Manage Linear issues, projects, and teams
 
 Use this skill when working with manage linear issues, projects, and teams.
+
 ## 🔐 Security: Varlock Integration
 
 **CRITICAL**: Never expose API keys in terminal output or Claude's context.
@@ -84,6 +85,7 @@ cat .env
 ### Setup for New Projects
 
 1. Create `.env.schema` with `@sensitive` annotation:
+
    ```bash
    # @type=string(startsWith=lin_api_) @required @sensitive
    LINEAR_API_KEY=
@@ -92,6 +94,7 @@ cat .env
 2. Add `LINEAR_API_KEY` to `.env` (never commit this file)
 
 3. Configure MCP to use environment variable:
+
    ```json
    {
      "mcpServers": {
@@ -117,6 +120,7 @@ npx tsx ~/.claude/skills/linear/scripts/setup.ts
 ```
 
 This will check:
+
 - LINEAR_API_KEY is set and valid
 - @linear/sdk is installed
 - Linear CLI availability (optional)
@@ -174,12 +178,12 @@ See [Project Management Commands](#project-management-commands) for full referen
 
 ---
 
-
 ## When to Use This Skill
 
 Manage Linear issues, projects, and teams
 
 Use this skill when working with manage linear issues, projects, and teams.
+
 ## Project Planning Workflow
 
 ### Create Issues in the Correct Project from the Start
@@ -189,16 +193,19 @@ Use this skill when working with manage linear issues, projects, and teams.
 #### Recommended Workflow
 
 1. **Create the project first**:
+
    ```bash
    npx tsx scripts/linear-ops.ts create-project "Phase X: Feature Name" "My Initiative"
    ```
 
 2. **Set project state to Planned**:
+
    ```bash
    npx tsx scripts/linear-ops.ts project-status "Phase X: Feature Name" planned
    ```
 
 3. **Create issues directly in the project**:
+
    ```bash
    npx tsx scripts/linear-ops.ts create-issue "Phase X: Feature Name" "Parent task" "Description"
    npx tsx scripts/linear-ops.ts create-sub-issue ENG-XXX "Sub-task 1" "Description"
@@ -220,6 +227,7 @@ Use this skill when working with manage linear issues, projects, and teams.
 #### Anti-Pattern to Avoid
 
 ❌ Creating issues in a "holding" project and moving them later:
+
 ```bash
 # Don't do this
 create-issue "Phase 6A" "New feature"  # Wrong project
@@ -249,6 +257,7 @@ npx tsx scripts/linear-ops.ts project-status <project-name> <state>
 | `canceled` | Will not be done | canceled |
 
 **Examples:**
+
 ```bash
 # Start working on a project
 npx tsx scripts/linear-ops.ts project-status "Phase 8: MCP Decision Engine" in-progress
@@ -269,6 +278,7 @@ npx tsx scripts/linear-ops.ts link-initiative <project-name> <initiative-name>
 ```
 
 **Examples:**
+
 ```bash
 # Link a project to an initiative
 npx tsx scripts/linear-ops.ts link-initiative "Phase 8: MCP Decision Engine" "Q1 Goals"
@@ -286,6 +296,7 @@ npx tsx scripts/linear-ops.ts unlink-initiative <project-name> <initiative-name>
 ```
 
 **Examples:**
+
 ```bash
 # Remove incorrect link
 npx tsx scripts/linear-ops.ts unlink-initiative "Phase 8" "Linear Skill"
@@ -295,6 +306,7 @@ npx tsx scripts/linear-ops.ts unlink-initiative "Test Project" "Q1 Goals"
 ```
 
 **Error Handling:**
+
 - Returns error if project is not linked to the specified initiative
 - Returns error if project or initiative not found
 
@@ -326,22 +338,22 @@ npx tsx scripts/linear-ops.ts link-initiative "Phase 11" "Q2 Goals"
 
 ---
 
-
 ## When to Use This Skill
 
 Manage Linear issues, projects, and teams
 
 Use this skill when working with manage linear issues, projects, and teams.
+
 ## Tool Selection
 
 Choose the right tool for the task:
 
-| Tool | When to Use |
-|------|-------------|
-| **MCP (Official Server)** | Most operations - PREFERRED |
-| **Helper Scripts** | Bulk operations, when MCP unavailable |
-| **SDK scripts** | Complex operations (loops, conditionals) |
-| **GraphQL API** | Operations not supported by MCP/SDK |
+| Tool                      | When to Use                              |
+| ------------------------- | ---------------------------------------- |
+| **MCP (Official Server)** | Most operations - PREFERRED              |
+| **Helper Scripts**        | Bulk operations, when MCP unavailable    |
+| **SDK scripts**           | Complex operations (loops, conditionals) |
+| **GraphQL API**           | Operations not supported by MCP/SDK      |
 
 ### MCP Server Configuration
 
@@ -363,12 +375,12 @@ Choose the right tool for the task:
 
 ### MCP Reliability (Official Server)
 
-| Operation | Reliability | Notes |
-|-----------|-------------|-------|
-| Create issue | ✅ High | Full support |
-| Update status | ✅ High | Use `state: "Done"` directly |
-| List/Search issues | ✅ High | Supports filters, queries |
-| Add comment | ✅ High | Works with issue IDs |
+| Operation          | Reliability | Notes                        |
+| ------------------ | ----------- | ---------------------------- |
+| Create issue       | ✅ High     | Full support                 |
+| Update status      | ✅ High     | Use `state: "Done"` directly |
+| List/Search issues | ✅ High     | Supports filters, queries    |
+| Add comment        | ✅ High     | Works with issue IDs         |
 
 ### Quick Status Update
 
@@ -392,17 +404,19 @@ For bulk operations or background execution, use the `Linear-specialist` subagen
 Task({
   description: "Update Linear issues",
   prompt: "Mark ENG-101, ENG-102, ENG-103 as Done",
-  subagent_type: "Linear-specialist"
-})
+  subagent_type: "Linear-specialist",
+});
 ```
 
 **When to use `Linear-specialist` (parallel):**
+
 - Bulk status updates (3+ issues)
 - Project status changes
 - Creating multiple issues
 - Sync operations after code changes
 
 **When to use direct execution:**
+
 - Single issue queries
 - Viewing issue details
 - Quick status checks
@@ -416,10 +430,10 @@ See **sync.md** for parallel execution patterns.
 
 **Every issue MUST be attached to a project. Every project MUST be linked to an initiative.**
 
-| Entity | Must Link To | If Missing |
-|--------|--------------|------------|
-| Issue | Project | Not visible in project board |
-| Project | Initiative | Not visible in roadmap |
+| Entity  | Must Link To | If Missing                   |
+| ------- | ------------ | ---------------------------- |
+| Issue   | Project      | Not visible in project board |
+| Project | Initiative   | Not visible in roadmap       |
 
 See **projects.md** for complete project creation checklist.
 
@@ -437,6 +451,7 @@ See **projects.md** for complete project creation checklist.
 Uses **domain-based label taxonomy**. See docs/labels.md.
 
 **Key rules:**
+
 - ONE Type label: `feature`, `bug`, `refactor`, `chore`, `spike`
 - 1-2 Domain labels: `security`, `backend`, `frontend`, etc.
 - Scope labels when applicable: `blocked`, `breaking-change`, `tech-debt`
@@ -464,6 +479,7 @@ Scripts provide full type hints and are easier to debug than raw GraphQL for mul
 **Fallback only.** Use when operations aren't supported by MCP or SDK.
 
 See **api.md** for complete documentation including:
+
 - Authentication and setup
 - Example queries and mutations
 - Timeout handling patterns
@@ -496,6 +512,7 @@ npx tsx scripts/linear-ops.ts unlink-initiative "Phase X" "Old Initiative"
 ```
 
 **Key topics in projects.md:**
+
 - Project creation checklist (mandatory steps)
 - Content vs Description fields
 - Discovery before creation
@@ -506,12 +523,12 @@ npx tsx scripts/linear-ops.ts unlink-initiative "Phase X" "Old Initiative"
 
 ---
 
-
 ## When to Use This Skill
 
 Manage Linear issues, projects, and teams
 
 Use this skill when working with manage linear issues, projects, and teams.
+
 ## Sync Patterns (Bulk Operations)
 
 For bulk synchronization of code changes to Linear, see **sync.md**.
@@ -530,13 +547,13 @@ npx tsx scripts/linear-ops.ts project-status "My Project" completed
 
 ## Reference
 
-| Document | Purpose |
-|----------|---------|
-| api.md | GraphQL API reference, timeout handling |
-| sdk.md | SDK automation patterns |
-| sync.md | Bulk sync patterns |
-| projects.md | Project & initiative management |
-| troubleshooting.md | Common issues, MCP debugging |
-| docs/labels.md | Label taxonomy |
+| Document           | Purpose                                 |
+| ------------------ | --------------------------------------- |
+| api.md             | GraphQL API reference, timeout handling |
+| sdk.md             | SDK automation patterns                 |
+| sync.md            | Bulk sync patterns                      |
+| projects.md        | Project & initiative management         |
+| troubleshooting.md | Common issues, MCP debugging            |
+| docs/labels.md     | Label taxonomy                          |
 
 **External:** [Linear MCP Documentation](https://linear.app/docs/mcp.md)

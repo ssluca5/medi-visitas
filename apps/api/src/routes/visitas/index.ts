@@ -47,9 +47,14 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get("/", async (request, reply) => {
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
+
     const query = ListVisitasQuerySchema.parse(request.query);
 
-    const where: any = {};
+    const where: any = { userId };
     if (query.profissionalId) {
       where.profissionalId = query.profissionalId;
     }
@@ -60,6 +65,11 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
       where.dataVisita = {};
       if (query.dataInicio) where.dataVisita.gte = new Date(query.dataInicio);
       if (query.dataFim) where.dataVisita.lte = new Date(query.dataFim);
+    }
+    if (query.q) {
+      where.profissional = {
+        nome: { contains: query.q, mode: "insensitive" },
+      };
     }
 
     const [visitas, total] = await Promise.all([
@@ -93,9 +103,13 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.get("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
 
     const visita = await prisma.visita.findUnique({
-      where: { id },
+      where: { id, userId },
       include: {
         profissional: true,
         materiais: {
@@ -113,10 +127,14 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.put("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
     const input = UpdateVisitaInputSchema.parse(request.body);
 
     const existing = await prisma.visita.findUnique({
-      where: { id },
+      where: { id, userId },
     });
 
     if (!existing) {
@@ -124,9 +142,21 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (STATUS_FINAIS.includes(existing.status)) {
-      return reply.status(409).send({
-        error: "Não é possível editar uma visita com status final.",
-      });
+      let hasPassed = false;
+      if (existing.dataVisita) {
+        const execTime = new Date(existing.dataVisita);
+        if (existing.duracaoMinutos) {
+          execTime.setMinutes(execTime.getMinutes() + existing.duracaoMinutos);
+        }
+        if (execTime < new Date()) {
+          hasPassed = true;
+        }
+      }
+      if (hasPassed) {
+        return reply.status(409).send({
+          error: "Não é possível editar uma visita passada com status final.",
+        });
+      }
     }
 
     const { materiais, ...visitaData } = input;
@@ -162,10 +192,14 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.patch("/:id/status", async (request, reply) => {
     const { id } = request.params as { id: string };
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
     const input = PatchVisitaStatusInputSchema.parse(request.body);
 
     const existing = await prisma.visita.findUnique({
-      where: { id },
+      where: { id, userId },
     });
 
     if (!existing) {
@@ -173,9 +207,22 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (STATUS_FINAIS.includes(existing.status)) {
-      return reply.status(409).send({
-        error: "Não é possível alterar o status de uma visita finalizada.",
-      });
+      let hasPassed = false;
+      if (existing.dataVisita) {
+        const execTime = new Date(existing.dataVisita);
+        if (existing.duracaoMinutos) {
+          execTime.setMinutes(execTime.getMinutes() + existing.duracaoMinutos);
+        }
+        if (execTime < new Date()) {
+          hasPassed = true;
+        }
+      }
+      if (hasPassed) {
+        return reply.status(409).send({
+          error:
+            "Não é possível alterar o status de uma visita finalizada que já passou.",
+        });
+      }
     }
 
     const visita = await prisma.visita.update({
@@ -193,26 +240,23 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.delete("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
 
     const existing = await prisma.visita.findUnique({
-      where: { id },
+      where: { id, userId },
     });
 
     if (!existing) {
       return reply.status(404).send({ error: "Visita não encontrada" });
     }
 
-    // We can either set it to CANCELADA or physically delete it. The user asks to "excluir a visita", so we'll delete it. 
-    // Usually it's better to delete, but wait, the Prisma schema has onDelete: Cascade for VisitaMaterial but wait, we need to make sure. Let's try physical delete for now.
-    
-    // Deleting related VisitaMaterial first if needed, though Prisma does it if cascade is set.
-    // To be safe, we delete them manually just in case:
-    await prisma.visitaMaterial.deleteMany({
-      where: { visitaId: id }
-    });
-
-    await prisma.visita.delete({
+    // Soft delete: cancelar visita em vez de excluir fisicamente
+    await prisma.visita.update({
       where: { id },
+      data: { status: "CANCELADA" },
     });
 
     return reply.status(204).send();

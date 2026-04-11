@@ -8,7 +8,7 @@ const escaped = {
   "\r": "\\r",
   "	": "\\t",
   "\u2028": "\\u2028",
-  "\u2029": "\\u2029"
+  "\u2029": "\\u2029",
 };
 class DevalueError extends Error {
   /**
@@ -29,11 +29,18 @@ function is_primitive(thing) {
   return Object(thing) !== thing;
 }
 const object_proto_names = /* @__PURE__ */ Object.getOwnPropertyNames(
-  Object.prototype
-).sort().join("\0");
+  Object.prototype,
+)
+  .sort()
+  .join("\0");
 function is_plain_object(thing) {
   const proto = Object.getPrototypeOf(thing);
-  return proto === Object.prototype || proto === null || Object.getPrototypeOf(proto) === null || Object.getOwnPropertyNames(proto).sort().join("\0") === object_proto_names;
+  return (
+    proto === Object.prototype ||
+    proto === null ||
+    Object.getPrototypeOf(proto) === null ||
+    Object.getOwnPropertyNames(proto).sort().join("\0") === object_proto_names
+  );
 }
 function get_type(thing) {
   return Object.prototype.toString.call(thing).slice(8, -1);
@@ -61,7 +68,9 @@ function get_escaped_char(char) {
     case "\u2029":
       return "\\u2029";
     default:
-      return char < " " ? `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}` : "";
+      return char < " "
+        ? `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`
+        : "";
   }
 }
 function stringify_string(str) {
@@ -80,7 +89,7 @@ function stringify_string(str) {
 }
 function enumerable_symbols(object) {
   return Object.getOwnPropertySymbols(object).filter(
-    (symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable
+    (symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable,
   );
 }
 const is_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
@@ -119,5 +128,5 @@ export {
   get_type as g,
   is_primitive as i,
   stringify_key as s,
-  valid_array_indices as v
+  valid_array_indices as v,
 };

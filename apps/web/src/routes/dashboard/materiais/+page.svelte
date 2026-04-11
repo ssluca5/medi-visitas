@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Plus, Trash2, Package, Tag, FileText, Database, Info, Power, Play, Search, Pencil } from 'lucide-svelte';
+  import { Plus, Trash2, Package, Tag, FileText, Database, Info, Power, Play, Search } from 'lucide-svelte';
   import { apiFetch } from '$lib/api';
   import { toasts } from '$lib/stores/toast';
   import Button from '$lib/components/ui/Button.svelte';
@@ -179,15 +179,23 @@
 </svelte:head>
 
 <!-- Page Header -->
-<header class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-  <div>
-    <h2 class="text-2xl font-semibold tracking-tight text-slate-900">Materiais & Amostras</h2>
-    <p class="text-sm text-slate-500 mt-1">{materiais.length} material(is) cadastrado(s)</p>
-  </div>
-  <Button onclick={handleNovo} class="hidden sm:flex gap-2">
-    <Plus class="h-4 w-4" /> Novo Material
-  </Button>
-</header>
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+	<div class="flex items-center gap-3">
+		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+			<Package class="h-4.5 w-4.5 text-white" />
+		</div>
+		<div>
+			<h1 class="text-lg font-bold text-slate-800">Materiais & Amostras</h1>
+			<p class="text-[11px] text-slate-400">Cadastre as amostras grátis, folders e apresentações</p>
+		</div>
+	</div>
+	<div class="flex items-center gap-2">
+		<Button onclick={handleNovo} class="hidden sm:inline-flex gap-2">
+			<Plus class="h-4 w-4" />
+			Novo Material
+		</Button>
+	</div>
+</div>
 
 <!-- Filters -->
 <div class="card-surface p-4 mb-6">
@@ -310,13 +318,6 @@
                   {/if}
                 </button>
                 <button
-                  onclick={(e) => { e.stopPropagation(); handleEditar(material); }}
-                  title="Editar"
-                  class="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <Pencil class="w-4 h-4" />
-                </button>
-                <button
                   onclick={(e) => { e.stopPropagation(); handleExcluir(material); }}
                   title="Excluir"
                   class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
@@ -349,22 +350,19 @@
 <!-- Form Sheet -->
 <Sheet bind:open={sheetOpen} onclose={() => sheetOpen = false}>
   {#snippet children()}
-    <div class="h-full flex flex-col">
-      <div class="mb-6 px-1">
-        <h3 class="text-lg font-bold text-slate-900">
+    <div class="space-y-5">
+      <!-- Header -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900">
           {materialEmEdicao ? 'Editar Material' : 'Novo Material'}
         </h3>
-        <p class="text-sm text-slate-500 mt-1">Preencha os detalhes da amostra ou material técnico</p>
+        <p class="text-sm text-slate-400 mt-1">Preencha os dados para cadastrar</p>
       </div>
 
-      <div class="space-y-5 px-1 flex-1">
+      <div class="space-y-3">
         <div>
-          <label for="tipo" class="block text-sm font-semibold text-slate-700 mb-1">Tipo de Material</label>
-          <select 
-            id="tipo" 
-            bind:value={formTipo}
-            class="block w-full border-slate-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border bg-white"
-          >
+          <label for="tipo" class="input-label">Tipo de Material</label>
+          <select id="tipo" bind:value={formTipo} class="input-base">
             <option value="AMOSTRA">Amostra Grátis</option>
             <option value="BULA">Bula</option>
             <option value="APRESENTACAO">Apresentação</option>
@@ -374,30 +372,19 @@
         </div>
 
         <div>
-          <label for="nome" class="block text-sm font-semibold text-slate-700 mb-1">Nome do Produto</label>
-          <input 
-            id="nome" 
-            bind:value={formNome} 
-            type="text" 
-            placeholder="Ex: Medicamento X 500mg" 
-            class="block w-full border-slate-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border placeholder:text-slate-400"
-          />
+          <label for="nome" class="input-label">Nome do Produto *</label>
+          <input id="nome" bind:value={formNome} type="text" class="input-base" placeholder="Ex: Medicamento X 500mg" />
         </div>
 
         <div>
-          <label for="desc" class="block text-sm font-semibold text-slate-700 mb-1">Descrição</label>
-          <textarea 
-            id="desc" 
-            bind:value={formDescricao} 
-            rows="3" 
-            placeholder="Observações adicionais ou notas técnicas..."
-            class="block w-full border-slate-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border resize-none placeholder:text-slate-400"
-          ></textarea>
+          <label for="desc" class="input-label">Descrição</label>
+          <textarea id="desc" bind:value={formDescricao} rows="3" class="input-base resize-none" placeholder="Observações adicionais ou notas técnicas..."></textarea>
         </div>
       </div>
 
-      <div class="pt-4 border-t border-slate-100 flex justify-end gap-3 mt-8">
-        <Button variant="outline" onclick={() => sheetOpen = false} disabled={isSaving}>Cancelar</Button>
+      <!-- Ações -->
+      <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+        <Button variant="outline" onclick={() => sheetOpen = false}>Cancelar</Button>
         <Button onclick={handleSalvar} disabled={isSaving || !formNome.trim()}>
           {isSaving ? 'Salvando...' : 'Salvar Material'}
         </Button>

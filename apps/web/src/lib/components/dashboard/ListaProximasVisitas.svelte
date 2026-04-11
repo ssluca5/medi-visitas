@@ -26,11 +26,11 @@
     return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(iso));
   }
 
-  const prioridadeClass: Record<string, string> = {
-    URGENTE: 'text-red-600',
-    ALTA: 'text-amber-600',
-    MEDIA: 'text-blue-600',
-    BAIXA: 'text-slate-400'
+  const prioridadeBadge: Record<string, string> = {
+    URGENTE: 'bg-red-50 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
+    ALTA: 'bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
+    MEDIA: 'bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
+    BAIXA: 'bg-slate-50 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold ml-2'
   };
 </script>
 
@@ -58,7 +58,7 @@
             <p class="text-[11px] text-slate-400 truncate">
               {ag.profissional?.especialidade?.nome ?? ''}
               {#if ag.prioridade}
-                <span class="ml-1.5 font-semibold {prioridadeClass[ag.prioridade] ?? 'text-slate-400'}">{ag.prioridade}</span>
+                <span class="{prioridadeBadge[ag.prioridade] ?? prioridadeBadge.BAIXA}">{ag.prioridade}</span>
               {/if}
             </p>
           </div>

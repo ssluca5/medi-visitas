@@ -147,7 +147,7 @@ export default async function profissionaisRoutes(
             where: { deletedAt: null },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { nome: "asc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
       });
