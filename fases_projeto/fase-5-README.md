@@ -22,18 +22,18 @@ e receba os campos preenchidos automaticamente pela IA:
 
 ## Entregáveis
 
-| #  | Artefato | Localização |
-|----|----------|-------------|
-| 1  | Migration Prisma: campo `audioUrl` em `Visita` | `packages/database/prisma/migrations/` |
-| 2  | `POST /visitas/:id/transcricao` — recebe áudio, retorna campos extraídos | `apps/api/src/routes/visitas/transcricao.ts` |
-| 3  | `PATCH /visitas/:id/audio` — salva URL do áudio após decisão do usuário | `apps/api/src/routes/visitas/audio.ts` |
-| 4  | Serviço MiniMax — transcrição + extração estruturada | `apps/api/src/services/minimax.ts` |
-| 5  | Botão flutuante de gravação | `apps/web/src/lib/components/visitas/BotaoGravacao.svelte` |
-| 6  | Modal de gravação e revisão | `apps/web/src/lib/components/visitas/ModalGravacao.svelte` |
-| 7  | Hook de gravação de áudio | `apps/web/src/lib/hooks/useGravacaoAudio.svelte.ts` |
-| 8  | Integração na página de visitas | `apps/web/src/routes/dashboard/visitas/+page.svelte` |
-| 9  | Testes do serviço MiniMax (mock) | `apps/api/src/services/minimax.test.ts` |
-| 10 | Testes da rota de transcrição (TDD) | `apps/api/src/routes/visitas/transcricao.test.ts` |
+| #   | Artefato                                                                 | Localização                                                |
+| --- | ------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| 1   | Migration Prisma: campo `audioUrl` em `Visita`                           | `packages/database/prisma/migrations/`                     |
+| 2   | `POST /visitas/:id/transcricao` — recebe áudio, retorna campos extraídos | `apps/api/src/routes/visitas/transcricao.ts`               |
+| 3   | `PATCH /visitas/:id/audio` — salva URL do áudio após decisão do usuário  | `apps/api/src/routes/visitas/audio.ts`                     |
+| 4   | Serviço MiniMax — transcrição + extração estruturada                     | `apps/api/src/services/minimax.ts`                         |
+| 5   | Botão flutuante de gravação                                              | `apps/web/src/lib/components/visitas/BotaoGravacao.svelte` |
+| 6   | Modal de gravação e revisão                                              | `apps/web/src/lib/components/visitas/ModalGravacao.svelte` |
+| 7   | Hook de gravação de áudio                                                | `apps/web/src/lib/hooks/useGravacaoAudio.svelte.ts`        |
+| 8   | Integração na página de visitas                                          | `apps/web/src/routes/dashboard/visitas/+page.svelte`       |
+| 9   | Testes do serviço MiniMax (mock)                                         | `apps/api/src/services/minimax.test.ts`                    |
+| 10  | Testes da rota de transcrição (TDD)                                      | `apps/api/src/routes/visitas/transcricao.test.ts`          |
 
 ---
 
@@ -50,6 +50,7 @@ model Visita {
 ```
 
 Migration:
+
 ```sql
 ALTER TABLE "Visita" ADD COLUMN "audioUrl" TEXT;
 ```
@@ -112,43 +113,46 @@ Response:
 
 ## Serviço MiniMax — Implementação
 
-```typescript
+````typescript
 // apps/api/src/services/minimax.ts
 
-const MINIMAX_API_URL = 'https://api.minimax.chat/v1'
-const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID!
-const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY!
+const MINIMAX_API_URL = "https://api.minimax.chat/v1";
+const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID!;
+const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY!;
 
 // PASSO 1: Transcrição de áudio → texto
-export async function transcreverAudio(audioBuffer: Buffer, mimeType: string): Promise<string> {
-  const formData = new FormData()
-  const blob = new Blob([audioBuffer], { type: mimeType })
-  formData.append('file', blob, `audio.${mimeType.split('/')[1] ?? 'webm'}`)
-  formData.append('model', 'speech-01-turbo')  // modelo de STT do MiniMax
+export async function transcreverAudio(
+  audioBuffer: Buffer,
+  mimeType: string,
+): Promise<string> {
+  const formData = new FormData();
+  const blob = new Blob([audioBuffer], { type: mimeType });
+  formData.append("file", blob, `audio.${mimeType.split("/")[1] ?? "webm"}`);
+  formData.append("model", "speech-01-turbo"); // modelo de STT do MiniMax
 
   const response = await fetch(
     `${MINIMAX_API_URL}/audio/transcriptions?GroupId=${MINIMAX_GROUP_ID}`,
     {
-      method: 'POST',
+      method: "POST",
       headers: { Authorization: `Bearer ${MINIMAX_API_KEY}` },
       body: formData,
-    }
-  )
+    },
+  );
 
   if (!response.ok) {
-    const erro = await response.text()
-    throw new Error(`MiniMax STT falhou: ${response.status} — ${erro}`)
+    const erro = await response.text();
+    throw new Error(`MiniMax STT falhou: ${response.status} — ${erro}`);
   }
 
-  const data = await response.json()
-  return data.text ?? ''
+  const data = await response.json();
+  return data.text ?? "";
 }
 
 // PASSO 2: Texto → campos estruturados via Chat Completion
 export async function extrairCamposVisita(transcricao: string): Promise<{
-  resumo: string
-  proximaAcao: string
-  objetivoVisita: string
+  resumo: string;
+  proximaAcao: string;
+  objetivoVisita: string;
 }> {
   const prompt = `Você é um assistente de CRM para propagandistas farmacêuticos.
 Analise a transcrição de áudio abaixo e extraia as informações da visita médica.
@@ -164,42 +168,46 @@ Retorne APENAS um JSON válido com exatamente estas 3 chaves:
 }
 
 Se alguma informação não estiver presente na transcrição, use string vazia "".
-Responda SOMENTE com o JSON, sem markdown, sem explicações.`
+Responda SOMENTE com o JSON, sem markdown, sem explicações.`;
 
   const response = await fetch(
     `${MINIMAX_API_URL}/text/chatcompletion_v2?GroupId=${MINIMAX_GROUP_ID}`,
     {
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: `Bearer ${MINIMAX_API_KEY}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: 'MiniMax-Text-01',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,   // baixa temperatura para respostas consistentes
+        model: "MiniMax-Text-01",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.1, // baixa temperatura para respostas consistentes
         max_tokens: 500,
       }),
-    }
-  )
+    },
+  );
 
   if (!response.ok) {
-    const erro = await response.text()
-    throw new Error(`MiniMax Chat falhou: ${response.status} — ${erro}`)
+    const erro = await response.text();
+    throw new Error(`MiniMax Chat falhou: ${response.status} — ${erro}`);
   }
 
-  const data = await response.json()
-  const texto = data.choices?.[0]?.message?.content ?? '{}'
+  const data = await response.json();
+  const texto = data.choices?.[0]?.message?.content ?? "{}";
 
   try {
-    const clean = texto.replace(/```json|```/g, '').trim()
-    return JSON.parse(clean)
+    const clean = texto.replace(/```json|```/g, "").trim();
+    return JSON.parse(clean);
   } catch {
     // Fallback: se não conseguir parsear, coloca tudo no resumo
-    return { resumo: transcricao.slice(0, 300), proximaAcao: '', objetivoVisita: '' }
+    return {
+      resumo: transcricao.slice(0, 300),
+      proximaAcao: "",
+      objetivoVisita: "",
+    };
   }
 }
-```
+````
 
 ---
 
@@ -207,88 +215,106 @@ Responda SOMENTE com o JSON, sem markdown, sem explicações.`
 
 ```typescript
 // apps/api/src/routes/visitas/transcricao.ts
-import type { FastifyInstance } from 'fastify'
-import { verifyClerkToken } from '../../hooks/auth.js'
-import { prisma } from '../../lib/prisma.js'
-import { transcreverAudio, extrairCamposVisita } from '../../services/minimax.js'
+import type { FastifyInstance } from "fastify";
+import { verifyClerkToken } from "../../hooks/auth.js";
+import { prisma } from "../../lib/prisma.js";
+import {
+  transcreverAudio,
+  extrairCamposVisita,
+} from "../../services/minimax.js";
 
 export async function transcricaoRoutes(app: FastifyInstance) {
   // Registrar ANTES de qualquer rota com :id se necessário
   app.post(
-    '/visitas/:id/transcricao',
+    "/visitas/:id/transcricao",
     { preHandler: [verifyClerkToken] },
     async (request, reply) => {
-      const userId = request.userId!
-      const { id } = request.params as { id: string }
+      const userId = request.userId!;
+      const { id } = request.params as { id: string };
 
       // Verificar que a visita existe e pertence ao userId
       const visita = await prisma.visita.findFirst({
         where: { id, userId },
-      })
+      });
       if (!visita) {
-        return reply.status(404).send({ error: 'Visita não encontrada' })
+        return reply.status(404).send({ error: "Visita não encontrada" });
       }
 
       // Receber arquivo de áudio via multipart
-      const data = await request.file()
+      const data = await request.file();
       if (!data) {
-        return reply.status(400).send({ error: 'Arquivo de áudio não enviado' })
+        return reply
+          .status(400)
+          .send({ error: "Arquivo de áudio não enviado" });
       }
 
       // Validar tipo de arquivo
-      const tiposPermitidos = ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav']
+      const tiposPermitidos = [
+        "audio/webm",
+        "audio/ogg",
+        "audio/mp4",
+        "audio/mpeg",
+        "audio/wav",
+      ];
       if (!tiposPermitidos.includes(data.mimetype)) {
-        return reply.status(400).send({ error: `Tipo de arquivo não suportado: ${data.mimetype}` })
+        return reply
+          .status(400)
+          .send({ error: `Tipo de arquivo não suportado: ${data.mimetype}` });
       }
 
       // Converter stream para buffer
-      const chunks: Buffer[] = []
+      const chunks: Buffer[] = [];
       for await (const chunk of data.file) {
-        chunks.push(chunk)
+        chunks.push(chunk);
       }
-      const audioBuffer = Buffer.concat(chunks)
+      const audioBuffer = Buffer.concat(chunks);
 
       // Validar tamanho (máx 25MB)
       if (audioBuffer.length > 25 * 1024 * 1024) {
-        return reply.status(400).send({ error: 'Arquivo muito grande. Máximo: 25MB' })
+        return reply
+          .status(400)
+          .send({ error: "Arquivo muito grande. Máximo: 25MB" });
       }
 
       // Transcrever com MiniMax
-      const transcricaoCompleta = await transcreverAudio(audioBuffer, data.mimetype)
+      const transcricaoCompleta = await transcreverAudio(
+        audioBuffer,
+        data.mimetype,
+      );
 
       // Extrair campos estruturados
-      const campos = await extrairCamposVisita(transcricaoCompleta)
+      const campos = await extrairCamposVisita(transcricaoCompleta);
 
       return {
         transcricaoCompleta,
         resumo: campos.resumo,
         proximaAcao: campos.proximaAcao,
         objetivoVisita: campos.objetivoVisita,
-      }
-    }
-  )
+      };
+    },
+  );
 
   app.patch(
-    '/visitas/:id/audio',
+    "/visitas/:id/audio",
     { preHandler: [verifyClerkToken] },
     async (request, reply) => {
-      const userId = request.userId!
-      const { id } = request.params as { id: string }
-      const { audioUrl } = request.body as { audioUrl: string }
+      const userId = request.userId!;
+      const { id } = request.params as { id: string };
+      const { audioUrl } = request.body as { audioUrl: string };
 
-      const visita = await prisma.visita.findFirst({ where: { id, userId } })
+      const visita = await prisma.visita.findFirst({ where: { id, userId } });
       if (!visita) {
-        return reply.status(404).send({ error: 'Visita não encontrada' })
+        return reply.status(404).send({ error: "Visita não encontrada" });
       }
 
       const atualizada = await prisma.visita.update({
         where: { id },
         data: { audioUrl },
-      })
+      });
 
-      return atualizada
-    }
-  )
+      return atualizada;
+    },
+  );
 }
 ```
 
@@ -317,91 +343,106 @@ apps/web/src/
 // Arquivo .svelte.ts permite usar $state fora de componentes
 
 export function criarGravacaoAudio() {
-  let estado = $state<'ocioso' | 'gravando' | 'pausado' | 'concluido'>('ocioso')
-  let duracaoSegundos = $state(0)
-  let audioBlob = $state<Blob | null>(null)
-  let audioUrl = $state<string | null>(null)
-  let erroPermissao = $state(false)
+  let estado = $state<"ocioso" | "gravando" | "pausado" | "concluido">(
+    "ocioso",
+  );
+  let duracaoSegundos = $state(0);
+  let audioBlob = $state<Blob | null>(null);
+  let audioUrl = $state<string | null>(null);
+  let erroPermissao = $state(false);
 
-  let mediaRecorder: MediaRecorder | null = null
-  let chunks: BlobPart[] = []
-  let timerInterval: ReturnType<typeof setInterval> | null = null
+  let mediaRecorder: MediaRecorder | null = null;
+  let chunks: BlobPart[] = [];
+  let timerInterval: ReturnType<typeof setInterval> | null = null;
 
   async function iniciar() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
       // Escolher o formato suportado pelo browser
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : 'audio/ogg'
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
+          ? "audio/webm"
+          : "audio/ogg";
 
-      mediaRecorder = new MediaRecorder(stream, { mimeType })
-      chunks = []
+      mediaRecorder = new MediaRecorder(stream, { mimeType });
+      chunks = [];
 
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data)
-      }
+        if (e.data.size > 0) chunks.push(e.data);
+      };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: mimeType })
-        audioBlob = blob
-        audioUrl = URL.createObjectURL(blob)
-        estado = 'concluido'
-        stream.getTracks().forEach(t => t.stop())
-      }
+        const blob = new Blob(chunks, { type: mimeType });
+        audioBlob = blob;
+        audioUrl = URL.createObjectURL(blob);
+        estado = "concluido";
+        stream.getTracks().forEach((t) => t.stop());
+      };
 
-      mediaRecorder.start(1000) // coleta chunks a cada 1s
-      estado = 'gravando'
-      duracaoSegundos = 0
+      mediaRecorder.start(1000); // coleta chunks a cada 1s
+      estado = "gravando";
+      duracaoSegundos = 0;
 
       timerInterval = setInterval(() => {
-        duracaoSegundos++
+        duracaoSegundos++;
         // Limite de segurança: parar automaticamente em 3 minutos
-        if (duracaoSegundos >= 180) parar()
-      }, 1000)
-
+        if (duracaoSegundos >= 180) parar();
+      }, 1000);
     } catch (err) {
-      erroPermissao = true
-      console.error('Erro ao acessar microfone:', err)
+      erroPermissao = true;
+      console.error("Erro ao acessar microfone:", err);
     }
   }
 
   function parar() {
-    if (mediaRecorder && estado === 'gravando') {
-      mediaRecorder.stop()
-      if (timerInterval) clearInterval(timerInterval)
+    if (mediaRecorder && estado === "gravando") {
+      mediaRecorder.stop();
+      if (timerInterval) clearInterval(timerInterval);
     }
   }
 
   function descartar() {
-    if (audioUrl) URL.revokeObjectURL(audioUrl)
-    audioBlob = null
-    audioUrl = null
-    estado = 'ocioso'
-    duracaoSegundos = 0
-    chunks = []
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    audioBlob = null;
+    audioUrl = null;
+    estado = "ocioso";
+    duracaoSegundos = 0;
+    chunks = [];
   }
 
   function formatarDuracao(segundos: number): string {
-    const m = Math.floor(segundos / 60).toString().padStart(2, '0')
-    const s = (segundos % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
+    const m = Math.floor(segundos / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (segundos % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
   }
 
   return {
-    get estado() { return estado },
-    get duracaoSegundos() { return duracaoSegundos },
-    get audioBlob() { return audioBlob },
-    get audioUrl() { return audioUrl },
-    get erroPermissao() { return erroPermissao },
-    get duracaoFormatada() { return formatarDuracao(duracaoSegundos) },
+    get estado() {
+      return estado;
+    },
+    get duracaoSegundos() {
+      return duracaoSegundos;
+    },
+    get audioBlob() {
+      return audioBlob;
+    },
+    get audioUrl() {
+      return audioUrl;
+    },
+    get erroPermissao() {
+      return erroPermissao;
+    },
+    get duracaoFormatada() {
+      return formatarDuracao(duracaoSegundos);
+    },
     iniciar,
     parar,
     descartar,
-  }
+  };
 }
 ```
 
@@ -928,25 +969,26 @@ pnpm --filter api add @fastify/multipart
 ```
 
 Registrar no `app.ts`:
+
 ```typescript
-import multipart from '@fastify/multipart'
-await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } })
+import multipart from "@fastify/multipart";
+await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 ```
 
 ---
 
 ## Skills Necessárias
 
-| Skill | Repositório | Obrigatória |
-|-------|-------------|-------------|
-| `brainstorming` | obra/superpowers | ✅ Sim |
-| `write-plan` | obra/superpowers | ✅ Sim |
-| `test-driven-development` | obra/superpowers | ✅ Sim |
-| `verification-before-completion` | obra/superpowers | ✅ Sim |
-| `medivisitas-design` | `.kilocode/skills/` | ✅ Sim |
-| `frontend-design` | anthropics/skills | ✅ Sim |
-| `fastify` | mcollina/skills | ✅ Sim |
-| `node` | mcollina/skills | ✅ Sim |
+| Skill                            | Repositório         | Obrigatória |
+| -------------------------------- | ------------------- | ----------- |
+| `brainstorming`                  | obra/superpowers    | ✅ Sim      |
+| `write-plan`                     | obra/superpowers    | ✅ Sim      |
+| `test-driven-development`        | obra/superpowers    | ✅ Sim      |
+| `verification-before-completion` | obra/superpowers    | ✅ Sim      |
+| `medivisitas-design`             | `.kilocode/skills/` | ✅ Sim      |
+| `frontend-design`                | anthropics/skills   | ✅ Sim      |
+| `fastify`                        | mcollina/skills     | ✅ Sim      |
+| `node`                           | mcollina/skills     | ✅ Sim      |
 
 ---
 
