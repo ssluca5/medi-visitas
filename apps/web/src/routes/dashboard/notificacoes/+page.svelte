@@ -75,13 +75,13 @@
 	<div class="flex items-center justify-between mb-6">
 		<div class="flex items-center gap-3">
 			<div
-				class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm"
+				class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm"
 			>
 				<Bell class="h-5 w-5 text-white" />
 			</div>
 			<div>
-				<h1 class="text-2xl font-semibold text-slate-900">Notificações</h1>
-				<p class="text-sm text-slate-500 mt-0.5">
+				<h1 class="text-2xl font-semibold text-[rgb(var(--slate-900))]">Notificações</h1>
+				<p class="text-sm text-[rgb(var(--slate-500))] mt-0.5">
 					{total} notificação{total !== 1 ? 'ões' : ''} · {naoLidas} não lida{naoLidas !== 1
 						? 's'
 						: ''}
@@ -91,7 +91,7 @@
 		<div class="flex items-center gap-3">
 			<select
 				bind:value={filtroLida}
-				class="h-9 px-3 text-sm rounded-lg border border-slate-200 bg-white text-slate-700 cursor-pointer"
+				class="h-9 px-3 text-sm rounded-lg border border-[rgb(var(--slate-200))] bg-white text-[rgb(var(--slate-700))] cursor-pointer"
 			>
 				<option value="">Todas</option>
 				<option value="false">Não lidas</option>
@@ -100,7 +100,7 @@
 			{#if naoLidas > 0}
 				<button
 					class="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white cursor-pointer transition-colors duration-200"
-					style="background-color: #2563eb; border-radius: 8px;"
+					style="background-color: rgb(var(--accent)); border-radius: var(--radius);"
 					onclick={marcarTodasLidas}
 				>
 					<CheckCheck class="h-4 w-4" />
@@ -111,18 +111,18 @@
 	</div>
 
 	<!-- Lista -->
-	<div class="rounded-xl border border-slate-200 overflow-hidden bg-white">
+	<div class="rounded-xl border border-[rgb(var(--slate-200))] overflow-hidden bg-white">
 		{#if loading}
 			<div class="flex items-center justify-center py-12">
-				<p class="text-sm text-slate-400">Carregando...</p>
+				<p class="text-sm text-[rgb(var(--slate-400))]">Carregando...</p>
 			</div>
 		{:else if notificacoes.length === 0}
 			<div class="flex flex-col items-center justify-center py-12 gap-2">
-				<Bell class="w-10 h-10 text-slate-200" />
-				<p class="text-sm text-slate-400">Nenhuma notificação encontrada</p>
+				<Bell class="w-10 h-10 text-[rgb(var(--slate-200))]" />
+				<p class="text-sm text-[rgb(var(--slate-400))]">Nenhuma notificação encontrada</p>
 			</div>
 		{:else}
-			<div class="divide-y divide-slate-100">
+			<div class="divide-y divide-[rgb(var(--slate-100))]">
 				{#each notificacoes as notif (notif.id)}
 					<ItemNotificacao
 						{notif}
@@ -147,15 +147,15 @@
 	{#if totalPages > 1}
 		<div class="flex items-center justify-center gap-3 mt-6">
 			<button
-				class="px-3 py-1.5 text-sm rounded-lg border border-slate-200 text-slate-600 transition-colors duration-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+				class="px-3 py-1.5 text-sm rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-600))] transition-colors duration-200 hover:bg-[rgb(var(--slate-50))] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
 				disabled={page === 1}
 				onclick={() => (page = page - 1)}
 			>
 				← Anterior
 			</button>
-			<span class="text-sm text-slate-500">{page} / {totalPages}</span>
+			<span class="text-sm text-[rgb(var(--slate-500))]">{page} / {totalPages}</span>
 			<button
-				class="px-3 py-1.5 text-sm rounded-lg border border-slate-200 text-slate-600 transition-colors duration-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+				class="px-3 py-1.5 text-sm rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-600))] transition-colors duration-200 hover:bg-[rgb(var(--slate-50))] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
 				disabled={page === totalPages}
 				onclick={() => (page = page + 1)}
 			>

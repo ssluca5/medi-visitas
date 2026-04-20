@@ -21,17 +21,17 @@
 	{#each $toasts as toast (toast.id)}
 		{@const Icon = iconMap[toast.type]}
 		<div
-			class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl pointer-events-auto min-w-[280px] max-w-[400px] bg-white border border-slate-200"
+			class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl pointer-events-auto min-w-[280px] max-w-[400px] bg-white border border-[rgb(var(--slate-200))]"
 			in:fly={{ y: 20, duration: 250, easing: cubicOut }}
 			out:fade={{ duration: 150 }}
 		>
 			<Icon class="w-5 h-5 shrink-0 {iconColorMap[toast.type]}" />
-			<span class="text-sm flex-1 text-slate-700">{toast.message}</span>
+			<span class="text-sm flex-1 text-[rgb(var(--slate-700))]">{toast.message}</span>
 			<button
 				onclick={() => toasts.dismiss(toast.id)}
-				class="p-0.5 rounded hover:bg-slate-100 cursor-pointer shrink-0 transition-colors"
+				class="p-0.5 rounded hover:bg-[rgb(var(--slate-100))] cursor-pointer shrink-0 transition-colors"
 			>
-				<X class="w-3.5 h-3.5 text-slate-400" />
+				<X class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
 			</button>
 		</div>
 	{/each}

@@ -44,7 +44,7 @@
   };
 
   const estagioConfig: Record<EstagioPipeline, { label: string; class: string }> = {
-    PROSPECTADO: { label: 'Prospectado', class: 'bg-slate-100 text-slate-600' },
+    PROSPECTADO: { label: 'Prospectado', class: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]' },
     VISITADO: { label: 'Visitado', class: 'bg-blue-50 text-blue-700' },
     INTERESSADO: { label: 'Interessado', class: 'bg-purple-50 text-purple-700' },
     PRESCRITOR: { label: 'Prescritor', class: 'bg-emerald-50 text-emerald-700' },
@@ -125,11 +125,11 @@
   <title>{profissional ? profissional.nome : 'Perfil do Profissional'} — MediVisitas</title>
 </svelte:head>
 
-<div class="min-h-screen bg-slate-50 p-4 lg:p-8">
+<div class="min-h-screen bg-[rgb(var(--slate-50))] p-4 lg:p-8">
 
   <!-- Botão Voltar -->
   <div class="flex items-center mb-6">
-    <a href="/dashboard/profissionais" class="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors group">
+    <a href="/dashboard/profissionais" class="flex items-center gap-1.5 text-sm font-medium text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] transition-colors group">
       <ArrowLeft class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
       Voltar para CRM
     </a>
@@ -145,23 +145,23 @@
 
       <!-- ═══ COLUNA ESQUERDA: Card de Perfil ═══ -->
       <div class="col-span-1 lg:sticky lg:top-8">
-        <div class="w-full bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col">
+        <div class="w-full bg-white rounded-xl border border-[rgb(var(--slate-200))] shadow-sm p-6 flex flex-col">
 
           <!-- Identificação -->
           <div class="flex flex-col items-center text-center">
-            <div class="w-14 h-14 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xl font-bold mb-3 ring-4 ring-slate-50">
+            <div class="w-14 h-14 rounded-full bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-700))] flex items-center justify-center text-xl font-bold mb-3 ring-4 ring-[rgb(var(--slate-50))]">
               {getInitials(profissional.nome)}
             </div>
-            <h1 class="text-[22px] leading-tight font-bold text-slate-950 mb-1">{getNomeCompleto(profissional)}</h1>
-            <p class="text-sm font-medium text-slate-500 mb-2">
+            <h1 class="text-[22px] leading-tight font-bold text-[rgb(var(--slate-900))] mb-1">{getNomeCompleto(profissional)}</h1>
+            <p class="text-sm font-medium text-[rgb(var(--slate-500))] mb-2">
               {profissional.especialidade?.nome ?? 'Sem especialidade'}
               {#if profissional.subEspecialidade?.nome}
-                <span class="text-slate-300"> · </span>{profissional.subEspecialidade.nome}
+                <span class="text-[rgb(var(--slate-300))]"> · </span>{profissional.subEspecialidade.nome}
               {/if}
             </p>
           </div>
 
-          <hr class="border-slate-100 my-6">
+          <hr class="border-[rgb(var(--slate-100))] my-6">
 
           <!-- Classificação badges -->
           <div class="flex flex-wrap gap-2 justify-center mb-4">
@@ -186,43 +186,43 @@
           <div class="space-y-3">
             {#if profissional.crm}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">CRM</span>
-                <span class="text-[13px] font-semibold text-slate-900">{profissional.crm}</span>
+                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">CRM</span>
+                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{profissional.crm}</span>
               </div>
             {/if}
             {#if profissional.cpfCnpj}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">CPF/CNPJ</span>
-                <span class="text-[13px] font-semibold text-slate-900">{profissional.cpfCnpj}</span>
+                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">CPF/CNPJ</span>
+                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{profissional.cpfCnpj}</span>
               </div>
             {/if}
             {#if profissional.sexo}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sexo</span>
-                <span class="text-[13px] font-semibold text-slate-900">{sexoLabels[profissional.sexo] ?? profissional.sexo}</span>
+                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">Sexo</span>
+                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{sexoLabels[profissional.sexo] ?? profissional.sexo}</span>
               </div>
             {/if}
             {#if profissional.dataNascimento}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nasc.</span>
-                <span class="text-[13px] font-semibold text-slate-900">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">Nasc.</span>
+                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
               </div>
             {/if}
           </div>
 
           <!-- Observações -->
           {#if profissional.observacoes}
-            <hr class="border-slate-100 my-4">
-            <p class="text-[13px] font-medium text-slate-600 leading-relaxed bg-slate-50/50 rounded-md p-3 border border-slate-100/50">{profissional.observacoes}</p>
+            <hr class="border-[rgb(var(--slate-100))] my-4">
+            <p class="text-[13px] font-medium text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-3 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
           {/if}
 
           <!-- Botão Editar -->
           <div class="mt-auto pt-6">
             <a
               href="/dashboard/profissionais?editId={profissional.id}"
-              class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm rounded-lg py-2.5 transition-all outline-none cursor-pointer"
+              class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-[rgb(var(--slate-700))] bg-white border border-[rgb(var(--slate-200))] hover:border-[rgb(var(--slate-300))] hover:bg-[rgb(var(--slate-50))] hover:shadow-sm rounded-lg py-2.5 transition-all outline-none cursor-pointer"
             >
-              <Pencil class="w-3.5 h-3.5 text-slate-400" />
+              <Pencil class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
               Editar Cadastro
             </a>
           </div>
@@ -233,7 +233,7 @@
       <div class="col-span-1 lg:col-span-2 xl:col-span-3">
         <!-- Tab bar -->
         <div class="flex items-center justify-between mb-6">
-          <div class="flex gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
+          <div class="flex gap-1 bg-white rounded-lg border border-[rgb(var(--slate-200))] p-1 shadow-sm">
             {#each tabs as tab}
               {@const Icon = tab.icon}
               {@const active = abaAtiva === tab.id}
@@ -241,7 +241,7 @@
                 type="button"
                 onclick={() => { abaAtiva = tab.id; }}
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all duration-200 cursor-pointer
-                  {active ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}
+                  {active ? 'bg-blue-600 text-white shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}
                 "
               >
                 <Icon class="w-3.5 h-3.5" />
@@ -252,7 +252,7 @@
           <button
             type="button"
             onclick={handleNovaVisita}
-            class="flex items-center gap-2 bg-blue-600 text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-blue-700 shadow-sm transition-all hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
+            class="flex items-center gap-2 bg-blue-600 text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-blue-700 will-change-transform shadow-sm transition-all hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
           >
             <CalendarPlus class="w-4 h-4" />
             Registrar Visita
@@ -265,14 +265,14 @@
 
         {:else if abaAtiva === 'visitas'}
           {#if visitas.length === 0}
-            <div class="text-center py-20 bg-white rounded-xl border border-dashed border-slate-200">
+            <div class="text-center py-20 bg-white rounded-xl border border-dashed border-[rgb(var(--slate-200))]">
               <div class="flex justify-center mb-4">
-                <div class="bg-slate-100 p-3 rounded-full">
-                  <Calendar class="w-7 h-7 text-slate-400" />
+                <div class="bg-[rgb(var(--slate-100))] p-3 rounded-full">
+                  <Calendar class="w-7 h-7 text-[rgb(var(--slate-400))]" />
                 </div>
               </div>
-              <p class="text-sm font-medium text-slate-600">Nenhuma visita registrada</p>
-              <p class="text-xs text-slate-400 mt-1">Registre a primeira visita para este profissional.</p>
+              <p class="text-sm font-medium text-[rgb(var(--slate-600))]">Nenhuma visita registrada</p>
+              <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Registre a primeira visita para este profissional.</p>
               <button
                 type="button"
                 onclick={handleNovaVisita}
@@ -285,31 +285,31 @@
           {:else}
             <div class="relative ml-3 pl-6 space-y-6">
               <!-- Vertical line -->
-              <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-slate-100"></div>
+              <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[rgb(var(--slate-100))]"></div>
               {#each visitas as visita}
                 <div class="relative">
-                  <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-slate-50 shadow-sm
-                    {visita.status === 'REALIZADA' ? 'bg-emerald-500' : visita.status === 'CANCELADA' ? 'bg-red-500' : visita.status === 'NAO_REALIZADA' ? 'bg-slate-500' : 'bg-blue-500'}
+                  <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-[rgb(var(--slate-50))] shadow-sm
+                    {visita.status === 'REALIZADA' ? 'bg-emerald-500' : visita.status === 'CANCELADA' ? 'bg-red-500' : visita.status === 'NAO_REALIZADA' ? 'bg-[rgb(var(--slate-50))]0' : 'bg-blue-500'}
                   "></div>
 
                   <button
                     type="button"
-                    class="w-full text-left bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-[1px] cursor-pointer border border-slate-100 hover:border-slate-200"
+                    class="w-full text-left bg-white rounded-xl p-5 will-change-transform shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-[1px] cursor-pointer border border-[rgb(var(--slate-100))] hover:border-[rgb(var(--slate-200))]"
                     onclick={() => handleEditarVisita(visita)}
                   >
                     <div class="flex items-center justify-between mb-2">
                       <div class="flex items-center gap-2">
-                        <Calendar class="w-3.5 h-3.5 text-slate-400" />
-                        <span class="text-sm font-semibold text-slate-700">
+                        <Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+                        <span class="text-sm font-semibold text-[rgb(var(--slate-700))]">
                           {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
                         </span>
-                        <span class="text-slate-300">·</span>
-                        <span class="text-sm font-semibold text-slate-700">
+                        <span class="text-[rgb(var(--slate-300))]">·</span>
+                        <span class="text-sm font-semibold text-[rgb(var(--slate-700))]">
                           {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
                         </span>
                         {#if visita.duracaoMinutos}
-                          <span class="text-slate-300">·</span>
-                          <span class="flex items-center gap-1 text-xs text-slate-400">
+                          <span class="text-[rgb(var(--slate-300))]">·</span>
+                          <span class="flex items-center gap-1 text-xs text-[rgb(var(--slate-400))]">
                             <Clock class="w-3 h-3" />{visita.duracaoMinutos}min
                           </span>
                         {/if}
@@ -319,21 +319,21 @@
 
                     {#if visita.objetivoVisita}
                       <div class="flex items-start gap-2 mt-2">
-                        <Target class="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
-                        <p class="text-slate-600 text-sm">{visita.objetivoVisita}</p>
+                        <Target class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] mt-0.5 shrink-0" />
+                        <p class="text-[rgb(var(--slate-600))] text-sm">{visita.objetivoVisita}</p>
                       </div>
                     {/if}
 
                     {#if visita.resumo}
                       <div class="flex items-start gap-2 mt-2">
-                        <FileText class="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
-                        <p class="text-slate-500 text-sm">{visita.resumo}</p>
+                        <FileText class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] mt-0.5 shrink-0" />
+                        <p class="text-[rgb(var(--slate-500))] text-sm">{visita.resumo}</p>
                       </div>
                     {/if}
 
                     {#if visita.materiais && visita.materiais.length > 0}
-                      <div class="flex items-center gap-1.5 flex-wrap mt-3 pt-3 border-t border-slate-50">
-                        <Package class="w-3 h-3 text-slate-400 shrink-0" />
+                      <div class="flex items-center gap-1.5 flex-wrap mt-3 pt-3 border-t border-[rgb(var(--slate-50))]">
+                        <Package class="w-3 h-3 text-[rgb(var(--slate-400))] shrink-0" />
                         {#each visita.materiais as vm}
                           <span class="bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-1 rounded-md">
                             {vm.quantidade}x {vm.materialTecnico?.nome || 'Material'}
@@ -348,12 +348,12 @@
           {/if}
 
         {:else if abaAtiva === 'agenda'}
-          <div class="text-center py-12 bg-white rounded-xl border border-slate-100">
-            <p class="text-sm text-slate-400">Agenda deste profissional será exibida aqui</p>
+          <div class="text-center py-12 bg-white rounded-xl border border-[rgb(var(--slate-100))]">
+            <p class="text-sm text-[rgb(var(--slate-400))]">Agenda deste profissional será exibida aqui</p>
           </div>
 
         {:else if abaAtiva === 'dados'}
-          <div class="bg-white rounded-xl border border-slate-100 p-6">
+          <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
             <DetalheContatos
               contatos={profissional.contatos ?? []}
               telefone={profissional.telefone}
@@ -366,7 +366,7 @@
     </div>
 {:else}
   <div class="text-center py-20">
-    <p class="text-sm text-slate-500">Profissional não encontrado.</p>
+    <p class="text-sm text-[rgb(var(--slate-500))]">Profissional não encontrado.</p>
     <a href="/dashboard/profissionais" class="text-sm text-blue-600 hover:text-blue-700 mt-2 inline-block">Voltar à listagem</a>
   </div>
 {/if}

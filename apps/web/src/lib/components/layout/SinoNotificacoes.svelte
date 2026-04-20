@@ -35,14 +35,16 @@
 
 <div class="relative">
 	<button
-		class="relative p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+		class="relative p-2 text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] rounded-full transition-colors cursor-pointer"
 		onclick={() => (painelAberto = !painelAberto)}
 		aria-label="Notificações"
+		aria-expanded={painelAberto}
+		aria-haspopup="true"
 	>
 		<Bell class="w-5 h-5" />
 
 		{#if naoLidas > 0}
-			<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+			<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full" aria-label="{naoLidas} notificações não lidas" role="status"></span>
 		{/if}
 	</button>
 
@@ -55,7 +57,7 @@
 			transition:fade={{ duration: 150 }}
 		></div>
 		<div
-			class="absolute bottom-0 left-full ml-4 z-[100] w-80 rounded-xl border border-slate-100 shadow-2xl overflow-hidden bg-white"
+			class="absolute bottom-0 left-full ml-4 z-[100] w-80 rounded-xl border border-[rgb(var(--slate-100))] shadow-2xl overflow-hidden bg-white"
 			transition:fly={{ x: -8, duration: 200, easing: cubicOut }}
 		>
 			<PainelNotificacoes

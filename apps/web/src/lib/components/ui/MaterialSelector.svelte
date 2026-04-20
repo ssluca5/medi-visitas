@@ -39,7 +39,7 @@
   <div class="flex gap-2 items-end">
     <div class="flex-1">
       <label class="block text-sm font-medium text-gray-700 mb-1" for="materialSelectedId">Material Técnico</label>
-      <select id="materialSelectedId" bind:value={selectedId} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-slate-50 disabled:text-slate-500">
+      <select id="materialSelectedId" bind:value={selectedId} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]">
         <option value="">-- Selecione --</option>
         {#each materiaisOptions as mat}
           <option value={mat.id}>{mat.nome} ({mat.tipo})</option>
@@ -49,7 +49,7 @@
     
     <div class="w-20">
       <label class="block text-sm font-medium text-gray-700 mb-1" for="materialQtd">Qtd</label>
-      <input id="materialQtd" type="number" min="1" bind:value={quantidade} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-slate-50 disabled:text-slate-500">
+      <input id="materialQtd" type="number" min="1" bind:value={quantidade} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]">
     </div>
 
     <div>

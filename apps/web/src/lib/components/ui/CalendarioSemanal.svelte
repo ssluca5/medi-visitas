@@ -121,18 +121,18 @@
 	<div class="flex items-center justify-between px-1 mb-4">
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navSemana(-1)}
 			aria-label="Semana anterior"
 		>
 			<ChevronLeft class="h-5 w-5" />
 		</button>
-		<h3 class="text-lg font-bold text-slate-800">
+		<h3 class="text-lg font-bold text-[rgb(var(--slate-800))]">
 			{formatMonth(currentDate)}
 		</h3>
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navSemana(1)}
 			aria-label="Próxima semana"
 		>
@@ -144,14 +144,14 @@
 	<div class="flex-1 overflow-auto">
 		<div class="grid grid-cols-[60px_repeat(7,minmax(0,1fr))] min-w-[720px]">
 			<!-- Cabeçalho dos dias -->
-			<div class="sticky top-0 z-10 bg-white border-b border-slate-100"></div>
+			<div class="sticky top-0 z-10 bg-white border-b border-[rgb(var(--slate-100))]"></div>
 			{#each diasSemana as dia}
 				<div
-					class="sticky top-0 z-10 bg-white border-b border-slate-100 text-center py-2.5 px-1"
+					class="sticky top-0 z-10 bg-white border-b border-[rgb(var(--slate-100))] text-center py-2.5 px-1"
 				>
 					<p
 						class="text-[10px] uppercase tracking-wider font-semibold
-							{isHoje(dia) ? 'text-blue-600 font-bold' : 'text-slate-400'}"
+							{isHoje(dia) ? 'text-blue-600 font-bold' : 'text-[rgb(var(--slate-400))]'}"
 					>
 						{dayFormatter.format(dia)}
 					</p>
@@ -163,7 +163,7 @@
 								{dateFormatter.format(dia)}
 							</span>
 						{:else}
-							<span class="text-sm font-bold text-slate-700">
+							<span class="text-sm font-bold text-[rgb(var(--slate-700))]">
 								{dateFormatter.format(dia)}
 							</span>
 						{/if}
@@ -175,11 +175,11 @@
 			{#each SLOT_HORAS as hora}
 				<!-- Eixo de hora: alinhado ao centro da linha divisória -->
 				<div
-					class="relative border-r border-slate-100 pr-3 text-right"
+					class="relative border-r border-[rgb(var(--slate-100))] pr-3 text-right"
 					style="height: 120px;"
 				>
 					<span
-						class="absolute top-1 right-3 text-[11px] font-medium text-slate-400 tabular-nums"
+						class="absolute top-1 right-3 text-[11px] font-medium text-[rgb(var(--slate-400))] tabular-nums"
 					>
 						{String(hora).padStart(2, '0')}:00
 					</span>
@@ -188,7 +188,7 @@
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
-						class="relative border-b border-r border-slate-100 p-1 flex flex-col gap-1 transition-colors duration-150 cursor-pointer
+						class="relative border-b border-r border-[rgb(var(--slate-100))] p-1 flex flex-col gap-1 transition-colors duration-150 cursor-pointer
 							{isHoje(dia) ? 'bg-blue-50/30' : ''}
 							hover:bg-blue-50/50 hover:z-10"
 						style="height: 120px;"

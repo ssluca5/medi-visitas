@@ -17,9 +17,9 @@
 	const variantClasses: Record<Variant, string> = {
 		default: 'bg-[rgb(var(--accent))] text-white shadow-sm hover:bg-[rgb(var(--accent))]/90',
 		destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-700',
-		outline: 'border bg-white shadow-sm hover:bg-slate-50',
-		secondary: 'bg-slate-100 text-slate-700 shadow-sm hover:bg-slate-200/70',
-		ghost: 'hover:bg-slate-100',
+		outline: 'border bg-white shadow-sm hover:bg-[rgb(var(--slate-50))]',
+		secondary: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-700))] shadow-sm hover:bg-[rgb(var(--slate-200))]/70',
+		ghost: 'hover:bg-[rgb(var(--slate-100))]',
 		link: 'text-[rgb(var(--accent))] underline-offset-4 hover:underline'
 	};
 
@@ -31,7 +31,7 @@
 	};
 
 	let classes = $derived(
-		`inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent))]/50 disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${variantClasses[variant]} ${sizeClasses[size]} ${className}`
+		`inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent))]/50 disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${variantClasses[variant]} ${sizeClasses[size]} ${className}`
 	);
 </script>
 

@@ -54,7 +54,7 @@
 		<!-- Close button -->
 		<button
 			type="button"
-			class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
+			class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-[rgb(var(--slate-400))] transition-all duration-200 hover:bg-[rgb(var(--slate-100))] hover:text-[rgb(var(--slate-600))] focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
 			onclick={onclose}
 		>
 			<X class="h-4 w-4" />

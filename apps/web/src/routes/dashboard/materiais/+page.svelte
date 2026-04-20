@@ -169,7 +169,7 @@
       case 'AMOSTRA': return 'bg-emerald-50 text-emerald-700 border-emerald-200/50';
       case 'APRESENTACAO': return 'bg-indigo-50 text-indigo-700 border-indigo-200/50';
       case 'FOLDER': return 'bg-blue-50 text-blue-700 border-blue-200/50';
-      default: return 'bg-slate-100 text-slate-600 border-slate-200';
+      default: return 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))] border-[rgb(var(--slate-200))]';
     }
   }
 </script>
@@ -181,12 +181,12 @@
 <!-- Page Header -->
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
 	<div class="flex items-center gap-3">
-		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
 			<Package class="h-4.5 w-4.5 text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-slate-800">Materiais & Amostras</h1>
-			<p class="text-[11px] text-slate-400">Cadastre as amostras grátis, folders e apresentações</p>
+			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Materiais & Amostras</h1>
+			<p class="text-[11px] text-[rgb(var(--slate-400))]">Cadastre as amostras grátis, folders e apresentações</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
@@ -201,7 +201,7 @@
 <div class="card-surface p-4 mb-6">
   <div class="flex flex-col sm:flex-row gap-4">
     <div class="relative flex-1">
-      <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+      <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
       <input
         type="text"
         placeholder="Buscar por nome ou descrição..."
@@ -224,21 +224,21 @@
 
 {#if loading}
   <div class="card-surface py-20 flex flex-col items-center justify-center">
-    <div class="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600 mb-4"></div>
-    <p class="text-slate-500 text-sm">Carregando...</p>
+    <div class="h-8 w-8 animate-spin rounded-full border-2 border-[rgb(var(--slate-200))] border-t-indigo-600 mb-4"></div>
+    <p class="text-[rgb(var(--slate-500))] text-sm">Carregando...</p>
   </div>
 {:else if error}
   <div class="card-surface py-20 flex flex-col items-center justify-center">
     <Database class="h-8 w-8 text-red-500 mb-2" />
-    <p class="text-slate-700 font-medium">Falha ao conectar no servidor</p>
-    <p class="text-slate-500 text-sm">{error}</p>
+    <p class="text-[rgb(var(--slate-700))] font-medium">Falha ao conectar no servidor</p>
+    <p class="text-[rgb(var(--slate-500))] text-sm">{error}</p>
     <Button class="mt-4" variant="outline" onclick={loadMateriais}>Tentar novamente</Button>
   </div>
 {:else if materiais.length === 0}
   <div class="card-surface py-20 flex flex-col items-center justify-center text-center px-4">
-    <Package class="h-10 w-10 text-slate-300 mb-4" />
-    <h3 class="text-lg font-medium text-slate-900">Nenhum material encontrado</h3>
-    <p class="text-slate-500 max-w-sm mt-2 mb-6">Cadastre as amostras grátis, folders e apresentações que os RCs distribuem aos médicos.</p>
+    <Package class="h-10 w-10 text-[rgb(var(--slate-300))] mb-4" />
+    <h3 class="text-lg font-medium text-[rgb(var(--slate-900))]">Nenhum material encontrado</h3>
+    <p class="text-[rgb(var(--slate-500))] max-w-sm mt-2 mb-6">Cadastre as amostras grátis, folders e apresentações que os RCs distribuem aos médicos.</p>
     <Button onclick={handleNovo} class="gap-2">
       <Plus class="h-4 w-4" /> Cadastrar Primeiro Material
     </Button>
@@ -247,11 +247,11 @@
   <div class="card-surface overflow-hidden">
     <table class="table-fixed w-full">
       <thead>
-        <tr class="border-b border-slate-100">
-          <th class="p-3.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-[35%]">Material</th>
-          <th class="p-3.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-[35%]">Descrição</th>
-          <th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[15%]">Tipo</th>
-          <th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[15%]">Ações</th>
+        <tr class="border-b border-[rgb(var(--slate-100))]">
+          <th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[35%]">Material</th>
+          <th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[35%]">Descrição</th>
+          <th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[15%]">Tipo</th>
+          <th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[15%]">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -260,7 +260,7 @@
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <tr
-            class="group border-t border-slate-50 transition-all duration-200 cursor-pointer hover:bg-slate-50/60"
+            class="group border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60"
             class:opacity-50={!isAtivo}
             onclick={() => handleEditar(material)}
           >
@@ -271,13 +271,13 @@
                   class:text-indigo-600={isAtivo}
                   class:border={isAtivo}
                   class:border-indigo-100={isAtivo}
-                  class:bg-slate-100={!isAtivo}
-                  class:text-slate-400={!isAtivo}
+                  class:bg-[rgb(var(--slate-100))]={!isAtivo}
+                  class:text-[rgb(var(--slate-400))]={!isAtivo}
                 >
                   <Package class="h-4 w-4" />
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-medium truncate" class:text-slate-900={isAtivo} class:text-slate-400={!isAtivo}>
+                  <p class="text-sm font-medium truncate" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
                     {material.nome}
                   </p>
                   {#if !isAtivo}
@@ -290,11 +290,11 @@
             </td>
             <td class="p-3.5 text-left">
               {#if material.descricao}
-                <span class="text-sm text-slate-500 truncate block">
+                <span class="text-sm text-[rgb(var(--slate-500))] truncate block">
                   {material.descricao}
                 </span>
               {:else}
-                <span class="text-sm text-slate-300 truncate block">
+                <span class="text-sm text-[rgb(var(--slate-300))] truncate block">
                   —
                 </span>
               {/if}
@@ -309,7 +309,7 @@
                 <button
                   onclick={(e) => { e.stopPropagation(); handleToggleAtivo(material); }}
                   title={isAtivo ? 'Inativar' : 'Ativar'}
-                  class="p-1.5 rounded-md text-slate-400 transition-colors cursor-pointer {isAtivo ? 'hover:text-amber-600 hover:bg-amber-50' : 'hover:text-green-600 hover:bg-green-50'}"
+                  class="p-1.5 rounded-md text-[rgb(var(--slate-400))] transition-colors cursor-pointer {isAtivo ? 'hover:text-amber-600 hover:bg-amber-50' : 'hover:text-green-600 hover:bg-green-50'}"
                 >
                   {#if isAtivo}
                     <Power class="w-4 h-4" />
@@ -320,7 +320,7 @@
                 <button
                   onclick={(e) => { e.stopPropagation(); handleExcluir(material); }}
                   title="Excluir"
-                  class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  class="p-1.5 rounded-md text-[rgb(var(--slate-400))] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <Trash2 class="w-4 h-4" />
                 </button>
@@ -332,7 +332,7 @@
     </table>
     {#if materiaisFiltrados.length === 0 && materiais.length > 0}
       <div class="py-12 flex flex-col items-center justify-center text-center">
-        <p class="text-slate-500 text-sm">Nenhum material encontrado com esses filtros.</p>
+        <p class="text-[rgb(var(--slate-500))] text-sm">Nenhum material encontrado com esses filtros.</p>
         <Button class="mt-4" variant="outline" onclick={() => { filtroBusca = ''; filtroTipo = ''; }}>Limpar Filtros</Button>
       </div>
     {/if}
@@ -353,10 +353,10 @@
     <div class="space-y-5">
       <!-- Header -->
       <div>
-        <h3 class="text-lg font-semibold text-slate-900">
+        <h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
           {materialEmEdicao ? 'Editar Material' : 'Novo Material'}
         </h3>
-        <p class="text-sm text-slate-400 mt-1">Preencha os dados para cadastrar</p>
+        <p class="text-sm text-[rgb(var(--slate-400))] mt-1">Preencha os dados para cadastrar</p>
       </div>
 
       <div class="space-y-3">
@@ -383,7 +383,7 @@
       </div>
 
       <!-- Ações -->
-      <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+      <div class="flex justify-end gap-3 pt-4 border-t border-[rgb(var(--slate-100))]">
         <Button variant="outline" onclick={() => sheetOpen = false}>Cancelar</Button>
         <Button onclick={handleSalvar} disabled={isSaving || !formNome.trim()}>
           {isSaving ? 'Salvando...' : 'Salvar Material'}

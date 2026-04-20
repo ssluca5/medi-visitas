@@ -20,10 +20,10 @@
 	};
 
 	const corMap: Record<PrioridadeNotificacao, string> = {
-		INFO: '#3b82f6',
-		NORMAL: '#f59e0b',
-		ALTA: '#ef4444',
-		URGENTE: '#dc2626'
+		INFO: 'rgb(59 130 246)',
+		NORMAL: 'rgb(245 158 11)',
+		ALTA: 'rgb(239 68 68)',
+		URGENTE: 'rgb(220 38 38)'
 	};
 
 	let Icon = $derived(iconeMap[notif.prioridade]);
@@ -77,7 +77,7 @@
 		{#if !notif.lida}
 			<span
 				class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
-				style="background-color: #2563eb;"
+				style="background-color: rgb(var(--accent));"
 			></span>
 		{/if}
 	</div>
@@ -85,14 +85,14 @@
 	<!-- Conteúdo -->
 	<div class="flex-1 min-w-0">
 		<p
-			class="text-xs {notif.lida ? 'text-slate-500' : 'font-semibold text-slate-900'}"
+			class="text-xs {notif.lida ? 'text-[rgb(var(--slate-500))]' : 'font-semibold text-[rgb(var(--slate-900))]'}"
 		>
 			{notif.titulo}
 		</p>
-		<p class="text-xs mt-0.5 truncate text-slate-400">
+		<p class="text-xs mt-0.5 truncate text-[rgb(var(--slate-400))]">
 			{notif.mensagem}
 		</p>
-		<p class="text-[10px] mt-1 text-slate-300">
+		<p class="text-[10px] mt-1 text-[rgb(var(--slate-300))]">
 			{formatarTempoRelativo(notif.createdAt)}
 		</p>
 	</div>
@@ -103,6 +103,6 @@
 		onclick={deletar}
 		aria-label="Remover notificação"
 	>
-		<X class="w-3 h-3 text-slate-400" />
+		<X class="w-3 h-3 text-[rgb(var(--slate-400))]" />
 	</button>
 </div>

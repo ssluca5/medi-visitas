@@ -7,8 +7,10 @@
   import CardMetrica from '$lib/components/pipeline/CardMetrica.svelte';
   import FunilPipeline from '$lib/components/pipeline/FunilPipeline.svelte';
   import KanbanPipeline from '$lib/components/pipeline/KanbanPipeline.svelte';
-  import GraficoVisitas from '$lib/components/pipeline/GraficoVisitas.svelte';
-  import GraficoConversao from '$lib/components/pipeline/GraficoConversao.svelte';
+
+  // Lazy-loaded chart components (below the fold)
+  const GraficoVisitasPromise = import('$lib/components/pipeline/GraficoVisitas.svelte').then(m => m.default);
+  const GraficoConversaoPromise = import('$lib/components/pipeline/GraficoConversao.svelte').then(m => m.default);
   import type {
     PipelineResponse,
     MetricasPipeline,
@@ -83,15 +85,27 @@
     try {
       const qs = `dataInicio=${dataInicio}&dataFim=${dataFim}`;
 
-      const [pipelineRes, metricasRes, evolucaoRes, visitasRes] = await Promise.all([
+      // Phase 1: critical data (KPI cards + kanban)
+      const [pipelineRes, metricasRes] = await Promise.all([
         apiFetch('/pipeline', data.sessionToken),
         apiFetch(`/pipeline/metricas?${qs}`, data.sessionToken),
-        apiFetch(`/pipeline/evolucao?${qs}&granularidade=${granularidade}`, data.sessionToken),
-        apiFetch(`/pipeline/visitas-por-periodo?${qs}&granularidade=${granularidade}`, data.sessionToken),
       ]);
 
       if (pipelineRes.ok) pipeline = await pipelineRes.json();
       if (metricasRes.ok) metricas = await metricasRes.json();
+
+      if (!pipelineRes.ok || !metricasRes.ok) {
+        erro = 'Erro ao carregar alguns dados do pipeline';
+      }
+
+      loading = false;
+
+      // Phase 2: chart data (below the fold, deferred)
+      const [evolucaoRes, visitasRes] = await Promise.all([
+        apiFetch(`/pipeline/evolucao?${qs}&granularidade=${granularidade}`, data.sessionToken),
+        apiFetch(`/pipeline/visitas-por-periodo?${qs}&granularidade=${granularidade}`, data.sessionToken),
+      ]);
+
       if (evolucaoRes.ok) {
         const json = await evolucaoRes.json();
         evolucao = json.data ?? [];
@@ -100,14 +114,9 @@
         const json = await visitasRes.json();
         visitasPeriodo = json.data ?? [];
       }
-
-      if (!pipelineRes.ok || !metricasRes.ok) {
-        erro = 'Erro ao carregar alguns dados do pipeline';
-      }
     } catch (e) {
       erro = 'Erro ao conectar com o servidor';
       console.error(e);
-    } finally {
       loading = false;
     }
   }
@@ -180,12 +189,12 @@
 <!-- Page Header -->
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
   <div class="flex items-center gap-3">
-    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
       <BarChart3 class="h-4.5 w-4.5 text-white" />
     </div>
     <div>
-      <h1 class="text-lg font-bold text-slate-800">Pipeline</h1>
-      <p class="text-[11px] text-slate-400">Funil de conversão e analytics</p>
+      <h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Pipeline</h1>
+      <p class="text-[11px] text-[rgb(var(--slate-400))]">Funil de conversão e analytics</p>
     </div>
   </div>
   <div class="flex items-center gap-2">
@@ -201,40 +210,44 @@
 </div>
 
 <!-- Filtros de período -->
-<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-4 mb-6" role="search" aria-label="Filtros de período do pipeline">
   <div class="flex flex-wrap items-end gap-3">
     <div class="min-w-[160px]">
-      <label class="block text-xs font-medium text-slate-500 mb-1.5" for="dataInicioPipeline">Data início</label>
+      <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataInicioPipeline">Data início</label>
       <input
         id="dataInicioPipeline"
         type="date"
         bind:value={dataInicio}
         onchange={carregarDados}
-        class="block w-full rounded-lg border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-slate-50/50"
+        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
       />
     </div>
     <div class="min-w-[160px]">
-      <label class="block text-xs font-medium text-slate-500 mb-1.5" for="dataFimPipeline">Data fim</label>
+      <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataFimPipeline">Data fim</label>
       <input
         id="dataFimPipeline"
         type="date"
         bind:value={dataFim}
         onchange={carregarDados}
-        class="block w-full rounded-lg border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-slate-50/50"
+        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
       />
     </div>
     <div>
       <div class="h-[18px] mb-1.5"></div>
-      <div class="flex items-center rounded-lg bg-slate-100 p-0.5">
+      <div class="flex items-center rounded-lg bg-[rgb(var(--slate-100))] p-0.5">
         <button
           onclick={() => { granularidade = 'semana'; carregarDados(); }}
-          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'semana' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}"
+          aria-pressed={granularidade === 'semana'}
+          aria-label="Visualizar por semana"
+          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'semana' ? 'bg-white text-[rgb(var(--slate-800))] shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
         >
           Semana
         </button>
         <button
           onclick={() => { granularidade = 'mes'; carregarDados(); }}
-          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'mes' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}"
+          aria-pressed={granularidade === 'mes'}
+          aria-label="Visualizar por mês"
+          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'mes' ? 'bg-white text-[rgb(var(--slate-800))] shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
         >
           Mês
         </button>
@@ -244,8 +257,9 @@
 </div>
 
 {#if loading}
-  <div class="flex items-center justify-center h-64">
-    <RefreshCw class="h-6 w-6 text-slate-400 animate-spin" />
+  <div class="flex items-center justify-center h-64" role="status" aria-live="polite">
+    <RefreshCw class="h-6 w-6 text-[rgb(var(--slate-400))] animate-spin" aria-hidden="true" />
+    <span class="sr-only">Carregando dados do pipeline...</span>
   </div>
 {:else if erro}
   <div class="card-surface p-8 text-center">
@@ -255,7 +269,7 @@
 {:else}
   <!-- KPI Cards -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 items-stretch">
-    <div class="transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+    <div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
       <CardMetrica
         titulo="Total Profissionais"
         valor={metricas?.totalProfissionais ?? 0}
@@ -264,7 +278,7 @@
         corFundo="bg-blue-50"
       />
     </div>
-    <div class="transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+    <div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
       <CardMetrica
         titulo="Visitas Realizadas"
         valor={metricas?.visitasRealizadas ?? 0}
@@ -274,7 +288,7 @@
         corFundo="bg-violet-50"
       />
     </div>
-    <div class="transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+    <div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
       <CardMetrica
         titulo="Média/Semana"
         valor={metricas?.mediaVisitasPorSemana ?? 0}
@@ -283,7 +297,7 @@
         corFundo="bg-emerald-50"
       />
     </div>
-    <div class="transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+    <div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
       <CardMetrica
         titulo="Sem Visita (30d)"
         valor={metricas?.profissionaisSemVisitaUltimos30Dias ?? 0}
@@ -304,9 +318,13 @@
     <KanbanPipeline pipeline={pipelineFiltrado} {busca} onBuscaChange={(v) => busca = v} onMove={moverProfissional} />
   </div>
 
-  <!-- Charts -->
+  <!-- Charts (lazy loaded) -->
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6 mt-10">
-    <GraficoVisitas dados={visitasPeriodo} />
-    <GraficoConversao dados={evolucao} {granularidade} />
+    {#await GraficoVisitasPromise then GraficoVisitas}
+      <GraficoVisitas dados={visitasPeriodo} />
+    {/await}
+    {#await GraficoConversaoPromise then GraficoConversao}
+      <GraficoConversao dados={evolucao} {granularidade} />
+    {/await}
   </div>
 {/if}

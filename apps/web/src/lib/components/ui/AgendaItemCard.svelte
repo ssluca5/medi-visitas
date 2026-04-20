@@ -10,10 +10,10 @@
 	let { item, onclick }: Props = $props();
 
 	const prioridadeCores: Record<PrioridadeAgenda, string> = {
-		URGENTE: '#ef4444',
-		ALTA: '#f59e0b',
-		MEDIA: '#3b82f6',
-		BAIXA: '#94a3b8'
+		URGENTE: 'rgb(239 68 68)',
+		ALTA: 'rgb(245 158 11)',
+		MEDIA: 'rgb(59 130 246)',
+		BAIXA: 'rgb(148 163 184)'
 	};
 
 	const statusLabels: Record<StatusAgenda, string> = {
@@ -26,7 +26,7 @@
 	const statusColors: Record<StatusAgenda, string> = {
 		PLANEJADO: 'bg-blue-50 text-blue-700',
 		CONFIRMADO: 'bg-emerald-50 text-emerald-700',
-		REALIZADO: 'bg-slate-100 text-slate-600',
+		REALIZADO: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]',
 		CANCELADO: 'bg-red-50 text-red-600'
 	};
 
@@ -54,17 +54,17 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="group relative z-10 shrink-0 rounded-lg bg-white border border-slate-200 p-3 cursor-pointer transition-all duration-200 ease-out hover:-translate-y-[1px] shadow-sm hover:shadow-md hover:z-20 active:scale-[0.98] overflow-hidden"
+	class="group relative z-10 shrink-0 rounded-lg bg-white border border-[rgb(var(--slate-200))] p-3 cursor-pointer will-change-transform transition-all duration-200 ease-out hover:-translate-y-[1px] shadow-sm hover:shadow-md hover:z-20 active:scale-[0.98] overflow-hidden"
 	style="border-left: 3px solid {prioridadeCores[item.prioridade]}; height: {duracaoPx}px;"
 	{onclick}
 >
 	<div class="flex items-start justify-between gap-2">
 		<div class="min-w-0 flex-1">
-			<p class="text-[13px] font-semibold text-slate-800 truncate">
+			<p class="text-[13px] font-semibold text-[rgb(var(--slate-800))] truncate">
 				{item.profissional?.nome ?? 'Profissional'}
 			</p>
 			{#if item.profissional?.especialidade}
-				<p class="text-[10px] uppercase tracking-wider text-slate-400 font-medium mt-0.5">
+				<p class="text-[10px] uppercase tracking-wider text-[rgb(var(--slate-400))] font-medium mt-0.5">
 					{item.profissional.especialidade.nome}
 				</p>
 			{/if}
@@ -76,12 +76,12 @@
 		</span>
 	</div>
 
-	<div class="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
-		<Clock class="h-3 w-3 text-slate-400" />
+	<div class="mt-2 flex items-center gap-1.5 text-[11px] text-[rgb(var(--slate-500))]">
+		<Clock class="h-3 w-3 text-[rgb(var(--slate-400))]" />
 		<span class="font-medium">{horaInicio} – {horaFim}</span>
 	</div>
 
 	{#if item.observacoes}
-		<p class="mt-1.5 text-[11px] text-slate-400 truncate">{item.observacoes}</p>
+		<p class="mt-1.5 text-[11px] text-[rgb(var(--slate-400))] truncate">{item.observacoes}</p>
 	{/if}
 </div>

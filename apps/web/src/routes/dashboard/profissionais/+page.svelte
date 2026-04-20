@@ -168,7 +168,7 @@
 	};
 
 	const estagioConfig: Record<EstagioPipeline, { label: string; class: string }> = {
-		PROSPECTADO: { label: 'Prospectado', class: 'bg-slate-100 text-slate-600' },
+		PROSPECTADO: { label: 'Prospectado', class: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]' },
 		VISITADO: { label: 'Visitado', class: 'bg-blue-50 text-blue-700' },
 		INTERESSADO: { label: 'Interessado', class: 'bg-purple-50 text-purple-700' },
 		PRESCRITOR: { label: 'Prescritor', class: 'bg-emerald-50 text-emerald-700' },
@@ -574,12 +574,12 @@
 <!-- Page Header -->
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
 	<div class="flex items-center gap-3">
-		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
 			<Users class="h-4.5 w-4.5 text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-slate-800">Profissionais</h1>
-			<p class="text-[11px] text-slate-400">Gerencie o cadastro e a classificação dos médicos</p>
+			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Profissionais</h1>
+			<p class="text-[11px] text-[rgb(var(--slate-400))]">Gerencie o cadastro e a classificação dos médicos</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
@@ -591,21 +591,23 @@
 </div>
 
 <!-- Filters -->
-<div class="card-surface p-4 mb-6">
+<div class="card-surface p-4 mb-6" role="search" aria-label="Filtros de profissionais">
 	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 		<div class="relative">
-			<Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+			<Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
 			<input
 				type="text"
 				placeholder="Buscar por nome ou CRM..."
 				bind:value={filtroBusca}
 				oninput={() => fetchProfissionais(1)}
+				aria-label="Buscar profissionais"
 				class="input-base !pl-9"
 			/>
 		</div>
 		<select
 			bind:value={filtroPotencial}
 			onchange={() => fetchProfissionais(1)}
+			aria-label="Filtrar por potencial"
 			class="input-base"
 		>
 			<option value="">Todos os potenciais</option>
@@ -617,6 +619,7 @@
 		<select
 			bind:value={filtroEstagio}
 			onchange={() => fetchProfissionais(1)}
+			aria-label="Filtrar por estágio"
 			class="input-base"
 		>
 			<option value="">Todos os estágios</option>
@@ -627,6 +630,7 @@
 		<select
 			bind:value={filtroClassificacao}
 			onchange={() => fetchProfissionais(1)}
+			aria-label="Filtrar por classificação"
 			class="input-base"
 		>
 			<option value="">Todas as classificações</option>
@@ -639,10 +643,10 @@
 
 <!-- Table -->
 {#if loading}
-	<div class="card-surface flex items-center justify-center py-20">
+	<div class="card-surface flex items-center justify-center py-20" role="status" aria-live="polite">
 		<div class="flex flex-col items-center gap-3">
-			<div class="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600"></div>
-			<span class="text-sm text-slate-400">Carregando profissionais...</span>
+			<div class="h-8 w-8 animate-spin rounded-full border-2 border-[rgb(var(--slate-200))] border-t-blue-600" aria-hidden="true"></div>
+			<span class="text-sm text-[rgb(var(--slate-400))]">Carregando profissionais...</span>
 		</div>
 	</div>
 {:else if error}
@@ -651,8 +655,8 @@
 			<Users class="h-6 w-6 text-red-400" />
 		</div>
 		<div class="text-center">
-			<p class="text-sm font-medium text-slate-700">Erro ao carregar</p>
-			<p class="text-xs text-slate-400 mt-1">{error}</p>
+			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Erro ao carregar</p>
+			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">{error}</p>
 		</div>
 		<Button variant="outline" size="sm" onclick={() => fetchProfissionais(1)}>
 			Tentar novamente
@@ -660,12 +664,12 @@
 	</div>
 {:else if profissionais.length === 0}
 	<div class="card-surface flex flex-col items-center justify-center py-20 gap-4">
-		<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
-			<Users class="h-7 w-7 text-slate-400" />
+		<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(var(--slate-100))]">
+			<Users class="h-7 w-7 text-[rgb(var(--slate-400))]" />
 		</div>
 		<div class="text-center">
-			<p class="text-sm font-medium text-slate-700">Nenhum profissional encontrado</p>
-			<p class="text-xs text-slate-400 mt-1">Use os filtros acima ou adicione um novo</p>
+			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Nenhum profissional encontrado</p>
+			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Use os filtros acima ou adicione um novo</p>
 		</div>
 		<Button size="sm" onclick={handleNovoProfissional} class="gap-2">
 			<Plus class="h-4 w-4" />
@@ -674,57 +678,57 @@
 	</div>
 {:else}
 	<div class="card-surface overflow-hidden">
-		<table class="table-fixed w-full">
+		<table class="table-fixed w-full" aria-label="Lista de profissionais">
 			<thead>
-				<tr class="border-b border-slate-100">
-					<th class="p-3.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-[24%]">Nome</th>
-					<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[18%]">Especialidade</th>
-					<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[16%]">Subespecialidade</th>
-					<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[12%]">Potencial</th>
-					<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[12%]">Estágio</th>
-					<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[18%]">Ações</th>
+				<tr class="border-b border-[rgb(var(--slate-100))]">
+					<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[24%]">Nome</th>
+					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[18%]">Especialidade</th>
+					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[16%]">Subespecialidade</th>
+					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Potencial</th>
+					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Estágio</th>
+					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[18%]">Ações</th>
 				</tr>
 			</thead>
 			<tbody>
 				{#each profissionais as prof (prof.id)}
 					{@const isAtivo = !prof.deletedAt}
 					<tr
-						class="group border-t border-slate-50 transition-all duration-200 cursor-pointer hover:bg-slate-50/60"
+						class="group border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60"
 						class:opacity-50={!isAtivo}
 						onclick={() => handleEditarProfissional(prof)}
 					>
 						<td class="p-3.5">
 							<div class="flex items-center gap-3">
 								<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold shadow-sm"
-									class:bg-gradient-to-br={isAtivo}
+									class:bg-blue-600={isAtivo}
 									class:from-blue-500={isAtivo}
 									class:to-indigo-600={isAtivo}
 									class:text-white={isAtivo}
-									class:bg-slate-200={!isAtivo}
-									class:text-slate-400={!isAtivo}
+									class:bg-[rgb(var(--slate-200))]={!isAtivo}
+									class:text-[rgb(var(--slate-400))]={!isAtivo}
 								>
 									{prof.nome.charAt(0).toUpperCase()}
 								</div>
 								<div class="min-w-0">
-									<p class="text-sm font-medium truncate" class:text-slate-900={isAtivo} class:text-slate-400={!isAtivo}>
+									<p class="text-sm font-medium truncate" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
 										{prof.nome}
 									</p>
-									<p class="text-xs truncate" class:text-slate-400={isAtivo} class:text-slate-300={!isAtivo}>
+									<p class="text-xs truncate" class:text-[rgb(var(--slate-400))]={isAtivo} class:text-[rgb(var(--slate-300))]={!isAtivo}>
 										{prof.crm || 'Sem CRM'}
 									</p>
 								</div>
 							</div>
 						</td>
 						<td class="p-3.5 text-center">
-							<span class="text-sm text-slate-700 truncate block font-medium">{prof.especialidade?.nome || '—'}</span>
+							<span class="text-sm text-[rgb(var(--slate-700))] truncate block font-medium">{prof.especialidade?.nome || '—'}</span>
 						</td>
 						<td class="p-3.5 text-center">
-							<span class="text-sm text-slate-500 truncate block">
+							<span class="text-sm text-[rgb(var(--slate-500))] truncate block">
 								{prof.subEspecialidade?.nome || '-'}
 							</span>
 						</td>
 						<td class="p-3.5 text-center">
-							<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-slate-100 text-slate-600'}">
+							<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
 								{potencialConfig[prof.potencial]?.label ?? prof.potencial}
 							</span>
 						</td>
@@ -737,39 +741,44 @@
 							<div class="flex justify-center items-center gap-0.5">
 								<button
 									onclick={(e) => { e.stopPropagation(); profissionalConsulta = prof; consultaTab = 'dados'; consultaOpen = true; }}
+									aria-label="Ver detalhes de {prof.nome}"
 									title="Ver detalhes"
-									class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+									class="p-2 rounded-lg text-[rgb(var(--slate-400))] hover:text-blue-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 								>
 									<Eye class="w-3.5 h-3.5" />
 								</button>
 								<a
 									href={`/dashboard/profissionais/${prof.id}`}
 									onclick={(e) => e.stopPropagation()}
+									aria-label="Agenda e visitas de {prof.nome}"
 									title="Agenda / Visitas"
-									class="p-2 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+									class="p-2 rounded-lg text-[rgb(var(--slate-400))] hover:text-emerald-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 								>
 									<Calendar class="w-3.5 h-3.5" />
 								</a>
 								<button
 									onclick={(e) => { e.stopPropagation(); handleRetrocederEstagio(prof); }}
 									disabled={prof.estagioPipeline === 'PROSPECTADO' || !isAtivo}
+									aria-label="Retroceder estágio de {prof.nome}"
 									title="Retroceder estágio"
-									class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:text-slate-800 hover:bg-slate-100 transition-all duration-200 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
 								>
 									<ArrowLeft class="w-3.5 h-3.5" />
 								</button>
 								<button
 									onclick={(e) => { e.stopPropagation(); handleAvancarEstagio(prof); }}
 									disabled={prof.estagioPipeline === 'FIDELIZADO' || !isAtivo}
+									aria-label="Avançar estágio de {prof.nome}"
 									title="Avançar estágio"
-									class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:text-slate-800 hover:bg-slate-100 transition-all duration-200 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
 								>
 									<ArrowRight class="w-3.5 h-3.5" />
 								</button>
 								<button
 									onclick={(e) => { e.stopPropagation(); handleToggleAtivo(prof); }}
+									aria-label={isAtivo ? `Inativar ${prof.nome}` : `Ativar ${prof.nome}`}
 									title={isAtivo ? 'Inativar' : 'Ativar'}
-									class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:bg-slate-100 transition-all duration-200 cursor-pointer {isAtivo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
+									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {isAtivo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
 								>
 									{#if isAtivo}
 										<Power class="w-3.5 h-3.5" />
@@ -779,8 +788,9 @@
 								</button>
 								<button
 									onclick={(e) => { e.stopPropagation(); handleExcluirProfissional(prof); }}
+									aria-label="Excluir {prof.nome}"
 									title="Excluir"
-									class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 								>
 									<Trash2 class="w-3.5 h-3.5" />
 								</button>
@@ -794,19 +804,19 @@
 
 	<!-- Pagination -->
 	{#if pagination.totalPages > 1}
-		<div class="mt-4 flex items-center justify-between">
-			<p class="text-xs text-slate-400">
+		<nav aria-label="Paginação de profissionais" class="mt-4 flex items-center justify-between">
+			<p class="text-xs text-[rgb(var(--slate-400))]" aria-live="polite">
 				Página {pagination.page} de {pagination.totalPages} · {pagination.total} total
 			</p>
 			<div class="flex gap-1.5">
-				<Button variant="outline" size="sm" onclick={() => fetchProfissionais(pagination.page - 1)} disabled={pagination.page <= 1}>
+				<Button variant="outline" size="sm" onclick={() => fetchProfissionais(pagination.page - 1)} disabled={pagination.page <= 1} aria-label="Página anterior">
 					<ChevronLeft class="h-4 w-4" />
 				</Button>
-				<Button variant="outline" size="sm" onclick={() => fetchProfissionais(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages}>
+				<Button variant="outline" size="sm" onclick={() => fetchProfissionais(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages} aria-label="Próxima página">
 					<ChevronRight class="h-4 w-4" />
 				</Button>
 			</div>
-		</div>
+		</nav>
 	{/if}
 {/if}
 
@@ -816,10 +826,10 @@
 		<div class="space-y-5">
 			<!-- Header -->
 			<div>
-				<h3 class="text-lg font-semibold text-slate-900">
+				<h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
 					{profissionalEmEdicao ? 'Editar Profissional' : 'Novo Profissional'}
 				</h3>
-				<p class="text-sm text-slate-400 mt-1">
+				<p class="text-sm text-[rgb(var(--slate-400))] mt-1">
 					{profissionalEmEdicao ? 'Atualize os dados abaixo' : 'Preencha os dados para cadastrar'}
 				</p>
 			</div>
@@ -862,12 +872,12 @@
 						<div>
 							<label for="prof-crm" class="input-label">CRM</label>
 							<input id="prof-crm" type="text" bind:value={formCrm} class="input-base" placeholder="123456" />
-							<p class="text-xs text-slate-400 mt-1">Registro profissional</p>
+							<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Registro profissional</p>
 						</div>
 						<div>
 							<label for="prof-crm-uf" class="input-label">UF do CRM</label>
 							<input id="prof-crm-uf" type="text" bind:value={formEstado} class="input-base" placeholder="SP" maxlength={2} />
-							<p class="text-xs text-slate-400 mt-1">Estado do registro</p>
+							<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Estado do registro</p>
 						</div>
 					</div>
 
@@ -899,13 +909,13 @@
 							disabled
 							class="input-base opacity-60 cursor-not-allowed"
 						/>
-						<p class="text-xs text-slate-400 mt-1">Preenchido automaticamente</p>
+						<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Preenchido automaticamente</p>
 					</div>
 				</div>
 			</section>
 
 			<!-- ═══ SEÇÃO 2: Contato ═══ -->
-			<section class="border-t border-slate-100 pt-6 mt-6">
+			<section class="border-t border-[rgb(var(--slate-100))] pt-6 mt-6">
 				<h4 class="section-header">
 					<Phone class="h-3.5 w-3.5" />
 					Contato
@@ -924,11 +934,11 @@
 					<!-- Contatos Adicionais -->
 					<div class="mt-2">
 						<div class="flex items-center justify-between mb-2">
-							<span class="text-xs font-medium text-slate-500">Contatos adicionais</span>
+							<span class="text-xs font-medium text-[rgb(var(--slate-500))]">Contatos adicionais</span>
 							<button
 								onclick={adicionarContato}
 								type="button"
-								class="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-all duration-200 cursor-pointer hover:-translate-y-[1px] active:scale-[0.98]"
+								class="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 will-change-transform transition-all duration-200 cursor-pointer hover:-translate-y-[1px] active:scale-[0.98]"
 							>
 								<Plus class="h-3.5 w-3.5" />
 								Adicionar
@@ -936,11 +946,11 @@
 						</div>
 
 						{#if formContatos.length === 0}
-							<p class="text-xs text-slate-400 italic py-2">Nenhum contato adicional cadastrado</p>
+							<p class="text-xs text-[rgb(var(--slate-400))] italic py-2">Nenhum contato adicional cadastrado</p>
 						{:else}
 							<div class="space-y-2.5">
 								{#each formContatos as contato, idx}
-									<div class="relative rounded-lg border border-slate-200 bg-slate-50/50 p-3 transition-all duration-200 hover:border-slate-300">
+									<div class="relative rounded-lg border border-[rgb(var(--slate-200))] bg-[rgb(var(--slate-50))]/50 p-3 transition-all duration-200 hover:border-[rgb(var(--slate-300))]">
 										<button
 											onclick={() => removerContato(idx)}
 											type="button"
@@ -984,7 +994,7 @@
 			</section>
 
 			<!-- ═══ SEÇÃO 3: Atuação ═══ -->
-			<section class="border-t border-slate-100 pt-6 mt-6">
+			<section class="border-t border-[rgb(var(--slate-100))] pt-6 mt-6">
 				<h4 class="section-header">
 					<MapPin class="h-3.5 w-3.5" />
 					Atuação
@@ -1034,11 +1044,11 @@
 							/>
 							{#if buscandoCep}
 								<div class="absolute right-2 top-1/2 -translate-y-1/2">
-									<Loader2 class="h-4 w-4 animate-spin text-slate-400" />
+									<Loader2 class="h-4 w-4 animate-spin text-[rgb(var(--slate-400))]" />
 								</div>
 							{/if}
 						</div>
-						<p class="text-xs text-slate-400 mt-1">Preenche endereço, bairro, cidade e UF</p>
+						<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Preenche endereço, bairro, cidade e UF</p>
 					</div>
 
 					<!-- Linha 2: Endereço (textarea largura total) -->
@@ -1086,7 +1096,7 @@
 			</section>
 
 			<!-- ═══ SEÇÃO 4: Classificação ═══ -->
-			<section class="border-t border-slate-100 pt-6 mt-6">
+			<section class="border-t border-[rgb(var(--slate-100))] pt-6 mt-6">
 				<h4 class="section-header">
 					<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
 					Classificação
@@ -1112,7 +1122,7 @@
 								</button>
 							{/each}
 						</div>
-						<p class="text-xs text-slate-400 mt-1.5">Volume estimado de prescrições</p>
+						<p class="text-xs text-[rgb(var(--slate-400))] mt-1.5">Volume estimado de prescrições</p>
 					</div>
 
 					<!-- Estágio — Segmented Control (cores semânticas) -->
@@ -1135,13 +1145,13 @@
 								</button>
 							{/each}
 						</div>
-						<p class="text-xs text-slate-400 mt-1.5">Acompanhamento do relacionamento</p>
+						<p class="text-xs text-[rgb(var(--slate-400))] mt-1.5">Acompanhamento do relacionamento</p>
 					</div>
 
 					<!-- Classificação do Relacionamento — Grid 3 colunas -->
 					<div class="mt-5">
 						<span class="input-label">Classificação do relacionamento</span>
-						<div class="rounded-lg border border-slate-200 bg-slate-50 p-1">
+						<div class="rounded-lg border border-[rgb(var(--slate-200))] bg-[rgb(var(--slate-50))] p-1">
 							<div class="grid grid-cols-3 gap-1" role="group" aria-label="Classificação do relacionamento">
 								<button
 									type="button"
@@ -1178,7 +1188,7 @@
 			</section>
 
 			<!-- ═══ SEÇÃO 5: Informações Complementares ═══ -->
-			<section class="border-t border-slate-100 pt-6 mt-6">
+			<section class="border-t border-[rgb(var(--slate-100))] pt-6 mt-6">
 				<h4 class="section-header">
 					<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
 					Informações Complementares
@@ -1212,7 +1222,7 @@
 			</section>
 
 			<!-- Ações -->
-			<div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+			<div class="flex justify-end gap-3 pt-4 border-t border-[rgb(var(--slate-100))]">
 				<Button variant="outline" onclick={() => (sheetOpen = false)}>Cancelar</Button>
 				<Button onclick={handleSalvarProfissional}>
 					{profissionalEmEdicao ? 'Salvar Alterações' : 'Cadastrar Profissional'}
@@ -1245,37 +1255,37 @@
 			role="document"
 		>
 			<!-- Header -->
-			<div class="flex items-start justify-between p-6 border-b border-slate-100">
+			<div class="flex items-start justify-between p-6 border-b border-[rgb(var(--slate-100))]">
 				<div class="flex items-center gap-4">
 					<div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold shrink-0">
 						{profissionalConsulta.nome.split(' ').slice(0, 2).map((n: string) => n.charAt(0)).join('').toUpperCase()}
 					</div>
 					<div>
-						<h2 class="text-xl font-bold text-slate-900">
+						<h2 class="text-xl font-bold text-[rgb(var(--slate-900))]">
 							{profissionalConsulta.tratamento
 								? (tratamentoLabels[profissionalConsulta.tratamento] ?? profissionalConsulta.tratamento) + ' '
 								: ''}{profissionalConsulta.nome}
 						</h2>
-						<p class="text-sm font-medium text-slate-500 mt-0.5">
+						<p class="text-sm font-medium text-[rgb(var(--slate-500))] mt-0.5">
 							{profissionalConsulta.especialidade?.nome ?? 'Sem especialidade'}{profissionalConsulta.subEspecialidade?.nome ? ` - ${profissionalConsulta.subEspecialidade.nome}` : ''}
 						</p>
 					</div>
 				</div>
 				<button
 					onclick={() => consultaOpen = false}
-					class="p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer shrink-0 ml-4"
+					class="p-2 rounded-lg hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer shrink-0 ml-4"
 				>
-					<X class="w-4 h-4 text-slate-400" />
+					<X class="w-4 h-4 text-[rgb(var(--slate-400))]" />
 				</button>
 			</div>
 
 			<!-- Abas -->
-			<div class="flex border-b border-slate-100">
+			<div class="flex border-b border-[rgb(var(--slate-100))]">
 				<button
 					type="button"
 					onclick={() => { consultaTab = 'dados'; }}
 					class="flex-1 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
-						{consultaTab === 'dados' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}"
+						{consultaTab === 'dados' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}"
 				>
 					Dados
 				</button>
@@ -1283,7 +1293,7 @@
 					type="button"
 					onclick={() => { consultaTab = 'visitas'; if (profissionalConsulta) loadVisitasProfissional(profissionalConsulta.id); }}
 					class="flex-1 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
-						{consultaTab === 'visitas' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}"
+						{consultaTab === 'visitas' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}"
 				>
 					Últimas Visitas
 				</button>
@@ -1294,42 +1304,42 @@
 				{#if consultaTab === 'dados'}
 					<!-- Bloco: Dados Pessoais -->
 					<div>
-						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Dados Pessoais</p>
+						<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Dados Pessoais</p>
 						<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 							<!-- CRM -->
 							<div>
-								<p class="text-xs text-slate-500 mb-1">CRM</p>
-								<p class="text-sm font-semibold {profissionalConsulta.crm ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.crm || '—'}</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">CRM</p>
+								<p class="text-sm font-semibold {profissionalConsulta.crm ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.crm || '—'}</p>
 							</div>
 							<!-- CPF/CNPJ -->
 							<div>
-								<p class="text-xs text-slate-500 mb-1">CPF/CNPJ</p>
-								<p class="text-sm font-semibold {profissionalConsulta.cpfCnpj ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.cpfCnpj || '—'}</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">CPF/CNPJ</p>
+								<p class="text-sm font-semibold {profissionalConsulta.cpfCnpj ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.cpfCnpj || '—'}</p>
 							</div>
 							<!-- Sexo -->
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Sexo</p>
-								<p class="text-sm font-semibold {profissionalConsulta.sexo ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.sexo ? (sexoLabels[profissionalConsulta.sexo] ?? profissionalConsulta.sexo) : '—'}</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Sexo</p>
+								<p class="text-sm font-semibold {profissionalConsulta.sexo ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.sexo ? (sexoLabels[profissionalConsulta.sexo] ?? profissionalConsulta.sexo) : '—'}</p>
 							</div>
 							<!-- Nascimento -->
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Nascimento</p>
-								<p class="text-sm font-semibold {profissionalConsulta.dataNascimento ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.dataNascimento ? new Date(profissionalConsulta.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'}</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Nascimento</p>
+								<p class="text-sm font-semibold {profissionalConsulta.dataNascimento ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.dataNascimento ? new Date(profissionalConsulta.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'}</p>
 							</div>
 						</div>
 					</div>
 
 					<!-- Bloco: Contato -->
 					<div class="mt-8">
-						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Contato</p>
+						<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Contato</p>
 						<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Telefone</p>
-								<p class="text-sm font-semibold {profissionalConsulta.telefone ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.telefone || '—'}</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Telefone</p>
+								<p class="text-sm font-semibold {profissionalConsulta.telefone ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.telefone || '—'}</p>
 							</div>
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Email</p>
-								<p class="text-sm font-semibold {profissionalConsulta.email ? 'text-slate-800' : 'text-slate-300'}">{profissionalConsulta.email || '—'}</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Email</p>
+								<p class="text-sm font-semibold {profissionalConsulta.email ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.email || '—'}</p>
 							</div>
 						</div>
 					</div>
@@ -1340,23 +1350,23 @@
 						{@const logradouroFull = [end.logradouro, end.numero, end.complemento].filter(Boolean).join(', ')}
 						{@const cidadeUf = [end.cidade, end.estado].filter(Boolean).join('/')}
 						<div class="mt-8">
-							<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Endereço</p>
+							<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Endereço</p>
 							<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 								<div>
-									<p class="text-xs text-slate-500 mb-1">CEP</p>
-									<p class="text-sm font-semibold {end.cep ? 'text-slate-800' : 'text-slate-300'}">{end.cep || '—'}</p>
+									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">CEP</p>
+									<p class="text-sm font-semibold {end.cep ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{end.cep || '—'}</p>
 								</div>
 								<div>
-									<p class="text-xs text-slate-500 mb-1">Logradouro</p>
-									<p class="text-sm font-semibold {logradouroFull ? 'text-slate-800' : 'text-slate-300'}">{logradouroFull || '—'}</p>
+									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Logradouro</p>
+									<p class="text-sm font-semibold {logradouroFull ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{logradouroFull || '—'}</p>
 								</div>
 								<div>
-									<p class="text-xs text-slate-500 mb-1">Bairro</p>
-									<p class="text-sm font-semibold {end.bairro ? 'text-slate-800' : 'text-slate-300'}">{end.bairro || '—'}</p>
+									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Bairro</p>
+									<p class="text-sm font-semibold {end.bairro ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{end.bairro || '—'}</p>
 								</div>
 								<div>
-									<p class="text-xs text-slate-500 mb-1">Cidade/UF</p>
-									<p class="text-sm font-semibold {cidadeUf ? 'text-slate-800' : 'text-slate-300'}">{cidadeUf || '—'}</p>
+									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Cidade/UF</p>
+									<p class="text-sm font-semibold {cidadeUf ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{cidadeUf || '—'}</p>
 								</div>
 							</div>
 						</div>
@@ -1364,36 +1374,36 @@
 
 					<!-- Bloco: Classificação -->
 					<div class="mt-8">
-						<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Classificação</p>
+						<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Classificação</p>
 						<div class="grid grid-cols-3 gap-x-8 gap-y-4">
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Potencial</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Potencial</p>
 								{#if profissionalConsulta.potencial && potencialConfig[profissionalConsulta.potencial]}
 									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {potencialConfig[profissionalConsulta.potencial].class}">
 										{potencialConfig[profissionalConsulta.potencial].label}
 									</span>
 								{:else}
-									<p class="text-sm font-semibold text-slate-300">—</p>
+									<p class="text-sm font-semibold text-[rgb(var(--slate-300))]">—</p>
 								{/if}
 							</div>
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Estágio</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Estágio</p>
 								{#if profissionalConsulta.estagioPipeline && estagioConfig[profissionalConsulta.estagioPipeline]}
 									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {estagioConfig[profissionalConsulta.estagioPipeline].class}">
 										{estagioConfig[profissionalConsulta.estagioPipeline].label}
 									</span>
 								{:else}
-									<p class="text-sm font-semibold text-slate-300">—</p>
+									<p class="text-sm font-semibold text-[rgb(var(--slate-300))]">—</p>
 								{/if}
 							</div>
 							<div>
-								<p class="text-xs text-slate-500 mb-1">Relacionamento</p>
+								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Relacionamento</p>
 								{#if profissionalConsulta.classificacao && classificacaoConfig[profissionalConsulta.classificacao]}
 									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {classificacaoConfig[profissionalConsulta.classificacao].class}">
 										{classificacaoConfig[profissionalConsulta.classificacao].label}
 									</span>
 								{:else}
-									<p class="text-sm font-semibold text-slate-300">—</p>
+									<p class="text-sm font-semibold text-[rgb(var(--slate-300))]">—</p>
 								{/if}
 							</div>
 						</div>
@@ -1402,8 +1412,8 @@
 					<!-- Observações -->
 					{#if profissionalConsulta.observacoes}
 						<div class="mt-8">
-							<p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Observações</p>
-							<p class="text-sm font-semibold text-slate-800">{profissionalConsulta.observacoes}</p>
+							<p class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-2">Observações</p>
+							<p class="text-sm font-semibold text-[rgb(var(--slate-800))]">{profissionalConsulta.observacoes}</p>
 						</div>
 					{/if}
 
@@ -1416,46 +1426,46 @@
 					{:else if visitasDoProfissional.length === 0}
 						<div class="text-center py-16">
 							<div class="flex justify-center mb-3">
-								<div class="bg-slate-100 p-3 rounded-full">
-									<Calendar class="w-6 h-6 text-slate-400" />
+								<div class="bg-[rgb(var(--slate-100))] p-3 rounded-full">
+									<Calendar class="w-6 h-6 text-[rgb(var(--slate-400))]" />
 								</div>
 							</div>
-							<p class="text-sm font-medium text-slate-500">Nenhuma visita registrada</p>
-							<p class="text-xs text-slate-400 mt-1">Este profissional ainda não possui visitas cadastradas.</p>
+							<p class="text-sm font-medium text-[rgb(var(--slate-500))]">Nenhuma visita registrada</p>
+							<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Este profissional ainda não possui visitas cadastradas.</p>
 						</div>
 					{:else}
 						<div class="space-y-3">
 							{#each visitasDoProfissional as visita}
-								<div class="bg-slate-50 rounded-xl p-4 border border-slate-100 hover:border-slate-200 transition-colors">
+								<div class="bg-[rgb(var(--slate-50))] rounded-xl p-4 border border-[rgb(var(--slate-100))] hover:border-[rgb(var(--slate-200))] transition-colors">
 									<div class="flex items-center justify-between mb-2">
 										<div class="flex items-center gap-2 text-sm">
-											<Calendar class="w-3.5 h-3.5 text-slate-400" />
-											<span class="font-semibold text-slate-700">
+											<Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+											<span class="font-semibold text-[rgb(var(--slate-700))]">
 												{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
 												às {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
 											</span>
 										</div>
 										<StatusVisitaBadge status={visita.status} />
 									</div>
-									<div class="flex items-center gap-4 text-xs text-slate-500">
+									<div class="flex items-center gap-4 text-xs text-[rgb(var(--slate-500))]">
 										{#if visita.duracaoMinutos}
 											<div class="flex items-center gap-1">
-												<Clock class="w-3 h-3 text-slate-400" />
+												<Clock class="w-3 h-3 text-[rgb(var(--slate-400))]" />
 												<span>{visita.duracaoMinutos} min</span>
 											</div>
 										{/if}
 										{#if visita.materiais && visita.materiais.length > 0}
 											<div class="flex items-center gap-1">
-												<Package class="w-3 h-3 text-slate-400" />
+												<Package class="w-3 h-3 text-[rgb(var(--slate-400))]" />
 												<span>{visita.materiais.length} materiais</span>
 											</div>
 										{/if}
 									</div>
 									{#if visita.objetivoVisita}
-										<p class="text-xs text-slate-600 mt-2 line-clamp-2"><span class="font-medium">Objetivo:</span> {visita.objetivoVisita}</p>
+										<p class="text-xs text-[rgb(var(--slate-600))] mt-2 line-clamp-2"><span class="font-medium">Objetivo:</span> {visita.objetivoVisita}</p>
 									{/if}
 									{#if visita.resumo}
-										<p class="text-xs text-slate-600 mt-1 line-clamp-2"><span class="font-medium">Resumo:</span> {visita.resumo}</p>
+										<p class="text-xs text-[rgb(var(--slate-600))] mt-1 line-clamp-2"><span class="font-medium">Resumo:</span> {visita.resumo}</p>
 									{/if}
 								</div>
 							{/each}
@@ -1465,10 +1475,10 @@
 			</div>
 
 			<!-- Footer -->
-			<div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-100">
+			<div class="flex justify-end gap-3 px-6 py-4 border-t border-[rgb(var(--slate-100))]">
 				<button
 					onclick={() => consultaOpen = false}
-					class="px-4 py-2 text-sm font-medium text-slate-600 border border-transparent hover:bg-slate-50 rounded-lg transition-all duration-200 hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
+					class="px-4 py-2 text-sm font-medium text-[rgb(var(--slate-600))] border border-transparent hover:bg-[rgb(var(--slate-50))] rounded-lg transition-all duration-200 hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
 				>
 					Fechar
 				</button>
@@ -1478,7 +1488,7 @@
 						handleEditarProfissional(profissionalConsulta!);
 					}}
 					class="px-4 py-2 text-sm font-medium text-white shadow-sm rounded-lg transition-all duration-200 hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
-					style="background-color: var(--color-blue-600, #2563eb)"
+					style="background-color: rgb(var(--accent))"
 				>
 					Editar cadastro
 				</button>

@@ -149,12 +149,12 @@
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
-      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
         <CalendarDays class="h-4.5 w-4.5 text-white" />
       </div>
       <div>
-        <h1 class="text-lg font-bold text-slate-800">Histórico de Visitas</h1>
-        <p class="text-xs text-slate-400">Gerencie seu cronograma global de visitas a profissionais</p>
+        <h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Histórico de Visitas</h1>
+        <p class="text-xs text-[rgb(var(--slate-400))]">Gerencie seu cronograma global de visitas a profissionais</p>
       </div>
     </div>
     <Button onclick={handleNovaVisita} class="gap-2">
@@ -163,13 +163,13 @@
   </div>
 
   <!-- Filtros -->
-  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+  <div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-4">
     <div class="flex flex-wrap items-end gap-3">
       <!-- Busca por nome -->
       <div class="flex-1 min-w-[200px]">
-        <label class="block text-xs font-medium text-slate-500 mb-1.5" for="buscaVisita">Buscar por profissional</label>
+        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="buscaVisita">Buscar por profissional</label>
         <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--slate-400))]">
             <Search class="w-4 h-4" />
           </span>
           <input
@@ -178,40 +178,40 @@
             bind:value={filtroBusca}
             onkeydown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
             placeholder="Nome do profissional..."
-            class="block w-full pl-9 rounded-lg border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-slate-50/50"
+            class="block w-full pl-9 rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
           />
         </div>
       </div>
 
       <!-- Data início -->
       <div class="min-w-[160px]">
-        <label class="block text-xs font-medium text-slate-500 mb-1.5" for="dataInicio">Data início</label>
+        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataInicio">Data início</label>
         <input
           id="dataInicio"
           type="date"
           bind:value={filtroDataInicio}
-          class="block w-full rounded-lg border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-slate-50/50"
+          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
         />
       </div>
 
       <!-- Data fim -->
       <div class="min-w-[160px]">
-        <label class="block text-xs font-medium text-slate-500 mb-1.5" for="dataFim">Data fim</label>
+        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataFim">Data fim</label>
         <input
           id="dataFim"
           type="date"
           bind:value={filtroDataFim}
-          class="block w-full rounded-lg border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-slate-50/50"
+          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
         />
       </div>
 
       <!-- Status -->
       <div class="min-w-[150px]">
-        <label class="block text-xs font-medium text-slate-500 mb-1.5" for="filtroStatusVisita">Status</label>
+        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="filtroStatusVisita">Status</label>
         <select 
           id="filtroStatusVisita"
           bind:value={filtroStatus}
-          class="block w-full bg-slate-50/50 rounded-lg border border-slate-200 py-2 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 shadow-sm"
+          class="block w-full bg-[rgb(var(--slate-50))]/50 rounded-lg border border-[rgb(var(--slate-200))] py-2 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 shadow-sm"
         >
           <option value="">Todos</option>
           <option value="AGENDADA">Agendadas</option>
@@ -226,7 +226,7 @@
         <button
           type="button"
           onclick={limparFiltros}
-          class="px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+          class="px-3 py-2 text-xs font-medium text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] border border-[rgb(var(--slate-200))] rounded-lg hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer"
         >
           Limpar
         </button>
@@ -235,47 +235,47 @@
   </div>
 
   <!-- Grid / Tabela -->
-  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+  <div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] overflow-hidden">
     {#if loading}
       <div class="flex justify-center p-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
       </div>
     {:else if visitas.length === 0}
-      <div class="text-center py-20 bg-slate-50">
+      <div class="text-center py-20 bg-[rgb(var(--slate-50))]">
         <div class="flex justify-center mb-4">
           <div class="bg-indigo-100 p-3 rounded-full text-indigo-500">
             <Calendar class="mx-auto h-8 w-8" />
           </div>
         </div>
-        <p class="text-sm font-medium text-slate-700">Nenhuma visita encontrada.</p>
-        <p class="text-xs text-slate-400 mt-1">Cadastre uma nova visita clicando no botão acima.</p>
+        <p class="text-sm font-medium text-[rgb(var(--slate-700))]">Nenhuma visita encontrada.</p>
+        <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Cadastre uma nova visita clicando no botão acima.</p>
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="table-fixed w-full">
           <thead>
-            <tr class="border-b border-slate-100">
-              <th class="text-left p-3.5 text-xs font-medium text-slate-400 uppercase tracking-wider w-[24%]">Profissional</th>
-              <th class="text-left p-3.5 text-xs font-medium text-slate-400 uppercase tracking-wider w-[22%]">Data / Hora</th>
-              <th class="text-center p-3.5 text-xs font-medium text-slate-400 uppercase tracking-wider w-[12%]">Duração</th>
-              <th class="text-center p-3.5 text-xs font-medium text-slate-400 uppercase tracking-wider w-[12%]">Materiais</th>
-              <th class="text-center p-3.5 text-xs font-medium text-slate-400 uppercase tracking-wider w-[18%]">Status</th>
-              <th class="text-center p-3.5 text-xs font-medium text-slate-400 uppercase tracking-wider w-[12%]">Ações</th>
+            <tr class="border-b border-[rgb(var(--slate-100))]">
+              <th class="text-left p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[24%]">Profissional</th>
+              <th class="text-left p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[22%]">Data / Hora</th>
+              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Duração</th>
+              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Materiais</th>
+              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[18%]">Status</th>
+              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Ações</th>
             </tr>
           </thead>
           <tbody>
             {#each visitas as visita}
               {@const passada = isVisitaPassada(visita)}
               <tr 
-                class="border-t border-slate-50 transition-all duration-200 cursor-pointer hover:bg-slate-50/60 group {passada ? 'opacity-70' : ''}"
+                class="border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60 group {passada ? 'opacity-70' : ''}"
                 onclick={(e) => handleEditarVisita(e, visita)}
               >
                 <!-- Profissional -->
                 <td class="p-3.5">
                   <div>
-                    <p class="text-sm font-medium text-slate-900">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
+                    <p class="text-sm font-medium text-[rgb(var(--slate-900))]">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
                     {#if visita.profissional?.especialidade}
-                      <span class="text-xs text-slate-400">
+                      <span class="text-xs text-[rgb(var(--slate-400))]">
                         {visita.profissional.especialidade.nome}
                       </span>
                     {/if}
@@ -284,8 +284,8 @@
 
                 <!-- Data/Hora -->
                 <td class="p-3.5">
-                  <div class="flex items-center gap-1.5 text-sm text-slate-700">
-                    <Calendar class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <div class="flex items-center gap-1.5 text-sm text-[rgb(var(--slate-700))]">
+                    <Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] shrink-0" />
                     <span class="font-medium">
                       {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
                     </span>
@@ -299,19 +299,19 @@
                 <!-- Duração -->
                 <td class="p-3.5 text-center">
                   {#if visita.duracaoMinutos}
-                    <div class="inline-flex items-center gap-1 text-sm text-slate-600">
-                      <Clock class="w-3.5 h-3.5 text-slate-400" />
+                    <div class="inline-flex items-center gap-1 text-sm text-[rgb(var(--slate-600))]">
+                      <Clock class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
                       {visita.duracaoMinutos} min
                     </div>
                   {:else}
-                    <span class="text-sm text-slate-300">—</span>
+                    <span class="text-sm text-[rgb(var(--slate-300))]">—</span>
                   {/if}
                 </td>
 
                 <!-- Materiais -->
                 <td class="p-3.5 text-center">
-                  <div class="inline-flex items-center gap-1 text-sm text-slate-600" title={visita.materiais && visita.materiais.length > 0 ? visita.materiais.map(m => `${m.quantidade}x ${m.materialTecnico?.nome || 'Material'}`).join('\n') : 'Sem materiais'}>
-                    <Package class="w-3.5 h-3.5 text-slate-400" />
+                  <div class="inline-flex items-center gap-1 text-sm text-[rgb(var(--slate-600))]" title={visita.materiais && visita.materiais.length > 0 ? visita.materiais.map(m => `${m.quantidade}x ${m.materialTecnico?.nome || 'Material'}`).join('\n') : 'Sem materiais'}>
+                    <Package class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
                     {visita.materiais?.length || 0}
                   </div>
                 </td>
@@ -328,7 +328,7 @@
                       type="button"
                       onclick={(e) => handleDuplicarVisita(e, visita)}
                       class="p-2 rounded-lg transition-all duration-200 cursor-pointer
-                        text-slate-500 opacity-60 hover:opacity-100 hover:text-indigo-600 hover:bg-slate-100"
+                        text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-indigo-600 hover:bg-[rgb(var(--slate-100))]"
                       title="Duplicar visita"
                     >
                       <Copy class="w-3.5 h-3.5" />
@@ -338,7 +338,7 @@
                       onclick={(e) => handleExcluirVisita(e, visita)}
                       disabled={passada}
                       class="p-2 rounded-lg transition-all duration-200 cursor-pointer
-                        {passada ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-slate-100'}"
+                        {passada ? 'text-[rgb(var(--slate-300))] cursor-not-allowed' : 'text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))]'}"
                       title={passada ? 'Visita já ocorrida' : 'Excluir visita'}
                     >
                       <Trash2 class="w-3.5 h-3.5" />
@@ -353,8 +353,8 @@
 
       <!-- Paginação -->
       {#if pagination.totalPages > 1}
-        <div class="bg-slate-50/80 border-t border-slate-100 px-5 py-3 flex justify-between items-center">
-          <span class="text-sm text-slate-500 font-medium">
+        <div class="bg-[rgb(var(--slate-50))]/80 border-t border-[rgb(var(--slate-100))] px-5 py-3 flex justify-between items-center">
+          <span class="text-sm text-[rgb(var(--slate-500))] font-medium">
             Página {pagination.page} de {pagination.totalPages} ({pagination.total} registros)
           </span>
           <div class="flex items-center gap-1">
@@ -362,7 +362,7 @@
               type="button"
               disabled={pagination.page <= 1}
               onclick={() => loadVisitas(pagination.page - 1)}
-              class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft class="w-4 h-4" />
             </button>
@@ -370,7 +370,7 @@
               type="button"
               disabled={pagination.page >= pagination.totalPages}
               onclick={() => loadVisitas(pagination.page + 1)}
-              class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight class="w-4 h-4" />
             </button>

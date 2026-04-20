@@ -30,22 +30,22 @@
   <!-- Contato principal -->
   {#if telefone || email}
     <div>
-      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Contato Principal</h3>
+      <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest mb-4">Contato Principal</h3>
       <div class="space-y-3">
         {#if telefone}
           <a href="tel:{telefone.replace(/\D/g, '')}" class="flex items-center gap-3 mb-4">
-            <Phone class="w-4 h-4 text-slate-400 shrink-0" />
+            <Phone class="w-4 h-4 text-[rgb(var(--slate-400))] shrink-0" />
             <div>
-              <span class="block text-xs font-bold text-slate-400 uppercase">Telefone</span>
+              <span class="block text-xs font-bold text-[rgb(var(--slate-400))] uppercase">Telefone</span>
               <span class="block text-sm font-semibold text-blue-600 hover:text-blue-700">{telefone}</span>
             </div>
           </a>
         {/if}
         {#if email}
           <a href="mailto:{email}" class="flex items-center gap-3 mb-4">
-            <Mail class="w-4 h-4 text-slate-400 shrink-0" />
+            <Mail class="w-4 h-4 text-[rgb(var(--slate-400))] shrink-0" />
             <div>
-              <span class="block text-xs font-bold text-slate-400 uppercase">E-mail</span>
+              <span class="block text-xs font-bold text-[rgb(var(--slate-400))] uppercase">E-mail</span>
               <span class="block text-sm font-semibold text-blue-600 hover:text-blue-700 break-all">{email}</span>
             </div>
           </a>
@@ -57,17 +57,17 @@
   <!-- Contatos adicionais -->
   {#if contatos.length > 0}
     <div>
-      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Contatos Adicionais</h3>
+      <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest mb-4">Contatos Adicionais</h3>
       <div class="space-y-3">
         {#each contatos as contato}
           {@const Icon = contatoIcon[contato.tipo] ?? Phone}
           <div class="flex items-center gap-3 mb-4">
-            <Icon class="w-4 h-4 text-slate-400 shrink-0" />
+            <Icon class="w-4 h-4 text-[rgb(var(--slate-400))] shrink-0" />
             <div>
-              <span class="block text-xs font-bold text-slate-400 uppercase">{contatoLabel[contato.tipo] ?? contato.tipo}</span>
-              <span class="block text-sm font-semibold text-slate-800">{contato.valor}</span>
+              <span class="block text-xs font-bold text-[rgb(var(--slate-400))] uppercase">{contatoLabel[contato.tipo] ?? contato.tipo}</span>
+              <span class="block text-sm font-semibold text-[rgb(var(--slate-800))]">{contato.valor}</span>
               {#if contato.observacao}
-                <span class="block text-xs text-slate-500 italic mt-0.5">{contato.observacao}</span>
+                <span class="block text-xs text-[rgb(var(--slate-500))] italic mt-0.5">{contato.observacao}</span>
               {/if}
             </div>
           </div>
@@ -82,18 +82,18 @@
     {@const cidadeUf = [endereco.cidade, endereco.estado].filter(Boolean).join(' / ')}
     {#if enderecoStr || cidadeUf}
       <div>
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Endereço</h3>
+        <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest mb-4">Endereço</h3>
         <div class="flex items-start gap-3">
-          <MapPin class="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+          <MapPin class="w-4 h-4 text-[rgb(var(--slate-400))] mt-0.5 shrink-0" />
           <div>
             {#if enderecoStr}
-              <span class="block text-sm font-semibold text-slate-800">{enderecoStr}</span>
+              <span class="block text-sm font-semibold text-[rgb(var(--slate-800))]">{enderecoStr}</span>
             {/if}
             {#if endereco.bairro}
-              <span class="block text-xs text-slate-500 mt-0.5">{endereco.bairro}</span>
+              <span class="block text-xs text-[rgb(var(--slate-500))] mt-0.5">{endereco.bairro}</span>
             {/if}
             {#if cidadeUf}
-              <span class="block text-xs text-slate-500 mt-0.5">{cidadeUf}{endereco.cep ? ` · CEP ${endereco.cep}` : ''}</span>
+              <span class="block text-xs text-[rgb(var(--slate-500))] mt-0.5">{cidadeUf}{endereco.cep ? ` · CEP ${endereco.cep}` : ''}</span>
             {/if}
           </div>
         </div>

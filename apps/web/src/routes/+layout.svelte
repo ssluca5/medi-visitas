@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
+	import MobileNav from '$lib/components/MobileNav.svelte';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -33,11 +34,12 @@
 </svelte:head>
 
 {#if isDashboard}
-	<div class="flex h-screen w-full overflow-hidden bg-slate-50">
+	<div class="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-[rgb(var(--slate-50))]">
+		<MobileNav userName={data.userName ?? 'Usuário'} sessionToken={data.sessionToken} />
 		<Sidebar userName={data.userName ?? 'Usuário'} sessionToken={data.sessionToken} />
 
 		<main class="flex-1 min-w-0 h-full overflow-y-auto">
-			<div class="p-8">
+			<div class="p-4 lg:p-8">
 				{@render children()}
 			</div>
 		</main>

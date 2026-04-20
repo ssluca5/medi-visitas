@@ -21,7 +21,7 @@
 		ESTRATEGICO: 'bg-violet-50 text-violet-700 ring-1 ring-violet-300',
 		ALTO: 'bg-amber-50 text-amber-700 ring-1 ring-amber-300',
 		MEDIO: 'bg-blue-50 text-blue-700 ring-1 ring-blue-300',
-		BAIXO: 'bg-slate-50 text-slate-600 ring-1 ring-slate-200'
+		BAIXO: 'bg-[rgb(var(--slate-50))] text-[rgb(var(--slate-600))] ring-1 ring-slate-200'
 	};
 
 	function formatDias(dias: number | null): string {
@@ -40,8 +40,8 @@
 			<TrendingUp class="h-4 w-4 text-blue-600" />
 		</div>
 		<div>
-			<h3 class="text-sm font-semibold text-slate-800">Sugestões</h3>
-			<p class="text-[10px] text-slate-400">Quem você deve visitar</p>
+			<h3 class="text-sm font-semibold text-[rgb(var(--slate-800))]">Sugestões</h3>
+			<p class="text-[10px] text-[rgb(var(--slate-400))]">Quem você deve visitar</p>
 		</div>
 	</div>
 
@@ -53,31 +53,31 @@
 		</div>
 	{:else if sugestoes.length === 0}
 		<div class="text-center py-8">
-			<p class="text-sm text-slate-400">Nenhuma sugestão disponível</p>
+			<p class="text-sm text-[rgb(var(--slate-400))]">Nenhuma sugestão disponível</p>
 		</div>
 	{:else}
 		<div class="space-y-3 flex-1 overflow-y-auto">
 			{#each sugestoes.slice(0, 10) as sug}
 				<div
-					class="group bg-white border border-slate-200 shadow-sm rounded-xl p-4 
+					class="group bg-white border border-[rgb(var(--slate-200))] shadow-sm rounded-xl p-4 will-change-transform 
 						transition-all duration-200 ease-out 
-						hover:-translate-y-[2px] hover:shadow-md hover:border-slate-300"
+						hover:-translate-y-[2px] hover:shadow-md hover:border-[rgb(var(--slate-300))]"
 				>
 					<div class="flex items-start justify-between gap-2">
 						<div class="min-w-0 flex-1">
 							<p
-								class="text-[13px] font-semibold text-slate-700 truncate group-hover:text-slate-900 transition-colors"
+								class="text-[13px] font-semibold text-[rgb(var(--slate-700))] truncate group-hover:text-[rgb(var(--slate-900))] transition-colors"
 							>
 								{sug.profissional.nome}
 							</p>
 							{#if sug.profissional.especialidade}
-								<p class="text-[10px] text-slate-400 mt-0.5 truncate">
+								<p class="text-[10px] text-[rgb(var(--slate-400))] mt-0.5 truncate">
 									{sug.profissional.especialidade.nome}
 								</p>
 							{/if}
 						</div>
 						<div
-							class="flex items-center gap-1 rounded-md px-1.5 py-0.5 bg-slate-50 text-[10px] font-bold text-slate-600"
+							class="flex items-center gap-1 rounded-md px-1.5 py-0.5 bg-[rgb(var(--slate-50))] text-[10px] font-bold text-[rgb(var(--slate-600))]"
 							title="Pontuação de prioridade"
 						>
 							<TrendingUp class="h-2.5 w-2.5" />
@@ -91,7 +91,7 @@
 						>
 							{potencialLabels[sug.profissional.potencial]}
 						</span>
-						<span class="flex items-center gap-1 text-[10px] text-slate-400">
+						<span class="flex items-center gap-1 text-[10px] text-[rgb(var(--slate-400))]">
 							<Clock class="h-2.5 w-2.5" />
 							{formatDias(sug.diasSemVisita)}
 						</span>

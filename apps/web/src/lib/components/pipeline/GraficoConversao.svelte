@@ -95,14 +95,14 @@
   }
 </script>
 
-<div class="card-surface p-5">
+<div class="card-surface p-5" style="content-visibility: auto; contain-intrinsic-size: 400px 380px;">
   <div class="mb-4">
-    <h3 class="text-base font-bold text-slate-800">Evolução do Pipeline</h3>
-    <p class="text-xs text-slate-500 mt-1">Acompanhe a progressão dos profissionais por estágio</p>
+    <h3 class="text-base font-bold text-[rgb(var(--slate-800))]">Evolução do Pipeline</h3>
+    <p class="text-xs text-[rgb(var(--slate-500))] mt-1">Acompanhe a progressão dos profissionais por estágio</p>
   </div>
   {#if dados.length === 0}
-    <div class="flex items-center justify-center h-[300px] rounded-lg border border-dashed border-slate-200">
-      <p class="text-[11px] text-slate-400">Sem dados para o período selecionado</p>
+    <div class="flex items-center justify-center h-[300px] rounded-lg border border-dashed border-[rgb(var(--slate-200))]">
+      <p class="text-[11px] text-[rgb(var(--slate-400))]">Sem dados para o período selecionado</p>
     </div>
   {:else}
     <div bind:this={containerEl} class="overflow-x-auto relative h-[300px]">
@@ -132,7 +132,7 @@
             x={PADDING.left - 6}
             y={y + 3}
             text-anchor="end"
-            class="fill-slate-300 text-[9px]"
+            class="fill-[rgb(var(--slate-300))] text-[9px]"
           >
             {Math.round(maxValor * ratio)}
           </text>
@@ -208,7 +208,7 @@
             x={xScale(i)}
             y={HEIGHT - 8}
             text-anchor="middle"
-            class="fill-slate-400 text-[9px]"
+            class="fill-[rgb(var(--slate-400))] text-[9px]"
           >
             {d.label}
           </text>
@@ -218,7 +218,7 @@
       <!-- Tooltip overlay -->
       {#if tooltip}
         <div
-          class="absolute pointer-events-none z-10 bg-slate-800 text-white rounded-lg px-3 py-2 shadow-lg text-[11px] leading-relaxed min-w-[140px]"
+          class="absolute pointer-events-none z-10 bg-[rgb(var(--slate-800))] text-white rounded-lg px-3 py-2 shadow-lg text-[11px] leading-relaxed min-w-[140px]"
           style="left: {Math.max(80, Math.min(tooltip.x, (containerEl?.clientWidth ?? 400) - 80))}px; top: {tooltip.y}px; transform: translate(-50%, {tooltip.side === 'above' ? '-100%' : '12px'});"
         >
           <p class="font-semibold mb-1">{tooltip.d.label}</p>
@@ -241,7 +241,7 @@
       {#each ESTAGIOS as estagio}
         <div class="flex items-center gap-1.5">
           <div class="h-2.5 w-2.5 rounded-full" style="background-color: {estagio.hex}"></div>
-          <span class="text-[11px] text-slate-500 font-medium">{estagio.label}</span>
+          <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">{estagio.label}</span>
         </div>
       {/each}
     </div>

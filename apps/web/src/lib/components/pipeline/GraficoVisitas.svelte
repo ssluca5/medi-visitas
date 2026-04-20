@@ -22,9 +22,9 @@
   const svgWidth = $derived(Math.max(400, dados.length * (BAR_GROUP_WIDTH + GAP * 3) + PADDING.left + PADDING.right));
 
   const COLORS = {
-    REALIZADA: '#2563eb',
-    AGENDADA: '#bae6fd',
-    CANCELADA: '#94a3b8',
+    REALIZADA: 'rgb(var(--accent))',
+    AGENDADA: 'rgb(186 230 253)',
+    CANCELADA: 'rgb(148 163 184)',
   };
 
   // Tooltip state
@@ -79,14 +79,14 @@
   }
 </script>
 
-<div class="card-surface p-5">
+<div class="card-surface p-5" style="content-visibility: auto; contain-intrinsic-size: 400px 380px;">
   <div class="mb-4">
-    <h3 class="text-base font-bold text-slate-800">Visitas por Período</h3>
-    <p class="text-xs text-slate-500 mt-1">Comparativo de status ao longo das semanas</p>
+    <h3 class="text-base font-bold text-[rgb(var(--slate-800))]">Visitas por Período</h3>
+    <p class="text-xs text-[rgb(var(--slate-500))] mt-1">Comparativo de status ao longo das semanas</p>
   </div>
   {#if dados.length === 0}
-    <div class="flex items-center justify-center h-[300px] rounded-lg border border-dashed border-slate-200">
-      <p class="text-[11px] text-slate-400">Sem dados para o período selecionado</p>
+    <div class="flex items-center justify-center h-[300px] rounded-lg border border-dashed border-[rgb(var(--slate-200))]">
+      <p class="text-[11px] text-[rgb(var(--slate-400))]">Sem dados para o período selecionado</p>
     </div>
   {:else}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -165,7 +165,7 @@
             x={x + BAR_GROUP_WIDTH / 2}
             y={HEIGHT - 8}
             text-anchor="middle"
-            class="fill-slate-400 text-[10px]"
+            class="fill-[rgb(var(--slate-400))] text-[10px]"
           >
             {d.label}
           </text>
@@ -175,7 +175,7 @@
       <!-- Tooltip overlay -->
       {#if tooltip}
         <div
-          class="absolute pointer-events-none z-10 bg-slate-800 text-white rounded-lg px-3 py-2 shadow-lg text-[11px] leading-relaxed"
+          class="absolute pointer-events-none z-10 bg-[rgb(var(--slate-800))] text-white rounded-lg px-3 py-2 shadow-lg text-[11px] leading-relaxed"
           style="left: {Math.max(60, Math.min(tooltip.x, (containerEl?.clientWidth ?? 400) - 60))}px; top: {tooltip.y}px; transform: translate(-50%, {tooltip.side === 'above' ? '-100%' : '12px'});"
         >
           <p class="font-semibold mb-1">{tooltip.d.label}</p>
@@ -199,15 +199,15 @@
     <div class="flex items-center justify-center gap-4 mt-3">
       <div class="flex items-center gap-1.5">
         <div class="h-2.5 w-2.5 rounded-sm" style="background-color: {COLORS.REALIZADA}"></div>
-        <span class="text-[11px] text-slate-500 font-medium">Realizada</span>
+        <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">Realizada</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="h-2.5 w-2.5 rounded-sm" style="background-color: {COLORS.AGENDADA}"></div>
-        <span class="text-[11px] text-slate-500 font-medium">Agendada</span>
+        <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">Agendada</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="h-2.5 w-2.5 rounded-sm" style="background-color: {COLORS.CANCELADA}"></div>
-        <span class="text-[11px] text-slate-500 font-medium">Cancelada</span>
+        <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">Cancelada</span>
       </div>
     </div>
   {/if}

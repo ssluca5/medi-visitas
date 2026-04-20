@@ -51,33 +51,33 @@
 </script>
 
 <div class="relative">
-  <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-all duration-200 focus-within:border-blue-300 focus-within:bg-white focus-within:shadow-sm">
-    <Search class="h-4 w-4 text-slate-400 shrink-0" />
+  <div class="flex items-center gap-2 rounded-lg border border-[rgb(var(--slate-200))] bg-[rgb(var(--slate-50))] px-3 py-2 transition-all duration-200 focus-within:border-blue-300 focus-within:bg-white focus-within:shadow-sm">
+    <Search class="h-4 w-4 text-[rgb(var(--slate-400))] shrink-0" />
     <input
       type="text"
       placeholder="Buscar profissionais..."
       bind:value={query}
       onblur={handleBlur}
       onfocus={() => { if (resultados.length > 0) aberto = true; }}
-      class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
+      class="w-full bg-transparent text-sm text-[rgb(var(--slate-700))] placeholder:text-[rgb(var(--slate-400))] outline-none"
     />
     {#if query}
-      <button onclick={() => { query = ''; resultados = []; aberto = false; }} class="text-slate-400 hover:text-slate-600 cursor-pointer">
+      <button onclick={() => { query = ''; resultados = []; aberto = false; }} class="text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] cursor-pointer">
         <X class="h-4 w-4" />
       </button>
     {/if}
   </div>
 
   {#if aberto}
-    <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-slate-200 shadow-lg z-50 max-h-80 overflow-y-auto">
+    <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-[rgb(var(--slate-200))] shadow-lg z-50 max-h-80 overflow-y-auto">
       {#each resultados as r}
         <button
           type="button"
           onclick={() => handleSelect(r)}
-          class="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 cursor-pointer"
+          class="w-full text-left px-4 py-3 hover:bg-[rgb(var(--slate-50))] transition-colors border-b border-[rgb(var(--slate-50))] last:border-0 cursor-pointer"
         >
-          <p class="text-sm font-medium text-slate-800">{r.nome}</p>
-          <p class="text-xs text-slate-400 mt-0.5">
+          <p class="text-sm font-medium text-[rgb(var(--slate-800))]">{r.nome}</p>
+          <p class="text-xs text-[rgb(var(--slate-400))] mt-0.5">
             {#if r.crm}{r.crm}{/if}
             {#if r.especialidade} · {r.especialidade}{/if}
             {#if r.cidade} · {r.cidade}{/if}

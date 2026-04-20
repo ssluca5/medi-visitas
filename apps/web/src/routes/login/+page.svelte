@@ -23,7 +23,8 @@
 			</p>
 			<a
 				href={redirectUrl}
-				class="inline-flex items-center justify-center w-full h-11 rounded-[var(--radius)] bg-[rgb(var(--accent))] text-white font-medium text-sm transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md active:scale-[0.98]"
+			aria-label="Entrar com Clerk"
+				class="inline-flex items-center justify-center w-full h-11 rounded-[var(--radius)] bg-[rgb(var(--accent))] text-white font-medium text-sm will-change-transform transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md active:scale-[0.98]"
 			>
 				Entrar com Clerk
 			</a>

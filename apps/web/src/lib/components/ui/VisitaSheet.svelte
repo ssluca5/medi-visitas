@@ -231,10 +231,10 @@
   <div class="flex h-full flex-col">
     <!-- Header -->
     <div class="mb-6">
-      <h2 class="text-lg font-semibold text-slate-900">
+      <h2 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
         {isReadOnly ? 'Detalhes da Visita' : (duplicateSource ? 'Duplicar Visita' : (visita?.id ? 'Editar Visita' : 'Registrar Visita'))}
       </h2>
-      <p class="mt-1 text-sm text-slate-400">
+      <p class="mt-1 text-sm text-[rgb(var(--slate-400))]">
         {isReadOnly ? 'Esta visita já foi executada e não pode ser alterada.' : (duplicateSource ? 'Altere os dados e salve para criar uma nova visita.' : 'Preencha os detalhes e os materiais entregues.')}
       </p>
     </div>
@@ -252,30 +252,30 @@
           {#if profissionalId && !visita?.profissionalId}
             {#if typeof profissionalId === 'string' && profissionalNome}
               <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Profissional</label>
-                <div class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 font-medium">
+                <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</label>
+                <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-[rgb(var(--slate-700))] font-medium">
                   {profissionalNome}
                 </div>
               </div>
             {/if}
           {:else if visita?.profissionalId}
             <div class="mb-4">
-              <label class="block text-sm font-medium text-slate-700 mb-1.5">Profissional</label>
-              <div class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 font-medium">
+              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</label>
+              <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-[rgb(var(--slate-700))] font-medium">
                 {visita.profissional?.nome || 'Profissional'}
               </div>
             </div>
           {:else if !profissionalId && !visita?.profissionalId}
             <div class="relative">
-              <label class="block text-sm font-medium text-slate-700 mb-1.5" for="profissionalBusca">Selecione o Profissional</label>
+              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="profissionalBusca">Selecione o Profissional</label>
               {#if selectedProfissionalForNew}
-                <div class="flex items-center justify-between border border-slate-200 rounded-lg py-2 px-3 bg-indigo-50">
-                  <span class="text-sm font-medium text-slate-800">{selectedProfissionalForNew.nome}</span>
+                <div class="flex items-center justify-between border border-[rgb(var(--slate-200))] rounded-lg py-2 px-3 bg-indigo-50">
+                  <span class="text-sm font-medium text-[rgb(var(--slate-800))]">{selectedProfissionalForNew.nome}</span>
                   <button type="button" class="text-xs text-indigo-600 hover:underline" onclick={() => selectedProfissionalForNew = null}>Trocar</button>
                 </div>
               {:else}
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--slate-400))] pointer-events-none">
                     <Search class="w-4 h-4" />
                   </span>
                   <input
@@ -291,16 +291,16 @@
                   />
                 </div>
                 {#if isComboBoxOpen && profissionaisFiltrados.length > 0}
-                  <div class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  <div class="absolute z-50 mt-1 w-full bg-white border border-[rgb(var(--slate-200))] rounded-lg shadow-lg max-h-48 overflow-y-auto">
                     {#each profissionaisFiltrados as prof}
                       <button
                         type="button"
                         onclick={() => { selectedProfissionalForNew = prof; isComboBoxOpen = false; searchQuery = ''; }}
-                        class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 transition-colors"
+                        class="w-full text-left px-4 py-2 text-sm hover:bg-[rgb(var(--slate-50))] transition-colors"
                       >
-                        <div class="font-medium text-slate-800">{prof.nome}</div>
+                        <div class="font-medium text-[rgb(var(--slate-800))]">{prof.nome}</div>
                         {#if prof.especialidade}
-                          <div class="text-xs text-slate-500">{prof.especialidade.nome}</div>
+                          <div class="text-xs text-[rgb(var(--slate-500))]">{prof.especialidade.nome}</div>
                         {/if}
                       </button>
                     {/each}
@@ -311,7 +311,7 @@
           {/if}
 
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5" for="dataVisita">Data e Hora</label>
+            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="dataVisita">Data e Hora</label>
             <input
               type="datetime-local"
               id="dataVisita"
@@ -319,19 +319,19 @@
               bind:value={dataVisita}
               required
               disabled={isReadOnly}
-              class="input-base disabled:bg-slate-50 disabled:text-slate-500"
+              class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1.5" for="status">Status</label>
+              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="status">Status</label>
               <select
                 id="status"
                 name="status"
                 bind:value={status}
                 disabled={isReadOnly}
-                class="input-base disabled:bg-slate-50 disabled:text-slate-500"
+                class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
               >
                 <option value="AGENDADA">Agendada</option>
                 <option value="REALIZADA">Realizada</option>
@@ -341,14 +341,14 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1.5" for="duracaoMinutos">Duração (min)</label>
+              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="duracaoMinutos">Duração (min)</label>
               <input
                 type="number"
                 id="duracaoMinutos"
                 name="duracaoMinutos"
                 bind:value={duracaoMinutos}
                 disabled={isReadOnly}
-                class="input-base disabled:bg-slate-50 disabled:text-slate-500"
+                class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
                 placeholder="e.g. 30"
               />
             </div>
@@ -356,41 +356,41 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5" for="objetivoVisita">Objetivo da Visita</label>
+          <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="objetivoVisita">Objetivo da Visita</label>
           <textarea
             id="objetivoVisita"
             name="objetivoVisita"
             rows="3"
             bind:value={objetivoVisita}
             disabled={isReadOnly}
-            class="resize-none input-base disabled:bg-slate-50 disabled:text-slate-500"
+            class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
             placeholder="Apresentação do produto X"
           ></textarea>
         </div>
 
         {#if status === 'REALIZADA' || (isReadOnly && visita?.status === 'REALIZADA')}
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5" for="resumo">Resumo da Visita / Feedback</label>
+            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="resumo">Resumo da Visita / Feedback</label>
             <textarea
               id="resumo"
               name="resumo"
               rows="3"
               bind:value={resumo}
               disabled={isReadOnly}
-              class="resize-none input-base disabled:bg-slate-50 disabled:text-slate-500"
+              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
               placeholder="O médico gostou da amostra..."
             ></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5" for="proximaAcao">Próxima Ação / Follow-up</label>
+            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="proximaAcao">Próxima Ação / Follow-up</label>
             <input
               type="text"
               id="proximaAcao"
               name="proximaAcao"
               bind:value={proximaAcao}
               disabled={isReadOnly}
-              class="input-base disabled:bg-slate-50 disabled:text-slate-500"
+              class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
               placeholder="Retornar daqui a 30 dias"
             />
           </div>
@@ -398,14 +398,14 @@
 
         {#if status === 'CANCELADA' || (isReadOnly && visita?.status === 'CANCELADA')}
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5" for="motivoCancelamento">Motivo do Cancelamento</label>
+            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="motivoCancelamento">Motivo do Cancelamento</label>
             <textarea
               id="motivoCancelamento"
               name="motivoCancelamento"
               rows="3"
               bind:value={motivoCancelamento}
               disabled={isReadOnly}
-              class="resize-none input-base disabled:bg-slate-50 disabled:text-slate-500"
+              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
               placeholder="Descreva o motivo do cancelamento..."
             ></textarea>
           </div>
@@ -413,31 +413,31 @@
 
         {#if status === 'NAO_REALIZADA' || (isReadOnly && visita?.status === 'NAO_REALIZADA')}
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5" for="motivoNaoRealizacao">Motivo da Não Realização</label>
+            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="motivoNaoRealizacao">Motivo da Não Realização</label>
             <textarea
               id="motivoNaoRealizacao"
               name="motivoNaoRealizacao"
               rows="3"
               bind:value={motivoNaoRealizacao}
               disabled={isReadOnly}
-              class="resize-none input-base disabled:bg-slate-50 disabled:text-slate-500"
+              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
               placeholder="Descreva o motivo da não realização..."
             ></textarea>
           </div>
         {/if}
 
-        <hr class="border-slate-200" />
+        <hr class="border-[rgb(var(--slate-200))]" />
 
         <!-- Componente de Materiais -->
         <div>
-          <h3 class="text-sm font-semibold text-slate-800 mb-3">Materiais / Amostras</h3>
+          <h3 class="text-sm font-semibold text-[rgb(var(--slate-800))] mb-3">Materiais / Amostras</h3>
           <MaterialSelector {materiaisOptions} bind:selections={selections} {isReadOnly} />
         </div>
       </form>
     </div>
 
     <!-- Footer Actions -->
-    <div class="mt-auto border-t border-slate-100 pt-4 pb-2">
+    <div class="mt-auto border-t border-[rgb(var(--slate-100))] pt-4 pb-2">
       <div class="flex justify-between gap-3">
         {#if canDelete}
           <Button variant="destructive" type="button" onclick={handleExcluir} disabled={loading}>

@@ -51,21 +51,23 @@
 </script>
 
 <!-- Header -->
-<div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-	<p class="text-sm font-semibold text-slate-900">
+<div class="flex items-center justify-between px-4 py-3 border-b border-[rgb(var(--slate-200))]">
+	<p class="text-sm font-semibold text-[rgb(var(--slate-900))]">
 		Notificações
 		{#if naoLidasCount > 0}
 			<span
 				class="ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-medium text-white"
-				style="background-color: #2563eb;">{naoLidasCount}</span
+				style="background-color: rgb(var(--accent));"
+				aria-label="{naoLidasCount} não lidas">{naoLidasCount}</span
 			>
 		{/if}
 	</p>
 	{#if naoLidasCount > 0}
 		<button
 			class="text-xs font-medium transition-colors duration-200 cursor-pointer"
-			style="color: #2563eb;"
+			style="color: rgb(var(--accent));"
 			onclick={marcarTodasLidas}
+			aria-label="Marcar todas as notificações como lidas"
 		>
 			Marcar todas como lidas
 		</button>
@@ -73,15 +75,15 @@
 </div>
 
 <!-- Lista -->
-<div class="max-h-96 overflow-y-auto divide-y divide-slate-100">
+<div role="list" aria-label="Lista de notificações" class="max-h-96 overflow-y-auto divide-y divide-[rgb(var(--slate-100))]">
 	{#if loading}
-		<div class="flex items-center justify-center py-8">
-			<p class="text-sm text-slate-400">Carregando...</p>
+		<div class="flex items-center justify-center py-8" aria-live="polite">
+			<p class="text-sm text-[rgb(var(--slate-400))]">Carregando...</p>
 		</div>
 	{:else if notificacoes.length === 0}
 		<div class="flex flex-col items-center justify-center py-8 gap-2">
-			<Bell class="w-8 h-8 text-slate-200" />
-			<p class="text-sm text-slate-400">Nenhuma notificação</p>
+			<Bell class="w-8 h-8 text-[rgb(var(--slate-200))]" />
+			<p class="text-sm text-[rgb(var(--slate-400))]">Nenhuma notificação</p>
 		</div>
 	{:else}
 		{#each notificacoes as notif (notif.id)}
@@ -102,11 +104,11 @@
 </div>
 
 <!-- Footer -->
-<div class="border-t border-slate-200 px-4 py-2.5">
+<div class="border-t border-[rgb(var(--slate-200))] px-4 py-2.5">
 	<a
 		href="/dashboard/notificacoes"
 		class="text-xs font-medium block text-center transition-colors duration-200"
-		style="color: #2563eb;"
+		style="color: rgb(var(--accent));"
 		onclick={onFechar}
 	>
 		Ver histórico completo →

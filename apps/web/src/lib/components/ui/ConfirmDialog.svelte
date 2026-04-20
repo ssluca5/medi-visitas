@@ -66,8 +66,11 @@
 
 		<!-- Dialog Card -->
 		<div
-			class="relative z-10 w-full max-w-md mx-4 rounded-2xl shadow-2xl bg-white border border-slate-200/80"
+			class="relative z-10 w-full max-w-md mx-4 rounded-2xl shadow-2xl bg-white border border-[rgb(var(--slate-200))]/80"
 			transition:scale={{ start: 0.95, duration: 200, easing: cubicOut }}
+			role="alertdialog"
+			aria-modal="true"
+			aria-labelledby="confirm-dialog-title"
 		>
 			<div class="p-7">
 				<!-- Header: Icon + Text -->
@@ -82,11 +85,11 @@
 						{/if}
 					</div>
 					<div class="flex-1 pt-0.5">
-						<h3 class="text-lg font-semibold text-slate-900">{title}</h3>
+						<h3 id="confirm-dialog-title" class="text-lg font-semibold text-[rgb(var(--slate-900))]">{title}</h3>
 						{#if description}
 							<div
-								class="text-sm text-slate-600 mt-2 leading-relaxed
-									[&>strong]:text-slate-700 [&>strong]:font-medium
+								class="text-sm text-[rgb(var(--slate-600))] mt-2 leading-relaxed
+									[&>strong]:text-[rgb(var(--slate-700))] [&>strong]:font-medium
 									[&>p+p]:mt-3"
 							>
 								{@render description()}
@@ -102,8 +105,8 @@
 							onclick={onclose}
 							disabled={loading}
 							class="px-4 py-2 rounded-lg text-sm font-medium
-								bg-white border border-slate-300 text-slate-700
-								hover:bg-slate-50 hover:-translate-y-[1px]
+								bg-white border border-[rgb(var(--slate-300))] text-[rgb(var(--slate-700))]
+								will-change-transform hover:bg-[rgb(var(--slate-50))] hover:-translate-y-[1px]
 								active:scale-[0.98] transition-all duration-200
 								cursor-pointer disabled:opacity-50 shadow-sm"
 						>
@@ -113,9 +116,10 @@
 						<button
 							onclick={onclose}
 							disabled={loading}
+							aria-label={cancelLabel}
 							class="px-4 py-2 rounded-lg text-sm font-medium
-								bg-white border border-slate-300 text-slate-700
-								hover:bg-slate-50 hover:-translate-y-[1px]
+								bg-white border border-[rgb(var(--slate-300))] text-[rgb(var(--slate-700))]
+								will-change-transform hover:bg-[rgb(var(--slate-50))] hover:-translate-y-[1px]
 								active:scale-[0.98] transition-all duration-200
 								cursor-pointer disabled:opacity-50"
 						>
@@ -124,8 +128,9 @@
 						<button
 							onclick={onconfirm}
 							disabled={loading}
+							aria-label={confirmLabel}
 							class="px-4 py-2 rounded-lg text-sm font-medium text-white shadow-sm
-								hover:-translate-y-[1px] active:scale-[0.98]
+								will-change-transform hover:-translate-y-[1px] active:scale-[0.98]
 								transition-all duration-200 cursor-pointer
 								disabled:opacity-50 {confirmBtnMap[variant]}"
 						>

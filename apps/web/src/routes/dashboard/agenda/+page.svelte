@@ -10,11 +10,13 @@
 	import CalendarioSemanal from '$lib/components/ui/CalendarioSemanal.svelte';
 	import CalendarioMensal from '$lib/components/ui/CalendarioMensal.svelte';
 	import PainelSugestoes from '$lib/components/ui/PainelSugestoes.svelte';
-	import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
 	import type { Visita, MaterialTecnico } from '$lib/types';
 	import Button from '$lib/components/ui/Button.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import { CalendarDays, CalendarRange, Plus, Sparkles } from 'lucide-svelte';
+
+	// Lazy-loaded: only needed when user opens the sheet
+	const VisitaSheetPromise = import('$lib/components/ui/VisitaSheet.svelte').then(m => m.default);
 
 	interface Props {
 		data: { sessionToken: string | null };
@@ -159,8 +161,8 @@
 
 	onMount(() => {
 		loadItems();
-		loadSugestoes();
-		loadMateriais();
+		// Defer non-critical loads so calendar renders first
+		setTimeout(() => { loadSugestoes(); loadMateriais(); }, 0);
 	});
 
 	// Reload on navigation
@@ -228,25 +230,27 @@
 	<!-- Top bar -->
 	<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
 		<div class="flex items-center gap-3">
-			<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+			<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
 				<CalendarDays class="h-4.5 w-4.5 text-white" />
 			</div>
 			<div>
-				<h1 class="text-lg font-bold text-slate-800">Agenda</h1>
-				<p class="text-[11px] text-slate-400">Planeje visitas e acompanhe compromissos</p>
+				<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Agenda</h1>
+				<p class="text-[11px] text-[rgb(var(--slate-400))]">Planeje visitas e acompanhe compromissos</p>
 			</div>
 		</div>
 
 		<div class="flex items-center gap-2">
 			<!-- Toggle view -->
-			<div class="flex rounded-lg bg-slate-100 p-0.5">
+			<div class="flex rounded-lg bg-[rgb(var(--slate-100))] p-0.5">
 				<button
 					type="button"
 					class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 						{viewMode === 'semanal'
-						? 'bg-white text-slate-800 shadow-sm'
-						: 'text-slate-500 hover:text-slate-700'}"
+						? 'bg-white text-[rgb(var(--slate-800))] shadow-sm'
+						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
 					onclick={() => (viewMode = 'semanal')}
+					aria-pressed={viewMode === 'semanal'}
+					aria-label="Visualizar por semana"
 				>
 					<CalendarRange class="h-3.5 w-3.5" />
 					Semana
@@ -255,9 +259,11 @@
 					type="button"
 					class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 						{viewMode === 'mensal'
-						? 'bg-white text-slate-800 shadow-sm'
-						: 'text-slate-500 hover:text-slate-700'}"
+						? 'bg-white text-[rgb(var(--slate-800))] shadow-sm'
+						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
 					onclick={() => (viewMode = 'mensal')}
+					aria-pressed={viewMode === 'mensal'}
+					aria-label="Visualizar por mês"
 				>
 					<CalendarDays class="h-3.5 w-3.5" />
 					Mês
@@ -270,8 +276,10 @@
 				class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 					{showSugestoes
 					? 'border-blue-200 bg-blue-50 text-blue-700'
-					: 'border-slate-200 text-slate-500 hover:text-slate-700'}"
+					: 'border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
 				onclick={() => (showSugestoes = !showSugestoes)}
+				aria-pressed={showSugestoes}
+				aria-label="Mostrar sugestões de visitas"
 			>
 				<Sparkles class="h-3.5 w-3.5" />
 				Sugestões
@@ -307,7 +315,7 @@
 
 		<!-- Painel sugestões -->
 		{#if showSugestoes}
-			<div class="w-[300px] border-l border-slate-100 bg-slate-50/50 p-4 overflow-y-auto">
+			<div class="hidden lg:block w-[300px] border-l border-[rgb(var(--slate-100))] bg-[rgb(var(--slate-50))]/50 p-4 overflow-y-auto">
 				<PainelSugestoes
 					{sugestoes}
 					loading={loadingSugestoes}
@@ -318,21 +326,23 @@
 	</div>
 </div>
 
-<!-- Sheet de criação/edição -->
-<VisitaSheet
-	bind:open={sheetOpen}
-	visita={selectedVisita}
-	profissionalId={agendarProfissionalId}
-	profissionalNome={agendarProfissionalNome}
-	defaultDateTime={defaultDateStr && defaultTimeStr ? `${defaultDateStr}T${defaultTimeStr}` : undefined}
-	sessionToken={data.sessionToken}
-	materiaisOptions={materiaisOptions}
-	onclose={() => (sheetOpen = false)}
-	onsave={() => { 
-		loadItems(); 
-		loadSugestoes(); 
-	}}
-	ondelete={handleVisitaDelete}
-/>
+<!-- Sheet de criação/edição (lazy loaded) -->
+{#await VisitaSheetPromise then VisitaSheet}
+	<VisitaSheet
+		bind:open={sheetOpen}
+		visita={selectedVisita}
+		profissionalId={agendarProfissionalId}
+		profissionalNome={agendarProfissionalNome}
+		defaultDateTime={defaultDateStr && defaultTimeStr ? `${defaultDateStr}T${defaultTimeStr}` : undefined}
+		sessionToken={data.sessionToken}
+		materiaisOptions={materiaisOptions}
+		onclose={() => (sheetOpen = false)}
+		onsave={() => {
+			loadItems();
+			loadSugestoes();
+		}}
+		ondelete={handleVisitaDelete}
+	/>
+{/await}
 
 

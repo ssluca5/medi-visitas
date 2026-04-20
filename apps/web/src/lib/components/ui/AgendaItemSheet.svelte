@@ -150,29 +150,29 @@
 </script>
 
 <Sheet {open} onclose={onClose}>
-	<h2 class="text-lg font-semibold text-slate-800 mb-5">{isEdit ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
+	<h2 class="text-lg font-semibold text-[rgb(var(--slate-800))] mb-5">{isEdit ? 'Editar Agendamento' : 'Novo Agendamento'}</h2>
 	<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-5">
 		<!-- Profissional -->
 		<div>
-			<label class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 mb-1.5" for="profissionalBusca">
-				<User class="h-3.5 w-3.5 text-slate-400" />
+			<label class="flex items-center gap-1.5 text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5" for="profissionalBusca">
+				<User class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
 				{isEdit ? 'Profissional' : 'Selecionar o Profissional'}
 			</label>
 			
 			{#if isEdit || profissionalId}
-				<p class="text-sm text-slate-800 font-medium bg-slate-50 rounded-lg px-3 py-2 border border-slate-200">
+				<p class="text-sm text-[rgb(var(--slate-800))] font-medium bg-[rgb(var(--slate-50))] rounded-lg px-3 py-2 border border-[rgb(var(--slate-200))]">
 					{item?.profissional?.nome ?? profissionalNome}
 				</p>
 			{:else}
 				<div class="relative">
 					{#if selectedProfissionalForNew}
-						<div class="flex items-center justify-between border border-slate-200 rounded-lg py-2 px-3 bg-blue-50">
-							<span class="text-sm font-medium text-slate-800">{selectedProfissionalForNew.nome}</span>
+						<div class="flex items-center justify-between border border-[rgb(var(--slate-200))] rounded-lg py-2 px-3 bg-blue-50">
+							<span class="text-sm font-medium text-[rgb(var(--slate-800))]">{selectedProfissionalForNew.nome}</span>
 							<button type="button" class="text-xs text-blue-600 hover:underline" onclick={() => selectedProfissionalForNew = null}>Trocar</button>
 						</div>
 					{:else}
 						<div class="relative">
-							<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+							<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--slate-400))]">
 								<Search class="w-4 h-4" />
 							</span>
 							<input
@@ -183,21 +183,21 @@
 								onfocus={() => isComboBoxOpen = true}
 								onblur={() => setTimeout(() => isComboBoxOpen = false, 200)}
 								placeholder="Buscar médico..."
-								class="block w-full pl-9 rounded-lg border-slate-200 shadow-sm focus:border-blue-400 focus:ring-blue-200 text-sm py-2 px-3 border outline-none transition-all"
+								class="block w-full pl-9 rounded-lg border-[rgb(var(--slate-200))] shadow-sm focus:border-blue-400 focus:ring-blue-200 text-sm py-2 px-3 border outline-none transition-all"
 								autocomplete="off"
 							/>
 						</div>
 						{#if isComboBoxOpen && profissionaisFiltrados.length > 0}
-							<div class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+							<div class="absolute z-50 mt-1 w-full bg-white border border-[rgb(var(--slate-200))] rounded-lg shadow-lg max-h-48 overflow-y-auto">
 								{#each profissionaisFiltrados as prof}
 									<button
 										type="button"
 										onclick={() => { selectedProfissionalForNew = prof; isComboBoxOpen = false; searchQuery = ''; }}
-										class="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 transition-colors"
+										class="w-full text-left px-4 py-2 text-sm hover:bg-[rgb(var(--slate-50))] transition-colors"
 									>
-										<div class="font-medium text-slate-800">{prof.nome}</div>
+										<div class="font-medium text-[rgb(var(--slate-800))]">{prof.nome}</div>
 										{#if prof.especialidade}
-											<div class="text-xs text-slate-500">{prof.especialidade.nome}</div>
+											<div class="text-xs text-[rgb(var(--slate-500))]">{prof.especialidade.nome}</div>
 										{/if}
 									</button>
 								{/each}
@@ -210,23 +210,23 @@
 
 		<!-- Data -->
 		<div>
-			<label for="sheet-data" class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 mb-1.5">
-				<Calendar class="h-3.5 w-3.5 text-slate-400" />
+			<label for="sheet-data" class="flex items-center gap-1.5 text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5">
+				<Calendar class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
 				Data
 			</label>
 			<input
 				id="sheet-data"
 				type="date"
 				bind:value={dataInicio}
-				class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
+				class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-3 py-2 text-sm text-[rgb(var(--slate-800))] outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
 			/>
 		</div>
 
 		<!-- Horários -->
 		<div class="grid grid-cols-2 gap-3">
 			<div>
-				<label for="sheet-hora-inicio" class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 mb-1.5">
-					<Clock class="h-3.5 w-3.5 text-slate-400" />
+				<label for="sheet-hora-inicio" class="flex items-center gap-1.5 text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5">
+					<Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
 					Início
 				</label>
 				<input
@@ -236,12 +236,12 @@
 					min="06:00"
 					max="21:00"
 					step="1800"
-					class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
+					class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-3 py-2 text-sm text-[rgb(var(--slate-800))] outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
 				/>
 			</div>
 			<div>
-				<label for="sheet-hora-fim" class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 mb-1.5">
-					<Clock class="h-3.5 w-3.5 text-slate-400" />
+				<label for="sheet-hora-fim" class="flex items-center gap-1.5 text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5">
+					<Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
 					Fim
 				</label>
 				<input
@@ -251,20 +251,20 @@
 					min="06:00"
 					max="21:30"
 					step="1800"
-					class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
+					class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-3 py-2 text-sm text-[rgb(var(--slate-800))] outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all"
 				/>
 			</div>
 		</div>
 
 		<!-- Prioridade -->
 		<div>
-			<label for="sheet-prioridade" class="text-sm font-semibold text-slate-600 mb-1.5 block">
+			<label for="sheet-prioridade" class="text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5 block">
 				Prioridade
 			</label>
 			<select
 				id="sheet-prioridade"
 				bind:value={prioridade}
-				class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all cursor-pointer"
+				class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-3 py-2 text-sm text-[rgb(var(--slate-800))] outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all cursor-pointer"
 			>
 				{#each prioridadeOpcoes as opt}
 					<option value={opt.value}>{opt.label}</option>
@@ -275,13 +275,13 @@
 		<!-- Status (somente edição) -->
 		{#if isEdit}
 			<div>
-				<label for="sheet-status" class="text-sm font-semibold text-slate-600 mb-1.5 block">
+				<label for="sheet-status" class="text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5 block">
 					Status
 				</label>
 				<select
 					id="sheet-status"
 					bind:value={status}
-					class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all cursor-pointer"
+					class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-3 py-2 text-sm text-[rgb(var(--slate-800))] outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all cursor-pointer"
 				>
 					{#each statusOpcoes as opt}
 						<option value={opt.value}>{opt.label}</option>
@@ -292,8 +292,8 @@
 
 		<!-- Observações -->
 		<div>
-			<label for="sheet-obs" class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 mb-1.5">
-				<FileText class="h-3.5 w-3.5 text-slate-400" />
+			<label for="sheet-obs" class="flex items-center gap-1.5 text-sm font-semibold text-[rgb(var(--slate-600))] mb-1.5">
+				<FileText class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
 				Observações
 			</label>
 			<textarea
@@ -301,7 +301,7 @@
 				bind:value={observacoes}
 				rows={3}
 				placeholder="Notas opcionais sobre a visita..."
-				class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all resize-none"
+				class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-3 py-2 text-sm text-[rgb(var(--slate-800))] outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all resize-none"
 			></textarea>
 		</div>
 

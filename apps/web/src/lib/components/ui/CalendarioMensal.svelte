@@ -78,18 +78,18 @@
 	<div class="flex items-center justify-between mb-4">
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navMes(-1)}
 			aria-label="Mês anterior"
 		>
 			<ChevronLeft class="h-5 w-5" />
 		</button>
-		<h3 class="text-lg font-bold text-slate-800">
+		<h3 class="text-lg font-bold text-[rgb(var(--slate-800))]">
 			{formatMonth(currentDate)}
 		</h3>
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navMes(1)}
 			aria-label="Próximo mês"
 		>
@@ -100,7 +100,7 @@
 	<!-- Cabeçalho dias -->
 	<div class="grid grid-cols-7 gap-px mb-1">
 		{#each diasHeader as d}
-			<div class="text-center text-[10px] uppercase tracking-wider font-semibold text-slate-400 py-1">
+			<div class="text-center text-[10px] uppercase tracking-wider font-semibold text-[rgb(var(--slate-400))] py-1">
 				{d}
 			</div>
 		{/each}
@@ -117,11 +117,11 @@
 					class="relative h-16 rounded-lg text-center p-1 transition-all duration-150 cursor-pointer
 						{isHoje(dia)
 						? 'bg-blue-50 border-2 border-blue-300'
-						: 'bg-white border border-slate-100 hover:bg-slate-50 hover:border-slate-200'}"
+						: 'bg-white border border-[rgb(var(--slate-100))] hover:bg-[rgb(var(--slate-50))] hover:border-[rgb(var(--slate-200))]'}"
 					onclick={() => onDayClick(dia)}
 				>
 					<span
-						class="text-xs font-semibold {isHoje(dia) ? 'text-blue-700' : 'text-slate-700'}"
+						class="text-xs font-semibold {isHoje(dia) ? 'text-blue-700' : 'text-[rgb(var(--slate-700))]'}"
 					>
 						{dia.getDate()}
 					</span>

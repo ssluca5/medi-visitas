@@ -25,7 +25,7 @@
       case 'MEDIO': return 'bg-amber-100 text-amber-800';
       case 'BAIXO': return 'bg-orange-100 text-orange-800';
       case 'ESTRATEGICO': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-slate-100 text-slate-500';
+      default: return 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-500))]';
     }
   }
 
@@ -85,20 +85,20 @@
 
 <div class="mb-4">
   <div class="relative">
-    <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+    <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))]" />
     <input
       type="text"
       placeholder="Buscar por nome ou CRM..."
       value={busca}
       oninput={(e) => onBuscaChange((e.target as HTMLInputElement).value)}
-      class="w-full pl-10 pr-8 h-9 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
+      class="w-full pl-10 pr-8 h-9 rounded-lg border border-[rgb(var(--slate-200))] bg-white text-sm text-[rgb(var(--slate-700))] placeholder:text-[rgb(var(--slate-400))] focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500"
     />
     {#if busca}
       <button
         onclick={() => onBuscaChange('')}
-        class="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded hover:bg-slate-100"
+        class="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded hover:bg-[rgb(var(--slate-100))]"
       >
-        <X class="h-3.5 w-3.5 text-slate-400" />
+        <X class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
       </button>
     {/if}
   </div>
@@ -120,15 +120,15 @@
       <div class="h-10 flex items-center justify-between px-3 mb-2 flex-shrink-0">
         <div class="flex items-center gap-2">
           <div class="h-2.5 w-2.5 rounded-full flex-shrink-0" style="background-color: var({col.cssVar})"></div>
-          <span class="text-[12px] font-semibold text-slate-700">{col.label}</span>
-          <span class="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">{total}</span>
+          <span class="text-[12px] font-semibold text-[rgb(var(--slate-700))]">{col.label}</span>
+          <span class="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-500))]">{total}</span>
         </div>
       </div>
 
       {#if profissionais.length === 0}
         <!-- Empty state — same height as one card -->
-        <div class="flex items-center justify-center h-[84px] rounded-lg border border-dashed border-slate-200 bg-slate-50/50 mx-0.5 {dropTarget === col.key ? 'border-blue-300 bg-blue-50/40' : ''}">
-          <p class="text-[11px] text-slate-400">
+        <div class="flex items-center justify-center h-[84px] rounded-lg border border-dashed border-[rgb(var(--slate-200))] bg-[rgb(var(--slate-50))]/50 mx-0.5 {dropTarget === col.key ? 'border-blue-300 bg-blue-50/40' : ''}">
+          <p class="text-[11px] text-[rgb(var(--slate-400))]">
             {dropTarget === col.key ? 'Solte aqui' : 'Nenhum profissional'}
           </p>
         </div>
@@ -145,17 +145,17 @@
               ondragend={handleDragEnd}
               onclick={(e: MouseEvent) => handleCardClick(e, prof.id)}
               onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') window.location.href = `/dashboard/profissionais/${prof.id}`; }}
-              class="text-left w-full rounded-lg border border-slate-200 bg-white hover:border-slate-300 px-3 py-2.5 min-h-[80px] flex flex-col justify-between cursor-grab select-none transition-all duration-200 hover:shadow-sm {isDragging ? 'opacity-40 scale-95' : ''}"
+              class="text-left w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white hover:border-[rgb(var(--slate-300))] px-3 py-2.5 min-h-[80px] flex flex-col justify-between cursor-grab select-none will-change-transform transition-all duration-200 hover:shadow-sm {isDragging ? 'opacity-40 scale-95' : ''}"
             >
               <!-- Linha 1: Nome + Grip -->
               <div class="flex items-start gap-1.5">
-                <GripVertical class="h-3.5 w-3.5 text-slate-300 mt-0.5 shrink-0" />
-                <p class="text-[13px] font-medium text-slate-800 leading-snug min-w-0 flex-1">{prof.nome}</p>
+                <GripVertical class="h-3.5 w-3.5 text-[rgb(var(--slate-300))] mt-0.5 shrink-0" />
+                <p class="text-[13px] font-medium text-[rgb(var(--slate-800))] leading-snug min-w-0 flex-1">{prof.nome}</p>
               </div>
 
               <!-- Linha 2: Especialidade + Badge Potencial -->
               <div class="flex items-center justify-between mt-2 gap-1 pl-5">
-                <p class="text-[10px] text-slate-400 truncate flex-1">
+                <p class="text-[10px] text-[rgb(var(--slate-400))] truncate flex-1">
                   {prof.especialidade?.nome ?? '—'}
                 </p>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 {potencialBadge(prof.potencial)}">
@@ -164,7 +164,7 @@
               </div>
 
               <!-- Linha 3: CRM -->
-              <p class="text-[10px] text-slate-400 mt-1 pl-5">
+              <p class="text-[10px] text-[rgb(var(--slate-400))] mt-1 pl-5">
                 CRM {prof.crm ?? '—'}
               </p>
             </div>

@@ -421,12 +421,12 @@
 <!-- Page Header -->
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
 	<div class="flex items-center gap-3">
-		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm">
+		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
 			<Stethoscope class="h-4.5 w-4.5 text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-slate-800">Especialidades</h1>
-			<p class="text-[11px] text-slate-400">Gerencie as especialidades e subespecialidades médicas</p>
+			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Especialidades</h1>
+			<p class="text-[11px] text-[rgb(var(--slate-400))]">Gerencie as especialidades e subespecialidades médicas</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
@@ -441,8 +441,8 @@
 {#if loading}
 	<div class="card-surface flex items-center justify-center py-20">
 		<div class="flex flex-col items-center gap-3">
-			<div class="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600"></div>
-			<span class="text-sm text-slate-400">Carregando especialidades...</span>
+			<div class="h-8 w-8 animate-spin rounded-full border-2 border-[rgb(var(--slate-200))] border-t-blue-600"></div>
+			<span class="text-sm text-[rgb(var(--slate-400))]">Carregando especialidades...</span>
 		</div>
 	</div>
 {:else if error}
@@ -451,8 +451,8 @@
 			<Stethoscope class="h-6 w-6 text-red-400" />
 		</div>
 		<div class="text-center">
-			<p class="text-sm font-medium text-slate-700">Erro ao carregar</p>
-			<p class="text-xs text-slate-400 mt-1">{error}</p>
+			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Erro ao carregar</p>
+			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">{error}</p>
 		</div>
 		<Button variant="outline" size="sm" onclick={() => fetchEspecialidades()}>
 			Tentar novamente
@@ -460,12 +460,12 @@
 	</div>
 {:else if categoriasOrdenadas.length === 0}
 	<div class="card-surface flex flex-col items-center justify-center py-20 gap-4">
-		<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
-			<Stethoscope class="h-7 w-7 text-slate-400" />
+		<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(var(--slate-100))]">
+			<Stethoscope class="h-7 w-7 text-[rgb(var(--slate-400))]" />
 		</div>
 		<div class="text-center">
-			<p class="text-sm font-medium text-slate-700">Nenhuma especialidade cadastrada</p>
-			<p class="text-xs text-slate-400 mt-1">Comece adicionando a primeira especialidade</p>
+			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Nenhuma especialidade cadastrada</p>
+			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Comece adicionando a primeira especialidade</p>
 		</div>
 		<Button size="sm" onclick={handleNovaEspecialidade} class="gap-2">
 			<Plus class="h-4 w-4" />
@@ -479,20 +479,20 @@
 				<!-- Category Header -->
 				<div class="mb-3 flex items-center justify-between">
 					<div class="flex items-center gap-2.5">
-						<div class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100">
-							<Stethoscope class="h-3.5 w-3.5 text-slate-500" />
+						<div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[rgb(var(--slate-100))]">
+							<Stethoscope class="h-3.5 w-3.5 text-[rgb(var(--slate-500))]" />
 						</div>
-						<h3 class="text-sm font-semibold text-slate-700 tracking-wide">
+						<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] tracking-wide">
 							{formatarCategoria(categoria)}
 						</h3>
-						<span class="text-xs text-slate-400">({especialidadesAgrupadas[categoria].length})</span>
+						<span class="text-xs text-[rgb(var(--slate-400))]">({especialidadesAgrupadas[categoria].length})</span>
 					</div>
 					<button
 						onclick={() => { categoryToDelete = categoria; categoryDeleteConfirmOpen = true; }}
 						title="Excluir categoria"
 						class="p-1.5 rounded-lg hover:bg-red-50 transition-all duration-200 cursor-pointer"
 					>
-						<Trash2 class="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
+						<Trash2 class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] hover:text-red-500 transition-colors" />
 					</button>
 				</div>
 
@@ -500,12 +500,12 @@
 				<div class="card-surface overflow-hidden">
 					<table class="table-fixed w-full">
 						<thead>
-							<tr class="border-b border-slate-100">
-								<th class="p-3.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-12"></th>
-								<th class="p-3.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-[40%]">Nome</th>
-								<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[15%]">Subs</th>
-								<th class="p-3.5 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-[20%]">Status</th>
-								<th class="p-3.5 text-center text-xs font-medium text-slate-400 uppercase tracking-wider w-[25%]">Ações</th>
+							<tr class="border-b border-[rgb(var(--slate-100))]">
+								<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-12"></th>
+								<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[40%]">Nome</th>
+								<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[15%]">Subs</th>
+								<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[20%]">Status</th>
+								<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[25%]">Ações</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -513,7 +513,7 @@
 								{@const subCount = esp.subEspecialidades?.length ?? 0}
 								{@const isExpanded = expandedIds.has(esp.id)}
 								<tr
-									class="group border-t border-slate-50 transition-all duration-200 cursor-pointer hover:bg-slate-50/60"
+									class="group border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60"
 									class:opacity-50={!esp.ativo}
 									onclick={() => handleEditarEspecialidade(esp)}
 								>
@@ -521,27 +521,27 @@
 										{#if subCount > 0}
 											<button
 												onclick={(e) => { e.stopPropagation(); toggleExpand(esp.id); }}
-												class="p-1 rounded-md hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+												class="p-1 rounded-md hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 												title={isExpanded ? 'Recolher' : 'Expandir'}
 											>
 												{#if isExpanded}
-													<ChevronDown class="w-4 h-4 text-slate-400" />
+													<ChevronDown class="w-4 h-4 text-[rgb(var(--slate-400))]" />
 												{:else}
-													<ChevronRight class="w-4 h-4 text-slate-400" />
+													<ChevronRight class="w-4 h-4 text-[rgb(var(--slate-400))]" />
 												{/if}
 											</button>
 										{/if}
 									</td>
 									<td class="p-3.5">
-										<span class="text-sm font-medium text-slate-800" class:text-slate-400={!esp.ativo}>{esp.nome}</span>
+										<span class="text-sm font-medium text-[rgb(var(--slate-800))]" class:text-[rgb(var(--slate-400))]={!esp.ativo}>{esp.nome}</span>
 									</td>
 									<td class="p-3.5 text-center">
 										{#if subCount > 0}
-											<span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-100 px-1.5 text-[11px] font-medium text-slate-600">
+											<span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[rgb(var(--slate-100))] px-1.5 text-[11px] font-medium text-[rgb(var(--slate-600))]">
 												{subCount}
 											</span>
 										{:else}
-											<span class="text-xs text-slate-300">—</span>
+											<span class="text-xs text-[rgb(var(--slate-300))]">—</span>
 										{/if}
 									</td>
 									<td class="p-3.5">
@@ -549,8 +549,8 @@
 											class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
 											class:bg-emerald-50={esp.ativo}
 											class:text-emerald-700={esp.ativo}
-											class:bg-slate-100={!esp.ativo}
-											class:text-slate-400={!esp.ativo}
+											class:bg-[rgb(var(--slate-100))]={!esp.ativo}
+											class:text-[rgb(var(--slate-400))]={!esp.ativo}
 										>
 											{esp.ativo ? 'Ativa' : 'Inativa'}
 										</span>
@@ -560,7 +560,7 @@
 											<button
 												onclick={(e) => { e.stopPropagation(); handleToggleAtivo(esp); }}
 												title={esp.ativo ? 'Inativar' : 'Ativar'}
-												class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:bg-slate-100 transition-all duration-200 cursor-pointer {esp.ativo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
+												class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {esp.ativo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
 											>
 												{#if esp.ativo}
 													<Power class="w-4 h-4" />
@@ -571,7 +571,7 @@
 											<button
 												onclick={(e) => { e.stopPropagation(); handleExcluirEspecialidade(esp); }}
 												title="Excluir"
-												class="p-2 rounded-lg text-slate-500 opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+												class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 											>
 												<Trash2 class="w-3.5 h-3.5 transition-colors" />
 											</button>
@@ -582,18 +582,18 @@
 								{#if isExpanded}
 									{#each esp.subEspecialidades ?? [] as sub (sub.id)}
 										<tr
-											class="border-t border-slate-50 bg-slate-25 transition-all"
+											class="border-t border-[rgb(var(--slate-50))] bg-[rgb(var(--slate-50))] transition-all"
 											class:opacity-60={!!sub.deletedAt}
 											class:italic={!!sub.deletedAt}
 										>
 											<td class="p-3.5"></td>
 											<td class="p-3.5 pl-9">
-												<span class="text-sm text-slate-500">↳ {sub.nome}</span>
+												<span class="text-sm text-[rgb(var(--slate-500))]">↳ {sub.nome}</span>
 											</td>
 											<td class="p-3.5"></td>
 											<td class="p-3.5">
 												{#if sub.deletedAt}
-													<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-slate-100 text-slate-400">Inativa</span>
+													<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-400))]">Inativa</span>
 												{:else}
 													<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-emerald-50 text-emerald-700">Ativa</span>
 												{/if}
@@ -606,7 +606,7 @@
 															handleToggleSub(sub, esp.id);
 														}}
 														title={sub.deletedAt ? 'Ativar' : 'Inativar'}
-														class="p-2 rounded-lg text-slate-500 opacity-40 hover:opacity-100 hover:bg-slate-100 transition-all duration-200 cursor-pointer {sub.deletedAt ? 'hover:text-green-600' : 'hover:text-amber-600'}"
+														class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-40 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {sub.deletedAt ? 'hover:text-green-600' : 'hover:text-amber-600'}"
 													>
 														{#if sub.deletedAt}
 															<Play class="w-4 h-4" />
@@ -620,7 +620,7 @@
 															handleExcluirSub(sub, esp.nome);
 														}}
 														title="Excluir subespecialidade"
-														class="p-2 rounded-lg text-slate-500 opacity-40 hover:opacity-100 hover:text-red-600 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+														class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-40 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 													>
 														<Trash2
 															class="w-3 h-3 transition-colors"
@@ -632,11 +632,11 @@
 									{/each}
 									<!-- Inline Add Sub row -->
 									{#if addingSubToEspId === esp.id}
-										<tr class="border-t border-slate-50 bg-blue-50/30">
+										<tr class="border-t border-[rgb(var(--slate-50))] bg-blue-50/30">
 											<td class="p-3.5"></td>
 											<td class="p-2.5 pl-9" colspan="2">
 												<div class="flex items-center gap-2">
-													<span class="text-sm text-slate-400">↳</span>
+													<span class="text-sm text-[rgb(var(--slate-400))]">↳</span>
 													<input
 														type="text"
 														bind:value={formNomeSub}
@@ -662,7 +662,7 @@
 													</button>
 													<button
 														onclick={(e) => { e.stopPropagation(); handleCancelAddSub(); }}
-														class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-500 hover:bg-slate-100 transition-colors cursor-pointer"
+														class="px-2.5 py-1 text-xs font-medium rounded-md text-[rgb(var(--slate-500))] hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer"
 													>
 														Cancelar
 													</button>
@@ -670,7 +670,7 @@
 											</td>
 										</tr>
 									{:else}
-										<tr class="border-t border-slate-50">
+										<tr class="border-t border-[rgb(var(--slate-50))]">
 											<td class="p-2.5"></td>
 											<td class="p-2.5 pl-9" colspan="4">
 												<button
@@ -699,10 +699,10 @@
 	{#snippet children()}
 		<div class="space-y-6">
 			<div>
-				<h3 class="text-lg font-semibold text-slate-900">
+				<h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
 					{especialidadeEmEdicao ? 'Editar Especialidade' : 'Nova Especialidade'}
 				</h3>
-				<p class="text-sm text-slate-400 mt-1">
+				<p class="text-sm text-[rgb(var(--slate-400))] mt-1">
 					{especialidadeEmEdicao ? 'Atualize os dados abaixo' : 'Preencha os dados para cadastrar'}
 				</p>
 			</div>
@@ -742,7 +742,7 @@
 								categoriaDropdownOpen = !categoriaDropdownOpen;
 							}}
 							class="absolute inset-y-0 right-0 flex items-center px-2.5
-								text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+								text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] transition-colors cursor-pointer"
 						>
 							<ChevronDown
 								class="w-4 h-4 transition-transform duration-200 {categoriaDropdownOpen ? 'rotate-180' : ''}"
@@ -752,12 +752,12 @@
 					<p class="input-hint">Selecione existente ou digite para criar nova</p>
 
 					{#if categoriaDropdownOpen && (categoriasFiltradas.length > 0 || formCategoria.trim())}
-						<div class="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden max-h-48 overflow-y-auto">
+						<div class="absolute z-50 mt-1 w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white shadow-lg overflow-hidden max-h-48 overflow-y-auto">
 							{#each categoriasFiltradas as cat}
 								<button
 									type="button"
 									onmousedown={() => { formCategoria = cat; categoriaDropdownOpen = false; }}
-									class="w-full px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-2"
+									class="w-full px-3 py-2.5 text-left text-sm text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer flex items-center gap-2"
 								>
 									<span>{cat}</span>
 								</button>
@@ -770,7 +770,7 @@
 										formCategoria = formCategoria.trim().charAt(0).toUpperCase() + formCategoria.trim().slice(1).toLowerCase();
 										categoriaDropdownOpen = false;
 									}}
-									class="w-full px-3 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer flex items-center gap-2 border-t border-slate-100"
+									class="w-full px-3 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer flex items-center gap-2 border-t border-[rgb(var(--slate-100))]"
 								>
 									<span class="text-blue-500">+</span>
 									<span>Criar "<strong>{formCategoria.trim()}</strong>"</span>
@@ -778,7 +778,7 @@
 							{/if}
 
 							{#if categoriasFiltradas.length === 0 && !formCategoria.trim()}
-								<div class="px-3 py-2.5 text-sm text-slate-400">
+								<div class="px-3 py-2.5 text-sm text-[rgb(var(--slate-400))]">
 									Digite para criar uma categoria
 								</div>
 							{/if}
@@ -787,7 +787,7 @@
 				</div>
 			</div>
 
-			<div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+			<div class="flex justify-end gap-3 pt-4 border-t border-[rgb(var(--slate-100))]">
 				<Button variant="outline" onclick={() => (sheetOpen = false)}>Cancelar</Button>
 				<Button onclick={handleSalvarEspecialidade}>
 					{especialidadeEmEdicao ? 'Salvar' : 'Criar'}
