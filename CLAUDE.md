@@ -93,7 +93,7 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | 2    | Cadastro profissionais + Potencial | ✅ Concluída |
 | 3    | Histórico de visitas + Materiais   | ✅ Concluída |
 | 4    | Agenda inteligente                 | ✅ Concluída |
-| 5    | IA — transcrição MiniMax 2.7       | ⬜ Pendente  |
+| 5    | IA — transcrição MiniMax 2.7       | ✅ Concluída |
 | 6    | Dashboard + CRM avançado           | ✅ Concluída |
 | 7    | Pipeline comercial + Analytics     | ✅ Concluída |
 | 8    | Notificações + Lembretes           | ✅ Concluída |
@@ -141,6 +141,19 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-04-01] `{@const}` inválido dentro de `<a>` → mover para nível do bloco `{#each}`
 - [2026-04-01] SvelteKit env vars: usar `PUBLIC_` prefix (não `NEXT_PUBLIC_`)
 - [2026-04-01] `{@const}` só funciona dentro de `{#each}`, `{#if}`, etc. — nunca diretamente dentro de `<div>`
+- [2026-04-25] `Buffer` não é `BlobPart` no TS atual → usar `new Uint8Array(buffer)` no `new Blob()`
+- [2026-04-25] `@fastify/multipart@9` exige Fastify 5 → usar `@fastify/multipart@8` para Fastify 4.x
+
+### Fase 5 — IA: Transcrição com MiniMax 2.7
+
+- **Concluída em:** 2026-04-25
+- **Migration:** `audioUrl String?` em Visita (via `prisma db push`)
+- **Dependência adicionada:** `@fastify/multipart@8`
+- **Serviço:** `apps/api/src/services/minimax.ts` (STT + Chat Completion)
+- **Rotas:** `POST /visitas/:id/transcricao`, `PATCH /visitas/:id/audio`
+- **Frontend:** `useGravacaoAudio.svelte.ts`, `BotaoGravacao.svelte`, `ModalGravacao.svelte`
+- **Testes:** 9/9 passando (7 minimax service + 2 route auth)
+- **Decisões:** `Buffer` → `Uint8Array` para compatibilidade com `BlobPart` TypeScript, `@fastify/multipart@8` (v9 exige Fastify 5), mock ESM do `@clerk/backend` pré-defeituoso nos testes de rota
 
 ### Fase 8 — Notificações + Lembretes Automáticos
 
