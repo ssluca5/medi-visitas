@@ -236,6 +236,7 @@ model Visita {
   objetivoVisita String?
   resumo         String?
   proximaAcao    String?
+  audioUrl       String?
   motivoCancelamento String?
   motivoNaoRealizacao String?
   materiais      VisitaMaterial[]

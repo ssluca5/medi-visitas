@@ -163,6 +163,7 @@ export interface Visita {
   objetivoVisita?: string | null;
   resumo?: string | null;
   proximaAcao?: string | null;
+  audioUrl?: string | null;
   motivoCancelamento?: string | null;
   motivoNaoRealizacao?: string | null;
   createdAt: string;
