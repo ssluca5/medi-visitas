@@ -7,12 +7,29 @@
   import type { Visita, PaginationInfo, StatusVisita, MaterialTecnico } from '$lib/types';
   import { Calendar, Clock, Package, Plus, Trash2, Search, CalendarDays, ChevronLeft, ChevronRight, Copy } from 'lucide-svelte';
   import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
+  import BotaoGravacao from '$lib/components/ui/BotaoGravacao.svelte';
+  import ModalGravacao from '$lib/components/ui/ModalGravacao.svelte';
 
   interface Props {
     data: { sessionToken: string | null };
   }
 
   let { data }: Props = $props();
+
+  let modalGravacaoAberto = $state(false);
+  let visitaParaGravar = $state<string | null>(null);
+
+  function abrirGravacao() {
+    const visitaGravavel = visitas.find(v => v.status === 'AGENDADA' || v.status === 'REALIZADA');
+    if (visitaGravavel) {
+      visitaParaGravar = visitaGravavel.id;
+      modalGravacaoAberto = true;
+    }
+  }
+
+  function handleGravacaoSalva() {
+    loadVisitas(pagination.page);
+  }
 
   let visitas = $state<Visita[]>([]);
   let pagination = $state<PaginationInfo>({ page: 1, pageSize: 20, total: 0, totalPages: 0 });
@@ -380,6 +397,18 @@
     {/if}
   </div>
 </div>
+
+<BotaoGravacao onclick={abrirGravacao} />
+
+{#if visitaParaGravar}
+  <ModalGravacao
+    bind:open={modalGravacaoAberto}
+    visitaId={visitaParaGravar}
+    sessionToken={data.sessionToken}
+    onclose={() => { modalGravacaoAberto = false; visitaParaGravar = null; }}
+    onsave={handleGravacaoSalva}
+  />
+{/if}
 
 <VisitaSheet
   bind:open={sheetOpen}
