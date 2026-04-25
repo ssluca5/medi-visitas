@@ -7,8 +7,19 @@ import {
   PatchVisitaStatusInputSchema,
   ListVisitasQuerySchema,
 } from "./schemas.js";
+import {
+  transcreverAudio,
+  extrairCamposVisita,
+} from "../../services/minimax.js";
 
 const STATUS_FINAIS = ["REALIZADA", "CANCELADA", "NAO_REALIZADA"];
+const AUDIO_TYPES = [
+  "audio/webm",
+  "audio/ogg",
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/wav",
+];
 
 const visitasRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", verifyClerkToken);
@@ -236,6 +247,89 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     });
 
     return visita;
+  });
+
+  // POST /visitas/:id/transcricao — gravação de áudio → STT → Chat
+  app.post("/:id/transcricao", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
+
+    const visita = await prisma.visita.findUnique({
+      where: { id, userId },
+    });
+
+    if (!visita) {
+      return reply.status(404).send({ error: "Visita não encontrada" });
+    }
+
+    const file = await (request as any).file();
+    if (!file) {
+      return reply
+        .status(400)
+        .send({ error: "Arquivo de áudio é obrigatório" });
+    }
+
+    const mimeType = file.mimetype;
+    if (!AUDIO_TYPES.includes(mimeType)) {
+      return reply.status(400).send({
+        error: `Tipo de arquivo inválido: ${mimeType}. Aceitos: ${AUDIO_TYPES.join(", ")}`,
+      });
+    }
+
+    const buffer = await file.toBuffer();
+    if (buffer.length > 25 * 1024 * 1024) {
+      return reply.status(400).send({ error: "Arquivo excede 25MB" });
+    }
+
+    // Passo 1: STT (Speech-to-Text)
+    const transcricao = await transcreverAudio(buffer, mimeType);
+
+    // Passo 2: Chat Completion (extração estruturada)
+    const campos = await extrairCamposVisita(transcricao);
+
+    // Atualizar visita com campos extraídos
+    await prisma.visita.update({
+      where: { id },
+      data: {
+        resumo: campos.resumo,
+        proximaAcao: campos.proximaAcao,
+        objetivoVisita: campos.objetivoVisita,
+      },
+    });
+
+    return reply.send(campos);
+  });
+
+  // PATCH /visitas/:id/audio — salvar URL do áudio
+  app.patch("/:id/audio", async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.userId;
+    if (!userId) {
+      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
+    }
+
+    const { audioUrl } = request.body as { audioUrl?: string };
+    if (!audioUrl || typeof audioUrl !== "string") {
+      return reply.status(400).send({ error: "audioUrl é obrigatório" });
+    }
+
+    const existing = await prisma.visita.findUnique({
+      where: { id, userId },
+    });
+
+    if (!existing) {
+      return reply.status(404).send({ error: "Visita não encontrada" });
+    }
+
+    await prisma.visita.update({
+      where: { id },
+      data: { audioUrl },
+    });
+
+    return reply.status(204).send();
   });
 
   app.delete("/:id", async (request, reply) => {

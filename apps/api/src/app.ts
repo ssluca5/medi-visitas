@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
+import multipart from "@fastify/multipart";
 import { ZodError } from "zod";
 import meRoutes from "./routes/me";
 import profissionaisRoutes from "./routes/profissionais/index";
@@ -15,6 +16,7 @@ import dashboardRoutes from "./routes/dashboard/index.js";
 import buscaRoutes from "./routes/busca/index.js";
 import notificacoesRoutes from "./routes/notificacoes/index.js";
 import { timelineRoutes } from "./routes/profissionais/timeline.js";
+import clerkWebhookRoutes from "./routes/webhooks/clerk.js";
 
 export async function buildApp() {
   const app = Fastify({
@@ -47,6 +49,11 @@ export async function buildApp() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
+  // Multipart — upload de áudio (25MB max)
+  await app.register(multipart, {
+    limits: { fileSize: 25 * 1024 * 1024 },
+  });
+
   // Zod error handler
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ZodError) {
@@ -65,6 +72,7 @@ export async function buildApp() {
   });
 
   // Rotas
+  await app.register(clerkWebhookRoutes); // Webhook público (sem auth)
   await app.register(meRoutes);
   await app.register(profissionaisRoutes);
   await app.register(especialidadesRoutes);
