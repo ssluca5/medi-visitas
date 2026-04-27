@@ -24,7 +24,7 @@
             aria-selected={activeTab === i}
             aria-controls="panel-{i}"
             id="tab-{i}"
-            class="rounded-md px-4 py-2 text-sm font-medium transition-colors
+            class="rounded-md px-4 py-3 text-sm font-medium transition-colors
               {activeTab === i
                 ? 'bg-surface-container-lowest text-on-surface shadow-sm'
                 : 'text-on-surface-variant hover:text-on-surface'
