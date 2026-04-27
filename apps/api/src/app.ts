@@ -17,6 +17,8 @@ import buscaRoutes from "./routes/busca/index.js";
 import notificacoesRoutes from "./routes/notificacoes/index.js";
 import { timelineRoutes } from "./routes/profissionais/timeline.js";
 import clerkWebhookRoutes from "./routes/webhooks/clerk.js";
+import onboardingRoutes from "./routes/onboarding/index.js";
+import organizacaoRoutes from "./routes/organizacao/index.js";
 
 export async function buildApp() {
   const app = Fastify({
@@ -49,9 +51,9 @@ export async function buildApp() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
-  // Multipart — upload de áudio (25MB max)
+  // Multipart — upload de áudio (10MB max)
   await app.register(multipart, {
-    limits: { fileSize: 25 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 },
   });
 
   // Zod error handler
@@ -85,6 +87,8 @@ export async function buildApp() {
   await app.register(buscaRoutes, { prefix: "/busca" });
   await app.register(notificacoesRoutes, { prefix: "/notificacoes" });
   await app.register(timelineRoutes);
+  await app.register(onboardingRoutes, { prefix: "/onboarding" });
+  await app.register(organizacaoRoutes, { prefix: "/organizacao" });
 
   return app;
 }
