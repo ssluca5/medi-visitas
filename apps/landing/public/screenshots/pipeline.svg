@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <rect width="1440" height="900" fill="#f8f9fa"/>
+  <rect x="0" y="0" width="1440" height="56" fill="#2563eb"/>
+  <text x="720" y="470" font-family="Inter,sans-serif" font-size="32" fill="#0f172a" text-anchor="middle">Pipeline screenshot</text>
+  <text x="720" y="510" font-family="Inter,sans-serif" font-size="16" fill="#64748b" text-anchor="middle">Placeholder — replace with real screenshot</text>
+</svg>
