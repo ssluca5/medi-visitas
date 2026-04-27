@@ -1,0 +1,60 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+}
+
+const {
+  title = "MediVisitas — CRM para Propagandistas Farmacêuticos",
+  description = "Organize visitas, acompanhe profissionais e aumente suas prescrições. CRM feito para propagandistas farmacêuticos.",
+  canonical = "https://medivisitas.com",
+} = Astro.props;
+---
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content="https://medivisitas.com/og-image.png" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Global styles -->
+  <style is:global>@import "../styles/global.css";</style>
+
+  <!-- Schema.org -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MediVisitas",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "description": description,
+    "offers": [{
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "BRL",
+      "name": "Individual"
+    }]
+  })} />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+  <slot />
+</body>
+</html>
