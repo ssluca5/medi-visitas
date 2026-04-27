@@ -38,6 +38,32 @@ Criar landing page estática em Astro para `medivisitas.com`, separada do app Sv
 - Built-in sitemap, SEO otimizado
 - Consistência com Svelte (mesmo ecossistema do app)
 
+### astro.config.mjs
+
+```js
+import { defineConfig } from "astro/config";
+import svelte from "@astrojs/svelte";
+import sitemap from "@astrojs/sitemap";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  site: "https://medivisitas.com",
+  output: "static",
+  integrations: [svelte(), sitemap()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+```
+
+### tsconfig.json
+
+```json
+{
+  "extends": "astro/tsconfigs/strict"
+}
+```
+
 ---
 
 ## Directory Structure
@@ -45,6 +71,7 @@ Criar landing page estática em Astro para `medivisitas.com`, separada do app Sv
 ```
 apps/landing/
 ├── astro.config.mjs
+├── tsconfig.json
 ├── src/
 │   ├── layouts/
 │   │   └── Base.astro
@@ -92,7 +119,7 @@ Compartilhar as mesmas CSS variables do app (`apps/web/src/app.css`):
 }
 ```
 
-Fonte: Inter (Google Fonts via `<link>`)
+Fonte: Inter (Google Fonts via `<link>` com `display=swap` e preconnect para `fonts.googleapis.com`)
 
 ---
 
@@ -140,6 +167,7 @@ Funcionalidades:
 - Cada tab mostra screenshot .webp correspondente
 - Transição suave entre tabs (fade)
 - Imagens com `loading="lazy"` e dimensões explícitas
+- ARIA: `role="tablist"` no container de tabs, `role="tab"` em cada botão, `role="tabpanel"` no conteúdo
 
 ### 5. Planos
 
@@ -187,7 +215,7 @@ Tabela de planos expandida com FAQ.
 
 ### /contato
 
-Informações de contato + CTAs (sem formulário funcional).
+Informações de contato + CTAs (sem formulário funcional). Incluir email `contato@medivisitas.com` e link para WhatsApp comercial.
 
 ---
 
@@ -250,8 +278,8 @@ Informações de contato + CTAs (sem formulário funcional).
   "dependencies": {
     "astro": "^5.x",
     "@astrojs/svelte": "^4.x",
-    "@astrojs/tailwind": "^6.x",
     "@astrojs/sitemap": "^3.x",
+    "@tailwindcss/vite": "^4.x",
     "svelte": "^5.x",
     "tailwindcss": "^4.x",
     "lucide-svelte": "^0.x"
