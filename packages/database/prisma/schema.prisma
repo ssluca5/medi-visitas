@@ -84,6 +84,25 @@ enum Tratamento {
   SRA
 }
 
+enum PlanoOrganizacao {
+  TRIAL
+  INDIVIDUAL
+  EMPRESA
+  ENTERPRISE
+}
+
+enum StatusOrganizacao {
+  TRIAL_ATIVO
+  ATIVO
+  SUSPENSO
+  CANCELADO
+}
+
+enum RoleMembro {
+  OWNER
+  MEMBER
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -101,27 +120,66 @@ model User {
 }
 
 model Organization {
-  id         String    @id @default(cuid())
-  clerkOrgId String    @unique
-  name       String
-  deletedAt  DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id                String              @id @default(cuid())
+  clerkOrgId        String              @unique
+  nome              String
+  slug              String              @unique
+  plano             PlanoOrganizacao    @default(TRIAL)
+  status            StatusOrganizacao   @default(TRIAL_ATIVO)
+  trialExpiraEm     DateTime
+  planoAtivoEm      DateTime?
+  stripeCustomerId  String?             @unique
+  stripeSubId       String?             @unique
+  limiteUsuarios    Int                 @default(1)
+  deletedAt         DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  membros           OrganizationMembro[]
+  profissionais     Profissional[]
+  especialidades    Especialidade[]
+  visitas           Visita[]
+  agendaItems       AgendaItem[]
+  notificacoes      Notificacao[]
+  materiais         MaterialTecnico[]
+  estagioLogs       EstagioLog[]
+
+  @@index([clerkOrgId])
+  @@index([status])
+  @@index([trialExpiraEm])
+}
+
+model OrganizationMembro {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  userId         String
+  role           RoleMembro   @default(MEMBER)
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@index([organizationId])
 }
 
 model Especialidade {
-  id        String    @id @default(cuid())
-  nome      String
-  categoria String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id             String         @id @default(cuid())
+  nome           String
+  categoria      String
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
 
   profissionais Profissional[]
   subEspecialidades SubEspecialidade[]
 
   @@index([categoria])
   @@index([deletedAt])
+  @@index([organizationId])
 }
 
 model Endereco {
@@ -174,6 +232,8 @@ model Profissional {
   observacoes     String?
   nomeConjuge     String?
   dataNascConjuge DateTime?
+  organizationId  String
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?
@@ -192,6 +252,7 @@ model Profissional {
   @@index([especialidadeId])
   @@index([classificacao])
   @@index([subEspecialidadeId])
+  @@index([organizationId])
 }
 
 model ContatoProfissional {
@@ -217,12 +278,15 @@ model EstagioLog {
   estagioAnterior EstagioPipeline?
   estagioNovo     EstagioPipeline
   userId          String
+  organizationId  String
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   createdAt       DateTime       @default(now())
 
   profissional    Profissional   @relation(fields: [profissionalId], references: [id], onDelete: Restrict)
 
   @@index([profissionalId])
   @@index([userId])
+  @@index([organizationId])
 }
 
 model Visita {
@@ -241,6 +305,8 @@ model Visita {
   motivoNaoRealizacao String?
   materiais      VisitaMaterial[]
   agendaItems    AgendaItem[]
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   // SEM deletedAt — cancelar via status (regra CLAUDE.md)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -249,21 +315,25 @@ model Visita {
   @@index([userId])
   @@index([status])
   @@index([dataVisita])
+  @@index([organizationId])
 }
 
 model MaterialTecnico {
-  id         String           @id @default(cuid())
-  nome       String
-  descricao  String?
-  tipo       TipoMaterial
-  arquivoUrl String?
-  visitas    VisitaMaterial[]
+  id             String           @id @default(cuid())
+  nome           String
+  descricao      String?
+  tipo           TipoMaterial
+  arquivoUrl     String?
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  visitas        VisitaMaterial[]
   deletedAt  DateTime?
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
   @@index([tipo])
   @@index([deletedAt])
+  @@index([organizationId])
 }
 
 model VisitaMaterial {
@@ -293,6 +363,8 @@ model AgendaItem {
   status          StatusAgenda     @default(PLANEJADO)
   prioridade      PrioridadeAgenda @default(MEDIA)
   observacoes     String?
+  organizationId  String
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   deletedAt       DateTime?        // soft delete
@@ -302,6 +374,7 @@ model AgendaItem {
   @@index([dataHoraInicio])
   @@index([status])
   @@index([deletedAt])
+  @@index([organizationId])
 }
 
 // ============================================
@@ -339,6 +412,8 @@ model Notificacao {
   visitaId       String?
   // Soft delete padrão
   deletedAt      DateTime?
+  organizationId String
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
 
@@ -347,4 +422,5 @@ model Notificacao {
   @@index([tipo])
   @@index([createdAt])
   @@index([deletedAt])
+  @@index([organizationId])
 }
