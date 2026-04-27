@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth";
+import { resolveTenant } from "../../hooks/tenant";
+import { buildTenantWhere } from "../../lib/tenant";
 import { prisma } from "../../lib/prisma";
 import { z } from "zod";
 
@@ -34,13 +36,16 @@ export default async function subespecialidadesRoutes(
   app.get(
     "/subespecialidades",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const query = ListSubEspecialidadesQuerySchema.parse(request.query);
       const { especialidadeId } = query;
 
-      const where: Record<string, unknown> = { deletedAt: null };
+      const where: Record<string, unknown> = {
+        deletedAt: null,
+        especialidade: { organizationId: request.organizationId },
+      };
       if (especialidadeId) {
         where.especialidadeId = especialidadeId;
       }
@@ -65,13 +70,17 @@ export default async function subespecialidadesRoutes(
   app.get(
     "/subespecialidades/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
 
       const subespecialidade = await prisma.subEspecialidade.findUnique({
-        where: { id, deletedAt: null },
+        where: {
+          id,
+          deletedAt: null,
+          especialidade: { organizationId: request.organizationId },
+        },
         include: {
           especialidade: {
             select: { id: true, nome: true, categoria: true },
@@ -95,14 +104,14 @@ export default async function subespecialidadesRoutes(
   app.post(
     "/subespecialidades",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const data = CreateSubEspecialidadeSchema.parse(request.body);
 
       // Verificar se especialidade existe
       const especialidade = await prisma.especialidade.findUnique({
-        where: { id: data.especialidadeId, deletedAt: null },
+        where: { id: data.especialidadeId, ...buildTenantWhere(request) },
       });
 
       if (!especialidade) {
@@ -142,14 +151,18 @@ export default async function subespecialidadesRoutes(
   app.put(
     "/subespecialidades/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
       const data = UpdateSubEspecialidadeSchema.parse(request.body);
 
       const existente = await prisma.subEspecialidade.findUnique({
-        where: { id, deletedAt: null },
+        where: {
+          id,
+          deletedAt: null,
+          especialidade: { organizationId: request.organizationId },
+        },
       });
 
       if (!existente) {
@@ -160,7 +173,7 @@ export default async function subespecialidadesRoutes(
 
       if (data.especialidadeId) {
         const especialidade = await prisma.especialidade.findUnique({
-          where: { id: data.especialidadeId, deletedAt: null },
+          where: { id: data.especialidadeId, ...buildTenantWhere(request) },
         });
         if (!especialidade) {
           return reply
@@ -206,7 +219,7 @@ export default async function subespecialidadesRoutes(
   app.patch(
     "/subespecialidades/:id/ativo",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
@@ -241,13 +254,17 @@ export default async function subespecialidadesRoutes(
   app.delete(
     "/subespecialidades/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
 
       const subespecialidade = await prisma.subEspecialidade.findUnique({
-        where: { id, deletedAt: null },
+        where: {
+          id,
+          deletedAt: null,
+          especialidade: { organizationId: request.organizationId },
+        },
       });
 
       if (!subespecialidade) {

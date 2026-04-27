@@ -1,6 +1,8 @@
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import {
   PipelineQuerySchema,
   MetricasQuerySchema,
@@ -141,18 +143,16 @@ function generatePeriodKeys(
 // ─── Plugin principal ────────────────────────────────────
 
 const pipelineRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
 
   // ── GET /pipeline ─────────────────────────────────────
   app.get("/", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized" });
-    }
-
     const query = PipelineQuerySchema.parse(request.query);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, unknown> = buildTenantWhere(request);
 
     if (query.busca) {
       where.OR = [
@@ -203,30 +203,27 @@ const pipelineRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /pipeline/metricas ────────────────────────────
   app.get("/metricas", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized" });
-    }
-
     const query = MetricasQuerySchema.parse(request.query);
     const dataFim = query.dataFim ?? new Date();
     const dataInicio =
       query.dataInicio ??
       new Date(dataFim.getTime() - 30 * 24 * 60 * 60 * 1000);
 
+    const tenantWhere = buildTenantWhere(request);
+
     // Totais
     const totalProfissionais = await prisma.profissional.count({
-      where: { deletedAt: null },
+      where: tenantWhere,
     });
 
     const totalAtivos = await prisma.profissional.count({
-      where: { deletedAt: null },
+      where: tenantWhere,
     });
 
     // Visitas no período
     const visitasRealizadas = await prisma.visita.count({
       where: {
-        userId,
+        ...buildTenantWhere(request, { hasDeletedAt: false }),
         status: "REALIZADA",
         dataVisita: { gte: dataInicio, lte: dataFim },
       },
@@ -234,7 +231,7 @@ const pipelineRoutes: FastifyPluginAsync = async (app) => {
 
     const visitasPlanejadas = await prisma.visita.count({
       where: {
-        userId,
+        ...buildTenantWhere(request, { hasDeletedAt: false }),
         status: "AGENDADA",
         dataVisita: { gte: dataInicio, lte: dataFim },
       },
@@ -287,17 +284,13 @@ const pipelineRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /pipeline/evolucao ────────────────────────────
   app.get("/evolucao", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized" });
-    }
-
     const query = EvolucaoQuerySchema.parse(request.query);
     const { dataInicio, dataFim, granularidade } = query;
 
     // Buscar EstagioLogs no período
     const logs = await prisma.estagioLog.findMany({
       where: {
+        organizationId: request.organizationId,
         createdAt: { gte: dataInicio, lte: dataFim },
       },
       orderBy: { createdAt: "asc" },
@@ -340,18 +333,13 @@ const pipelineRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /pipeline/visitas-por-periodo ─────────────────
   app.get("/visitas-por-periodo", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized" });
-    }
-
     const query = VisitasPeriodoQuerySchema.parse(request.query);
     const { dataInicio, dataFim, granularidade } = query;
 
     // Buscar visitas no período
     const visitas = await prisma.visita.findMany({
       where: {
-        userId,
+        ...buildTenantWhere(request, { hasDeletedAt: false }),
         dataVisita: { gte: dataInicio, lte: dataFim },
       },
       select: { dataVisita: true, status: true },
@@ -398,13 +386,8 @@ const pipelineRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /pipeline/exportar ────────────────────────────
   app.get("/exportar", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized" });
-    }
-
     const profissionais = await prisma.profissional.findMany({
-      where: { deletedAt: null },
+      where: buildTenantWhere(request),
       include: {
         especialidade: { select: { nome: true } },
         endereco: { select: { cidade: true, estado: true } },

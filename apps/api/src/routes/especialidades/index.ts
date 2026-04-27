@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth";
+import { resolveTenant } from "../../hooks/tenant";
+import { buildTenantWhere } from "../../lib/tenant";
 import { prisma } from "../../lib/prisma";
 import { z } from "zod";
 
@@ -40,13 +42,15 @@ export default async function especialidadesRoutes(
   app.get(
     "/especialidades",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const query = ListEspecialidadesQuerySchema.parse(request.query);
       const { ativo, categoria, incluirInativos } = query;
 
-      const where: Record<string, unknown> = {};
+      const where: Record<string, unknown> = {
+        organizationId: request.organizationId,
+      };
 
       // Filtro por ativo
       // Se ativo=true, retorna apenas ativas (deletedAt=null)
@@ -96,13 +100,13 @@ export default async function especialidadesRoutes(
   app.get(
     "/especialidades/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
 
       const especialidade = await prisma.especialidade.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, ...buildTenantWhere(request) },
         include: {
           subEspecialidades: {
             where: { deletedAt: null },
@@ -129,7 +133,7 @@ export default async function especialidadesRoutes(
   app.get(
     "/especialidades/:id/subespecialidades",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
@@ -138,7 +142,7 @@ export default async function especialidadesRoutes(
         .parse(request.query);
 
       const especialidade = await prisma.especialidade.findUnique({
-        where: { id },
+        where: { id, organizationId: request.organizationId },
       });
 
       if (!especialidade) {
@@ -166,7 +170,7 @@ export default async function especialidadesRoutes(
   app.post(
     "/especialidades",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const data = CreateEspecialidadeSchema.parse(request.body);
@@ -175,6 +179,7 @@ export default async function especialidadesRoutes(
         data: {
           nome: data.nome,
           categoria: data.categoria,
+          organizationId: request.organizationId!,
         },
       });
 
@@ -191,7 +196,7 @@ export default async function especialidadesRoutes(
   app.put(
     "/especialidades/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
@@ -199,7 +204,7 @@ export default async function especialidadesRoutes(
 
       // Verificar se especialidade existe
       const existente = await prisma.especialidade.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, ...buildTenantWhere(request) },
       });
 
       if (!existente) {
@@ -227,14 +232,14 @@ export default async function especialidadesRoutes(
   app.patch(
     "/especialidades/:id/ativo",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
       const { ativo } = ToggleAtivoSchema.parse(request.body);
 
       const existente = await prisma.especialidade.findUnique({
-        where: { id },
+        where: { id, organizationId: request.organizationId },
       });
 
       if (!existente) {
@@ -299,13 +304,13 @@ export default async function especialidadesRoutes(
   app.get(
     "/especialidades/:id/profissionais-ativos",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
 
       const existente = await prisma.especialidade.findUnique({
-        where: { id },
+        where: { id, organizationId: request.organizationId },
       });
 
       if (!existente) {
@@ -313,7 +318,7 @@ export default async function especialidadesRoutes(
       }
 
       const count = await prisma.profissional.count({
-        where: { especialidadeId: id, deletedAt: null },
+        where: { especialidadeId: id, ...buildTenantWhere(request) },
       });
 
       return reply.send({ temProfissionaisAtivos: count > 0, count });
@@ -326,14 +331,14 @@ export default async function especialidadesRoutes(
   app.delete(
     "/especialidades/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params as { id: string };
 
       // Verificar se especialidade existe (busca sem filtro de deletedAt)
       const existente = await prisma.especialidade.findUnique({
-        where: { id },
+        where: { id, organizationId: request.organizationId },
       });
 
       if (!existente) {
@@ -342,7 +347,7 @@ export default async function especialidadesRoutes(
 
       // Verificar se tem profissionais vinculados
       const count = await prisma.profissional.count({
-        where: { especialidadeId: id, deletedAt: null },
+        where: { especialidadeId: id, ...buildTenantWhere(request) },
       });
 
       if (count > 0) {
@@ -373,14 +378,14 @@ export default async function especialidadesRoutes(
   app.delete(
     "/especialidades/categorias/:categoria",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { categoria } = request.params as { categoria: string };
 
       // Buscar todas as especialidades da categoria
       const especialidades = await prisma.especialidade.findMany({
-        where: { categoria, deletedAt: null },
+        where: { categoria, ...buildTenantWhere(request) },
         select: { id: true },
       });
 
@@ -425,11 +430,11 @@ export default async function especialidadesRoutes(
   app.get(
     "/especialidades/categorias",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
-    async (_request, reply) => {
+    async (request, reply) => {
       const categorias = await prisma.especialidade.findMany({
-        where: { deletedAt: null },
+        where: { ...buildTenantWhere(request) },
         select: { categoria: true },
         distinct: ["categoria"],
         orderBy: { categoria: "asc" },

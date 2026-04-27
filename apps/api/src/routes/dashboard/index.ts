@@ -1,6 +1,8 @@
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 
 // ─── Alert types ──────────────────────────────────────────
 
@@ -119,13 +121,13 @@ export function buildAlertas(params: {
 // ─── Plugin principal ─────────────────────────────────────
 
 const dashboardRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
 
   // ── GET /dashboard/resumo ─────────────────────────────
   app.get("/resumo", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
-
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const amanha = new Date(hoje);
@@ -144,24 +146,27 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       ultimasVisitas,
       proximosAgendamentos,
     ] = await Promise.all([
-      prisma.profissional.count({ where: { deletedAt: null } }),
-      prisma.especialidade.count({ where: { deletedAt: null } }),
+      prisma.profissional.count({ where: buildTenantWhere(request) }),
+      prisma.especialidade.count({ where: buildTenantWhere(request) }),
       prisma.visita.count({
         where: {
-          userId,
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
           status: "REALIZADA",
           dataVisita: { gte: hoje, lt: amanha },
         },
       }),
       prisma.visita.count({
         where: {
-          userId,
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
           status: "REALIZADA",
           dataVisita: { gte: inicioSemana, lt: fimSemana },
         },
       }),
       prisma.visita.findMany({
-        where: { userId, status: "REALIZADA" },
+        where: {
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
+          status: "REALIZADA",
+        },
         orderBy: { dataVisita: "desc" },
         take: 5,
         include: {
@@ -172,10 +177,9 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.agendaItem.findMany({
         where: {
-          userId,
+          ...buildTenantWhere(request),
           status: "PLANEJADO",
           dataHoraInicio: { gte: new Date() },
-          deletedAt: null,
         },
         orderBy: { dataHoraInicio: "asc" },
         take: 5,
@@ -199,9 +203,6 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /dashboard/alertas ────────────────────────────
   app.get("/alertas", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
-
     const agora = new Date();
 
     // Today boundaries
@@ -217,7 +218,7 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       prospectadosSemVisita,
     ] = await Promise.all([
       prisma.profissional.findMany({
-        where: { deletedAt: null },
+        where: buildTenantWhere(request),
         select: {
           id: true,
           nome: true,
@@ -232,10 +233,9 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.agendaItem.findMany({
         where: {
-          userId,
+          ...buildTenantWhere(request),
           status: "PLANEJADO",
           dataHoraInicio: { lt: agora },
-          deletedAt: null,
         },
         include: {
           profissional: { select: { nome: true } },
@@ -243,10 +243,9 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.agendaItem.findMany({
         where: {
-          userId,
+          ...buildTenantWhere(request),
           status: "PLANEJADO",
           dataHoraInicio: { gte: hojeInicio, lt: hojeFim },
-          deletedAt: null,
         },
         include: {
           profissional: { select: { nome: true } },
@@ -254,7 +253,7 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.profissional.findMany({
         where: {
-          deletedAt: null,
+          ...buildTenantWhere(request),
           estagioPipeline: "PROSPECTADO",
           visitas: { none: {} },
         },
