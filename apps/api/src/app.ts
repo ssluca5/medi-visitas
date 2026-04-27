@@ -17,6 +17,8 @@ import buscaRoutes from "./routes/busca/index.js";
 import notificacoesRoutes from "./routes/notificacoes/index.js";
 import { timelineRoutes } from "./routes/profissionais/timeline.js";
 import clerkWebhookRoutes from "./routes/webhooks/clerk.js";
+import stripeWebhookRoutes from "./routes/webhooks/stripe.js";
+import billingRoutes from "./routes/billing/index.js";
 import onboardingRoutes from "./routes/onboarding/index.js";
 import organizacaoRoutes from "./routes/organizacao/index.js";
 
@@ -56,6 +58,22 @@ export async function buildApp() {
     limits: { fileSize: 10 * 1024 * 1024 },
   });
 
+  // Raw body — needed for Stripe webhook signature verification
+  // Uses built-in parser instead of fastify-raw-body (peer dep requires Fastify 5)
+  app.addContentTypeParser(
+    "application/json",
+    { parseAs: "buffer" },
+    (req, body, done) => {
+      (req as any).rawBody = body;
+      try {
+        const json = JSON.parse(body.toString());
+        done(null, json);
+      } catch (err) {
+        done(err as Error, undefined);
+      }
+    },
+  );
+
   // Zod error handler
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ZodError) {
@@ -75,6 +93,7 @@ export async function buildApp() {
 
   // Rotas
   await app.register(clerkWebhookRoutes); // Webhook público (sem auth)
+  await app.register(stripeWebhookRoutes); // Stripe webhook público (sem auth)
   await app.register(meRoutes);
   await app.register(profissionaisRoutes);
   await app.register(especialidadesRoutes);
@@ -89,6 +108,7 @@ export async function buildApp() {
   await app.register(timelineRoutes);
   await app.register(onboardingRoutes, { prefix: "/onboarding" });
   await app.register(organizacaoRoutes, { prefix: "/organizacao" });
+  await app.register(billingRoutes, { prefix: "/billing" });
 
   return app;
 }
