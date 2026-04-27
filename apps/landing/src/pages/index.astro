@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import Pain from "../components/Pain.astro";
+import Insight from "../components/Insight.astro";
+import Solution from "../components/Solution.astro";
+import Screenshots from "../components/Screenshots.svelte";
+import Planos from "../components/Planos.astro";
+import CTA from "../components/CTA.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Base>
+  <Header />
+  <main>
+    <Hero />
+    <Pain />
+    <Insight />
+    <Solution />
+    <Screenshots client:load />
+    <Planos />
+    <CTA />
+  </main>
+  <Footer />
+</Base>

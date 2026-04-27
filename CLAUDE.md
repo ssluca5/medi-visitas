@@ -69,6 +69,7 @@ Prospectado → Visitado → Interessado → Prescritor → Fidelizado
 ```powershell
 # Dev
 pnpm --filter @medivisitas/web dev   # Frontend SvelteKit (porta 5173)
+pnpm --filter @medivisitas/landing dev # Landing page Astro (porta 4321)
 pnpm dev:api                          # Backend Fastify (porta 3002)
 
 # Build
@@ -98,7 +99,9 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | 7    | Pipeline comercial + Analytics     | ✅ Concluída |
 | 8    | Notificações + Lembretes           | ✅ Concluída |
 | 9    | Integração API farmácia            | ⬜ Pendente  |
-| 10   | Multi-tenant SaaS                  | ⬜ Pendente  |
+| 10A  | Multi-tenant SaaS                  | ✅ Concluída |
+| 10B  | Billing Stripe                     | ✅ Concluída |
+| 11   | Landing Page (Astro)               | ✅ Concluída |
 
 ---
 
@@ -162,6 +165,28 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - **Edge Function:** gerar-lembretes (cron 09:00 UTC = 06:00 BRT)
 - **Polling:** 60s no SinoNotificacoes com cleanup via `$effect` return
 - **Decisões:** profissionalId/agendaItemId/visitaId sem FK (referências opcionais), polling 60s (não SSE), `{@const}` → `$derived` para ícone/cor no ItemNotificacao
+
+### Fase 10B — Billing Stripe
+
+- **Concluída em:** 2026-04-19
+- **Dependência adicionada:** stripe
+- **Serviço:** `apps/api/src/services/stripe.ts` (Checkout + Portal)
+- **Rotas:** POST /billing/checkout, POST /billing/portal, GET /billing/status, POST /webhooks/stripe
+- **Edge Function:** verificar-trials (cron diário 09:00 UTC)
+- **Frontend:** /planos com cards de planos, Sidebar trial banner
+- **Webhook eventos:** checkout.session.completed, invoice.payment_failed, customer.subscription.deleted
+- **Decisões:** rawBody via `addContentTypeParser` (não fastify-raw-body, incompatível com Fastify 4), `current_period_end` via `sub.items.data[0]` (Stripe SDK v22), `invoice.parent?.subscription_details?.subscription` (Invoice.subscription removido no v22)
+
+### Fase 11 — Landing Page (Astro)
+
+- **Concluída em:** 2026-04-26
+- **Stack:** Astro 5 (static) + Svelte 5 islands + Tailwind CSS v4
+- **Package:** `@medivisitas/landing` (porta 4321)
+- **Páginas:** /, /funcionalidades, /planos, /contato
+- **Componentes:** Header, Hero, Features, Screenshots (Svelte island), Planos, CTA, Footer
+- **SEO:** @astrojs/sitemap, schema.org SoftwareApplication, OG tags
+- **Domínio:** medivisitas.com (landing) / app.medivisitas.com (app)
+- **Decisões:** Tailwind v4 via @tailwindcss/vite (não @astrojs/tailwind), screenshots como Svelte island com client:load, sem formulário de contato (apenas CTAs)
 
 ## Design System
 

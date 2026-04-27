@@ -49,7 +49,7 @@ describe("Transcrição Routes", () => {
     const { ZodError } = await import("zod");
 
     app = Fastify();
-    await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
+    await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } });
 
     app.setErrorHandler((error: any, _request: any, reply: any) => {
       if (error instanceof ZodError) {

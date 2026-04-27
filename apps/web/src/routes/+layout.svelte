@@ -8,7 +8,14 @@
 	import type { Snippet } from 'svelte';
 
 	interface Props {
-		data: { userId: string | null; sessionToken: string | null; userName?: string };
+		data: {
+			userId: string | null;
+			sessionToken: string | null;
+			userName?: string;
+			plano?: string;
+			organizationId?: string;
+			trialExpiraEm?: string;
+		};
 		children: Snippet;
 	}
 
@@ -36,7 +43,13 @@
 {#if isDashboard}
 	<div class="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-[rgb(var(--slate-50))]">
 		<MobileNav userName={data.userName ?? 'Usuário'} sessionToken={data.sessionToken} />
-		<Sidebar userName={data.userName ?? 'Usuário'} sessionToken={data.sessionToken} />
+		<Sidebar
+			userName={data.userName ?? 'Usuário'}
+			sessionToken={data.sessionToken}
+			plano={data.plano}
+			organizationId={data.organizationId}
+			trialExpiraEm={data.trialExpiraEm}
+		/>
 
 		<main class="flex-1 min-w-0 h-full overflow-y-auto">
 			<div class="p-4 lg:p-8">

@@ -1,0 +1,32 @@
+---
+const navItems = [
+  { label: "Funcionalidades", href: "/funcionalidades" },
+  { label: "Planos", href: "/planos" },
+  { label: "Contato", href: "/contato" },
+];
+---
+
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant">
+  <div class="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-8">
+    <a href="/" class="text-xl font-bold tracking-tighter text-on-surface">
+      MediVisitas
+    </a>
+
+    <nav class="hidden items-center gap-8 md:flex">
+      {navItems.map((item) => (
+        <a href={item.href} class="text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface-variant transition-colors hover:text-primary">
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-4">
+      <a href="https://app.medivisitas.com/login" class="hidden text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface-variant transition-colors hover:text-primary sm:block">
+        Login
+      </a>
+      <a href="https://app.medivisitas.com/signup" class="rounded bg-primary px-6 py-3 text-[12px] font-bold uppercase tracking-[0.1em] text-on-primary transition-colors hover:bg-surface-tint">
+        Começar
+      </a>
+    </div>
+  </div>
+</header>

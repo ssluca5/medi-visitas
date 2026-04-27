@@ -1,11 +1,12 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { verifyToken } from "@clerk/backend";
 import { verifyClerkToken } from "../hooks/auth";
+import { resolveTenant } from "../hooks/tenant";
 
 export default async function meRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     "/me",
-    { preHandler: [verifyClerkToken] },
+    { preHandler: [verifyClerkToken, resolveTenant] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const token = request.headers.authorization?.replace("Bearer ", "");
       if (!token) return reply.code(401).send({ error: "Unauthorized" });

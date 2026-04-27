@@ -1,22 +1,22 @@
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import { ListNotificacoesQuerySchema } from "./schemas.js";
 
 const notificacoesRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
 
   // ────────────────────────────────────────────
   // 1. GET /contagem — REGISTRAR PRIMEIRO (estática)
   // ────────────────────────────────────────────
   app.get("/contagem", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
-
     const naoLidas = await prisma.notificacao.count({
-      where: { userId, lida: false, deletedAt: null },
+      where: { ...buildTenantWhere(request), lida: false },
     });
 
     return { naoLidas };
@@ -26,13 +26,8 @@ const notificacoesRoutes: FastifyPluginAsync = async (app) => {
   // 2. PATCH /marcar-todas-lidas — REGISTRAR ANTES de :id
   // ────────────────────────────────────────────
   app.patch("/marcar-todas-lidas", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
-
     const result = await prisma.notificacao.updateMany({
-      where: { userId, lida: false, deletedAt: null },
+      where: { ...buildTenantWhere(request), lida: false },
       data: { lida: true, lidaEm: new Date() },
     });
 
@@ -43,14 +38,9 @@ const notificacoesRoutes: FastifyPluginAsync = async (app) => {
   // 3. GET / — listagem com filtros e paginação
   // ────────────────────────────────────────────
   app.get("/", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
-
     const query = ListNotificacoesQuerySchema.parse(request.query);
 
-    const where: any = { userId, deletedAt: null };
+    const where: any = buildTenantWhere(request);
     if (query.lida !== undefined) where.lida = query.lida;
     if (query.tipo) where.tipo = query.tipo;
 
@@ -63,7 +53,7 @@ const notificacoesRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.notificacao.count({ where }),
       prisma.notificacao.count({
-        where: { userId, lida: false, deletedAt: null },
+        where: { ...buildTenantWhere(request), lida: false },
       }),
     ]);
 
@@ -81,15 +71,10 @@ const notificacoesRoutes: FastifyPluginAsync = async (app) => {
   // 4. PATCH /:id/lida — dinâmica
   // ────────────────────────────────────────────
   app.patch("/:id/lida", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
-
     const { id } = request.params as { id: string };
 
     const existing = await prisma.notificacao.findFirst({
-      where: { id, userId, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
 
     if (!existing) {
@@ -108,15 +93,10 @@ const notificacoesRoutes: FastifyPluginAsync = async (app) => {
   // 5. DELETE /:id — soft delete, dinâmica
   // ────────────────────────────────────────────
   app.delete("/:id", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
-
     const { id } = request.params as { id: string };
 
     const existing = await prisma.notificacao.findFirst({
-      where: { id, userId, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
 
     if (!existing) {

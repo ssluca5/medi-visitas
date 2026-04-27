@@ -1,6 +1,8 @@
 import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import {
   CreateMaterialInputSchema,
   UpdateMaterialInputSchema,
@@ -9,12 +11,15 @@ import {
 
 const materiaisRoutes: FastifyPluginAsync = async (app) => {
   // Autenticação obrigatória
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
 
   app.post("/", async (request, reply) => {
     const input = CreateMaterialInputSchema.parse(request.body);
     const material = await prisma.materialTecnico.create({
-      data: input,
+      data: { ...input, organizationId: request.organizationId! },
     });
     return reply.status(201).send(material);
   });
@@ -24,9 +29,12 @@ const materiaisRoutes: FastifyPluginAsync = async (app) => {
     // Cast manual for incluirInativos because schema doesn't have it explicitly right now, or just use request.query
     const { incluirInativos } = request.query as { incluirInativos?: string };
 
-    const where: any = {};
+    const where: any = { organizationId: request.organizationId };
     if (incluirInativos !== "true") {
       where.deletedAt = null;
+    }
+    if (request.role === "MEMBER") {
+      where.userId = request.userId;
     }
 
     if (query.busca) {
@@ -65,7 +73,7 @@ const materiaisRoutes: FastifyPluginAsync = async (app) => {
     const input = UpdateMaterialInputSchema.parse(request.body);
 
     const existing = await prisma.materialTecnico.findFirst({
-      where: { id },
+      where: { id, organizationId: request.organizationId },
     });
 
     if (!existing) {
@@ -85,7 +93,7 @@ const materiaisRoutes: FastifyPluginAsync = async (app) => {
     const { ativo } = request.body as { ativo: boolean };
 
     const existing = await prisma.materialTecnico.findUnique({
-      where: { id },
+      where: { id, organizationId: request.organizationId },
     });
 
     if (!existing) {
@@ -104,7 +112,7 @@ const materiaisRoutes: FastifyPluginAsync = async (app) => {
     const { id } = request.params as { id: string };
 
     const existing = await prisma.materialTecnico.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
 
     if (!existing) {

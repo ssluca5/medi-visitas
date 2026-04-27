@@ -1,6 +1,8 @@
 import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import {
   CreateVisitaInputSchema,
   UpdateVisitaInputSchema,
@@ -22,14 +24,13 @@ const AUDIO_TYPES = [
 ];
 
 const visitasRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
 
   app.post("/", async (request, reply) => {
     const input = CreateVisitaInputSchema.parse(request.body);
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
 
     const { materiais, ...visitaData } = input;
 
@@ -39,7 +40,8 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
       data: {
         ...visitaData,
         dataVisita: dataVisitaValue,
-        userId,
+        userId: request.userId!,
+        organizationId: request.organizationId!,
         materiais: {
           create: materiais.map((m) => ({
             materialTecnicoId: m.materialTecnicoId,
@@ -58,14 +60,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get("/", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
-
     const query = ListVisitasQuerySchema.parse(request.query);
 
-    const where: any = { userId };
+    const where: any = buildTenantWhere(request, { hasDeletedAt: false });
     if (query.profissionalId) {
       where.profissionalId = query.profissionalId;
     }
@@ -114,13 +111,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.get("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
 
     const visita = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
       include: {
         profissional: true,
         materiais: {
@@ -138,14 +131,10 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.put("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const input = UpdateVisitaInputSchema.parse(request.body);
 
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {
@@ -203,14 +192,10 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.patch("/:id/status", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const input = PatchVisitaStatusInputSchema.parse(request.body);
 
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {
@@ -252,13 +237,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   // POST /visitas/:id/transcricao — gravação de áudio → STT → Chat
   app.post("/:id/transcricao", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
 
     const visita = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!visita) {
@@ -280,8 +261,8 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const buffer = await file.toBuffer();
-    if (buffer.length > 25 * 1024 * 1024) {
-      return reply.status(400).send({ error: "Arquivo excede 25MB" });
+    if (buffer.length > 10 * 1024 * 1024) {
+      return reply.status(400).send({ error: "Arquivo excede 10MB" });
     }
 
     // Passo 1: STT (Speech-to-Text)
@@ -306,10 +287,6 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   // PATCH /visitas/:id/audio — salvar URL do áudio
   app.patch("/:id/audio", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
 
     const { audioUrl } = request.body as { audioUrl?: string };
     if (!audioUrl || typeof audioUrl !== "string") {
@@ -317,7 +294,7 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {
@@ -334,13 +311,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   app.delete("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
 
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {

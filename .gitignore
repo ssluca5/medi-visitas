@@ -1,4 +1,13 @@
 .claude/settings.json
+.claude/settings.local.json
 .env
 .env.local
 node_modules/
+
+# Build artifacts
+.svelte-kit/
+apps/landing/.astro/
+apps/landing/dist/
+
+# Generated output
+graphify-out/

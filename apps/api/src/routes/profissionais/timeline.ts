@@ -1,18 +1,20 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 
 export async function timelineRoutes(app: FastifyInstance) {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
 
   app.get("/profissionais/:id/timeline", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
-
     const { id } = request.params as { id: string };
 
     const profissional = await prisma.profissional.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
       select: { id: true, nome: true },
     });
 
@@ -22,7 +24,10 @@ export async function timelineRoutes(app: FastifyInstance) {
 
     const [visitas, estagioLogs, agendaItems] = await Promise.all([
       prisma.visita.findMany({
-        where: { profissionalId: id, userId },
+        where: {
+          profissionalId: id,
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
+        },
         orderBy: { dataVisita: "desc" },
         select: {
           id: true,
@@ -34,7 +39,7 @@ export async function timelineRoutes(app: FastifyInstance) {
         },
       }),
       prisma.estagioLog.findMany({
-        where: { profissionalId: id },
+        where: { profissionalId: id, organizationId: request.organizationId },
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
@@ -44,7 +49,7 @@ export async function timelineRoutes(app: FastifyInstance) {
         },
       }),
       prisma.agendaItem.findMany({
-        where: { profissionalId: id, userId, deletedAt: null },
+        where: { profissionalId: id, ...buildTenantWhere(request) },
         orderBy: { dataHoraInicio: "desc" },
         select: {
           id: true,

@@ -207,7 +207,7 @@
           id="dataInicio"
           type="date"
           bind:value={filtroDataInicio}
-          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
+          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
         />
       </div>
 
@@ -218,7 +218,7 @@
           id="dataFim"
           type="date"
           bind:value={filtroDataFim}
-          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
+          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
         />
       </div>
 
@@ -228,7 +228,7 @@
         <select 
           id="filtroStatusVisita"
           bind:value={filtroStatus}
-          class="block w-full bg-[rgb(var(--slate-50))]/50 rounded-lg border border-[rgb(var(--slate-200))] py-2 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 shadow-sm"
+          class="block w-full bg-[rgb(var(--slate-50))]/50 rounded-lg border border-[rgb(var(--slate-200))] py-2 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 shadow-sm cursor-pointer"
         >
           <option value="">Todos</option>
           <option value="AGENDADA">Agendadas</option>
@@ -433,3 +433,9 @@
     <p>A exclusão de dados é permanente, deseja prosseguir?</p>
   {/snippet}
 </ConfirmDialog>
+
+<style>
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+</style>
