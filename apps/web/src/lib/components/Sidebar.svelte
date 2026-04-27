@@ -18,9 +18,17 @@
 	interface Props {
 		userName: string;
 		sessionToken: string | null;
+		plano?: string;
+		organizationId?: string;
 	}
 
-	let { userName, sessionToken }: Props = $props();
+	let { userName, sessionToken, plano, organizationId }: Props = $props();
+
+	let diasRestantes = $derived.by(() => {
+		if (!plano || !organizationId) return null;
+		// Trial badge shows for TRIAL plans — days remaining not tracked client-side yet
+		return null;
+	});
 
 	let collapsed = $state(false);
 
@@ -159,6 +167,19 @@
 			</a>
 		{/each}
 	</nav>
+
+	<!-- Plan badge -->
+	{#if plano && !collapsed}
+		<div class="px-3 py-2 mb-1">
+			<span
+				class="text-xs px-2 py-0.5 rounded-full font-medium {plano === 'TRIAL' || plano === 'INDIVIDUAL'
+					? 'bg-amber-100 text-amber-800'
+					: 'bg-emerald-100 text-emerald-800'}"
+			>
+				{plano === 'INDIVIDUAL' ? 'Individual' : plano === 'TRIAL' ? 'Trial' : plano === 'EMPRESA' ? 'Empresa' : plano}
+			</span>
+		</div>
+	{/if}
 
 	<!-- User footer (anchored to bottom) -->
 	<div class="mt-auto shrink-0 border-t border-[rgb(var(--slate-200))] bg-white p-4">
