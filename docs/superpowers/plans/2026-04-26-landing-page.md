@@ -841,13 +841,11 @@ git commit -m "feat(landing): Home page composing all sections"
 
 ---
 
-### Task 12: Secondary pages
+### Task 12: Funcionalidades page
 
 **Files:**
 
 - Create: `apps/landing/src/pages/funcionalidades.astro`
-- Create: `apps/landing/src/pages/planos.astro`
-- Create: `apps/landing/src/pages/contato.astro`
 
 - [ ] **Step 1: Create funcionalidades.astro**
 
@@ -876,7 +874,22 @@ import Footer from "../components/Footer.astro";
 </Base>
 ```
 
-- [ ] **Step 2: Create planos.astro**
+- [ ] **Step 2: Commit**
+
+```bash
+git add apps/landing/src/pages/funcionalidades.astro
+git commit -m "feat(landing): funcionalidades page"
+```
+
+---
+
+### Task 13: Planos page with FAQ
+
+**Files:**
+
+- Create: `apps/landing/src/pages/planos.astro`
+
+- [ ] **Step 1: Create planos.astro**
 
 ```astro
 ---
@@ -924,7 +937,22 @@ const faq = [
 </Base>
 ```
 
-- [ ] **Step 3: Create contato.astro**
+- [ ] **Step 2: Commit**
+
+```bash
+git add apps/landing/src/pages/planos.astro
+git commit -m "feat(landing): planos page with FAQ"
+```
+
+---
+
+### Task 14: Contato page
+
+**Files:**
+
+- Create: `apps/landing/src/pages/contato.astro`
+
+- [ ] **Step 1: Create contato.astro**
 
 ```astro
 ---
@@ -974,16 +1002,16 @@ import Footer from "../components/Footer.astro";
 </Base>
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 2: Commit**
 
 ```bash
-git add apps/landing/src/pages/
-git commit -m "feat(landing): secondary pages — funcionalidades, planos, contato"
+git add apps/landing/src/pages/contato.astro
+git commit -m "feat(landing): contato page"
 ```
 
 ---
 
-### Task 13: Placeholder screenshots
+### Task 15: Placeholder screenshots
 
 **Files:**
 
@@ -1044,7 +1072,7 @@ git commit -m "feat(landing): placeholder screenshots and og-image"
 
 ---
 
-### Task 14: Build verification
+### Task 16: Build verification
 
 - [ ] **Step 1: Verify pnpm install succeeds**
 
@@ -1087,7 +1115,7 @@ git commit -m "fix(landing): build verification fixes"
 
 ---
 
-### Task 15: Update CLAUDE.md
+### Task 17: Update CLAUDE.md
 
 **Files:**
 
