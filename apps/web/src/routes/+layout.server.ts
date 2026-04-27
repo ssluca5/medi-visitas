@@ -37,6 +37,7 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
         role: data.role,
         plano: data.plano,
         organizationId: data.organizationId,
+        trialExpiraEm: data.trialExpiraEm,
       };
     }
   } catch (e) {

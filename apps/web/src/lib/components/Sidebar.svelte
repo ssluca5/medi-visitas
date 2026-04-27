@@ -20,14 +20,17 @@
 		sessionToken: string | null;
 		plano?: string;
 		organizationId?: string;
+		trialExpiraEm?: string;
 	}
 
-	let { userName, sessionToken, plano, organizationId }: Props = $props();
+	let { userName, sessionToken, plano, organizationId, trialExpiraEm }: Props = $props();
 
 	let diasRestantes = $derived.by(() => {
-		if (!plano || !organizationId) return null;
-		// Trial badge shows for TRIAL plans — days remaining not tracked client-side yet
-		return null;
+		if (!trialExpiraEm || plano !== "TRIAL") return null;
+		const expira = new Date(trialExpiraEm);
+		const agora = new Date();
+		const diff = Math.ceil((expira.getTime() - agora.getTime()) / (1000 * 60 * 60 * 24));
+		return Math.max(0, diff);
 	});
 
 	let collapsed = $state(false);
@@ -178,6 +181,24 @@
 			>
 				{plano === 'INDIVIDUAL' ? 'Individual' : plano === 'TRIAL' ? 'Trial' : plano === 'EMPRESA' ? 'Empresa' : plano}
 			</span>
+		</div>
+	{/if}
+
+	<!-- Trial expiry banner -->
+	{#if diasRestantes !== null && diasRestantes <= 2 && !collapsed}
+		<div class="mx-3 mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+			<p class="text-xs font-medium text-amber-800">
+				{#if diasRestantes === 0}
+					Trial expira hoje
+				{:else if diasRestantes === 1}
+					Trial expira amanhã
+				{:else}
+					Trial expira em {diasRestantes} dias
+				{/if}
+			</p>
+			<a href="/planos" class="mt-1 block text-xs text-amber-600 underline hover:text-amber-700">
+				Assinar agora
+			</a>
 		</div>
 	{/if}
 

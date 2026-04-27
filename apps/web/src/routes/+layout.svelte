@@ -14,6 +14,7 @@
 			userName?: string;
 			plano?: string;
 			organizationId?: string;
+			trialExpiraEm?: string;
 		};
 		children: Snippet;
 	}
@@ -47,6 +48,7 @@
 			sessionToken={data.sessionToken}
 			plano={data.plano}
 			organizationId={data.organizationId}
+			trialExpiraEm={data.trialExpiraEm}
 		/>
 
 		<main class="flex-1 min-w-0 h-full overflow-y-auto">
