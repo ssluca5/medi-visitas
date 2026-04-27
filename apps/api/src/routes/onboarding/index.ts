@@ -39,6 +39,7 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       role: membro.role,
       plano: membro.organization.plano,
       status: membro.organization.status,
+      trialExpiraEm: membro.organization.trialExpiraEm.toISOString(),
     });
   });
 
