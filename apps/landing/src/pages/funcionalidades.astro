@@ -1,0 +1,22 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Features from "../components/Features.astro";
+import Screenshots from "../components/Screenshots.svelte";
+import CTA from "../components/CTA.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Base title="Funcionalidades — MediVisitas" description="Conheça todas as funcionalidades do MediVisitas: cadastro de profissionais, agenda inteligente, pipeline comercial, gravação com IA e mais.">
+  <Header />
+  <main>
+    <section class="bg-gradient-to-b from-[rgb(var(--color-surface))] to-[rgb(var(--color-surface-2))] pb-10 pt-24 text-center">
+      <h1 class="text-4xl font-bold text-[rgb(var(--color-text))]">Funcionalidades</h1>
+      <p class="mt-4 text-lg text-[rgb(var(--color-text-muted))]">Tudo que você precisa para gerenciar suas visitas</p>
+    </section>
+    <Features />
+    <Screenshots client:load />
+    <CTA />
+  </main>
+  <Footer />
+</Base>
