@@ -99,7 +99,7 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | 7    | Pipeline comercial + Analytics     | ✅ Concluída |
 | 8    | Notificações + Lembretes           | ✅ Concluída |
 | 9    | Integração API farmácia            | ⬜ Pendente  |
-| 10   | Multi-tenant SaaS                  | ✅ Concluída |
+| 10A  | Multi-tenant SaaS                  | ✅ Concluída |
 | 10B  | Billing Stripe                     | ✅ Concluída |
 | 11   | Landing Page (Astro)               | ✅ Concluída |
 
