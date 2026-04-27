@@ -51,6 +51,24 @@ describe("Timeline Routes", () => {
       verifyToken: mockVerifyTokenFn,
     }));
 
+    jestGlobal.unstable_mockModule("../../hooks/auth.js", () => ({
+      verifyClerkToken: async (req: any, reply: any) => {
+        const token = req.headers.authorization?.replace("Bearer ", "");
+        if (!token) {
+          reply.code(401).send({ error: "Unauthorized" });
+          return;
+        }
+        req.userId = "user_123";
+      },
+    }));
+
+    jestGlobal.unstable_mockModule("../../hooks/tenant.js", () => ({
+      resolveTenant: async (req: any) => {
+        req.organizationId = "org_123";
+        req.role = "OWNER";
+      },
+    }));
+
     const Fastify = (await import("fastify")).default;
     const { ZodError } = await import("zod");
     app = Fastify();
