@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { Plus, Trash2, ChevronDown, ChevronRight, Stethoscope, Search, Power, Play } from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
-	import { toasts } from '$lib/stores/toast';
+	import { toasts } from '$lib/stores/toast.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Sheet from '$lib/components/ui/Sheet.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import type {
 		Especialidade,
 		EspecialidadeFormData,
@@ -30,6 +31,8 @@
 
 	// Form fields
 	let formNome = $state('');
+	let formNomeError = $state(false);
+	let formCategoriaError = $state(false);
 	let formCategoria = $state('');
 
 	// Delete dialogs
@@ -147,7 +150,11 @@
 	}
 
 	async function handleSalvarEspecialidade() {
+		formNomeError = false;
+		formCategoriaError = false;
 		if (!formNome.trim() || !formCategoria.trim()) {
+			if (!formNome.trim()) formNomeError = true;
+			if (!formCategoria.trim()) formCategoriaError = true;
 			toasts.show('error', 'Nome e categoria são obrigatórios.');
 			return;
 		}
@@ -459,19 +466,13 @@
 		</Button>
 	</div>
 {:else if categoriasOrdenadas.length === 0}
-	<div class="card-surface flex flex-col items-center justify-center py-20 gap-4">
-		<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(var(--slate-100))]">
-			<Stethoscope class="h-7 w-7 text-[rgb(var(--slate-400))]" />
-		</div>
-		<div class="text-center">
-			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Nenhuma especialidade cadastrada</p>
-			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Comece adicionando a primeira especialidade</p>
-		</div>
-		<Button size="sm" onclick={handleNovaEspecialidade} class="gap-2">
-			<Plus class="h-4 w-4" />
-			Criar Especialidade
-		</Button>
-	</div>
+	<EmptyState
+		icon={Stethoscope}
+		titulo="Nenhuma especialidade cadastrada"
+		descricao="Comece adicionando a primeira especialidade"
+		acaoLabel="Criar Especialidade"
+		acaoOnclick={handleNovaEspecialidade}
+	/>
 {:else}
 	<div class="space-y-6">
 		{#each categoriasOrdenadas as categoria}
@@ -714,10 +715,11 @@
 						id="esp-nome"
 						type="text"
 						bind:value={formNome}
-						class="input-base"
+						class="input-base {formNomeError ? 'input-error' : ''}"
 						placeholder="Ex: Cardiologia"
+						oninput={() => formNomeError = false}
 					/>
-					<p class="input-hint">Nome da especialidade médica</p>
+					{#if formNomeError}<p class="input-error-msg">Nome é obrigatório</p>{:else}<p class="input-hint">Nome da especialidade médica</p>{/if}
 				</div>
 
 				<div class="relative">

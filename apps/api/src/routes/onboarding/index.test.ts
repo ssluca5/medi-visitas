@@ -15,6 +15,8 @@ let app: any;
 
 describe("Onboarding routes", () => {
   beforeAll(async () => {
+    process.env.CLERK_SECRET_KEY = "test_secret";
+    process.env.CLERK_JWT_KEY = "test_jwt";
     mockFindFirst = jest.fn();
     mockCreate = jest.fn();
     mockOrgCreate = jest.fn();
@@ -25,10 +27,19 @@ describe("Onboarding routes", () => {
       prisma: {
         organizationMembro: { findFirst: mockFindFirst, create: mockCreate },
         organization: { create: mockOrgCreate, findUnique: mockOrgFindUnique },
+        user: { upsert: jest.fn<any>().mockResolvedValue({}) },
       },
     }));
+    jestGlobal.unstable_mockModule("@clerk/backend", () => ({
+      verifyToken: async () => ({ sub: "user_123" }),
+    }));
     jestGlobal.unstable_mockModule("../../hooks/auth.js", () => ({
-      verifyClerkToken: async (req: any) => {
+      verifyClerkToken: async (req: any, reply: any) => {
+        const token = req.headers.authorization;
+        if (!token) {
+          reply.code(401).send({ error: "Unauthorized" });
+          return;
+        }
         req.userId = "user_123";
       },
     }));
@@ -80,7 +91,11 @@ describe("Onboarding routes", () => {
       mockFindFirst.mockResolvedValue({
         organizationId: "org1",
         role: "OWNER",
-        organization: { plano: "TRIAL", status: "TRIAL_ATIVO" },
+        organization: {
+          plano: "TRIAL",
+          status: "TRIAL_ATIVO",
+          trialExpiraEm: new Date(),
+        },
       } as any);
       const res = await app.inject({
         method: "GET",

@@ -17,7 +17,13 @@ const EmpresaSchema = z.object({
 });
 
 const onboardingRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  // Intencional: apenas verifyClerkToken, SEM resolveTenant.
+  // Durante o onboarding o usuário ainda não tem organização,
+  // então resolveTenant retornaria 403. A busca por membership
+  // é feita manualmente em cada handler.
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+  });
 
   // GET /status
   app.get("/status", async (request, reply) => {
@@ -56,6 +62,20 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(409).send({ error: "Onboarding já concluído" });
     }
 
+    // Garantir que User existe no banco (dados do JWT)
+    await prisma.user.upsert({
+      where: { clerkId: userId },
+      update: {
+        ...(request.userEmail ? { email: request.userEmail } : {}),
+        ...(request.userName ? { name: request.userName } : {}),
+      },
+      create: {
+        clerkId: userId,
+        email: request.userEmail ?? `${userId}@placeholder.local`,
+        name: request.userName ?? null,
+      },
+    });
+
     const org = await prisma.organization.create({
       data: {
         clerkOrgId: `org_${userId}`,
@@ -93,6 +113,20 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(409).send({ error: "Onboarding já concluído" });
     }
 
+    // Garantir que User existe no banco (dados do JWT)
+    await prisma.user.upsert({
+      where: { clerkId: userId },
+      update: {
+        ...(request.userEmail ? { email: request.userEmail } : {}),
+        ...(request.userName ? { name: request.userName } : {}),
+      },
+      create: {
+        clerkId: userId,
+        email: request.userEmail ?? `${userId}@placeholder.local`,
+        name: request.userName ?? null,
+      },
+    });
+
     const slug = slugify(nomeEmpresa);
     const org = await prisma.organization.create({
       data: {
@@ -115,6 +149,26 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
     });
 
     return reply.status(201).send(org);
+  });
+
+  // PATCH /tour-reset — resetar o tour para permitir rever
+  app.patch("/tour-reset", async (request, reply) => {
+    const userId = request.userId;
+    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
+
+    // Upsert para garantir que User existe antes de resetar
+    await prisma.user.upsert({
+      where: { clerkId: userId },
+      update: { tourConcluidoEm: null },
+      create: {
+        clerkId: userId,
+        email: request.userEmail ?? `${userId}@placeholder.local`,
+        name: request.userName ?? null,
+        tourConcluidoEm: null,
+      },
+    });
+
+    return reply.code(200).send({ ok: true });
   });
 };
 

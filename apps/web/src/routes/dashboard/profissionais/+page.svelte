@@ -23,10 +23,11 @@
 		Package
 	} from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
-	import { toasts } from '$lib/stores/toast';
+	import { toasts } from '$lib/stores/toast.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Sheet from '$lib/components/ui/Sheet.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
 	import type {
 		Profissional,
@@ -72,6 +73,7 @@
 
 	// Form fields
 	let formNome = $state('');
+	let formNomeError = $state(false);
 	let formCrm = $state('');
 	let formEmail = $state('');
 	let formTelefone = $state('');
@@ -389,8 +391,11 @@
 	}
 
 	async function handleSalvarProfissional() {
+		formNomeError = false;
 		if (!formNome.trim()) {
+			formNomeError = true;
 			toasts.show('error', 'O nome do profissional é obrigatório.');
+			document.getElementById('prof-nome')?.focus();
 			return;
 		}
 
@@ -583,9 +588,10 @@
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
-		<Button onclick={handleNovoProfissional} class="hidden sm:inline-flex gap-2">
+		<Button onclick={handleNovoProfissional} class="inline-flex gap-2">
 			<Plus class="h-4 w-4" />
-			Novo Profissional
+			<span class="hidden sm:inline">Novo Profissional</span>
+			<span class="sm:hidden">Novo</span>
 		</Button>
 	</div>
 </div>
@@ -663,19 +669,13 @@
 		</Button>
 	</div>
 {:else if profissionais.length === 0}
-	<div class="card-surface flex flex-col items-center justify-center py-20 gap-4">
-		<div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(var(--slate-100))]">
-			<Users class="h-7 w-7 text-[rgb(var(--slate-400))]" />
-		</div>
-		<div class="text-center">
-			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Nenhum profissional encontrado</p>
-			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Use os filtros acima ou adicione um novo</p>
-		</div>
-		<Button size="sm" onclick={handleNovoProfissional} class="gap-2">
-			<Plus class="h-4 w-4" />
-			Adicionar Profissional
-		</Button>
-	</div>
+	<EmptyState
+		icon={Users}
+		titulo="Nenhum profissional encontrado"
+		descricao="Use os filtros acima ou adicione um novo"
+		acaoLabel="Adicionar Profissional"
+		acaoOnclick={handleNovoProfissional}
+	/>
 {:else}
 	<div class="card-surface overflow-hidden">
 		<table class="table-fixed w-full" aria-label="Lista de profissionais">
@@ -858,7 +858,8 @@
 						</div>
 						<div>
 							<label for="prof-nome" class="input-label">Nome completo *</label>
-							<input id="prof-nome" type="text" bind:value={formNome} class="input-base" placeholder="João Silva" />
+							<input id="prof-nome" type="text" bind:value={formNome} class="input-base {formNomeError ? 'input-error' : ''}" placeholder="João Silva" oninput={() => formNomeError = false} />
+							{#if formNomeError}<p class="input-error-msg">Nome é obrigatório</p>{/if}
 						</div>
 					</div>
 

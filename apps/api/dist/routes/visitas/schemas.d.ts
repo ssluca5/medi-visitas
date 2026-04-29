@@ -57,12 +57,12 @@ export declare const CreateVisitaInputSchema: z.ZodObject<
   z.ZodTypeAny,
   {
     status: "AGENDADA" | "REALIZADA" | "CANCELADA" | "NAO_REALIZADA";
-    profissionalId: string;
     materiais: {
       materialTecnicoId: string;
       quantidade: number;
     }[];
     dataVisita: string | Date;
+    profissionalId: string;
     duracaoMinutos?: number | null | undefined;
     objetivoVisita?: string | null | undefined;
     resumo?: string | null | undefined;
@@ -71,8 +71,8 @@ export declare const CreateVisitaInputSchema: z.ZodObject<
     motivoNaoRealizacao?: string | null | undefined;
   },
   {
-    profissionalId: string;
     dataVisita: string | Date;
+    profissionalId: string;
     status?:
       | "AGENDADA"
       | "REALIZADA"
@@ -228,9 +228,9 @@ export declare const ListVisitasQuerySchema: z.ZodObject<
       | "CANCELADA"
       | "NAO_REALIZADA"
       | undefined;
+    profissionalId?: string | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
-    profissionalId?: string | undefined;
     dataInicio?: string | Date | undefined;
     dataFim?: string | Date | undefined;
     q?: string | undefined;

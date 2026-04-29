@@ -6,6 +6,8 @@
 	import PainelAlertas from '$lib/components/dashboard/PainelAlertas.svelte';
 	import ListaProximasVisitas from '$lib/components/dashboard/ListaProximasVisitas.svelte';
 	import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
+	import TourPrimeiroAcesso from '$lib/components/ui/TourPrimeiroAcesso.svelte';
+	import WidgetTranscricoes from '$lib/components/dashboard/WidgetTranscricoes.svelte';
 	import type { DashboardResumo, Alerta } from '$lib/types';
 
 	interface Props {
@@ -13,8 +15,18 @@
 			resumo: DashboardResumo | null;
 			alertas: Alerta[];
 			sessionToken: string | null;
+			tourConcluidoEm: string | null;
+			role: 'OWNER' | 'MEMBER' | null;
 		};
 	}
+
+	let mostrarTour = $state(false);
+
+	$effect(() => {
+		if (!data.tourConcluidoEm) {
+			mostrarTour = true;
+		}
+	});
 
 	let { data }: Props = $props();
 
@@ -49,16 +61,17 @@
 </svelte:head>
 
 <!-- Page Header -->
-<div class="mb-6">
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 	<div class="flex items-center gap-3">
 		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
 			<TrendingUp class="h-[18px] w-[18px] text-white" />
 		</div>
 		<div>
 			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Dashboard</h1>
-			<p class="text-[11px] text-[rgb(var(--slate-400))]">Visão geral do seu dia</p>
+			<p class="text-[11px] text-[rgb(var(--slate-400))]">Visão geral da sua operação</p>
 		</div>
 	</div>
+
 </div>
 
 <!-- Dashboard Toolbar -->
@@ -169,84 +182,97 @@
 </div>
 
 <!-- KPI Cards Row -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 items-stretch">
-	<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
-		<CardResumo
-			titulo="Visitas Hoje"
-			valor={resumo?.visitasHoje ?? 0}
-			icone={CalendarCheck}
-			corIcone="text-violet-600"
-			corFundo="bg-violet-50"
-		/>
-	</div>
-	<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
-		<CardResumo
-			titulo="Visitas Semana"
-			valor={resumo?.visitasSemana ?? 0}
-			icone={Calendar}
-			corIcone="text-blue-600"
-			corFundo="bg-blue-50"
-		/>
-	</div>
-	<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
-		<CardResumo
-			titulo="Profissionais"
-			valor={resumo?.totalProfissionais ?? 0}
-			icone={Users}
-			corIcone="text-emerald-600"
-			corFundo="bg-emerald-50"
-		/>
-	</div>
-	<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
-		<CardResumo
-			titulo="Especialidades"
-			valor={resumo?.totalEspecialidades ?? 0}
-			icone={Stethoscope}
-			corIcone="text-amber-600"
-			corFundo="bg-amber-50"
-		/>
-	</div>
-</div>
-
-<!-- Alertas + Próximos Agendamentos -->
-<div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mb-6">
-	<PainelAlertas alertas={alertas} />
-	<ListaProximasVisitas agendamentos={resumo?.proximosAgendamentos ?? []} />
-</div>
-
-<!-- Últimas Visitas -->
-{#if resumo?.ultimasVisitas && resumo.ultimasVisitas.length > 0}
-	<div class="card-surface p-5 mb-6">
-		<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Últimas Visitas</h3>
-		<div class="space-y-2.5">
-			{#each resumo.ultimasVisitas as visita}
-				<a
-					href="/dashboard/profissionais/{visita.id}"
-					class="flex items-center gap-3 p-3 rounded-lg hover:bg-[rgb(var(--slate-50))] transition-all duration-200 group"
-				>
-					<div class="flex-shrink-0 w-16 text-center">
-						<span class="text-[13px] font-bold text-[rgb(var(--slate-700))]">
-							{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(visita.dataVisita))}
-						</span>
-						<span class="block text-[10px] text-[rgb(var(--slate-400))] mt-0.5">
-							{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
-						</span>
-					</div>
-					<div class="min-w-0 border-l border-[rgb(var(--slate-100))] pl-3 flex-1">
-						<p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate group-hover:text-blue-600 transition-colors">
-							{visita.profissional?.nome ?? 'Profissional'}
-						</p>
-						<p class="text-[11px] text-[rgb(var(--slate-400))] truncate">
-							{visita.profissional?.especialidade?.nome ?? ''}
-							{#if visita.objetivoVisita}
-								<span class="text-[rgb(var(--slate-300))]"> · </span>{visita.objetivoVisita}
-							{/if}
-						</p>
-					</div>
-					<StatusVisitaBadge status={visita.status} />
-				</a>
-			{/each}
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 items-stretch">
+		<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+			<CardResumo
+				titulo="Visitas Hoje"
+				valor={resumo?.visitasHoje ?? 0}
+				icone={CalendarCheck}
+				corIcone="text-violet-600"
+				corFundo="bg-violet-50"
+			/>
+		</div>
+		<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+			<CardResumo
+				titulo="Visitas Semana"
+				valor={resumo?.visitasSemana ?? 0}
+				icone={Calendar}
+				corIcone="text-blue-600"
+				corFundo="bg-blue-50"
+			/>
+		</div>
+		<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+			<CardResumo
+				titulo="Profissionais"
+				valor={resumo?.totalProfissionais ?? 0}
+				icone={Users}
+				corIcone="text-emerald-600"
+				corFundo="bg-emerald-50"
+			/>
+		</div>
+		<div class="will-change-transform transition-transform hover:-translate-y-1 hover:shadow-md rounded-xl">
+			<CardResumo
+				titulo="Especialidades"
+				valor={resumo?.totalEspecialidades ?? 0}
+				icone={Stethoscope}
+				corIcone="text-amber-600"
+				corFundo="bg-amber-50"
+			/>
 		</div>
 	</div>
-{/if}
 
+	<!-- Alertas + Próximos Agendamentos -->
+	<div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mb-6">
+		<PainelAlertas alertas={alertas} />
+		<ListaProximasVisitas agendamentos={resumo?.proximosAgendamentos ?? []} />
+	</div>
+
+	<!-- Últimas Visitas & IA -->
+	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+		<div class="lg:col-span-2 flex flex-col h-full">
+			{#if resumo?.ultimasVisitas && resumo.ultimasVisitas.length > 0}
+				<div class="card-surface p-5 h-full flex flex-col">
+					<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Últimas Visitas</h3>
+					<div class="space-y-2.5 flex-1">
+						{#each resumo.ultimasVisitas as visita}
+							<a
+								href="/dashboard/profissionais/{visita.id}"
+								class="flex items-center gap-3 p-3 rounded-lg hover:bg-[rgb(var(--slate-50))] transition-all duration-200 group"
+							>
+								<div class="flex-shrink-0 w-16 text-center">
+									<span class="text-[13px] font-bold text-[rgb(var(--slate-700))]">
+										{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(visita.dataVisita))}
+									</span>
+									<span class="block text-[10px] text-[rgb(var(--slate-400))] mt-0.5">
+										{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
+									</span>
+								</div>
+								<div class="min-w-0 border-l border-[rgb(var(--slate-100))] pl-3 flex-1">
+									<p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate group-hover:text-blue-600 transition-colors">
+										{visita.profissional?.nome ?? 'Profissional'}
+									</p>
+									<p class="text-[11px] text-[rgb(var(--slate-400))] truncate">
+										{visita.profissional?.especialidade?.nome ?? ''}
+										{#if visita.objetivoVisita}
+											<span class="text-[rgb(var(--slate-300))]"> · </span>{visita.objetivoVisita}
+										{/if}
+									</p>
+								</div>
+								<StatusVisitaBadge status={visita.status} />
+							</a>
+						{/each}
+					</div>
+				</div>
+			{/if}
+		</div>
+		<div class="lg:col-span-1 h-full">
+			<WidgetTranscricoes sessionToken={data.sessionToken!} />
+		</div>
+	</div>
+
+{#if mostrarTour}
+	<TourPrimeiroAcesso
+		sessionToken={data.sessionToken}
+		onclose={() => mostrarTour = false}
+	/>
+{/if}

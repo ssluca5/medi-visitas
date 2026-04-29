@@ -1,5 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import {
   CreateMaterialInputSchema,
   UpdateMaterialInputSchema,
@@ -7,11 +9,14 @@ import {
 } from "./schemas.js";
 const materiaisRoutes = async (app) => {
   // Autenticação obrigatória
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
   app.post("/", async (request, reply) => {
     const input = CreateMaterialInputSchema.parse(request.body);
     const material = await prisma.materialTecnico.create({
-      data: input,
+      data: { ...input, organizationId: request.organizationId },
     });
     return reply.status(201).send(material);
   });
@@ -19,9 +24,12 @@ const materiaisRoutes = async (app) => {
     const query = ListMateriaisQuerySchema.parse(request.query);
     // Cast manual for incluirInativos because schema doesn't have it explicitly right now, or just use request.query
     const { incluirInativos } = request.query;
-    const where = {};
+    const where = { organizationId: request.organizationId };
     if (incluirInativos !== "true") {
       where.deletedAt = null;
+    }
+    if (request.role === "MEMBER") {
+      where.userId = request.userId;
     }
     if (query.busca) {
       where.OR = [
@@ -55,7 +63,7 @@ const materiaisRoutes = async (app) => {
     const { id } = request.params;
     const input = UpdateMaterialInputSchema.parse(request.body);
     const existing = await prisma.materialTecnico.findFirst({
-      where: { id },
+      where: { id, organizationId: request.organizationId },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Material não encontrado" });
@@ -70,7 +78,7 @@ const materiaisRoutes = async (app) => {
     const { id } = request.params;
     const { ativo } = request.body;
     const existing = await prisma.materialTecnico.findUnique({
-      where: { id },
+      where: { id, organizationId: request.organizationId },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Material não encontrado" });
@@ -84,7 +92,7 @@ const materiaisRoutes = async (app) => {
   app.delete("/:id", async (request, reply) => {
     const { id } = request.params;
     const existing = await prisma.materialTecnico.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Material não encontrado" });

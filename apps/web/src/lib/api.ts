@@ -34,5 +34,21 @@ export async function apiFetch(
     }
   }
 
+  // Organização não encontrada — redirecionar para onboarding
+  if (res.status === 403) {
+    try {
+      const cloned = res.clone();
+      const body = await cloned.json();
+      if (body.code === "ORGANIZATION_NOT_FOUND") {
+        if (typeof window !== "undefined") {
+          window.location.href = "/onboarding";
+        }
+        return res;
+      }
+    } catch {
+      // Não é JSON — seguir normalmente
+    }
+  }
+
   return res;
 }

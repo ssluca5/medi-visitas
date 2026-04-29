@@ -21,14 +21,21 @@ import stripeWebhookRoutes from "./routes/webhooks/stripe.js";
 import billingRoutes from "./routes/billing/index.js";
 import onboardingRoutes from "./routes/onboarding/index.js";
 import organizacaoRoutes from "./routes/organizacao/index.js";
-
+import transcricoesRoutes from "./routes/transcricoes/index.js";
+import gestorRoutes from "./routes/gestor/index.js";
+import relatoriosRoutes from "./routes/relatorios/index.js";
 export async function buildApp() {
   const app = Fastify({
     logger: true,
   });
 
-  // Helmet — security headers
-  await app.register(helmet);
+  // Helmet — security headers (X-Frame-Options, HSTS, X-Content-Type-Options)
+  // CSP configurada no frontend SvelteKit onde HTML é renderizado
+  await app.register(helmet, {
+    frameguard: { action: "deny" },
+    noSniff: true,
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+  });
 
   // Rate limiting
   await app.register(rateLimit, {
@@ -36,15 +43,12 @@ export async function buildApp() {
     timeWindow: "1 minute",
   });
 
-  // CORS — configurable via environment
+  // CORS — configurable via environment; fallback vazio exige configuração explícita em prod
   const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(",")
-    : [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-        "http://localhost:5173",
-      ];
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   await app.register(cors, {
     origin: corsOrigins,
@@ -86,9 +90,9 @@ export async function buildApp() {
       });
     }
     // Default Fastify error handling for everything else
-    return reply.status(error.statusCode ?? 500).send({
-      error: error.message,
-    });
+    const statusCode = (error as { statusCode?: number }).statusCode ?? 500;
+    const message = (error as { message?: string }).message ?? "Erro interno";
+    return reply.status(statusCode).send({ error: message });
   });
 
   // Rotas
@@ -109,6 +113,9 @@ export async function buildApp() {
   await app.register(onboardingRoutes, { prefix: "/onboarding" });
   await app.register(organizacaoRoutes, { prefix: "/organizacao" });
   await app.register(billingRoutes, { prefix: "/billing" });
+  await app.register(transcricoesRoutes, { prefix: "/transcricoes" });
+  await app.register(gestorRoutes, { prefix: "/gestor" });
+  await app.register(relatoriosRoutes, { prefix: "/relatorios" });
 
   return app;
 }

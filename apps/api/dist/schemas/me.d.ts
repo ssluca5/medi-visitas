@@ -9,13 +9,13 @@ export declare const MeResponseSchema: z.ZodObject<
   z.ZodTypeAny,
   {
     email: string;
-    id: string;
     name: string | null;
+    id: string;
   },
   {
     email: string;
-    id: string;
     name: string | null;
+    id: string;
   }
 >;
 export type MeResponse = z.infer<typeof MeResponseSchema>;

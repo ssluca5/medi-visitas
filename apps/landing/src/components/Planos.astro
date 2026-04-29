@@ -1,83 +1,273 @@
 ---
+const appUrl = import.meta.env.PUBLIC_APP_URL;
 ---
 
-<section class="py-32 px-8 bg-surface-container-lowest">
-  <div class="mx-auto w-full max-w-[1280px] flex flex-col items-center gap-16">
-    <div class="text-center flex flex-col gap-4">
-      <h2 class="text-[36px] font-semibold leading-[1.3] tracking-[-0.02em] text-on-surface">
-        O valor da sua produtividade.
-      </h2>
-      <p class="text-lg leading-[1.6] text-on-surface-variant">
-        Trial de 7 dias gratuito. Cancele quando quiser.
-      </p>
+<section class="section-plans" id="planos" aria-labelledby="plans-h2">
+  <div class="plans-inner">
+    <span class="pill pill-blue story-element" data-story-delay="0">Planos</span>
+    <h2 class="plans-h2 story-element" id="plans-h2" data-story-delay="1">Escolha como começar.</h2>
+    <p class="plans-sub story-element" data-story-delay="2">7 dias grátis em qualquer plano.</p>
+    <div class="plans-toggle story-element" data-story-delay="3" role="tablist" aria-label="Período de cobrança">
+      <button type="button" class="active" data-period="monthly" role="tab" aria-selected="true">Mensal</button>
+      <button type="button" data-period="yearly" role="tab" aria-selected="false">Anual <span class="yearly-note">−2 meses</span></button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-      <!-- Individual Plan -->
-      <div class="bg-surface border border-outline-variant rounded-lg p-8 flex flex-col gap-8">
-        <div>
-          <h3 class="text-[24px] font-semibold leading-[1.4] tracking-[-0.01em] text-on-surface">Individual</h3>
-          <p class="text-base leading-[1.6] text-on-surface-variant mt-2">Para propagandistas autônomos focados em performance.</p>
+
+    <div class="plans-grid">
+      <div class="plan-card plan-individual story-element" data-story-delay="2">
+        <div class="plan-name">Individual</div>
+        <div class="plan-price">
+          <span data-monthly="R$ 79" data-yearly="R$ 65">R$ 79</span><span class="plan-price-period">/mês</span>
         </div>
-        <div class="text-[36px] font-semibold leading-[1.3] tracking-[-0.02em] text-on-surface">
-          R$ 79<span class="text-base leading-[1.6] text-on-surface-variant">/mês</span>
-        </div>
-        <ul class="flex flex-col gap-4 border-t border-outline-variant pt-8">
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-on-surface-variant">
-            <span class="material-symbols-outlined text-primary text-[20px]">check</span>
-            Cadastro ilimitado de profissionais
-          </li>
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-on-surface-variant">
-            <span class="material-symbols-outlined text-primary text-[20px]">check</span>
-            Agenda inteligente com rotas
-          </li>
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-on-surface-variant">
-            <span class="material-symbols-outlined text-primary text-[20px]">check</span>
-            Pipeline comercial completo
-          </li>
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-on-surface-variant">
-            <span class="material-symbols-outlined text-primary text-[20px]">check</span>
-            Transcrição por IA (50/mês)
-          </li>
+        <p class="plan-desc">Para o propagandista autônomo que cuida da própria carteira.</p>
+        <ul class="plan-list">
+          <li>Carteira ilimitada de médicos</li>
+          <li>Agenda inteligente diária</li>
+          <li>Gravação por voz + IA</li>
+          <li>Pipeline visual de jornada</li>
+          <li>Relatórios e exportação</li>
         </ul>
-        <a href="https://app.medivisitas.com/signup" class="mt-auto w-full py-4 border border-primary text-primary text-base font-semibold rounded text-center hover:bg-primary/5 transition-colors">
-          Assinar Individual
-        </a>
+        <a href={`${appUrl}/signup`} class="plan-cta">Começar 7 dias grátis</a>
       </div>
 
-      <!-- Empresa Plan -->
-      <div class="bg-inverse-surface border border-inverse-surface rounded-lg p-8 flex flex-col gap-8 relative overflow-hidden">
-        <div aria-hidden="true" class="absolute top-0 right-0 bg-secondary text-on-secondary px-4 py-1.5 rounded-bl-lg text-[12px] font-bold uppercase tracking-[0.1em]">
-          Recomendado
+      <div class="plan-card plan-empresa story-element" data-story-delay="3">
+        <div class="plan-name">Empresa</div>
+        <div class="plan-price">
+          <span data-monthly="R$ 49" data-yearly="R$ 40">R$ 49</span><span class="plan-price-period">/usuário/mês</span>
         </div>
-        <div>
-          <h3 class="text-[24px] font-semibold leading-[1.4] tracking-[-0.01em] text-inverse-on-surface">Empresa</h3>
-          <p class="text-base leading-[1.6] text-outline-variant mt-2">Gestão centralizada para equipes de propagandistas.</p>
-        </div>
-        <div class="text-[36px] font-semibold leading-[1.3] tracking-[-0.02em] text-inverse-on-surface">
-          R$ 49<span class="text-base leading-[1.6] text-outline-variant">/mês por usuário</span>
-        </div>
-        <ul class="flex flex-col gap-4 border-t border-outline/30 pt-8">
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-outline-variant">
-            <span class="material-symbols-outlined text-secondary text-[20px]">check</span>
-            Tudo do Individual
-          </li>
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-outline-variant">
-            <span class="material-symbols-outlined text-secondary text-[20px]">check</span>
-            Múltiplos propagandistas
-          </li>
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-outline-variant">
-            <span class="material-symbols-outlined text-secondary text-[20px]">check</span>
-            Dashboard do gestor
-          </li>
-          <li class="flex items-center gap-3 text-base leading-[1.6] text-outline-variant">
-            <span class="material-symbols-outlined text-secondary text-[20px]">check</span>
-            Transcrição por IA (ilimitada)
-          </li>
+        <p class="plan-desc">Para times de propaganda e gerentes regionais.</p>
+        <ul class="plan-list">
+          <li>Tudo do plano Individual</li>
+          <li>Painel do gestor com KPIs</li>
+          <li>Distribuição de carteira por região</li>
+          <li>Onboarding e treinamento da equipe</li>
+          <li>Suporte dedicado</li>
         </ul>
-        <a href="https://app.medivisitas.com/signup" class="mt-auto w-full py-4 bg-primary text-on-primary text-base font-semibold rounded text-center hover:bg-surface-tint transition-colors">
-          Assinar Empresa
-        </a>
+        <a href={`${appUrl}/signup`} class="plan-cta">Falar com vendas</a>
       </div>
     </div>
   </div>
 </section>
+
+<style>
+  .section-plans {
+    background: var(--color-surface);
+    padding: 120px clamp(24px, 5vw, 80px);
+  }
+
+  .plans-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .plans-h2 {
+    font-size: clamp(36px, 4.5vw, 48px);
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.025em;
+    margin-top: 16px;
+  }
+
+  .plans-sub {
+    font-size: 18px;
+    color: var(--color-ink-secondary);
+    margin-top: 12px;
+  }
+
+  .plans-toggle {
+    display: inline-flex;
+    background: var(--color-off-white);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 4px;
+    margin-top: 32px;
+  }
+
+  .plans-toggle button {
+    background: transparent;
+    border: none;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink-secondary);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 200ms, color 200ms;
+    font-family: inherit;
+  }
+
+  .plans-toggle button.active {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .yearly-note {
+    opacity: 0.7;
+    font-weight: 500;
+  }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 48px;
+    text-align: left;
+  }
+
+  .plan-card {
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .plan-individual {
+    background: var(--color-off-white);
+    border: 1px solid var(--color-border);
+  }
+
+  .plan-empresa {
+    background: var(--color-surface-inverted);
+    border: 1px solid var(--color-surface-inverted);
+    color: var(--color-text-inverted);
+  }
+
+  .plan-name {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-ink-secondary);
+  }
+
+  .plan-empresa .plan-name { color: color-mix(in srgb, var(--color-text-inverted) 60%, transparent); }
+
+  .plan-price {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin-top: 12px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .plan-empresa .plan-price { color: var(--color-text-inverted); }
+
+  .plan-price-period {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+    margin-left: 4px;
+  }
+
+  .plan-empresa .plan-price-period { color: color-mix(in srgb, var(--color-text-inverted) 50%, transparent); }
+
+  .plan-desc {
+    font-size: 14px;
+    color: var(--color-ink-secondary);
+    margin-top: 8px;
+  }
+
+  .plan-empresa .plan-desc { color: color-mix(in srgb, var(--color-text-inverted) 70%, transparent); }
+
+  .plan-list {
+    list-style: none;
+    margin: 28px 0;
+    flex: 1;
+  }
+
+  .plan-list li {
+    font-size: 14px;
+    color: var(--color-ink);
+    padding: 10px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .plan-empresa .plan-list li {
+    color: color-mix(in srgb, var(--color-text-inverted) 85%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--color-text-inverted) 8%, transparent);
+  }
+
+  .plan-list li::before {
+    content: "\2713";
+    color: var(--color-blue);
+    font-weight: 700;
+    margin-top: 1px;
+  }
+
+  .plan-empresa .plan-list li::before { color: var(--color-blue-400); }
+
+  .plan-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    width: 100%;
+    transition: background 200ms, transform 200ms;
+  }
+
+  .plan-individual .plan-cta {
+    background: var(--color-ink);
+    color: var(--color-surface);
+  }
+
+  .plan-individual .plan-cta:hover { transform: translateY(-2px); }
+
+  .plan-empresa .plan-cta {
+    background: var(--color-text-inverted);
+    color: var(--color-surface-inverted);
+  }
+
+  .plan-empresa .plan-cta:hover { background: var(--color-text-inverted); transform: translateY(-2px); filter: brightness(1.1); }
+
+  @media (max-width: 900px) {
+    .plans-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 540px) {
+    .plan-card { padding: 32px; }
+  }
+
+  /* === Animações de Entrada === */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes justFade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .story-element {
+    opacity: 0;
+    animation: slideUpFade 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .story-element[data-story-delay="0"] { animation-delay: 0s; }
+  .story-element[data-story-delay="1"] { animation-delay: 0.1s; }
+  .story-element[data-story-delay="2"] { animation-delay: 0.2s; }
+  .story-element[data-story-delay="3"] { animation-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-element {
+      animation-name: justFade;
+      transform: none !important;
+    }
+  }
+</style>

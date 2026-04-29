@@ -2,6 +2,7 @@
 	import { Bell, CheckCheck } from 'lucide-svelte';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import ItemNotificacao from '$lib/components/notificacoes/ItemNotificacao.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import type { Notificacao } from '$lib/types';
 
 	interface Props {
@@ -117,10 +118,11 @@
 				<p class="text-sm text-[rgb(var(--slate-400))]">Carregando...</p>
 			</div>
 		{:else if notificacoes.length === 0}
-			<div class="flex flex-col items-center justify-center py-12 gap-2">
-				<Bell class="w-10 h-10 text-[rgb(var(--slate-200))]" />
-				<p class="text-sm text-[rgb(var(--slate-400))]">Nenhuma notificação encontrada</p>
-			</div>
+			<EmptyState
+				icon={Bell}
+				titulo="Nenhuma notificação encontrada"
+				descricao="Você será notificado sobre visitas, lembretes e atualizações."
+			/>
 		{:else}
 			<div class="divide-y divide-[rgb(var(--slate-100))]">
 				{#each notificacoes as notif (notif.id)}

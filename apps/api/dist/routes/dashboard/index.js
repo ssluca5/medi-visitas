@@ -1,5 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 // ─── Pure helper for testability ──────────────────────────
 export function buildAlertas(params) {
   const alertas = [];
@@ -66,11 +68,12 @@ export function buildAlertas(params) {
 }
 // ─── Plugin principal ─────────────────────────────────────
 const dashboardRoutes = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
   // ── GET /dashboard/resumo ─────────────────────────────
   app.get("/resumo", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const amanha = new Date(hoje);
@@ -87,24 +90,27 @@ const dashboardRoutes = async (app) => {
       ultimasVisitas,
       proximosAgendamentos,
     ] = await Promise.all([
-      prisma.profissional.count({ where: { deletedAt: null } }),
-      prisma.especialidade.count({ where: { deletedAt: null } }),
+      prisma.profissional.count({ where: buildTenantWhere(request) }),
+      prisma.especialidade.count({ where: buildTenantWhere(request) }),
       prisma.visita.count({
         where: {
-          userId,
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
           status: "REALIZADA",
           dataVisita: { gte: hoje, lt: amanha },
         },
       }),
       prisma.visita.count({
         where: {
-          userId,
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
           status: "REALIZADA",
           dataVisita: { gte: inicioSemana, lt: fimSemana },
         },
       }),
       prisma.visita.findMany({
-        where: { userId, status: "REALIZADA" },
+        where: {
+          ...buildTenantWhere(request, { hasDeletedAt: false }),
+          status: "REALIZADA",
+        },
         orderBy: { dataVisita: "desc" },
         take: 5,
         include: {
@@ -115,10 +121,9 @@ const dashboardRoutes = async (app) => {
       }),
       prisma.agendaItem.findMany({
         where: {
-          userId,
+          ...buildTenantWhere(request),
           status: "PLANEJADO",
           dataHoraInicio: { gte: new Date() },
-          deletedAt: null,
         },
         orderBy: { dataHoraInicio: "asc" },
         take: 5,
@@ -140,8 +145,6 @@ const dashboardRoutes = async (app) => {
   });
   // ── GET /dashboard/alertas ────────────────────────────
   app.get("/alertas", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
     const agora = new Date();
     // Today boundaries
     const hojeInicio = new Date(agora);
@@ -155,7 +158,7 @@ const dashboardRoutes = async (app) => {
       prospectadosSemVisita,
     ] = await Promise.all([
       prisma.profissional.findMany({
-        where: { deletedAt: null },
+        where: buildTenantWhere(request),
         select: {
           id: true,
           nome: true,
@@ -170,10 +173,9 @@ const dashboardRoutes = async (app) => {
       }),
       prisma.agendaItem.findMany({
         where: {
-          userId,
+          ...buildTenantWhere(request),
           status: "PLANEJADO",
           dataHoraInicio: { lt: agora },
-          deletedAt: null,
         },
         include: {
           profissional: { select: { nome: true } },
@@ -181,10 +183,9 @@ const dashboardRoutes = async (app) => {
       }),
       prisma.agendaItem.findMany({
         where: {
-          userId,
+          ...buildTenantWhere(request),
           status: "PLANEJADO",
           dataHoraInicio: { gte: hojeInicio, lt: hojeFim },
-          deletedAt: null,
         },
         include: {
           profissional: { select: { nome: true } },
@@ -192,7 +193,7 @@ const dashboardRoutes = async (app) => {
       }),
       prisma.profissional.findMany({
         where: {
-          deletedAt: null,
+          ...buildTenantWhere(request),
           estagioPipeline: "PROSPECTADO",
           visitas: { none: {} },
         },
@@ -207,6 +208,68 @@ const dashboardRoutes = async (app) => {
       agora,
     });
     return alertas;
+  });
+  // ── GET /dashboard/gestor ─────────────────────────────
+  app.get("/gestor", async (request, reply) => {
+    if (request.role !== "OWNER") {
+      return reply.code(403).send({ error: "Acesso restrito a gestores." });
+    }
+    const tenantWhere = {
+      organizationId: request.organizationId,
+      deletedAt: null,
+    };
+    // Buscar todos os membros da organização
+    const membros = await prisma.organizationMembro.findMany({
+      where: tenantWhere,
+    });
+    const users = await prisma.user.findMany({
+      where: { clerkId: { in: membros.map((m) => m.userId) } },
+    });
+    const [totalProfissionais, totalVisitas, funilAgregadoDb, visitasMembros] =
+      await Promise.all([
+        prisma.profissional.count({ where: tenantWhere }),
+        prisma.visita.count({
+          where: {
+            ...tenantWhere,
+            status: "REALIZADA",
+          },
+        }),
+        prisma.profissional.groupBy({
+          by: ["estagioPipeline"],
+          where: tenantWhere,
+          _count: { id: true },
+        }),
+        prisma.visita.groupBy({
+          by: ["userId"],
+          where: {
+            ...tenantWhere,
+            status: "REALIZADA",
+          },
+          _count: { id: true },
+        }),
+      ]);
+    // Mapear funil
+    const funilAgregado = funilAgregadoDb.map((item) => ({
+      estagio: item.estagioPipeline,
+      total: item._count.id,
+    }));
+    // Mapear visitas por membro
+    const visitasPorMembro = membros.map((membro) => {
+      const vis = visitasMembros.find((v) => v.userId === membro.userId);
+      const user = users.find((u) => u.clerkId === membro.userId);
+      return {
+        membroId: membro.userId,
+        nome: user?.name || user?.email || membro.userId,
+        totalVisitas: vis ? vis._count.id : 0,
+      };
+    });
+    return {
+      totalMembros: membros.length,
+      totalProfissionais,
+      totalVisitas,
+      visitasPorMembro,
+      funilAgregado,
+    };
   });
 };
 export default dashboardRoutes;

@@ -96,6 +96,16 @@ body {
   }
 }
 
+/* Input com estado de erro — borda + anel vermelhos */
+.input-error {
+  @apply border-red-500 focus:ring-red-500/40 focus:border-red-500;
+}
+
+/* Mensagem de erro abaixo do input */
+.input-error-msg {
+  @apply text-xs mt-1 text-red-600;
+}
+
 .input-label {
   @apply block text-sm font-medium mb-1.5;
   color: rgb(var(--slate-700));

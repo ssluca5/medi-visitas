@@ -108,13 +108,14 @@ enum RoleMembro {
 // ============================================
 
 model User {
-  id        String    @id @default(cuid())
-  clerkId   String    @unique
-  email     String    @unique
-  name      String?
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  clerkId         String    @unique
+  email           String    @unique
+  name            String?
+  tourConcluidoEm DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([clerkId])
 }
@@ -131,6 +132,9 @@ model Organization {
   stripeCustomerId  String?             @unique
   stripeSubId       String?             @unique
   limiteUsuarios    Int                 @default(1)
+  transcricoesUsadas Int                @default(0)
+  transcricoesMes    String?
+  transcricoesExtras Int                @default(0)
   deletedAt         DateTime?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
@@ -143,6 +147,7 @@ model Organization {
   notificacoes      Notificacao[]
   materiais         MaterialTecnico[]
   estagioLogs       EstagioLog[]
+  convites          OrganizationConvite[]
 
   @@index([clerkOrgId])
   @@index([status])
@@ -162,6 +167,20 @@ model OrganizationMembro {
   @@unique([organizationId, userId])
   @@index([userId])
   @@index([organizationId])
+}
+
+model OrganizationConvite {
+  id                 String       @id @default(cuid())
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  email              String
+  convidadoPorUserId String
+  aceito             Boolean      @default(false)
+  expiradoEm         DateTime
+  createdAt          DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([email])
 }
 
 model Especialidade {

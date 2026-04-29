@@ -44,7 +44,7 @@ export declare const UpdateAgendaItemSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
-    status?: "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | "CANCELADO" | undefined;
+    status?: "CANCELADO" | "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | undefined;
     observacoes?: string | null | undefined;
     profissionalId?: string | undefined;
     dataHoraInicio?: string | Date | undefined;
@@ -52,7 +52,7 @@ export declare const UpdateAgendaItemSchema: z.ZodObject<
     prioridade?: "BAIXA" | "MEDIA" | "ALTA" | "URGENTE" | undefined;
   },
   {
-    status?: "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | "CANCELADO" | undefined;
+    status?: "CANCELADO" | "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | undefined;
     observacoes?: string | null | undefined;
     profissionalId?: string | undefined;
     dataHoraInicio?: string | Date | undefined;
@@ -78,16 +78,16 @@ export declare const ListAgendaQuerySchema: z.ZodObject<
     pageSize: number;
     dataInicio: string | Date;
     dataFim: string | Date;
-    status?: "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | "CANCELADO" | undefined;
+    status?: "CANCELADO" | "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | undefined;
     profissionalId?: string | undefined;
   },
   {
     dataInicio: string | Date;
     dataFim: string | Date;
-    status?: "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | "CANCELADO" | undefined;
+    status?: "CANCELADO" | "PLANEJADO" | "CONFIRMADO" | "REALIZADO" | undefined;
+    profissionalId?: string | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
-    profissionalId?: string | undefined;
   }
 >;
 export declare const VincularVisitaSchema: z.ZodObject<

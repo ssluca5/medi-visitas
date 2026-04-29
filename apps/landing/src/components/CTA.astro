@@ -1,16 +1,129 @@
 ---
+const appUrl = import.meta.env.PUBLIC_APP_URL;
 ---
 
-<section class="min-h-[600px] py-32 px-8 bg-primary relative flex items-center justify-center overflow-hidden">
-  <div class="absolute w-[800px] h-[800px] border border-on-primary/10 rounded-full"></div>
-  <div class="absolute w-[600px] h-[600px] border border-on-primary/10 rounded-full"></div>
-  <div class="absolute w-[400px] h-[400px] border border-on-primary/20 rounded-full"></div>
-  <div class="relative z-10 flex flex-col items-center text-center gap-16 max-w-3xl mx-auto">
-    <h2 class="text-[48px] font-bold leading-[1.2] tracking-[-0.02em] text-on-primary">
-      A rotina que você merecia sempre.<br />Começa agora.
+<section class="cta-section-final" aria-labelledby="cta-final-h2">
+  <div class="cta-circle c3" aria-hidden="true"></div>
+  <div class="cta-circle c2" aria-hidden="true"></div>
+  <div class="cta-circle c1" aria-hidden="true"></div>
+
+  <div class="cta-content">
+    <span class="cta-label story-element" data-story-delay="0">Seu próximo passo</span>
+    <h2 class="cta-h2 story-element" id="cta-final-h2" data-story-delay="1">
+      A rotina que você<br />
+      merecia sempre.<br />
+      <span class="strong">Começa agora.</span>
     </h2>
-    <a href="https://app.medivisitas.com/signup" class="bg-surface-container-lowest text-primary px-12 py-5 rounded text-base font-bold shadow-lg hover:scale-105 transition-transform duration-300">
-      Iniciar Trial Gratuito
-    </a>
+    <p class="cta-text story-element" data-story-delay="2">
+      Cadastre-se em 2 minutos. Organize sua carteira em 1 dia. Veja a diferença na primeira semana.
+    </p>
+    <div class="cta-buttons story-element" data-story-delay="3">
+      <a href="#planos" class="btn btn-light">Começar minha transformação →</a>
+      <a href={`${appUrl}/login`} class="cta-secondary">Já tenho conta</a>
+    </div>
+    <div class="cta-trust story-element" data-story-delay="4">
+      <span>&#10003; 7 dias grátis</span>
+      <span>&#10003; Sem cartão</span>
+      <span>&#10003; Cancele quando quiser</span>
+    </div>
   </div>
 </section>
+
+<style>
+  .cta-section-final {
+    min-height: 90vh;
+    background: var(--color-brand-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px clamp(24px, 5vw, 80px);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-circle {
+    position: absolute;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-brand-txt) 8%, transparent);
+    pointer-events: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .cta-circle.c1 { width: 800px; height: 800px; }
+  .cta-circle.c2 { width: 1200px; height: 1200px; }
+  .cta-circle.c3 { width: 1600px; height: 1600px; border-color: color-mix(in srgb, var(--color-brand-txt) 4%, transparent); }
+
+  .cta-content { position: relative; z-index: 1; max-width: 760px; }
+
+  .cta-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-brand-txt);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .cta-h2 {
+    font-size: clamp(48px, 6vw, 80px);
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--color-brand-txt);
+    letter-spacing: -0.025em;
+    line-height: 0.95;
+    margin-top: 24px;
+    padding-block: 0.15em;
+    text-wrap: balance;
+  }
+
+  .cta-h2 .strong {
+    font-weight: 900;
+    display: inline-block;
+    transform-origin: center;
+  }
+
+  .cta-text {
+    font-size: 20px;
+    color: var(--color-brand-txt);
+    max-width: 540px;
+    margin: 24px auto 0;
+    line-height: 1.6;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin-top: 48px;
+    flex-wrap: wrap;
+  }
+
+  .cta-secondary {
+    color: var(--color-brand-txt);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 150ms;
+  }
+
+  .cta-secondary:hover { text-decoration: underline; }
+
+  .cta-trust {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    font-size: 13px;
+    color: var(--color-brand-txt);
+  }
+
+  .cta-section-final :global(a:focus-visible),
+  .cta-section-final :global(button:focus-visible) {
+    outline-color: var(--color-brand-txt);
+  }
+</style>

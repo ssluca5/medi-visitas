@@ -1,8 +1,13 @@
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import { BuscaQuerySchema } from "./schemas.js";
 const buscaRoutes = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
   app.get("/", async (request, reply) => {
     const query = BuscaQuerySchema.parse(request.query);
     if (query.q.length < 2) {
@@ -13,7 +18,7 @@ const buscaRoutes = async (app) => {
     const termo = { contains: query.q, mode: "insensitive" };
     const profissionais = await prisma.profissional.findMany({
       where: {
-        deletedAt: null,
+        ...buildTenantWhere(request),
         OR: [
           { nome: termo },
           { crm: termo },

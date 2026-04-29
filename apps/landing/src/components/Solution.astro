@@ -1,64 +1,371 @@
 ---
 ---
 
-<section class="py-32 px-8 bg-surface-container">
-  <div class="mx-auto w-full max-w-[1280px] flex flex-col gap-16">
-    <h2 class="text-[36px] font-semibold leading-[1.3] tracking-[-0.02em] text-on-surface max-w-2xl">
-      Três coisas que mudam sua rotina para sempre.
+<section class="section-solution" id="solucao" aria-labelledby="solution-h2">
+  <div class="solution-inner">
+    <span class="pill pill-blue story-element" data-story-delay="0">Como funciona</span>
+    <h2 class="solution-h2 story-element" id="solution-h2" data-story-delay="1">
+      Três coisas que mudam<br />sua rotina para sempre.
     </h2>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="bg-surface-container-lowest border border-outline-variant rounded p-8 flex flex-col gap-6 h-full">
-        <div class="flex items-center gap-3 text-primary">
-          <span class="material-symbols-outlined text-[32px]">auto_awesome</span>
-          <h3 class="text-[24px] font-semibold leading-[1.4] tracking-[-0.01em] text-on-surface">Agenda Inteligente</h3>
+
+    <div class="solution-blocks">
+      <!-- Block 01 -->
+      <div class="solution-block">
+        <div>
+          <div class="solution-step-num story-element" data-story-delay="0">01</div>
+          <h3 class="solution-block-title story-element" data-story-delay="1">
+            Acorda. Abre o app. Já sabe quem visitar.
+          </h3>
+          <p class="solution-block-text story-element" data-story-delay="2">
+            Algoritmo analisa potencial + tempo sem visita e ordena sua carteira. Você começa o dia com clareza, não com planilha.
+          </p>
         </div>
-        <p class="text-base leading-[1.6] text-on-surface-variant">
-          Roteirização automática baseada em localização, prioridade do médico e histórico de prescrições.
-        </p>
-        <div class="mt-auto pt-6 border-t border-outline-variant">
-          <div class="w-full h-32 bg-surface rounded flex items-center justify-center border border-outline-variant/50">
-            <span class="text-[12px] font-bold uppercase tracking-[0.1em] text-outline">VISUALIZAÇÃO DE MAPA</span>
+        <div class="visit-suggestion story-element" data-story-delay="2">
+          <div class="label">Visitar hoje</div>
+          <h4>Dr. João Silva</h4>
+          <p>Cardiologia · 65 dias sem visita</p>
+          <span class="badge-priority">Alta prioridade</span>
+        </div>
+      </div>
+
+      <!-- Block 02 -->
+      <div class="solution-block">
+        <div>
+          <div class="solution-step-num story-element" data-story-delay="0">02</div>
+          <h3 class="solution-block-title story-element" data-story-delay="1">
+            Fale. Em 60 segundos, o relatório está pronto.
+          </h3>
+          <p class="solution-block-text story-element" data-story-delay="2">
+            Saindo da clínica, você grava um áudio. Nossa IA transcreve, extrai o resumo, próxima ação e objetivo. Você revisa e confirma.
+          </p>
+        </div>
+        <div class="voice-timeline story-element" data-story-delay="2">
+          <div class="voice-step">
+            <div class="voice-circle blue">1</div>
+            <div class="voice-text">Você grava<span class="sub">Áudio de até 2 minutos no carro</span></div>
+          </div>
+          <div class="voice-step">
+            <div class="voice-circle purple">2</div>
+            <div class="voice-text">IA processa<span class="sub">Transcreve, resume e estrutura</span></div>
+          </div>
+          <div class="voice-step">
+            <div class="voice-circle green">&#10003;</div>
+            <div class="voice-text">Campo preenchido<span class="sub">Próxima ação, objetivo e notas</span></div>
           </div>
         </div>
       </div>
 
-      <div class="bg-surface-container-lowest border border-outline-variant rounded p-8 flex flex-col gap-6 h-full">
-        <div class="flex items-center gap-3 text-tertiary">
-          <span class="material-symbols-outlined text-[32px]">mic</span>
-          <h3 class="text-[24px] font-semibold leading-[1.4] tracking-[-0.01em] text-on-surface">Voice + IA</h3>
+      <!-- Block 03 -->
+      <div class="solution-block">
+        <div>
+          <div class="solution-step-num story-element" data-story-delay="0">03</div>
+          <h3 class="solution-block-title story-element" data-story-delay="1">
+            Sabe exatamente onde cada médico está na jornada.
+          </h3>
+          <p class="solution-block-text story-element" data-story-delay="2">
+            Pipeline Prospectado → Fidelizado. Histórico de cada transição. Sem surpresas.
+          </p>
         </div>
-        <p class="text-base leading-[1.6] text-on-surface-variant">
-          Dite o resumo da visita no corredor. Nossa IA estrutura os dados e atualiza o CRM automaticamente.
-        </p>
-        <div class="mt-auto pt-6 border-t border-outline-variant">
-          <div class="w-full h-16 flex items-center justify-center gap-1 opacity-60">
-            <div class="w-1 h-4 bg-tertiary rounded-full"></div>
-            <div class="w-1 h-8 bg-tertiary rounded-full"></div>
-            <div class="w-1 h-12 bg-tertiary rounded-full"></div>
-            <div class="w-1 h-6 bg-tertiary rounded-full"></div>
-            <div class="w-1 h-10 bg-tertiary rounded-full"></div>
-            <div class="w-1 h-3 bg-tertiary rounded-full"></div>
+        <div class="funnel story-element" data-story-delay="2">
+          <div class="funnel-row">
+            <div class="funnel-stage"><span class="funnel-dot slate"></span><span class="funnel-label">Prospectado</span></div>
+            <div class="funnel-track"><div class="funnel-fill slate" style="width: 100%;"></div></div>
+            <div class="funnel-count">312</div>
           </div>
-        </div>
-      </div>
-
-      <div class="bg-surface-container-lowest border border-outline-variant rounded p-8 flex flex-col gap-6 h-full">
-        <div class="flex items-center gap-3 text-secondary">
-          <span class="material-symbols-outlined text-[32px]">view_kanban</span>
-          <h3 class="text-[24px] font-semibold leading-[1.4] tracking-[-0.01em] text-on-surface">Pipeline Visual</h3>
-        </div>
-        <p class="text-base leading-[1.6] text-on-surface-variant">
-          Acompanhe o estágio de cada profissional com a clareza de um board Kanban cirúrgico.
-        </p>
-        <div class="mt-auto pt-6 border-t border-outline-variant flex flex-col gap-2">
-          <div class="w-full h-8 bg-surface border border-outline-variant rounded px-2 flex items-center">
-            <div class="w-1/3 h-1 bg-secondary rounded"></div>
+          <div class="funnel-row">
+            <div class="funnel-stage"><span class="funnel-dot blue-300"></span><span class="funnel-label">Em qualificação</span></div>
+            <div class="funnel-track"><div class="funnel-fill blue-300" style="width: 59%;"></div></div>
+            <div class="funnel-count">184</div>
           </div>
-          <div class="w-full h-8 bg-surface border border-outline-variant rounded px-2 flex items-center">
-            <div class="w-2/3 h-1 bg-tertiary rounded"></div>
+          <div class="funnel-row">
+            <div class="funnel-stage"><span class="funnel-dot blue-400"></span><span class="funnel-label">Engajado</span></div>
+            <div class="funnel-track"><div class="funnel-fill blue-400" style="width: 31%;"></div></div>
+            <div class="funnel-count">96</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-stage"><span class="funnel-dot blue"></span><span class="funnel-label">Prescritor</span></div>
+            <div class="funnel-track"><div class="funnel-fill blue" style="width: 15%;"></div></div>
+            <div class="funnel-count">48</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-stage"><span class="funnel-dot blue-hover"></span><span class="funnel-label">Fidelizado</span></div>
+            <div class="funnel-track"><div class="funnel-fill blue-hover" style="width: 7%;"></div></div>
+            <div class="funnel-count">22</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<style>
+  .section-solution {
+    background: var(--color-blue-light);
+    padding: 120px clamp(24px, 5vw, 80px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section-solution::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(37, 99, 235, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .solution-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .solution-h2 {
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin-top: 16px;
+  }
+
+  .solution-blocks {
+    margin-top: 80px;
+  }
+
+  .solution-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    padding: 48px 0;
+    position: relative;
+  }
+
+  .solution-block + .solution-block {
+    border-top: 1px dashed var(--color-blue-200);
+  }
+
+  .solution-step-num {
+    font-size: 80px;
+    font-weight: 800;
+    color: var(--color-blue-400);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .solution-block-title {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    text-wrap: pretty;
+  }
+
+  .solution-block-text {
+    font-size: 16px;
+    color: var(--color-ink-secondary);
+    margin-top: 16px;
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  /* Visit suggestion card */
+  .visit-suggestion {
+    background: var(--color-surface);
+    border: 1px solid var(--color-blue-200);
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.25);
+  }
+
+  .visit-suggestion .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-blue-light-txt);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .visit-suggestion h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-top: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .visit-suggestion p {
+    font-size: 13px;
+    color: var(--color-ink-secondary);
+    margin-top: 4px;
+  }
+
+  .badge-priority {
+    display: inline-block;
+    margin-top: 14px;
+    background: var(--color-red-light);
+    color: var(--color-red);
+    border: 1px solid var(--color-red-light-border);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Voice timeline */
+  .voice-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-blue-200);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .voice-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    position: relative;
+  }
+
+  .voice-step::after {
+    content: "";
+    position: absolute;
+    left: 13px;
+    top: 38px;
+    bottom: -10px;
+    width: 0;
+    border-left: 2px dashed var(--color-blue-200);
+  }
+
+  .voice-step:last-child::after { display: none; }
+
+  .voice-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-on-primary);
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 1;
+  }
+
+  .voice-circle.blue { background: var(--color-blue); }
+  .voice-circle.purple { background: var(--color-purple); }
+  .voice-circle.green { background: var(--color-green); }
+
+  .voice-text {
+    font-size: 14px;
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+
+  .voice-text .sub {
+    display: block;
+    font-size: 12px;
+    color: var(--color-ink-muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* Funnel */
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-blue-200);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .funnel-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .funnel-row:last-child { border-bottom: none; }
+
+  .funnel-stage {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .funnel-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .funnel-dot.slate { background: var(--color-slate-300); }
+  .funnel-dot.blue-300 { background: var(--color-blue-300); }
+  .funnel-dot.blue-400 { background: var(--color-blue-400); }
+  .funnel-dot.blue { background: var(--color-blue); }
+  .funnel-dot.blue-hover { background: var(--color-blue-hover); }
+
+  .funnel-fill.slate { background: var(--color-slate-300); }
+  .funnel-fill.blue-300 { background: var(--color-blue-300); }
+  .funnel-fill.blue-400 { background: var(--color-blue-400); }
+  .funnel-fill.blue { background: var(--color-blue); }
+  .funnel-fill.blue-hover { background: var(--color-blue-hover); }
+
+  .funnel-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+  }
+
+  .funnel-track {
+    flex: 1.4;
+    height: 6px;
+    background: var(--color-slate-100);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .funnel-fill {
+    height: 100%;
+    background: var(--color-blue);
+    border-radius: 999px;
+  }
+
+  .funnel-count {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    min-width: 48px;
+    text-align: right;
+    letter-spacing: -0.02em;
+  }
+
+  @media (max-width: 900px) {
+    .solution-block {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+</style>

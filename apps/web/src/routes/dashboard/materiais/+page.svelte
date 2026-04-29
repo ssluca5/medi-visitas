@@ -1,10 +1,11 @@
 <script lang="ts">
   import { Plus, Trash2, Package, Tag, FileText, Database, Info, Power, Play, Search } from 'lucide-svelte';
   import { apiFetch } from '$lib/api';
-  import { toasts } from '$lib/stores/toast';
+  import { toasts } from '$lib/stores/toast.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import Sheet from '$lib/components/ui/Sheet.svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import type { MaterialTecnico, TipoMaterial } from '$lib/types';
   import { onMount } from 'svelte';
 
@@ -34,6 +35,7 @@
   let sheetOpen = $state(false);
   let materialEmEdicao = $state<MaterialTecnico | null>(null);
   let formNome = $state('');
+  let formNomeError = $state(false);
   let formDescricao = $state('');
   let formTipo = $state<TipoMaterial>('AMOSTRA');
   let isSaving = $state(false);
@@ -76,8 +78,11 @@
   }
 
   async function handleSalvar() {
+    formNomeError = false;
     if (!formNome.trim()) {
+      formNomeError = true;
       toasts.show('error', 'Nome é obrigatório');
+      document.getElementById('nome')?.focus();
       return;
     }
     isSaving = true;
@@ -235,14 +240,13 @@
     <Button class="mt-4" variant="outline" onclick={loadMateriais}>Tentar novamente</Button>
   </div>
 {:else if materiais.length === 0}
-  <div class="card-surface py-20 flex flex-col items-center justify-center text-center px-4">
-    <Package class="h-10 w-10 text-[rgb(var(--slate-300))] mb-4" />
-    <h3 class="text-lg font-medium text-[rgb(var(--slate-900))]">Nenhum material encontrado</h3>
-    <p class="text-[rgb(var(--slate-500))] max-w-sm mt-2 mb-6">Cadastre as amostras grátis, folders e apresentações que os RCs distribuem aos médicos.</p>
-    <Button onclick={handleNovo} class="gap-2">
-      <Plus class="h-4 w-4" /> Cadastrar Primeiro Material
-    </Button>
-  </div>
+  <EmptyState
+    icon={Package}
+    titulo="Nenhum material encontrado"
+    descricao="Cadastre as amostras grátis, folders e apresentações que os RCs distribuem aos médicos."
+    acaoLabel="Cadastrar Primeiro Material"
+    acaoOnclick={handleNovo}
+  />
 {:else}
   <div class="card-surface overflow-hidden">
     <table class="table-fixed w-full">
@@ -373,7 +377,8 @@
 
         <div>
           <label for="nome" class="input-label">Nome do Produto *</label>
-          <input id="nome" bind:value={formNome} type="text" class="input-base" placeholder="Ex: Medicamento X 500mg" />
+          <input id="nome" bind:value={formNome} type="text" class="input-base {formNomeError ? 'input-error' : ''}" placeholder="Ex: Medicamento X 500mg" oninput={() => formNomeError = false} />
+          {#if formNomeError}<p class="input-error-msg">Nome é obrigatório</p>{/if}
         </div>
 
         <div>

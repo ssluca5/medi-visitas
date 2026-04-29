@@ -133,7 +133,7 @@
 					<p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate">{userName}</p>
 				</div>
 			</div>
-			<form method="POST" action="/logout">
+			<form method="POST" action="/api/logout">
 				<button
 					type="submit"
 					aria-label="Sair do sistema"

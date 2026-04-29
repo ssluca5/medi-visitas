@@ -1,0 +1,97 @@
+---
+---
+
+<section class="section-faq" aria-labelledby="faq-h2">
+  <div class="faq-inner">
+    <h2 class="faq-h2 story-element" id="faq-h2" data-story-delay="0">Perguntas frequentes</h2>
+
+    <details class="faq-item story-element" data-story-delay="0">
+      <summary aria-haspopup="true">Preciso de cartão de crédito para começar o trial?<span class="faq-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+      <div class="faq-content">Não. Os 7 dias gratuitos não pedem cartão. Você só insere dados de pagamento se decidir continuar depois do trial.</div>
+    </details>
+    <details class="faq-item story-element" data-story-delay="1">
+      <summary aria-haspopup="true">Como a IA transcreve minhas visitas?<span class="faq-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+      <div class="faq-content">Você grava um áudio direto no app. Nossa IA transcreve em português, extrai o resumo da visita, identifica a próxima ação e o objetivo, e preenche o formulário automaticamente. Você revisa e confirma — leva cerca de 60 segundos.</div>
+    </details>
+    <details class="faq-item story-element" data-story-delay="2">
+      <summary aria-haspopup="true">Posso importar minha planilha atual?<span class="faq-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+      <div class="faq-content">Sim. Suportamos importação de Excel e Google Sheets. Nosso onboarding mapeia suas colunas (médico, especialidade, CRM, último contato) automaticamente.</div>
+    </details>
+    <details class="faq-item story-element" data-story-delay="3">
+      <summary aria-haspopup="true">Funciona offline em consultórios sem sinal?<span class="faq-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+      <div class="faq-content">Sim. O app funciona offline e sincroniza quando você volta a ter conexão. Áudios ficam salvos localmente até a sincronização.</div>
+    </details>
+    <details class="faq-item story-element" data-story-delay="4">
+      <summary aria-haspopup="true">Posso cancelar a qualquer momento?<span class="faq-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+      <div class="faq-content">Sim. Sem multa, sem fidelidade. Cancela direto pelo app e mantém acesso até o fim do ciclo já pago.</div>
+    </details>
+  </div>
+</section>
+
+<style>
+  .section-faq {
+    background: var(--color-off-white);
+    padding: 80px clamp(24px, 5vw, 80px);
+  }
+
+  .faq-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .faq-h2 {
+    font-size: clamp(32px, 4vw, 44px);
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 24px 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--color-ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    transition: color 200ms;
+  }
+
+  .faq-item summary:hover { color: var(--color-blue); }
+
+  .faq-item summary::-webkit-details-marker { display: none; }
+
+  .faq-icon {
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-ink-muted);
+    transition: transform 250ms, color 200ms;
+    font-size: 20px;
+    font-weight: 300;
+  }
+
+  .faq-item[open] .faq-icon {
+    transform: rotate(180deg);
+    color: var(--color-blue);
+  }
+
+  .faq-content {
+    font-size: 15px;
+    color: var(--color-ink-secondary);
+    line-height: 1.7;
+    padding: 0 0 24px;
+    max-width: 600px;
+  }
+</style>

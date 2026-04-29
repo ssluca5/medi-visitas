@@ -15,7 +15,7 @@ describe("GET /me", () => {
     jestGlobal.unstable_mockModule("../hooks/auth.js", () => ({
       verifyClerkToken: async (req: any, reply: any) => {
         const token = req.headers.authorization?.replace("Bearer ", "");
-        if (!token) {
+        if (!token || token === "invalid_token") {
           reply.code(401).send({ error: "Unauthorized" });
           return;
         }
@@ -87,9 +87,13 @@ describe("GET /me", () => {
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.payload);
     expect(body).toEqual({
-      id: "user_123",
-      email: "",
+      id: expect.any(String),
+      email: "user_123@placeholder.local",
       name: null,
+      organizationId: null,
+      role: null,
+      tourConcluidoEm: null,
+      organization: null,
     });
   });
 });

@@ -271,6 +271,75 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
 
     return alertas;
   });
+  // ── GET /dashboard/gestor ─────────────────────────────
+  app.get("/gestor", async (request, reply) => {
+    if (request.role !== "OWNER") {
+      return reply.code(403).send({ error: "Acesso restrito a gestores." });
+    }
+
+    const tenantWhere = {
+      organizationId: request.organizationId,
+      deletedAt: null,
+    };
+
+    // Buscar todos os membros da organização
+    const membros = await prisma.organizationMembro.findMany({
+      where: tenantWhere,
+    });
+
+    const users = await prisma.user.findMany({
+      where: { clerkId: { in: membros.map((m) => m.userId) } },
+    });
+
+    const [totalProfissionais, totalVisitas, funilAgregadoDb, visitasMembros] =
+      await Promise.all([
+        prisma.profissional.count({ where: tenantWhere }),
+        prisma.visita.count({
+          where: {
+            ...tenantWhere,
+            status: "REALIZADA",
+          },
+        }),
+        prisma.profissional.groupBy({
+          by: ["estagioPipeline"],
+          where: tenantWhere,
+          _count: { id: true },
+        }),
+        prisma.visita.groupBy({
+          by: ["userId"],
+          where: {
+            ...tenantWhere,
+            status: "REALIZADA",
+          },
+          _count: { id: true },
+        }),
+      ]);
+
+    // Mapear funil
+    const funilAgregado = funilAgregadoDb.map((item) => ({
+      estagio: item.estagioPipeline,
+      total: item._count.id,
+    }));
+
+    // Mapear visitas por membro
+    const visitasPorMembro = membros.map((membro) => {
+      const vis = visitasMembros.find((v) => v.userId === membro.userId);
+      const user = users.find((u) => u.clerkId === membro.userId);
+      return {
+        membroId: membro.userId,
+        nome: user?.name || user?.email || membro.userId,
+        totalVisitas: vis ? vis._count.id : 0,
+      };
+    });
+
+    return {
+      totalMembros: membros.length,
+      totalProfissionais,
+      totalVisitas,
+      visitasPorMembro,
+      funilAgregado,
+    };
+  });
 };
 
 export default dashboardRoutes;

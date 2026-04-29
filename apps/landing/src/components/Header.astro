@@ -1,32 +1,102 @@
 ---
-const navItems = [
-  { label: "Funcionalidades", href: "/funcionalidades" },
-  { label: "Planos", href: "/planos" },
-  { label: "Contato", href: "/contato" },
-];
+const appUrl = import.meta.env.PUBLIC_APP_URL;
+const isHome = Astro.url.pathname === "/";
 ---
 
-<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant">
-  <div class="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-8">
-    <a href="/" class="text-xl font-bold tracking-tighter text-on-surface">
-      MediVisitas
-    </a>
-
-    <nav class="hidden items-center gap-8 md:flex">
-      {navItems.map((item) => (
-        <a href={item.href} class="text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface-variant transition-colors hover:text-primary">
-          {item.label}
-        </a>
-      ))}
-    </nav>
-
-    <div class="flex items-center gap-4">
-      <a href="https://app.medivisitas.com/login" class="hidden text-[12px] font-bold uppercase tracking-[0.1em] text-on-surface-variant transition-colors hover:text-primary sm:block">
-        Login
+<header class="navbar fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-transparent bg-transparent" id="navbar">
+  <div style="width: 100%; padding: 0 clamp(32px, 6vw, 80px);">
+    <div style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding-top: 24px; padding-bottom: 24px;">
+      <a href="/" class="flex items-center gap-2 text-[17px] font-bold text-ink tracking-tight" style="flex-shrink: 0;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue">
+          <path d="M4 21V5C4 4.44772 4.44772 4 5 4H7.5L12 13L16.5 4H19C19.5523 4 20 4.44772 20 5V21H17V9.5L12 18L7 9.5V21H4Z" fill="currentColor"/>
+        </svg>
+        MediVisitas
       </a>
-      <a href="https://app.medivisitas.com/signup" class="rounded bg-primary px-6 py-3 text-[12px] font-bold uppercase tracking-[0.1em] text-on-primary transition-colors hover:bg-surface-tint">
-        Começar
-      </a>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-secondary" id="navLinks" style="flex: 1; justify-content: center; font-size: 15px;">
+        {isHome ? (
+          <>
+            <a href="#solucao" class="hover:text-ink transition-colors">Produto</a>
+            <a href="#planos" class="hover:text-ink transition-colors">Planos</a>
+            <a href="#prova" class="hover:text-ink transition-colors">Depoimentos</a>
+          </>
+        ) : (
+          <>
+            <a href="/funcionalidades" class="hover:text-ink transition-colors">Funcionalidades</a>
+            <a href="/planos" class="hover:text-ink transition-colors">Planos</a>
+            <a href="/contato" class="hover:text-ink transition-colors">Contato</a>
+          </>
+        )}
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button id="themeToggle" class="w-10 h-10 flex items-center justify-center rounded-full bg-off-white text-ink-secondary hover:text-ink transition-colors cursor-pointer" aria-label="Alternar tema">
+          <svg id="sunIcon" class="hidden w-5 h-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="moonIcon" class="hidden w-5 h-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+        <a href={`${appUrl}/login`} class="hidden sm:inline-flex text-sm font-medium text-ink-secondary hover:text-blue hover:bg-off-white px-4 py-2.5 rounded-xl transition-colors">Fazer login</a>
+        <a href="#planos" class="btn btn-primary" style="height: 44px; padding: 0 20px; font-size: 14px;">Começar grátis</a>
+        
+        <button class="nav-toggle md:hidden flex flex-col justify-center items-center w-11 h-11 gap-1.5 cursor-pointer" id="navToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
+          <span class="nav-toggle-bar block w-5 h-0.5 bg-ink rounded-full transition-all duration-200"></span>
+          <span class="nav-toggle-bar block w-5 h-0.5 bg-ink rounded-full transition-all duration-200"></span>
+          <span class="nav-toggle-bar block w-5 h-0.5 bg-ink rounded-full transition-all duration-200"></span>
+        </button>
+      </div>
     </div>
   </div>
 </header>
+
+<style>
+  .navbar:global(.scrolled) {
+    background-color: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom-color: var(--color-border);
+  }
+
+  .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  @media (max-width: 768px) {
+    #navLinks {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 1rem 1.5rem 1.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    #navLinks:global(.open) {
+      display: flex;
+    }
+
+    #navLinks a {
+      width: 100%;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    #navLinks a:last-child {
+      border-bottom: none;
+    }
+  }
+</style>

@@ -12,13 +12,22 @@ function getEnvVars() {
     throw new Error("CLERK_JWT_KEY environment variable is required");
   }
 
-  return { CLERK_SECRET_KEY, CLERK_JWT_KEY };
+  // authorizedParties (azp claim) — CSRF protection
+  // Comma-separated list of allowed origins in CLERK_AUTHORIZED_PARTIES env var
+  const CLERK_AUTHORIZED_PARTIES = process.env.CLERK_AUTHORIZED_PARTIES;
+  const authorizedParties = CLERK_AUTHORIZED_PARTIES
+    ? CLERK_AUTHORIZED_PARTIES.split(",").map((s) => s.trim())
+    : undefined;
+
+  return { CLERK_SECRET_KEY, CLERK_JWT_KEY, authorizedParties };
 }
 
 declare module "fastify" {
   interface FastifyRequest {
     userId?: string;
     orgId?: string;
+    userEmail?: string;
+    userName?: string;
   }
 }
 
@@ -34,15 +43,29 @@ export async function verifyClerkToken(
       return;
     }
 
-    const { CLERK_SECRET_KEY, CLERK_JWT_KEY } = getEnvVars();
+    const { CLERK_SECRET_KEY, CLERK_JWT_KEY, authorizedParties } = getEnvVars();
 
     const payload = await verifyToken(token, {
       secretKey: CLERK_SECRET_KEY,
       jwtKey: CLERK_JWT_KEY,
+      authorizedParties,
     });
 
     request.userId = payload.sub;
     request.orgId = payload.org_id ?? undefined;
+
+    // Extrair dados do usuário dos claims do JWT
+    const claims = payload as Record<string, unknown>;
+    const email = claims.email as string | undefined;
+    const firstName = claims.first_name as string | undefined;
+    const lastName = claims.last_name as string | undefined;
+    const name = claims.name as string | undefined;
+
+    request.userEmail = email ?? undefined;
+    request.userName =
+      name ||
+      [firstName, lastName].filter(Boolean).join(" ").trim() ||
+      undefined;
   } catch (err) {
     request.log.error({ err }, "Clerk token verification failed");
     reply.code(401).send({ error: "Unauthorized" });

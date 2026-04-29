@@ -13,7 +13,7 @@
 | Validação | Zod + `@fastify/type-provider-zod` |
 | Auth      | Clerk JWT em `preHandler`          |
 | Logger    | Pino (nativo do Fastify)           |
-| Porta dev | `3001`                             |
+| Porta dev | `3002`                             |
 
 ---
 

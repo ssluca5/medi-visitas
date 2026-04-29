@@ -1,16 +1,19 @@
 import { redirect } from "@sveltejs/kit";
 import type { LayoutServerLoad } from "./$types";
-import { PUBLIC_API_URL } from "$env/static/public";
+import { PUBLIC_API_URL, PUBLIC_LANDING_URL } from "$env/static/public";
 
 export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
   // Public routes — no redirect
-  const publicRoutes = ["/login", "/signup", "/onboarding", "/planos"];
+  const publicRoutes = ["/login", "/onboarding", "/planos"];
   if (publicRoutes.some((r) => url.pathname.startsWith(r))) {
-    return {};
+    return {
+      userId: locals.userId ?? null,
+      sessionToken: locals.sessionToken ?? null,
+    };
   }
 
   if (!locals.userId) {
-    throw redirect(302, "/login");
+    throw redirect(302, PUBLIC_LANDING_URL ?? "https://medivisitas.com");
   }
 
   // Check onboarding status
@@ -30,10 +33,24 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
         throw redirect(302, "/planos?motivo=trial_expirado");
       }
 
+      // Buscar nome real do usuário via /me
+      let userName = locals.userName ?? "Usuário";
+      try {
+        const meRes = await fetch(`${PUBLIC_API_URL}/me`, {
+          headers: { Authorization: `Bearer ${locals.sessionToken}` },
+        });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (me?.name) userName = me.name;
+        }
+      } catch {
+        // Falha ao buscar /me — usar userName do JWT
+      }
+
       return {
         userId: locals.userId,
         sessionToken: locals.sessionToken,
-        userName: locals.userName ?? "Usuário",
+        userName,
         role: data.role,
         plano: data.plano,
         organizationId: data.organizationId,

@@ -3,6 +3,7 @@
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import type { Notificacao } from '$lib/types';
 	import ItemNotificacao from './ItemNotificacao.svelte';
+	import { toast } from '$lib/stores/toast.svelte';
 
 	interface Props {
 		sessionToken: string | null;
@@ -47,6 +48,7 @@
 			headers: { Authorization: `Bearer ${sessionToken}` }
 		});
 		notificacoes = notificacoes.map((n) => ({ ...n, lida: true }));
+		toast.info('Todas as notificações foram marcadas como lidas');
 	}
 </script>
 

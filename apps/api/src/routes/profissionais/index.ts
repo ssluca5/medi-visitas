@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth";
 import { resolveTenant } from "../../hooks/tenant";
-import { buildTenantWhere } from "../../lib/tenant";
+import { buildTenantWhere, buildResourceWhere } from "../../lib/tenant";
 import { prisma } from "../../lib/prisma";
 import { z } from "zod";
 import {
@@ -204,9 +204,9 @@ export default async function profissionaisRoutes(
       const { id } = request.params as { id: string };
       const data = UpdateProfissionalInputSchema.parse(request.body);
 
-      // Verificar se profissional existe
+      // Verificar se profissional existe (IDOR: MEMBER só edita seus próprios profissionais)
       const existente = await prisma.profissional.findUnique({
-        where: { id, ...buildTenantWhere(request) },
+        where: { id, ...buildResourceWhere(request) },
       });
 
       if (!existente) {
@@ -290,8 +290,9 @@ export default async function profissionaisRoutes(
       const { id } = request.params as { id: string };
       const { ativo } = z.object({ ativo: z.boolean() }).parse(request.body);
 
+      // IDOR: MEMBER só pode ativar/inativar seus próprios profissionais
       const profissional = await prisma.profissional.findUnique({
-        where: { id, organizationId: request.organizationId },
+        where: { id, ...buildResourceWhere(request) },
       });
 
       if (!profissional) {
@@ -327,7 +328,7 @@ export default async function profissionaisRoutes(
       const { id } = request.params as { id: string };
 
       const profissional = await prisma.profissional.findUnique({
-        where: { id, ...buildTenantWhere(request) },
+        where: { id, ...buildResourceWhere(request) },
       });
 
       if (!profissional) {
@@ -356,9 +357,9 @@ export default async function profissionaisRoutes(
       const { id } = request.params as { id: string };
       const { estagioNovo } = UpdateEstagioInputSchema.parse(request.body);
 
-      // Buscar profissional atual
+      // Buscar profissional atual (IDOR: MEMBER só altera seus próprios profissionais)
       const profissional = await prisma.profissional.findUnique({
-        where: { id, ...buildTenantWhere(request) },
+        where: { id, ...buildResourceWhere(request) },
       });
 
       if (!profissional) {

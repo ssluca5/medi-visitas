@@ -1,57 +1,316 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Sora", system-ui, -apple-system, sans-serif;
 
-  --color-primary: #003594;
-  --color-primary-container: #004ac6;
+  /* Core palette */
+  --color-ink: #111827;
+  --color-ink-secondary: #6b7280;
+  --color-ink-muted: #9ca3af;
+
+  --color-blue: #2563eb;
+  --color-blue-hover: #1d4ed8;
+  --color-blue-light: #eff6ff;
+  --color-blue-light-txt: #1e40af;
+
+  --color-border: #e5e7eb;
+  --color-off-white: #f8f9fa;
+  --color-surface: #ffffff;
+
+  --color-brand-bg: #2563eb;
+  --color-brand-txt: #ffffff;
   --color-on-primary: #ffffff;
-  --color-on-primary-container: #b8c8ff;
-  --color-secondary: #006c4a;
-  --color-secondary-container: #9af1c6;
-  --color-on-secondary: #ffffff;
-  --color-tertiary: #4f00ae;
-  --color-tertiary-container: #691cda;
-  --color-on-tertiary: #ffffff;
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  --color-on-error: #ffffff;
 
-  --color-surface: #faf9ff;
-  --color-surface-dim: #d3d9f0;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f1f3ff;
-  --color-surface-container: #e9edff;
-  --color-surface-container-high: #e1e8fe;
-  --color-surface-container-highest: #dce2f9;
-  --color-surface-tint: #1b55d0;
+  --color-surface-inverted: #111827;
+  --color-text-inverted: #f8f9fa;
 
-  --color-on-surface: #141b2b;
-  --color-on-surface-variant: #434654;
-  --color-outline: #636674;
-  --color-outline-variant: #c3c6d6;
-  --color-inverse-surface: #293041;
-  --color-inverse-on-surface: #edf0ff;
+  --color-amber: #f59e0b;
+  --color-amber-light: #fef3c7;
+  --color-amber-bg: #fef9f0;
 
-  --color-background: #faf9ff;
-  --color-on-background: #141b2b;
+  --color-green: #059669;
+  --color-green-light: #d1fae5;
+
+  --color-purple: #7c3aed;
+  --color-red: #dc2626;
+  --color-red-light: #fee2e2;
+  --color-red-light-border: #fca5a5;
+
+  --color-amber-dark: #92400e;
+
+  --color-stone-500: #78716c;
+  --color-stone-600: #57534e;
+  --color-gray-700: #374151;
+
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+
+  --color-slate-100: #f1f5f9;
+  --color-slate-300: #cbd5e1;
 }
 
+/* ===== Base ===== */
+
 * {
-  border-color: var(--color-outline-variant);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+[id] {
+  scroll-margin-top: 92px;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-background);
-  color: var(--color-on-background);
-  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  overflow-x: hidden;
+  font-weight: 400;
+  position: relative;
 }
 
-.material-symbols-outlined {
-  font-variation-settings:
-    "FILL" 0,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
+/* Grain texture overlay — creates tactile depth without affecting performance */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+::selection {
+  background: var(--color-blue);
+  color: white;
+}
+
+/* ===== Focus visible ===== */
+
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== Buttons ===== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition:
+    background 200ms,
+    transform 200ms,
+    box-shadow 200ms;
+}
+
+.btn-primary {
+  background: var(--color-blue);
+  color: var(--color-on-primary);
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--color-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -8px rgba(37, 99, 235, 0.5);
+}
+
+.btn-light {
+  background: var(--color-surface);
+  color: var(--color-blue);
+  height: 56px;
+  padding: 0 36px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.btn-light:hover {
+  background: var(--color-off-white);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Pills ===== */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pill-blue {
+  background: var(--color-blue-light);
+  color: var(--color-blue-light-txt);
+  border: 1px solid var(--color-blue-200);
+}
+
+.pill-amber {
+  background: var(--color-amber-light);
+  color: var(--color-amber-dark);
+  border: 1px solid var(--color-amber);
+}
+
+/* ===== Story reveal — motion hierarchy: headings slower, cards faster ===== */
+
+.story-element {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.story-element.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Headings: slower, more dramatic */
+h1.story-element,
+h2.story-element,
+h3.story-element {
+  transition-duration: 0.9s;
+}
+
+/* Cards, pills, small elements: faster, snappier */
+.pill.story-element,
+.pain-card.story-element,
+.plan-card.story-element,
+.t-card.story-element,
+.faq-item.story-element,
+.cta-label.story-element,
+.cta-h2.story-element,
+.cta-text.story-element,
+.cta-buttons.story-element,
+.cta-trust.story-element,
+.metric.story-element {
+  transition-duration: 0.4s;
+  transition-delay: 0.05s;
+}
+
+[data-story-delay="0"] {
+  transition-delay: 0ms;
+}
+[data-story-delay="1"] {
+  transition-delay: 80ms;
+}
+[data-story-delay="2"] {
+  transition-delay: 160ms;
+}
+[data-story-delay="3"] {
+  transition-delay: 240ms;
+}
+[data-story-delay="4"] {
+  transition-delay: 320ms;
+}
+[data-story-delay="5"] {
+  transition-delay: 400ms;
+}
+[data-story-delay="6"] {
+  transition-delay: 480ms;
+}
+
+/* ===== Reduced motion ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .story-element,
+  .insight-divider,
+  .word {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    width: auto !important;
+  }
+
+  [data-parallax] {
+    transform: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ===== Dark Mode ===== */
+:root[data-theme="dark"] {
+  --color-ink: #f8f9fa;
+  --color-ink-secondary: #9ca3af;
+  --color-ink-muted: #6b7280;
+
+  --color-blue: #3b82f6;
+  --color-blue-hover: #60a5fa;
+  --color-blue-light: #1e3a8a;
+  --color-blue-light-txt: #bfdbfe;
+
+  --color-border: #374151;
+  --color-off-white: #111827;
+  --color-surface: #030712;
+
+  --color-brand-bg: #1e3a8a;
+  --color-brand-txt: #f8f9fa;
+  --color-on-primary: #030712;
+
+  --color-surface-inverted: #1f2937;
+  --color-text-inverted: #f8f9fa;
+
+  --color-amber: #fbbf24;
+  --color-amber-light: #78350f;
+  --color-amber-bg: #451a03;
+
+  --color-green: #10b981;
+  --color-green-light: #064e3b;
+
+  --color-purple: #a78bfa;
+  --color-red: #ef4444;
+  --color-red-light: #7f1d1d;
+  --color-red-light-border: #991b1b;
+
+  --color-amber-dark: #fde68a;
+
+  --color-stone-500: #a8a29e;
+  --color-stone-600: #d6d3d1;
+  --color-gray-700: #9ca3af;
+
+  --color-blue-100: #1e3a8a;
+  --color-blue-200: #1e40af;
+  --color-blue-300: #1d4ed8;
+  --color-blue-400: #2563eb;
+
+  --color-slate-100: #1f2937;
+  --color-slate-300: #374151;
 }

@@ -14,14 +14,14 @@ export declare const CreateMaterialInputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
-    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     nome: string;
+    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
   },
   {
-    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     nome: string;
+    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
   }
@@ -40,14 +40,14 @@ export declare const UpdateMaterialInputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
-    tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     nome?: string | undefined;
+    tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
   },
   {
-    tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     nome?: string | undefined;
+    tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
   }
@@ -66,22 +66,22 @@ export declare const MaterialOutputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
-    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-    nome: string;
     id: string;
+    deletedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
-    deletedAt: Date | null;
+    nome: string;
+    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao: string | null;
     arquivoUrl: string | null;
   },
   {
-    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-    nome: string;
     id: string;
+    deletedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
-    deletedAt: Date | null;
+    nome: string;
+    tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao: string | null;
     arquivoUrl: string | null;
   }
@@ -132,22 +132,22 @@ export declare const MateriaisListOutputSchema: z.ZodObject<
         "strip",
         z.ZodTypeAny,
         {
-          tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-          nome: string;
           id: string;
+          deletedAt: Date | null;
           createdAt: Date;
           updatedAt: Date;
-          deletedAt: Date | null;
+          nome: string;
+          tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
           descricao: string | null;
           arquivoUrl: string | null;
         },
         {
-          tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-          nome: string;
           id: string;
+          deletedAt: Date | null;
           createdAt: Date;
           updatedAt: Date;
-          deletedAt: Date | null;
+          nome: string;
+          tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
           descricao: string | null;
           arquivoUrl: string | null;
         }
@@ -181,12 +181,12 @@ export declare const MateriaisListOutputSchema: z.ZodObject<
   z.ZodTypeAny,
   {
     data: {
-      tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-      nome: string;
       id: string;
+      deletedAt: Date | null;
       createdAt: Date;
       updatedAt: Date;
-      deletedAt: Date | null;
+      nome: string;
+      tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
       descricao: string | null;
       arquivoUrl: string | null;
     }[];
@@ -199,12 +199,12 @@ export declare const MateriaisListOutputSchema: z.ZodObject<
   },
   {
     data: {
-      tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-      nome: string;
       id: string;
+      deletedAt: Date | null;
       createdAt: Date;
       updatedAt: Date;
-      deletedAt: Date | null;
+      nome: string;
+      tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
       descricao: string | null;
       arquivoUrl: string | null;
     }[];

@@ -23,6 +23,8 @@
   let proximaAcao = $state('');
   let objetivoVisita = $state('');
   let erro = $state('');
+  let erroLimite = $state(false);
+  let comprando = $state(false);
   let gravacao = useGravacaoAudio();
 
   function formatarDuracao(segundos: number): string {
@@ -38,6 +40,7 @@
     proximaAcao = '';
     objetivoVisita = '';
     erro = '';
+    erroLimite = false;
     gravacao.descartar();
   }
 
@@ -46,7 +49,32 @@
     onclose();
   }
 
+  async function verificarSaldoAntesDeGravar() {
+    try {
+      const res = await fetch(`${PUBLIC_API_URL}/transcricoes/status`, {
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.permitido) {
+          erro = 'Você atingiu o limite mensal de transcrições do seu plano.';
+          erroLimite = true;
+          return false;
+        }
+      }
+      return true;
+    } catch {
+      return true; // Se falhar a checagem, permite tentar e barrar no backend
+    }
+  }
+
   async function iniciarGravacao() {
+    erro = '';
+    erroLimite = false;
+    
+    const podeGravar = await verificarSaldoAntesDeGravar();
+    if (!podeGravar) return;
+
     await gravacao.iniciar();
     if (gravacao.erroPermissao) {
       erro = gravacao.erroPermissao;
@@ -58,6 +86,7 @@
   async function processarAudio() {
     etapa = 'processar';
     erro = '';
+    erroLimite = false;
 
     try {
       if (!gravacao.audioBlob) {
@@ -74,6 +103,14 @@
         headers: { Authorization: `Bearer ${sessionToken}` },
         body: formData
       });
+
+      if (res.status === 402) {
+        erro = 'Você atingiu o limite mensal de transcrições do seu plano.';
+        erroLimite = true;
+        etapa = 'selecionar';
+        gravacao.descartar();
+        return;
+      }
 
       if (!res.ok) {
         const body = await res.json();
@@ -108,6 +145,28 @@
       fechar();
     } catch (err: any) {
       erro = err.message;
+    }
+  }
+
+  async function comprarPacote() {
+    try {
+      comprando = true;
+      const res = await fetch(`${PUBLIC_API_URL}/transcricoes/comprar-pacote`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        }
+      } else {
+        erro = 'Erro ao iniciar compra.';
+      }
+    } catch {
+      erro = 'Erro de conexão.';
+    } finally {
+      comprando = false;
     }
   }
 </script>
@@ -280,9 +339,25 @@
 
         <!-- Erro -->
         {#if erro}
-          <div class="flex items-center gap-2 p-3 bg-red-50 rounded-lg text-sm text-red-700">
-            <AlertCircle class="w-4 h-4 shrink-0" />
-            {erro}
+          <div class="flex flex-col gap-2 p-3 bg-red-50 rounded-lg text-sm text-red-700">
+            <div class="flex items-center gap-2">
+              <AlertCircle class="w-4 h-4 shrink-0" />
+              {erro}
+            </div>
+            {#if erroLimite}
+              <button
+                onclick={comprarPacote}
+                disabled={comprando}
+                class="mt-1 w-full flex items-center justify-center gap-2 py-2 px-3 bg-red-100 hover:bg-red-200 text-red-800 font-medium rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {#if comprando}
+                  <Loader2 class="h-4 w-4 animate-spin" />
+                  Processando...
+                {:else}
+                  Comprar pacote adicional (+20)
+                {/if}
+              </button>
+            {/if}
           </div>
         {/if}
       </div>

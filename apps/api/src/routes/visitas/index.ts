@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { resolveTenant } from "../../hooks/tenant.js";
-import { buildTenantWhere } from "../../lib/tenant.js";
+import { buildTenantWhere, buildResourceWhere } from "../../lib/tenant.js";
 import {
   CreateVisitaInputSchema,
   UpdateVisitaInputSchema,
@@ -13,6 +13,10 @@ import {
   transcreverAudio,
   extrairCamposVisita,
 } from "../../services/minimax.js";
+import {
+  verificarLimiteTranscricao,
+  incrementarTranscricao,
+} from "../../services/transcricoes.js";
 
 const STATUS_FINAIS = ["REALIZADA", "CANCELADA", "NAO_REALIZADA"];
 const AUDIO_TYPES = [
@@ -133,8 +137,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     const { id } = request.params as { id: string };
     const input = UpdateVisitaInputSchema.parse(request.body);
 
+    // IDOR protection: MEMBER só pode editar suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {
@@ -194,8 +199,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     const { id } = request.params as { id: string };
     const input = PatchVisitaStatusInputSchema.parse(request.body);
 
+    // IDOR protection: MEMBER só pode alterar status de suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {
@@ -236,10 +242,22 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
 
   // POST /visitas/:id/transcricao — gravação de áudio → STT → Chat
   app.post("/:id/transcricao", async (request, reply) => {
+    const limite = await verificarLimiteTranscricao(request.organizationId!);
+
+    if (!limite.permitido) {
+      return reply.status(402).send({
+        error: "Limite de transcrições atingido.",
+        code: "TRANSCRIPTION_LIMIT_REACHED",
+        usadas: limite.usadas,
+        limite: limite.limite,
+        extras: limite.extras,
+      });
+    }
+
     const { id } = request.params as { id: string };
 
     const visita = await prisma.visita.findUnique({
-      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!visita) {
@@ -281,6 +299,8 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
       },
     });
 
+    await incrementarTranscricao(request.organizationId!);
+
     return reply.send(campos);
   });
 
@@ -293,8 +313,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(400).send({ error: "audioUrl é obrigatório" });
     }
 
+    // IDOR protection: MEMBER só pode associar áudio às suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {
@@ -312,8 +333,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   app.delete("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
 
+    // IDOR protection: MEMBER só pode cancelar suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
 
     if (!existing) {

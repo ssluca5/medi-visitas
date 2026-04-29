@@ -1,27 +1,44 @@
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere, buildResourceWhere } from "../../lib/tenant.js";
 import {
   CreateVisitaInputSchema,
   UpdateVisitaInputSchema,
   PatchVisitaStatusInputSchema,
   ListVisitasQuerySchema,
 } from "./schemas.js";
+import {
+  transcreverAudio,
+  extrairCamposVisita,
+} from "../../services/minimax.js";
+import {
+  verificarLimiteTranscricao,
+  incrementarTranscricao,
+} from "../../services/transcricoes.js";
 const STATUS_FINAIS = ["REALIZADA", "CANCELADA", "NAO_REALIZADA"];
+const AUDIO_TYPES = [
+  "audio/webm",
+  "audio/ogg",
+  "audio/mp4",
+  "audio/mpeg",
+  "audio/wav",
+];
 const visitasRoutes = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
   app.post("/", async (request, reply) => {
     const input = CreateVisitaInputSchema.parse(request.body);
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const { materiais, ...visitaData } = input;
     const dataVisitaValue = new Date(visitaData.dataVisita);
     const visita = await prisma.visita.create({
       data: {
         ...visitaData,
         dataVisita: dataVisitaValue,
-        userId,
+        userId: request.userId,
+        organizationId: request.organizationId,
         materiais: {
           create: materiais.map((m) => ({
             materialTecnicoId: m.materialTecnicoId,
@@ -38,12 +55,8 @@ const visitasRoutes = async (app) => {
     return reply.status(201).send(visita);
   });
   app.get("/", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const query = ListVisitasQuerySchema.parse(request.query);
-    const where = { userId };
+    const where = buildTenantWhere(request, { hasDeletedAt: false });
     if (query.profissionalId) {
       where.profissionalId = query.profissionalId;
     }
@@ -89,12 +102,8 @@ const visitasRoutes = async (app) => {
   });
   app.get("/:id", async (request, reply) => {
     const { id } = request.params;
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const visita = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildTenantWhere(request, { hasDeletedAt: false }) },
       include: {
         profissional: true,
         materiais: {
@@ -109,13 +118,10 @@ const visitasRoutes = async (app) => {
   });
   app.put("/:id", async (request, reply) => {
     const { id } = request.params;
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const input = UpdateVisitaInputSchema.parse(request.body);
+    // IDOR protection: MEMBER só pode editar suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Visita não encontrada" });
@@ -165,13 +171,10 @@ const visitasRoutes = async (app) => {
   });
   app.patch("/:id/status", async (request, reply) => {
     const { id } = request.params;
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const input = PatchVisitaStatusInputSchema.parse(request.body);
+    // IDOR protection: MEMBER só pode alterar status de suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Visita não encontrada" });
@@ -205,14 +208,82 @@ const visitasRoutes = async (app) => {
     });
     return visita;
   });
+  // POST /visitas/:id/transcricao — gravação de áudio → STT → Chat
+  app.post("/:id/transcricao", async (request, reply) => {
+    const limite = await verificarLimiteTranscricao(request.organizationId);
+    if (!limite.permitido) {
+      return reply.status(402).send({
+        error: "Limite de transcrições atingido.",
+        code: "TRANSCRIPTION_LIMIT_REACHED",
+        usadas: limite.usadas,
+        limite: limite.limite,
+        extras: limite.extras,
+      });
+    }
+    const { id } = request.params;
+    const visita = await prisma.visita.findUnique({
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
+    });
+    if (!visita) {
+      return reply.status(404).send({ error: "Visita não encontrada" });
+    }
+    const file = await request.file();
+    if (!file) {
+      return reply
+        .status(400)
+        .send({ error: "Arquivo de áudio é obrigatório" });
+    }
+    const mimeType = file.mimetype;
+    if (!AUDIO_TYPES.includes(mimeType)) {
+      return reply.status(400).send({
+        error: `Tipo de arquivo inválido: ${mimeType}. Aceitos: ${AUDIO_TYPES.join(", ")}`,
+      });
+    }
+    const buffer = await file.toBuffer();
+    if (buffer.length > 10 * 1024 * 1024) {
+      return reply.status(400).send({ error: "Arquivo excede 10MB" });
+    }
+    // Passo 1: STT (Speech-to-Text)
+    const transcricao = await transcreverAudio(buffer, mimeType);
+    // Passo 2: Chat Completion (extração estruturada)
+    const campos = await extrairCamposVisita(transcricao);
+    // Atualizar visita com campos extraídos
+    await prisma.visita.update({
+      where: { id },
+      data: {
+        resumo: campos.resumo,
+        proximaAcao: campos.proximaAcao,
+        objetivoVisita: campos.objetivoVisita,
+      },
+    });
+    await incrementarTranscricao(request.organizationId);
+    return reply.send(campos);
+  });
+  // PATCH /visitas/:id/audio — salvar URL do áudio
+  app.patch("/:id/audio", async (request, reply) => {
+    const { id } = request.params;
+    const { audioUrl } = request.body;
+    if (!audioUrl || typeof audioUrl !== "string") {
+      return reply.status(400).send({ error: "audioUrl é obrigatório" });
+    }
+    // IDOR protection: MEMBER só pode associar áudio às suas próprias visitas
+    const existing = await prisma.visita.findUnique({
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
+    });
+    if (!existing) {
+      return reply.status(404).send({ error: "Visita não encontrada" });
+    }
+    await prisma.visita.update({
+      where: { id },
+      data: { audioUrl },
+    });
+    return reply.status(204).send();
+  });
   app.delete("/:id", async (request, reply) => {
     const { id } = request.params;
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
+    // IDOR protection: MEMBER só pode cancelar suas próprias visitas
     const existing = await prisma.visita.findUnique({
-      where: { id, userId },
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Visita não encontrada" });

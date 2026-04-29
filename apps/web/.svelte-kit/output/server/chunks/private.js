@@ -1,2 +1,5 @@
-const CLERK_SECRET_KEY = "sk_test_F2K84WCw3EptWZWMFnIKIn9aMOq7QsUo1m4YdSxkFP";
-export { CLERK_SECRET_KEY as C };
+//#region \0virtual:env/static/private
+/** @type {import('$env/static/private').CLERK_SECRET_KEY} */
+var CLERK_SECRET_KEY = "sk_test_F2K84WCw3EptWZWMFnIKIn9aMOq7QsUo1m4YdSxkFP";
+//#endregion
+export { CLERK_SECRET_KEY as t };

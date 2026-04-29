@@ -62,6 +62,24 @@ Prospectado → Visitado → Interessado → Prescritor → Fidelizado
 - Cada profissional tem **exatamente um** estágio ativo.
 - Transições em `EstagioLog` (imutável).
 
+### Prisma — Soft Delete via Extension
+
+O client Prisma (`apps/api/src/lib/prisma.ts`) estende `$allModels` com:
+
+- `prisma.<model>.softDelete(where)` — faz `update({ where, data: { deletedAt: new Date() } })`
+- `prisma.<model>.softDeleteMany(where)` — faz `updateMany(...)` idem
+
+Usar em vez de `update` manual quando a operação é apenas soft delete.
+
+### Variáveis de Ambiente (Auth)
+
+| Variável                   | Obrigatória | Descrição                                                                                                                     |
+| -------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `CLERK_SECRET_KEY`         | Sim         | Secret key do Clerk                                                                                                           |
+| `CLERK_JWT_KEY`            | Sim         | JWT PEM public key do Clerk                                                                                                   |
+| `CLERK_AUTHORIZED_PARTIES` | Não         | Lista de origens permitidas (CSV). Ex: `https://app.medivisitas.com,http://localhost:5173`. Sem isso, `azp` não é verificado. |
+| `CLERK_WEBHOOK_SECRET`     | Sim         | Svix webhook secret                                                                                                           |
+
 ---
 
 ## Comandos Essenciais
@@ -146,6 +164,10 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-04-01] `{@const}` só funciona dentro de `{#each}`, `{#if}`, etc. — nunca diretamente dentro de `<div>`
 - [2026-04-25] `Buffer` não é `BlobPart` no TS atual → usar `new Uint8Array(buffer)` no `new Blob()`
 - [2026-04-25] `@fastify/multipart@9` exige Fastify 5 → usar `@fastify/multipart@8` para Fastify 4.x
+- [2026-04-27] Rota `/me` retornava dados vazios → buscar user no Prisma via `request.userId`
+- [2026-04-27] `verifyToken` sem `authorizedParties` → adicionar `CLERK_AUTHORIZED_PARTIES` env var para CSRF protection
+- [2026-04-27] Prisma `softDelete` manual repetitivo → extensão `$extends` com `softDelete()` e `softDeleteMany()` em `$allModels`
+- [2026-04-27] Rota `/onboarding` sem `resolveTenant` sem documentação → adicionar comentário explicando decisão de design
 
 ### Fase 5 — IA: Transcrição com MiniMax 2.7
 
@@ -187,6 +209,15 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - **SEO:** @astrojs/sitemap, schema.org SoftwareApplication, OG tags
 - **Domínio:** medivisitas.com (landing) / app.medivisitas.com (app)
 - **Decisões:** Tailwind v4 via @tailwindcss/vite (não @astrojs/tailwind), screenshots como Svelte island com client:load, sem formulário de contato (apenas CTAs)
+
+### Fase Enterprise — Multi-usuário, Gestão e Relatórios
+
+- **Concluída em:** 2026-04-29
+- **Escopo:** Controle de Transcrições (limites por plano), Gestão de Equipe (convites e membros), Dashboard Gestor (resumo para OWNER), Relatórios (exportação CSV).
+- **Banco de Dados:** Migrations `transcricoes-controle` (campos `transcricoesUsadas`, `transcricoesMes`, `transcricoesExtras` na tabela `Organization`), `organization-convites` (nova model `OrganizationConvite`).
+- **Backend:** Novas rotas `/gestor/resumo`, `/organizacao/*`, `/relatorios/*`. Integração da validação de limite de transcrições no webhook do Stripe e nas rotas de áudio.
+- **Frontend:** Atualização do `ModalGravacao` (bloqueio sem saldo), novas telas `/dashboard/equipe`, `/convite/[id]`, `/dashboard/gestor`, `/dashboard/relatorios`. Links na Sidebar restritos a OWNER.
+- **Decisões:** Verificação de permissões via `requireOwner` nas rotas gerenciais; correção do `@fastify/helmet` `contentSecurityPolicy` (`directives` em vez de `policy`).
 
 ## Design System
 

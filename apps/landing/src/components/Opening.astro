@@ -1,0 +1,282 @@
+---
+const appUrl = import.meta.env.PUBLIC_APP_URL;
+---
+
+<section class="section-opening" aria-labelledby="opening-h1">
+  <div class="opening-grid">
+    <div>
+      <span class="pill pill-blue story-element" data-story-delay="1">CRM Farmacêutico</span>
+      <h1 class="opening-h1 story-element" id="opening-h1" data-story-delay="1">
+        São 6 da manhã.<br />
+        Você tem 12 médicos<br />
+        para visitar hoje.
+        <span class="gap-line" aria-hidden="true"></span>
+        <span class="blue">Quem você visita</span> primeiro?
+      </h1>
+      <p class="opening-sub story-element" data-story-delay="1">
+        A maioria dos propagandistas começa o dia sem saber a resposta. O MediVisitas muda isso.
+      </p>
+      <p class="opening-trust story-element" data-story-delay="1">
+        7 dias grátis · Sem cartão · Setup em 5 min
+      </p>
+      <div class="opening-cta-row story-element" data-story-delay="1">
+        <a href={`${appUrl}/signup`} class="btn btn-primary">Descobrir como →</a>
+      </div>
+    </div>
+
+    <div class="clock-card" data-parallax="-0.05">
+      <div class="clock-time story-element" data-story-delay="2">
+        <span class="clock-num">06:00</span>
+        <span class="clock-ampm">AM</span>
+      </div>
+      <div class="agenda-card story-element" data-story-delay="3" aria-label="Agenda sugerida do dia">
+        <div class="agenda-label">Hoje</div>
+        <div class="agenda-item active">
+          <span class="agenda-time">08:00</span>
+          <span class="agenda-name">Dr. João Silva</span>
+          <span class="agenda-spec">Cardiologia</span>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">09:30</span>
+          <span class="agenda-name">Dra. Ana Costa</span>
+          <span class="agenda-spec">Neurologia</span>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">11:00</span>
+          <span class="agenda-name">Dr. Carlos Lima</span>
+          <span class="agenda-spec">Farmácia</span>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">14:00</span>
+          <span class="agenda-name">Dr. Roberto Melo</span>
+          <span class="agenda-spec">Pediatria</span>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">15:30</span>
+          <span class="agenda-name">Dra. Maria Santos</span>
+          <span class="agenda-spec">Endocrinologia</span>
+        </div>
+        <div class="agenda-item">
+          <span class="agenda-time">17:00</span>
+          <span class="agenda-name">Dr. Pedro Alves</span>
+          <span class="agenda-spec">Psiquiatria</span>
+        </div>
+        <div class="agenda-note">Sugerido pelo MediVisitas com base em prioridade</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* === Animações de Entrada === */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes justFade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .story-element {
+    opacity: 0; /* Inicia invisível */
+    animation: slideUpFade 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .story-element[data-story-delay="1"] { animation-delay: 0.1s; }
+  .story-element[data-story-delay="2"] { animation-delay: 0.3s; }
+  .story-element[data-story-delay="3"] { animation-delay: 0.5s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-element {
+      animation-name: justFade;
+      transform: none !important;
+    }
+  }
+
+  /* === Estilos do Componente === */
+  .section-opening {
+    min-height: 100vh;
+    background: var(--color-off-white);
+    display: flex;
+    align-items: center;
+    padding: 100px clamp(32px, 6vw, 80px) 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section-opening::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 70%;
+    height: 140%;
+    background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .opening-grid {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 60px;
+    align-items: center;
+  }
+
+  .opening-h1 {
+    font-size: clamp(56px, 7vw, 88px);
+    font-weight: 900;
+    font-family: var(--font-display);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+    margin-top: 24px;
+  }
+
+  .opening-h1 .gap-line {
+    display: block;
+    height: 0.4em;
+  }
+
+  .opening-h1 .blue {
+    color: var(--color-blue);
+  }
+
+  .opening-sub {
+    font-size: 20px;
+    color: var(--color-ink-secondary);
+    max-width: 480px;
+    margin-top: 32px;
+    line-height: 1.6;
+  }
+
+  .opening-trust {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-ink-secondary);
+    margin-top: 24px;
+    margin-bottom: 8px;
+    letter-spacing: -0.005em;
+  }
+
+  .opening-cta-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .clock-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+    will-change: transform;
+  }
+
+  .clock-time {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    line-height: 0.9;
+  }
+
+  .clock-num {
+    font-size: clamp(80px, 10vw, 120px);
+    font-weight: 900;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+  }
+
+  .clock-ampm {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+
+  .agenda-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 20px 40px -20px rgba(0,0,0,0.08);
+  }
+
+  .agenda-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-ink-muted);
+    margin-bottom: 16px;
+  }
+
+  .agenda-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px 10px 14px;
+    margin: 0 -12px;
+    border-left: 2px solid transparent;
+    transition: background 200ms;
+  }
+
+  .agenda-item.active {
+    border-left-color: var(--color-blue);
+    background: var(--color-blue-light);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .agenda-time {
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--color-ink-muted);
+    width: 38px;
+    flex-shrink: 0;
+  }
+
+  .agenda-name {
+    font-size: 13px;
+    color: var(--color-ink);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .agenda-spec {
+    font-size: 12px;
+    color: var(--color-ink-muted);
+    margin-left: auto;
+  }
+
+  .agenda-note {
+    font-size: 11px;
+    color: var(--color-ink-muted);
+    font-style: italic;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--color-border);
+  }
+
+  @media (max-width: 900px) {
+    .opening-grid {
+      grid-template-columns: 1fr;
+      gap: 60px;
+    }
+  }
+
+  @media (max-width: 540px) {
+    .agenda-spec { display: none; }
+  }
+</style>

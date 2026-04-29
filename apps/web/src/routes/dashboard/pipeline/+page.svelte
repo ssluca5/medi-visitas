@@ -3,7 +3,7 @@
   import { apiFetch } from '$lib/api';
   import { BarChart3, Users, CalendarCheck, TrendingUp, Download, RefreshCw } from 'lucide-svelte';
   import Button from '$lib/components/ui/Button.svelte';
-  import { toasts } from '$lib/stores/toast';
+  import { toasts } from '$lib/stores/toast.svelte';
   import CardMetrica from '$lib/components/pipeline/CardMetrica.svelte';
   import FunilPipeline from '$lib/components/pipeline/FunilPipeline.svelte';
   import KanbanPipeline from '$lib/components/pipeline/KanbanPipeline.svelte';

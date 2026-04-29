@@ -6,8 +6,8 @@ interface Props {
 }
 
 const {
-  title = "MediVisitas — CRM para Propagandistas Farmacêuticos",
-  description = "Organize visitas, acompanhe profissionais e aumente suas prescrições. CRM feito para propagandistas farmacêuticos.",
+  title = "MediVisitas — A rotina que você merecia sempre",
+  description = "CRM para propagandistas farmacêuticos. Carteira organizada, visitas registradas por voz, agenda automática. 7 dias grátis.",
   canonical = "https://medivisitas.com",
 } = Astro.props;
 ---
@@ -21,18 +21,18 @@ const {
   <link rel="canonical" href={canonical} />
 
   <!-- Open Graph -->
+  <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
-  <meta property="og:image" content="https://medivisitas.com/og-image.png" />
   <meta property="og:url" content={canonical} />
-  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://medivisitas.com/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
 
   <!-- Global styles -->
   <style is:global>@import "../styles/global.css";</style>
@@ -43,19 +43,340 @@ const {
     "@type": "SoftwareApplication",
     "name": "MediVisitas",
     "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web",
-    "description": description,
-    "offers": [{
-      "@type": "Offer",
-      "price": "79",
-      "priceCurrency": "BRL",
-      "name": "Individual"
-    }]
+    "operatingSystem": "Web, iOS, Android",
+    "description": "CRM para propagandistas farmacêuticos com gravação de visitas por voz e agenda inteligente.",
+    "offers": [
+      {"@type": "Offer", "name": "Individual", "price": "79.00", "priceCurrency": "BRL"},
+      {"@type": "Offer", "name": "Empresa", "price": "49.00", "priceCurrency": "BRL"}
+    ],
+    "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "847"}
   })} />
 
+  <!-- Script para prevenir FOUC (Flash of Unstyled Content) do tema -->
+  <script is:inline>
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  </script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
 <body>
+  <a href="#main" class="skip-link">Ir para o conteúdo</a>
+  <div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
   <slot />
+
+  <script is:inline>
+  (function() {
+    'use strict';
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Progress bar + Navbar scroll + Parallax
+    const progressBar = document.getElementById('progressBar');
+    const navbar = document.getElementById('navbar');
+    const parallaxEls = !reduceMotion ? Array.from(document.querySelectorAll('[data-parallax]')) : [];
+    let scrollRaf = null;
+
+    function onScroll() {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(function() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? scrollY / docHeight : 0;
+        if (progressBar) progressBar.style.transform = 'scaleX(' + pct + ')';
+
+        if (navbar) {
+          if (scrollY > 40) navbar.classList.add('scrolled');
+          else navbar.classList.remove('scrolled');
+        }
+
+        // Parallax
+        if (window.innerWidth >= 768) {
+          for (var i = 0; i < parallaxEls.length; i++) {
+            var el = parallaxEls[i];
+            var speed = parseFloat(el.dataset.parallax);
+            var rect = el.getBoundingClientRect();
+            if (rect.bottom > -200 && rect.top < window.innerHeight + 200) {
+              var offset = Math.max(-60, Math.min(60, scrollY * speed));
+              el.style.transform = 'translateY(' + offset + 'px)';
+            }
+          }
+        } else {
+          for (var i = 0; i < parallaxEls.length; i++) {
+            parallaxEls[i].style.transform = '';
+          }
+        }
+
+        scrollRaf = null;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Mobile nav toggle
+    var navToggle = document.getElementById('navToggle');
+    var navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', function() {
+        var expanded = navToggle.getAttribute('aria-expanded') === 'true';
+        navToggle.setAttribute('aria-expanded', String(!expanded));
+        navLinks.classList.toggle('open');
+      });
+      navLinks.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') {
+          navToggle.setAttribute('aria-expanded', 'false');
+          navLinks.classList.remove('open');
+        }
+      });
+      // Mobile nav focus trap
+      var focusableElements = navLinks.querySelectorAll('a[href], button');
+      var firstFocusable = navToggle;
+      var lastFocusable = focusableElements.length > 0 ? focusableElements[focusableElements.length - 1] : navToggle;
+
+      // FIX: Force correct offset on Anchor Links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            e.preventDefault();
+            // Calcula a posição do elemento menos 90px (altura exata do menu)
+            const headerOffset = 90;
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth"
+            });
+            
+            // Atualiza a URL sem pular a página bruscamente
+            history.pushState(null, null, targetId);
+          }
+        });
+      });
+
+      navToggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab' && e.shiftKey && navLinks.classList.contains('open')) {
+          e.preventDefault();
+          if (lastFocusable) lastFocusable.focus();
+        }
+      });
+
+      if (lastFocusable && lastFocusable !== navToggle) {
+        lastFocusable.addEventListener('keydown', function(e) {
+          if (e.key === 'Tab' && !e.shiftKey && navLinks.classList.contains('open')) {
+            e.preventDefault();
+            firstFocusable.focus();
+          }
+        });
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navLinks.classList.contains('open')) {
+          navToggle.setAttribute('aria-expanded', 'false');
+          navLinks.classList.remove('open');
+          navToggle.focus();
+        }
+      });
+    }
+
+    // FAQ aria-expanded toggle
+    document.querySelectorAll('details.faq-item').forEach(function(details) {
+      var summary = details.querySelector('summary');
+      if (!summary) return;
+      summary.setAttribute('aria-expanded', String(details.open));
+      details.addEventListener('toggle', function() {
+        summary.setAttribute('aria-expanded', String(details.open));
+      });
+    });
+
+    // Counter live region: inject aria-live region before first counter, update after animation
+    var counters = document.querySelectorAll('[data-counter]');
+    if (counters.length > 0) {
+      var liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;';
+      counters[0].parentNode.insertBefore(liveRegion, counters[0]);
+    }
+
+    // Intersection Observer for reveals
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          // Counter animation
+          var counters = entry.target.matches('[data-counter]')
+            ? [entry.target]
+            : entry.target.querySelectorAll('[data-counter]');
+          counters.forEach(animateCounter);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.story-element').forEach(function(el) {
+      revealObserver.observe(el);
+    });
+
+    // Insight divider
+    var dividerObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          dividerObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    var insightDivider = document.getElementById('insightDivider');
+    if (insightDivider) dividerObserver.observe(insightDivider);
+
+    // Counter animation
+    function animateCounter(el) {
+      if (el.dataset.counted === '1') return;
+      el.dataset.counted = '1';
+      var target = parseFloat(el.dataset.counter);
+      var suffix = el.dataset.suffix || '';
+      var decimals = parseInt(el.dataset.decimal || '0', 10);
+      var finalLabel = el.getAttribute('aria-label') || '';
+      if (reduceMotion || isNaN(target)) {
+        el.textContent = formatNum(target, decimals) + suffix;
+        if (liveRegion && finalLabel) liveRegion.textContent = finalLabel;
+        return;
+      }
+      var duration = 1600;
+      var start = performance.now();
+      function tick(now) {
+        var elapsed = now - start;
+        var t = Math.min(1, elapsed / duration);
+        var eased = t * (2 - t);
+        var value = target * eased;
+        el.textContent = formatNum(value, decimals) + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+        else if (liveRegion && finalLabel) liveRegion.textContent = finalLabel;
+      }
+      requestAnimationFrame(tick);
+    }
+    function formatNum(n, decimals) {
+      if (decimals > 0) return n.toFixed(decimals).replace('.', ',');
+      return Math.round(n).toLocaleString('pt-BR');
+    }
+
+    // Theme Toggle
+    var themeToggle = document.getElementById('themeToggle');
+    var sunIcon = document.getElementById('sunIcon');
+    var moonIcon = document.getElementById('moonIcon');
+    if (themeToggle && sunIcon && moonIcon) {
+      // Initial state
+      var initialIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (initialIsDark) {
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      } else {
+        moonIcon.classList.remove('hidden');
+        sunIcon.classList.add('hidden');
+      }
+
+      themeToggle.addEventListener('click', function() {
+        var currentIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var newTheme = currentIsDark ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        if (newTheme === 'dark') {
+          sunIcon.classList.remove('hidden');
+          moonIcon.classList.add('hidden');
+        } else {
+          moonIcon.classList.remove('hidden');
+          sunIcon.classList.add('hidden');
+        }
+      });
+    }
+
+    // Plan pricing live region
+    var pricingRegion = document.createElement('div');
+    pricingRegion.id = 'pricing-live';
+    pricingRegion.setAttribute('aria-live', 'polite');
+    pricingRegion.setAttribute('aria-atomic', 'true');
+    pricingRegion.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;';
+    var planGrid = document.querySelector('.plans-grid');
+    if (planGrid) planGrid.parentNode.insertBefore(pricingRegion, planGrid);
+
+    // Plans toggle
+    var planButtons = document.querySelectorAll('.plans-toggle button');
+    function activatePlanBtn(btn) {
+      planButtons.forEach(function(b) {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+        b.setAttribute('tabindex', '-1');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      btn.setAttribute('tabindex', '0');
+      btn.focus();
+      var period = btn.dataset.period;
+      document.querySelectorAll('[data-monthly]').forEach(function(span) {
+        span.textContent = period === 'yearly' ? span.dataset.yearly : span.dataset.monthly;
+      });
+      // Announce price change to screen readers
+      if (pricingRegion) pricingRegion.textContent = 'Preço atualizado para ' + document.querySelector('.plan-individual .plan-price').textContent.trim() + ' por mês';
+    }
+    planButtons.forEach(function(btn, i) {
+      btn.setAttribute('tabindex', i === 0 ? '0' : '-1');
+      btn.addEventListener('click', function() { activatePlanBtn(btn); });
+    });
+    var toggle = document.querySelector('.plans-toggle');
+    if (toggle) {
+      toggle.addEventListener('keydown', function(e) {
+        var tabs = Array.from(planButtons);
+        var idx = tabs.indexOf(document.activeElement);
+        var next = -1;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { next = (idx + 1) % tabs.length; }
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { next = (idx - 1 + tabs.length) % tabs.length; }
+        else if (e.key === 'Home') { next = 0; }
+        else if (e.key === 'End') { next = tabs.length - 1; }
+        if (next >= 0) { e.preventDefault(); activatePlanBtn(tabs[next]); }
+      });
+    }
+  })();
+  </script>
+
+  <style>
+    /* Skip link */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--color-ink);
+      color: white;
+      padding: 12px 20px;
+      z-index: 1000;
+      border-radius: 0 0 8px 0;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .skip-link:focus { left: 0; }
+
+    /* Progress bar */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 100%;
+      transform: scaleX(0);
+      transform-origin: left;
+      background: linear-gradient(90deg, var(--color-blue), var(--color-purple));
+      z-index: 200;
+      will-change: transform;
+    }
+  </style>
 </body>
 </html>

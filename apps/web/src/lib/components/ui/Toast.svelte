@@ -1,37 +1,42 @@
 <script lang="ts">
-	import { toasts } from '$lib/stores/toast';
+	import { toasts, removerToast } from '$lib/stores/toast.svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { CircleCheck, CircleX, Info, X } from 'lucide-svelte';
+	import { CircleCheck, CircleX, Info, AlertTriangle, X } from 'lucide-svelte';
 
 	const iconMap = {
 		success: CircleCheck,
 		error: CircleX,
-		info: Info
+		info: Info,
+		warning: AlertTriangle
 	};
 
-	const iconColorMap = {
-		success: 'text-emerald-500',
-		error: 'text-red-500',
-		info: 'text-blue-500'
+	const styleMap = {
+		success: { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
+		error:   { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
+		info:    { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af' },
+		warning: { bg: '#fef3c7', border: '#fde68a', text: '#92400e' }
 	};
 </script>
 
-<div class="fixed bottom-6 right-6 z-[100] flex flex-col gap-2.5 pointer-events-none">
-	{#each $toasts as toast (toast.id)}
-		{@const Icon = iconMap[toast.type]}
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center pointer-events-none">
+	{#each toasts.value as t (t.id)}
+		{@const Icon = iconMap[t.type]}
+		{@const colors = styleMap[t.type]}
 		<div
-			class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl pointer-events-auto min-w-[280px] max-w-[400px] bg-white border border-[rgb(var(--slate-200))]"
-			in:fly={{ y: 20, duration: 250, easing: cubicOut }}
+			class="flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg pointer-events-auto min-w-72 max-w-sm"
+			style="background-color: {colors.bg}; border-color: {colors.border};"
+			in:fly={{ y: 20, duration: 300, easing: cubicOut }}
 			out:fade={{ duration: 150 }}
 		>
-			<Icon class="w-5 h-5 shrink-0 {iconColorMap[toast.type]}" />
-			<span class="text-sm flex-1 text-[rgb(var(--slate-700))]">{toast.message}</span>
+			<Icon class="w-5 h-5 shrink-0" style="color: {colors.text};" />
+			<span class="text-sm flex-1" style="color: {colors.text};">{t.message}</span>
 			<button
-				onclick={() => toasts.dismiss(toast.id)}
-				class="p-0.5 rounded hover:bg-[rgb(var(--slate-100))] cursor-pointer shrink-0 transition-colors"
+				onclick={() => removerToast(t.id)}
+				class="p-0.5 rounded hover:opacity-80 cursor-pointer shrink-0 transition-opacity"
+				style="color: {colors.text};"
 			>
-				<X class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+				<X class="w-3.5 h-3.5" />
 			</button>
 		</div>
 	{/each}

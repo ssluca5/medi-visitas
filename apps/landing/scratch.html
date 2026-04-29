@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @layer theme {
+        :root {
+          --bg-color: white;
+          --text-color: black;
+        }
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      :root[data-theme="dark"] {
+        --bg-color: black;
+        --text-color: white;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg-color: black;
+          --text-color: white;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello</h1>
+    <button id="toggle">Toggle</button>
+    <script>
+      const btn = document.getElementById("toggle");
+      btn.onclick = () => {
+        const current =
+          document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        console.log("theme set to", next);
+      };
+    </script>
+  </body>
+</html>

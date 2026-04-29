@@ -168,6 +168,7 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<
       | "INTERESSADO"
       | "PRESCRITOR"
       | "FIDELIZADO";
+    email?: string | undefined;
     endereco?:
       | {
           logradouro?: string | undefined;
@@ -180,10 +181,7 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<
         }
       | undefined;
     crm?: string | undefined;
-    email?: string | undefined;
     telefone?: string | undefined;
-    especialidadeId?: string | null | undefined;
-    subEspecialidadeId?: string | null | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -199,9 +197,12 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<
           observacao?: string | undefined;
         }[]
       | undefined;
+    especialidadeId?: string | null | undefined;
+    subEspecialidadeId?: string | null | undefined;
   },
   {
     nome: string;
+    email?: string | undefined;
     endereco?:
       | {
           logradouro?: string | undefined;
@@ -214,7 +215,6 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<
         }
       | undefined;
     crm?: string | undefined;
-    email?: string | undefined;
     telefone?: string | undefined;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
     estagioPipeline?:
@@ -224,8 +224,6 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<
       | "PRESCRITOR"
       | "FIDELIZADO"
       | undefined;
-    especialidadeId?: string | null | undefined;
-    subEspecialidadeId?: string | null | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -241,6 +239,8 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<
           observacao?: string | undefined;
         }[]
       | undefined;
+    especialidadeId?: string | null | undefined;
+    subEspecialidadeId?: string | null | undefined;
   }
 >;
 export declare const UpdateProfissionalInputSchema: z.ZodObject<
@@ -346,6 +346,7 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
+    email?: string | undefined;
     endereco?:
       | {
           logradouro?: string | undefined;
@@ -359,7 +360,6 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
       | undefined;
     nome?: string | undefined;
     crm?: string | undefined;
-    email?: string | undefined;
     telefone?: string | undefined;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
     estagioPipeline?:
@@ -369,8 +369,6 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
       | "PRESCRITOR"
       | "FIDELIZADO"
       | undefined;
-    especialidadeId?: string | null | undefined;
-    subEspecialidadeId?: string | null | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -386,8 +384,11 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
           observacao?: string | undefined;
         }[]
       | undefined;
+    especialidadeId?: string | null | undefined;
+    subEspecialidadeId?: string | null | undefined;
   },
   {
+    email?: string | undefined;
     endereco?:
       | {
           logradouro?: string | undefined;
@@ -401,7 +402,6 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
       | undefined;
     nome?: string | undefined;
     crm?: string | undefined;
-    email?: string | undefined;
     telefone?: string | undefined;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
     estagioPipeline?:
@@ -411,8 +411,6 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
       | "PRESCRITOR"
       | "FIDELIZADO"
       | undefined;
-    especialidadeId?: string | null | undefined;
-    subEspecialidadeId?: string | null | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -428,6 +426,8 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<
           observacao?: string | undefined;
         }[]
       | undefined;
+    especialidadeId?: string | null | undefined;
+    subEspecialidadeId?: string | null | undefined;
   }
 >;
 export declare const ListProfissionaisQuerySchema: z.ZodObject<
@@ -461,8 +461,8 @@ export declare const ListProfissionaisQuerySchema: z.ZodObject<
       | "PRESCRITOR"
       | "FIDELIZADO"
       | undefined;
-    especialidadeId?: string | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | undefined;
+    especialidadeId?: string | undefined;
     busca?: string | undefined;
   },
   {
@@ -474,8 +474,8 @@ export declare const ListProfissionaisQuerySchema: z.ZodObject<
       | "PRESCRITOR"
       | "FIDELIZADO"
       | undefined;
-    especialidadeId?: string | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | undefined;
+    especialidadeId?: string | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
     busca?: string | undefined;
@@ -520,6 +520,7 @@ export declare const EnderecoOutputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
+    id: string;
     logradouro: string | null;
     numero: string | null;
     complemento: string | null;
@@ -527,9 +528,9 @@ export declare const EnderecoOutputSchema: z.ZodObject<
     cidade: string | null;
     estado: string | null;
     cep: string | null;
-    id: string;
   },
   {
+    id: string;
     logradouro: string | null;
     numero: string | null;
     complemento: string | null;
@@ -537,7 +538,6 @@ export declare const EnderecoOutputSchema: z.ZodObject<
     cidade: string | null;
     estado: string | null;
     cep: string | null;
-    id: string;
   }
 >;
 export declare const EspecialidadeOutputSchema: z.ZodObject<
@@ -549,13 +549,13 @@ export declare const EspecialidadeOutputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
-    nome: string;
     id: string;
+    nome: string;
     categoria: string;
   },
   {
-    nome: string;
     id: string;
+    nome: string;
     categoria: string;
   }
 >;
@@ -567,12 +567,12 @@ export declare const SubEspecialidadeOutputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
-    nome: string;
     id: string;
+    nome: string;
   },
   {
-    nome: string;
     id: string;
+    nome: string;
   }
 >;
 export declare const ContatoOutputSchema: z.ZodObject<
@@ -585,16 +585,16 @@ export declare const ContatoOutputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
+    id: string;
     tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
     valor: string;
     observacao: string | null;
-    id: string;
   },
   {
+    id: string;
     tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
     valor: string;
     observacao: string | null;
-    id: string;
   }
 >;
 export declare const ProfissionalOutputSchema: z.ZodObject<
@@ -632,13 +632,13 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
         "strip",
         z.ZodTypeAny,
         {
-          nome: string;
           id: string;
+          nome: string;
           categoria: string;
         },
         {
-          nome: string;
           id: string;
+          nome: string;
           categoria: string;
         }
       >
@@ -652,12 +652,12 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
         "strip",
         z.ZodTypeAny,
         {
-          nome: string;
           id: string;
+          nome: string;
         },
         {
-          nome: string;
           id: string;
+          nome: string;
         }
       >
     >;
@@ -676,6 +676,7 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
         "strip",
         z.ZodTypeAny,
         {
+          id: string;
           logradouro: string | null;
           numero: string | null;
           complemento: string | null;
@@ -683,9 +684,9 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
           cidade: string | null;
           estado: string | null;
           cep: string | null;
-          id: string;
         },
         {
+          id: string;
           logradouro: string | null;
           numero: string | null;
           complemento: string | null;
@@ -693,7 +694,6 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
           cidade: string | null;
           estado: string | null;
           cep: string | null;
-          id: string;
         }
       >
     >;
@@ -708,16 +708,16 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
         "strip",
         z.ZodTypeAny,
         {
+          id: string;
           tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
           valor: string;
           observacao: string | null;
-          id: string;
         },
         {
+          id: string;
           tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
           valor: string;
           observacao: string | null;
-          id: string;
         }
       >,
       "many"
@@ -729,12 +729,14 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
   "strip",
   z.ZodTypeAny,
   {
+    email: string | null;
     especialidade: {
-      nome: string;
       id: string;
+      nome: string;
       categoria: string;
     } | null;
     endereco: {
+      id: string;
       logradouro: string | null;
       numero: string | null;
       complemento: string | null;
@@ -742,15 +744,17 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
       cidade: string | null;
       estado: string | null;
       cep: string | null;
-      id: string;
     } | null;
     subEspecialidade: {
-      nome: string;
       id: string;
+      nome: string;
     } | null;
+    id: string;
+    deletedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
     nome: string;
     crm: string | null;
-    email: string | null;
     telefone: string | null;
     potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
     estagioPipeline:
@@ -759,7 +763,6 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
       | "INTERESSADO"
       | "PRESCRITOR"
       | "FIDELIZADO";
-    especialidadeId: string | null;
     classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
     cpfCnpj: string | null;
     sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -769,24 +772,23 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
     nomeConjuge: string | null;
     dataNascConjuge: Date | null;
     contatos: {
+      id: string;
       tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
       valor: string;
       observacao: string | null;
-      id: string;
     }[];
-    id: string;
+    especialidadeId: string | null;
     enderecoId: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date | null;
   },
   {
+    email: string | null;
     especialidade: {
-      nome: string;
       id: string;
+      nome: string;
       categoria: string;
     } | null;
     endereco: {
+      id: string;
       logradouro: string | null;
       numero: string | null;
       complemento: string | null;
@@ -794,15 +796,17 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
       cidade: string | null;
       estado: string | null;
       cep: string | null;
-      id: string;
     } | null;
     subEspecialidade: {
-      nome: string;
       id: string;
+      nome: string;
     } | null;
+    id: string;
+    deletedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
     nome: string;
     crm: string | null;
-    email: string | null;
     telefone: string | null;
     potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
     estagioPipeline:
@@ -811,7 +815,6 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
       | "INTERESSADO"
       | "PRESCRITOR"
       | "FIDELIZADO";
-    especialidadeId: string | null;
     classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
     cpfCnpj: string | null;
     sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -821,16 +824,13 @@ export declare const ProfissionalOutputSchema: z.ZodObject<
     nomeConjuge: string | null;
     dataNascConjuge: Date | null;
     contatos: {
+      id: string;
       tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
       valor: string;
       observacao: string | null;
-      id: string;
     }[];
-    id: string;
+    especialidadeId: string | null;
     enderecoId: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date | null;
   }
 >;
 export declare const PaginationMetaSchema: z.ZodObject<
@@ -901,13 +901,13 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
               "strip",
               z.ZodTypeAny,
               {
-                nome: string;
                 id: string;
+                nome: string;
                 categoria: string;
               },
               {
-                nome: string;
                 id: string;
+                nome: string;
                 categoria: string;
               }
             >
@@ -921,12 +921,12 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
               "strip",
               z.ZodTypeAny,
               {
-                nome: string;
                 id: string;
+                nome: string;
               },
               {
-                nome: string;
                 id: string;
+                nome: string;
               }
             >
           >;
@@ -945,6 +945,7 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
               "strip",
               z.ZodTypeAny,
               {
+                id: string;
                 logradouro: string | null;
                 numero: string | null;
                 complemento: string | null;
@@ -952,9 +953,9 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
                 cidade: string | null;
                 estado: string | null;
                 cep: string | null;
-                id: string;
               },
               {
+                id: string;
                 logradouro: string | null;
                 numero: string | null;
                 complemento: string | null;
@@ -962,7 +963,6 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
                 cidade: string | null;
                 estado: string | null;
                 cep: string | null;
-                id: string;
               }
             >
           >;
@@ -977,16 +977,16 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
               "strip",
               z.ZodTypeAny,
               {
+                id: string;
                 tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
                 valor: string;
                 observacao: string | null;
-                id: string;
               },
               {
+                id: string;
                 tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
                 valor: string;
                 observacao: string | null;
-                id: string;
               }
             >,
             "many"
@@ -998,12 +998,14 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
         "strip",
         z.ZodTypeAny,
         {
+          email: string | null;
           especialidade: {
-            nome: string;
             id: string;
+            nome: string;
             categoria: string;
           } | null;
           endereco: {
+            id: string;
             logradouro: string | null;
             numero: string | null;
             complemento: string | null;
@@ -1011,15 +1013,17 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
             cidade: string | null;
             estado: string | null;
             cep: string | null;
-            id: string;
           } | null;
           subEspecialidade: {
-            nome: string;
             id: string;
+            nome: string;
           } | null;
+          id: string;
+          deletedAt: Date | null;
+          createdAt: Date;
+          updatedAt: Date;
           nome: string;
           crm: string | null;
-          email: string | null;
           telefone: string | null;
           potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
           estagioPipeline:
@@ -1028,7 +1032,6 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
             | "INTERESSADO"
             | "PRESCRITOR"
             | "FIDELIZADO";
-          especialidadeId: string | null;
           classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
           cpfCnpj: string | null;
           sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -1038,24 +1041,23 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
           nomeConjuge: string | null;
           dataNascConjuge: Date | null;
           contatos: {
+            id: string;
             tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
             valor: string;
             observacao: string | null;
-            id: string;
           }[];
-          id: string;
+          especialidadeId: string | null;
           enderecoId: string | null;
-          createdAt: Date;
-          updatedAt: Date;
-          deletedAt: Date | null;
         },
         {
+          email: string | null;
           especialidade: {
-            nome: string;
             id: string;
+            nome: string;
             categoria: string;
           } | null;
           endereco: {
+            id: string;
             logradouro: string | null;
             numero: string | null;
             complemento: string | null;
@@ -1063,15 +1065,17 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
             cidade: string | null;
             estado: string | null;
             cep: string | null;
-            id: string;
           } | null;
           subEspecialidade: {
-            nome: string;
             id: string;
+            nome: string;
           } | null;
+          id: string;
+          deletedAt: Date | null;
+          createdAt: Date;
+          updatedAt: Date;
           nome: string;
           crm: string | null;
-          email: string | null;
           telefone: string | null;
           potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
           estagioPipeline:
@@ -1080,7 +1084,6 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
             | "INTERESSADO"
             | "PRESCRITOR"
             | "FIDELIZADO";
-          especialidadeId: string | null;
           classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
           cpfCnpj: string | null;
           sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -1090,16 +1093,13 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
           nomeConjuge: string | null;
           dataNascConjuge: Date | null;
           contatos: {
+            id: string;
             tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
             valor: string;
             observacao: string | null;
-            id: string;
           }[];
-          id: string;
+          especialidadeId: string | null;
           enderecoId: string | null;
-          createdAt: Date;
-          updatedAt: Date;
-          deletedAt: Date | null;
         }
       >,
       "many"
@@ -1131,12 +1131,14 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
   z.ZodTypeAny,
   {
     data: {
+      email: string | null;
       especialidade: {
-        nome: string;
         id: string;
+        nome: string;
         categoria: string;
       } | null;
       endereco: {
+        id: string;
         logradouro: string | null;
         numero: string | null;
         complemento: string | null;
@@ -1144,15 +1146,17 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
         cidade: string | null;
         estado: string | null;
         cep: string | null;
-        id: string;
       } | null;
       subEspecialidade: {
-        nome: string;
         id: string;
+        nome: string;
       } | null;
+      id: string;
+      deletedAt: Date | null;
+      createdAt: Date;
+      updatedAt: Date;
       nome: string;
       crm: string | null;
-      email: string | null;
       telefone: string | null;
       potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
       estagioPipeline:
@@ -1161,7 +1165,6 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
         | "INTERESSADO"
         | "PRESCRITOR"
         | "FIDELIZADO";
-      especialidadeId: string | null;
       classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
       cpfCnpj: string | null;
       sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -1171,16 +1174,13 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
       nomeConjuge: string | null;
       dataNascConjuge: Date | null;
       contatos: {
+        id: string;
         tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
         valor: string;
         observacao: string | null;
-        id: string;
       }[];
-      id: string;
+      especialidadeId: string | null;
       enderecoId: string | null;
-      createdAt: Date;
-      updatedAt: Date;
-      deletedAt: Date | null;
     }[];
     pagination: {
       page: number;
@@ -1191,12 +1191,14 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
   },
   {
     data: {
+      email: string | null;
       especialidade: {
-        nome: string;
         id: string;
+        nome: string;
         categoria: string;
       } | null;
       endereco: {
+        id: string;
         logradouro: string | null;
         numero: string | null;
         complemento: string | null;
@@ -1204,15 +1206,17 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
         cidade: string | null;
         estado: string | null;
         cep: string | null;
-        id: string;
       } | null;
       subEspecialidade: {
-        nome: string;
         id: string;
+        nome: string;
       } | null;
+      id: string;
+      deletedAt: Date | null;
+      createdAt: Date;
+      updatedAt: Date;
       nome: string;
       crm: string | null;
-      email: string | null;
       telefone: string | null;
       potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
       estagioPipeline:
@@ -1221,7 +1225,6 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
         | "INTERESSADO"
         | "PRESCRITOR"
         | "FIDELIZADO";
-      especialidadeId: string | null;
       classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
       cpfCnpj: string | null;
       sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -1231,16 +1234,13 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<
       nomeConjuge: string | null;
       dataNascConjuge: Date | null;
       contatos: {
+        id: string;
         tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
         valor: string;
         observacao: string | null;
-        id: string;
       }[];
-      id: string;
+      especialidadeId: string | null;
       enderecoId: string | null;
-      createdAt: Date;
-      updatedAt: Date;
-      deletedAt: Date | null;
     }[];
     pagination: {
       page: number;

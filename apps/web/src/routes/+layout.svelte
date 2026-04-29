@@ -3,6 +3,7 @@
 	import { onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import Toast from '$lib/components/ui/Toast.svelte';
+	import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import MobileNav from '$lib/components/MobileNav.svelte';
 	import type { Snippet } from 'svelte';
@@ -15,6 +16,7 @@
 			plano?: string;
 			organizationId?: string;
 			trialExpiraEm?: string;
+			role?: string;
 		};
 		children: Snippet;
 	}
@@ -49,6 +51,7 @@
 			plano={data.plano}
 			organizationId={data.organizationId}
 			trialExpiraEm={data.trialExpiraEm}
+			role={data.role}
 		/>
 
 		<main class="flex-1 min-w-0 h-full overflow-y-auto">
@@ -61,4 +64,5 @@
 	{@render children()}
 {/if}
 
+<ProgressBar />
 <Toast />

@@ -1,59 +1,112 @@
 ---
-const links = {
-  produto: [
-    { label: "Funcionalidades", href: "/funcionalidades" },
-    { label: "Planos", href: "/planos" },
-    { label: "Contato", href: "/contato" },
-  ],
-  empresa: [
-    { label: "Termos de uso", href: "#" },
-    { label: "Privacidade", href: "#" },
-  ],
-  conta: [
-    { label: "Fazer login", href: "https://app.medivisitas.com/login" },
-    { label: "Criar conta", href: "https://app.medivisitas.com/signup" },
-  ],
-};
 ---
 
-<footer class="border-t border-outline-variant bg-surface-container-lowest">
-  <div class="mx-auto max-w-[1280px] px-8 py-16">
-    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-      <div>
-        <a href="/" class="text-lg font-bold text-on-surface">
-          MediVisitas
-        </a>
-        <p class="mt-3 text-sm text-on-surface-variant">
-          CRM para propagandistas farmacêuticos. Organize suas visitas e aumente suas prescrições.
-        </p>
-      </div>
-      <div>
-        <h3 class="text-sm font-semibold text-on-surface">Produto</h3>
-        <ul class="mt-3 space-y-2">
-          {links.produto.map((link) => (
-            <li><a href={link.href} class="text-sm text-on-surface-variant hover:text-on-surface">{link.label}</a></li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-sm font-semibold text-on-surface">Empresa</h3>
-        <ul class="mt-3 space-y-2">
-          {links.empresa.map((link) => (
-            <li><a href={link.href} class="text-sm text-on-surface-variant hover:text-on-surface">{link.label}</a></li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-sm font-semibold text-on-surface">Conta</h3>
-        <ul class="mt-3 space-y-2">
-          {links.conta.map((link) => (
-            <li><a href={link.href} class="text-sm text-on-surface-variant hover:text-on-surface">{link.label}</a></li>
-          ))}
-        </ul>
-      </div>
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">MediVisitas<span class="dot" aria-hidden="true"></span></div>
+      <p class="footer-brand-desc">CRM para propagandistas farmacêuticos brasileiros. Carteira organizada, visitas por voz, agenda automática.</p>
     </div>
-    <div class="mt-10 border-t border-outline-variant pt-6 text-center text-sm text-on-surface-variant">
-      &copy; 2026 MediVisitas. Todos os direitos reservados.
+    <div class="footer-col" aria-label="Produto">
+      <h4>Produto</h4>
+      <ul>
+        <li><a href="/#solucao">Como funciona</a></li>
+        <li><a href="/#planos">Planos</a></li>
+        <li><a href="/#prova">Depoimentos</a></li>
+      </ul>
+    </div>
+    <div class="footer-col" aria-label="Empresa">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="/contato">Contato</a></li>
+      </ul>
+    </div>
+    <div class="footer-col" aria-label="Legal">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Termos de uso</a></li>
+        <li><a href="#">Privacidade</a></li>
+        <li><a href="#">LGPD</a></li>
+      </ul>
     </div>
   </div>
+  <div class="footer-bottom">&copy; 2026 MediVisitas &middot; Todos os direitos reservados</div>
 </footer>
+
+<style>
+  footer {
+    background: var(--color-surface-inverted);
+    color: color-mix(in srgb, var(--color-text-inverted) 70%, transparent);
+    padding: 64px clamp(24px, 5vw, 80px) 32px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+  }
+
+  .footer-brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-inverted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .footer-brand .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--color-blue);
+  }
+
+  .footer-brand-desc {
+    font-size: 13px;
+    color: color-mix(in srgb, var(--color-text-inverted) 60%, transparent);
+    max-width: 280px;
+    line-height: 1.6;
+  }
+
+  .footer-col h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-inverted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  .footer-col ul { list-style: none; }
+
+  .footer-col li { margin-bottom: 10px; }
+
+  .footer-col a {
+    font-size: 14px;
+    color: color-mix(in srgb, var(--color-text-inverted) 60%, transparent);
+    text-decoration: none;
+    transition: color 200ms;
+  }
+
+  .footer-col a:hover { color: color-mix(in srgb, var(--color-text-inverted) 80%, transparent); }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 48px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid color-mix(in srgb, var(--color-text-inverted) 8%, transparent);
+    font-size: 13px;
+    color: color-mix(in srgb, var(--color-text-inverted) 55%, transparent);
+  }
+
+  @media (max-width: 900px) {
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 540px) {
+    .footer-inner { grid-template-columns: 1fr; }
+  }
+</style>

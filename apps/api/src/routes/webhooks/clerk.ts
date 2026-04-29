@@ -65,19 +65,30 @@ export default async function clerkWebhookRoutes(app: FastifyInstance) {
             return reply.code(200).send({ received: true });
           }
 
-          await prisma.user.upsert({
+          // Verificar se usuário existe e não está soft-deleted antes de reativar
+          const existingUser = await prisma.user.findUnique({
             where: { clerkId: userData.id },
-            update: {
-              email,
-              name: name || null,
-              deletedAt: null, // Reativar se estava soft-deleted
-            },
-            create: {
-              clerkId: userData.id,
-              email,
-              name: name || null,
-            },
           });
+
+          if (existingUser && existingUser.deletedAt !== null) {
+            await prisma.user.update({
+              where: { clerkId: userData.id },
+              data: { email, name: name || null, deletedAt: null },
+            });
+          } else if (!existingUser) {
+            await prisma.user.create({
+              data: {
+                clerkId: userData.id,
+                email,
+                name: name || null,
+              },
+            });
+          } else {
+            await prisma.user.update({
+              where: { clerkId: userData.id },
+              data: { email, name: name || null },
+            });
+          }
 
           request.log.info(
             { clerkId: userData.id, type },

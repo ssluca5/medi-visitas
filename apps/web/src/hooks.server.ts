@@ -9,6 +9,8 @@ const COOKIE_NAME = "__med_session";
 // Cache por JWT — TTL de 55 minutos (JWT do Clerk deve estar ≥ 1h)
 const CACHE_TTL_MS = 55 * 60 * 1000;
 
+const MAX_CACHE_SIZE = 1000;
+
 const authCache = new Map<
   string,
   {
@@ -20,12 +22,26 @@ const authCache = new Map<
   }
 >();
 
-// Limpar entradas expiradas periodicamente
+// Limpar entradas expiradas e limitar tamanho do cache
 setInterval(() => {
   const now = Date.now();
+  const keysToDelete: string[] = [];
   for (const [key, val] of authCache.entries()) {
-    if (val.expiresAt < now) authCache.delete(key);
+    if (val.expiresAt < now) {
+      keysToDelete.push(key);
+    }
   }
+  // Se cache cresceu demais, remover entradas mais antigas
+  if (authCache.size > MAX_CACHE_SIZE) {
+    const sortedEntries = [...authCache.entries()].sort(
+      (a, b) => a[1].expiresAt - b[1].expiresAt,
+    );
+    const removeCount = authCache.size - MAX_CACHE_SIZE;
+    for (let i = 0; i < removeCount; i++) {
+      keysToDelete.push(sortedEntries[i][0]);
+    }
+  }
+  keysToDelete.forEach((k) => authCache.delete(k));
 }, 5 * 60_000); // A cada 5 minutos
 
 async function getUserFromToken(token: string): Promise<{

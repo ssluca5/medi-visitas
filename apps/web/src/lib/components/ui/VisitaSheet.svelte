@@ -6,6 +6,7 @@
   import ConfirmDialog from './ConfirmDialog.svelte';
   import type { Visita, MaterialTecnico, StatusVisita, VisitaMaterial, Profissional } from '$lib/types';
   import { apiFetch } from '$lib/api';
+  import { toasts } from '$lib/stores/toast.svelte';
 
   interface Props {
     open: boolean;
@@ -192,11 +193,11 @@
       } else {
         const error = await res.json().catch(() => null);
         console.error('Falha ao salvar visita', error);
-        alert(error?.message || 'Erro ao salvar a visita.');
+        toasts.show('error', error?.message || 'Erro ao salvar a visita.');
       }
     } catch (err) {
       console.error(err);
-      alert('Erro inesperado de conexão.');
+      toasts.show('error', 'Erro inesperado de conexão.');
     } finally {
       loading = false;
     }
@@ -217,10 +218,10 @@
         confirmDeleteOpen = false;
         onclose();
       } else {
-        alert('Erro ao excluir visita.');
+        toasts.show('error', 'Erro ao excluir visita.');
       }
     } catch (err) {
-      alert('Erro inesperado de conexão.');
+      toasts.show('error', 'Erro inesperado de conexão.');
     } finally {
       loading = false;
     }

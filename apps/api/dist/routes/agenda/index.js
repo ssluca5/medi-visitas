@@ -1,5 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
+import { resolveTenant } from "../../hooks/tenant.js";
+import { buildTenantWhere } from "../../lib/tenant.js";
 import {
   CreateAgendaItemSchema,
   UpdateAgendaItemSchema,
@@ -30,23 +32,21 @@ function calcularPontuacao(potencial, diasSemVisita) {
   return pp + pesoTempo;
 }
 const agendaRoutes = async (app) => {
-  app.addHook("preHandler", verifyClerkToken);
+  app.addHook("preHandler", async (request, reply) => {
+    await verifyClerkToken(request, reply);
+    if (!reply.sent) await resolveTenant(request, reply);
+  });
   // ────────────────────────────────────────────
   // 1. GET /sugestoes — REGISTRAR ANTES de /:id
   // ────────────────────────────────────────────
   app.get("/sugestoes", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const query = SugestoesQuerySchema.parse(request.query);
     const dataInicio = new Date(query.dataInicio);
     const dataFim = new Date(query.dataFim);
     // Profissionais já agendados (PLANEJADO) no período — excluir das sugestões
     const jaAgendados = await prisma.agendaItem.findMany({
       where: {
-        userId,
-        deletedAt: null,
+        ...buildTenantWhere(request),
         status: "PLANEJADO",
         dataHoraInicio: { gte: dataInicio, lte: dataFim },
       },
@@ -57,7 +57,7 @@ const agendaRoutes = async (app) => {
     ];
     // Buscar profissionais elegíveis
     const whereClause = {
-      deletedAt: null,
+      ...buildTenantWhere(request),
       estagioPipeline: {
         in: ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR"],
       },
@@ -111,14 +111,9 @@ const agendaRoutes = async (app) => {
   // 2. GET / — lista por período
   // ────────────────────────────────────────────
   app.get("/", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const query = ListAgendaQuerySchema.parse(request.query);
     const where = {
-      userId,
-      deletedAt: null,
+      ...buildTenantWhere(request),
       dataHoraInicio: {
         gte: new Date(query.dataInicio),
         lte: new Date(query.dataFim),
@@ -160,21 +155,18 @@ const agendaRoutes = async (app) => {
   // 3. POST / — criar agendamento
   // ────────────────────────────────────────────
   app.post("/", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const input = CreateAgendaItemSchema.parse(request.body);
     // Validar profissional existe e não está deletado
     const profissional = await prisma.profissional.findFirst({
-      where: { id: input.profissionalId, deletedAt: null },
+      where: { id: input.profissionalId, ...buildTenantWhere(request) },
     });
     if (!profissional) {
       return reply.status(404).send({ error: "Profissional não encontrado" });
     }
     const item = await prisma.agendaItem.create({
       data: {
-        userId,
+        userId: request.userId,
+        organizationId: request.organizationId,
         profissionalId: input.profissionalId,
         dataHoraInicio: new Date(input.dataHoraInicio),
         dataHoraFim: new Date(input.dataHoraFim),
@@ -198,13 +190,9 @@ const agendaRoutes = async (app) => {
   // 4. GET /:id — detalhe com profissional
   // ────────────────────────────────────────────
   app.get("/:id", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const { id } = request.params;
     const item = await prisma.agendaItem.findFirst({
-      where: { id, userId, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
       include: {
         profissional: {
           select: {
@@ -227,14 +215,10 @@ const agendaRoutes = async (app) => {
   // 5. PUT /:id — atualizar agendamento
   // ────────────────────────────────────────────
   app.put("/:id", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const { id } = request.params;
     const input = UpdateAgendaItemSchema.parse(request.body);
     const existing = await prisma.agendaItem.findFirst({
-      where: { id, userId, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Item de agenda não encontrado" });
@@ -263,13 +247,9 @@ const agendaRoutes = async (app) => {
   // 6. DELETE /:id — soft delete
   // ────────────────────────────────────────────
   app.delete("/:id", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const { id } = request.params;
     const existing = await prisma.agendaItem.findFirst({
-      where: { id, userId, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
     if (!existing) {
       return reply.status(404).send({ error: "Item de agenda não encontrado" });
@@ -284,14 +264,10 @@ const agendaRoutes = async (app) => {
   // 7. PATCH /:id/vincular-visita
   // ────────────────────────────────────────────
   app.patch("/:id/vincular-visita", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) {
-      return reply.status(401).send({ error: "Unauthorized: Missing user ID" });
-    }
     const { id } = request.params;
     const input = VincularVisitaSchema.parse(request.body);
     const agendaItem = await prisma.agendaItem.findFirst({
-      where: { id, userId, deletedAt: null },
+      where: { id, ...buildTenantWhere(request) },
     });
     if (!agendaItem) {
       return reply.status(404).send({ error: "Item de agenda não encontrado" });

@@ -44,6 +44,8 @@ export async function resolveTenant(
   if (!membro) {
     reply.status(403).send({
       error: "Organização não encontrada. Complete o onboarding.",
+      code: "ORGANIZATION_NOT_FOUND",
+      action: "complete_onboarding",
     });
     return;
   }

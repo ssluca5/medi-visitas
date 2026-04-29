@@ -3,6 +3,8 @@ declare module "fastify" {
   interface FastifyRequest {
     userId?: string;
     orgId?: string;
+    userEmail?: string;
+    userName?: string;
   }
 }
 export declare function verifyClerkToken(

@@ -34,7 +34,22 @@ export default async function stripeWebhookRoutes(app: FastifyInstance) {
         switch (event.type) {
           case "checkout.session.completed": {
             const session = event.data.object as Stripe.Checkout.Session;
-            const { organizationId, plano } = session.metadata!;
+            const metadata = session.metadata || {};
+
+            if (metadata.tipo === "PACOTE_TRANSCRICOES") {
+              const quantidade = parseInt(metadata.quantidade || "20", 10);
+              await prisma.organization.update({
+                where: { id: metadata.organizationId },
+                data: { transcricoesExtras: { increment: quantidade } },
+              });
+              request.log.info(
+                { organizationId: metadata.organizationId, quantidade },
+                "Package of transcriptions purchased",
+              );
+              break;
+            }
+
+            const { organizationId, plano } = metadata;
 
             if (!organizationId || !plano) {
               request.log.error("Missing metadata in checkout session");

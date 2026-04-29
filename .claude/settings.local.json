@@ -20,11 +20,46 @@
       "Bash(nc -zv db.iediyaalqoukolmfrboq.supabase.com 5432 5)",
       "Bash(powershell -Command \"Test-NetConnection -ComputerName aws-1-sa-east-1.pooler.supabase.com -Port 5432 -InformationLevel Quiet\")",
       "Bash(powershell -Command \"Test-NetConnection -ComputerName aws-1-sa-east-1.pooler.supabase.com -Port 6543 -InformationLevel Quiet\")",
-      "Bash(PRISMA_MIGRATION_LOCK_TIMEOUT=30000 pnpm exec prisma migrate dev --name notificacoes)"
+      "Bash(PRISMA_MIGRATION_LOCK_TIMEOUT=30000 pnpm exec prisma migrate dev --name notificacoes)",
+      "Bash(ngrok version *)",
+      "Bash(winget install *)",
+      "Bash(npm install *)",
+      "Bash(npx @ngrok/ngrok version)",
+      "PowerShell(Invoke-WebRequest -Uri \"https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip\" -OutFile \"$env:TEMP\\\\ngrok.zip\"; Expand-Archive -Path \"$env:TEMP\\\\ngrok.zip\" -DestinationPath \"$env:USERPROFILE\\\\.local\\\\bin\" -Force; & \"$env:USERPROFILE\\\\.local\\\\bin\\\\ngrok.exe\" version)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.local\\\\bin\\\\ngrok.exe\" config check 2>&1)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.local\\\\bin\\\\ngrok.exe\" config add-authtoken 3ClbeiYKNuJS8M24I3p4Ez71v6P_2gWEifxLuReJtsekPcNZq 2>&1)",
+      "Bash(\"C:/Users/lukas/.local/bin/ngrok.exe\" http *)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3002 -ErrorAction SilentlyContinue | Select-Object OwningProcess\")",
+      "Bash(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Id, ProcessName, Path)",
+      "Bash(Format-Table)",
+      "Bash(tasklist /FI \"IMAGENAME eq node.exe\")",
+      "PowerShell(pnpm *)",
+      "Bash(node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='minimax')",
+      "PowerShell(New-Item *)",
+      "PowerShell(Out-File *)",
+      "PowerShell(cd C:\\\\Users\\\\lukas\\\\.vscode\\\\projects\\\\medivisitas\\\\apps\\\\api; node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern='minimax' --json 2>$null | ConvertFrom-Json | Select-Object -ExpandProperty testResults | Select-Object -ExpandProperty testResults | ForEach-Object { Write-Output \"--- $\\($_.fullName\\) ---\"; Write-Output $_.failureMessages })",
+      "PowerShell(Get-Content *)",
+      "PowerShell(cd C:\\\\Users\\\\lukas\\\\.vscode\\\\projects\\\\medivisitas\\\\apps\\\\api; npx tsc --noEmit 2>&1; Write-Output \"API TS: $LASTEXITCODE\")",
+      "Bash(node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\"minimax.test\")",
+      "Bash(node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\"transcricao.test\")",
+      "Bash(node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose)",
+      "Bash(git log *)",
+      "Bash(mkdir -p C:/Users/lukas/.vscode/projects/medivisitas/apps/landing/src/pages)",
+      "Bash(mkdir -p C:/Users/lukas/.vscode/projects/medivisitas/apps/landing/public/screenshots)",
+      "Bash(npx jest *)",
+      "Bash(STRIPE_SECRET_KEY=sk_test_fake npx jest src/routes/webhooks/stripe.test.ts)",
+      "Bash(git rm *)",
+      "Bash(git checkout *)",
+      "Bash(git merge feat/multi-tenant-10a --no-ff -m ' *)",
+      "Skill(update-config)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
     ]
   },
   "enabledPlugins": {
     "impeccable@impeccable": true,
-    "caveman@caveman": true
+    "caveman@caveman": true,
+    "frontend-design@claude-plugins-official": true
   }
 }

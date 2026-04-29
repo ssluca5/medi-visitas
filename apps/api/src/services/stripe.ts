@@ -2,12 +2,17 @@
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY environment variable is required");
+  console.warn("⚠️  STRIPE_SECRET_KEY não configurada — billing desativado");
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2026-04-22.dahlia",
-});
+// Usar chave vazia como fallback — evita crash na inicialização
+// O Stripe só é chamado de fato quando o usuário assina
+export const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
+  {
+    apiVersion: "2026-04-22.dahlia",
+  },
+);
 
 export async function criarCheckout(
   organizationId: string,
@@ -15,6 +20,12 @@ export async function criarCheckout(
   plano: "INDIVIDUAL" | "EMPRESA",
   userId: string,
 ): Promise<string> {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "Billing não configurado. Adicione STRIPE_SECRET_KEY no .env",
+    );
+  }
+
   const priceId =
     plano === "INDIVIDUAL"
       ? process.env.STRIPE_PRICE_INDIVIDUAL!
@@ -38,6 +49,12 @@ export async function criarCheckout(
 }
 
 export async function criarPortal(stripeCustomerId: string): Promise<string> {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "Billing não configurado. Adicione STRIPE_SECRET_KEY no .env",
+    );
+  }
+
   const session = await stripe.billingPortal.sessions.create({
     customer: stripeCustomerId,
     return_url: `${process.env.APP_URL}/dashboard/configuracoes`,

@@ -53,8 +53,8 @@ export declare const ListNotificacoesQuerySchema: z.ZodObject<
       | "PROSPECTADO_PENDENTE"
       | "SISTEMA"
       | undefined;
+    lida?: "true" | "false" | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
-    lida?: "true" | "false" | undefined;
   }
 >;

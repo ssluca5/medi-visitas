@@ -9,6 +9,8 @@
   import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
   import BotaoGravacao from '$lib/components/ui/BotaoGravacao.svelte';
   import ModalGravacao from '$lib/components/ui/ModalGravacao.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import { toasts } from '$lib/stores/toast.svelte';
 
   interface Props {
     data: { sessionToken: string | null };
@@ -114,7 +116,7 @@
       if (res.ok) {
         loadVisitas(pagination.page);
       } else {
-        alert('Erro ao excluir visita');
+        toasts.show('error', 'Erro ao excluir visita');
       }
     } catch {}
     deleteConfirmOpen = false;
@@ -258,15 +260,13 @@
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
       </div>
     {:else if visitas.length === 0}
-      <div class="text-center py-20 bg-[rgb(var(--slate-50))]">
-        <div class="flex justify-center mb-4">
-          <div class="bg-indigo-100 p-3 rounded-full text-indigo-500">
-            <Calendar class="mx-auto h-8 w-8" />
-          </div>
-        </div>
-        <p class="text-sm font-medium text-[rgb(var(--slate-700))]">Nenhuma visita encontrada.</p>
-        <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Cadastre uma nova visita clicando no botão acima.</p>
-      </div>
+      <EmptyState
+        icon={Calendar}
+        titulo="Nenhuma visita encontrada"
+        descricao="Cadastre uma nova visita clicando no botão acima."
+        acaoLabel="Nova Visita"
+        acaoOnclick={() => sheetOpen = true}
+      />
     {:else}
       <div class="overflow-x-auto">
         <table class="table-fixed w-full">

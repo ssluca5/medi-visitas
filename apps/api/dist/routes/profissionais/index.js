@@ -1,4 +1,6 @@
 import { verifyClerkToken } from "../../hooks/auth";
+import { resolveTenant } from "../../hooks/tenant";
+import { buildTenantWhere, buildResourceWhere } from "../../lib/tenant";
 import { prisma } from "../../lib/prisma";
 import { z } from "zod";
 import {
@@ -15,13 +17,9 @@ export default async function profissionaisRoutes(app) {
   app.post(
     "/profissionais",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
-      const { userId } = request;
-      if (!userId) {
-        return reply.code(401).send({ error: "Unauthorized" });
-      }
       const data = CreateProfissionalInputSchema.parse(request.body);
       const { endereco, contatos, ...profissionalData } = data;
       // Criar endereço se fornecido
@@ -37,6 +35,7 @@ export default async function profissionaisRoutes(app) {
         data: {
           ...profissionalData,
           enderecoId,
+          organizationId: request.organizationId,
         },
       });
       // Criar contatos se fornecidos
@@ -54,7 +53,8 @@ export default async function profissionaisRoutes(app) {
           profissionalId: profissional.id,
           estagioAnterior: null,
           estagioNovo: profissional.estagioPipeline,
-          userId,
+          userId: request.userId,
+          organizationId: request.organizationId,
         },
       });
       // Buscar profissional completo com relacionamentos
@@ -80,7 +80,7 @@ export default async function profissionaisRoutes(app) {
   app.get(
     "/profissionais",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const query = ListProfissionaisQuerySchema.parse(request.query);
@@ -92,9 +92,7 @@ export default async function profissionaisRoutes(app) {
         estagioPipeline,
         especialidadeId,
       } = query;
-      const where = {
-        deletedAt: null,
-      };
+      const where = buildTenantWhere(request);
       // Filtro de busca textual (nome, crm, email)
       if (busca) {
         where.OR = [
@@ -147,12 +145,12 @@ export default async function profissionaisRoutes(app) {
   app.get(
     "/profissionais/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params;
       const profissional = await prisma.profissional.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, ...buildTenantWhere(request) },
         include: {
           especialidade: true,
           subEspecialidade: true,
@@ -174,14 +172,14 @@ export default async function profissionaisRoutes(app) {
   app.put(
     "/profissionais/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params;
       const data = UpdateProfissionalInputSchema.parse(request.body);
-      // Verificar se profissional existe
+      // Verificar se profissional existe (IDOR: MEMBER só edita seus próprios profissionais)
       const existente = await prisma.profissional.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, ...buildResourceWhere(request) },
       });
       if (!existente) {
         return reply.code(404).send({ error: "Profissional não encontrado" });
@@ -249,13 +247,14 @@ export default async function profissionaisRoutes(app) {
   app.patch(
     "/profissionais/:id/ativo",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params;
       const { ativo } = z.object({ ativo: z.boolean() }).parse(request.body);
+      // IDOR: MEMBER só pode ativar/inativar seus próprios profissionais
       const profissional = await prisma.profissional.findUnique({
-        where: { id },
+        where: { id, ...buildResourceWhere(request) },
       });
       if (!profissional) {
         return reply.code(404).send({ error: "Profissional não encontrado" });
@@ -281,12 +280,12 @@ export default async function profissionaisRoutes(app) {
   app.delete(
     "/profissionais/:id",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
       const { id } = request.params;
       const profissional = await prisma.profissional.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, ...buildResourceWhere(request) },
       });
       if (!profissional) {
         return reply.code(404).send({ error: "Profissional não encontrado" });
@@ -305,18 +304,14 @@ export default async function profissionaisRoutes(app) {
   app.patch(
     "/profissionais/:id/estagio",
     {
-      preHandler: [verifyClerkToken],
+      preHandler: [verifyClerkToken, resolveTenant],
     },
     async (request, reply) => {
-      const { userId } = request;
-      if (!userId) {
-        return reply.code(401).send({ error: "Unauthorized" });
-      }
       const { id } = request.params;
       const { estagioNovo } = UpdateEstagioInputSchema.parse(request.body);
-      // Buscar profissional atual
+      // Buscar profissional atual (IDOR: MEMBER só altera seus próprios profissionais)
       const profissional = await prisma.profissional.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, ...buildResourceWhere(request) },
       });
       if (!profissional) {
         return reply.code(404).send({ error: "Profissional não encontrado" });
@@ -339,7 +334,8 @@ export default async function profissionaisRoutes(app) {
             profissionalId: id,
             estagioAnterior,
             estagioNovo,
-            userId,
+            userId: request.userId,
+            organizationId: request.organizationId,
           },
         }),
       ]);
