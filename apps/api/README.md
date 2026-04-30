@@ -27,10 +27,10 @@ pnpm --filter api dev
 pnpm --filter api build
 
 # Verificar porta em uso (PowerShell)
-Get-NetTCPConnection -LocalPort 3001
+Get-NetTCPConnection -LocalPort 3002
 
 # Matar processo na porta
-Stop-Process -Id (Get-NetTCPConnection -LocalPort 3001).OwningProcess
+Stop-Process -Id (Get-NetTCPConnection -LocalPort 3002).OwningProcess
 ```
 
 ---
@@ -43,8 +43,9 @@ Arquivo: `apps/api/.env`
 DATABASE_URL=
 DIRECT_URL=
 CLERK_SECRET_KEY=
-CLERK_PUBLISHABLE_KEY=
-PORT=3001
+CLERK_JWT_KEY=
+CLERK_AUTHORIZED_PARTIES=   # Ex: https://app.medivisitas.com,http://localhost:5173
+PORT=3002
 ```
 
 ---
@@ -56,16 +57,26 @@ apps/api/src/
 ├── app.ts                # Instância Fastify + registro de plugins
 ├── server.ts             # Entry point (listen)
 ├── hooks/
-│   └── auth.ts           # preHandler Clerk JWT
-├── routes/
-│   ├── profissionais.ts
-│   ├── visitas.ts
-│   ├── agenda.ts
-│   ├── pipeline.ts
-│   └── index.ts
-├── schemas/              # Zod schemas de validação
+│   └── auth.ts           # preHandler Clerk JWT (verifyToken from @clerk/backend)
+├── routes/               # Schemas co-locados em cada diretório de rota
+│   ├── profissionais/
+│   │   ├── index.ts      # Rotas CRUD
+│   │   ├── schemas.ts    # Zod schemas
+│   │   └── timeline.ts   # Timeline do profissional
+│   ├── visitas/
+│   │   ├── index.ts
+│   │   └── schemas.ts
+│   ├── agenda/
+│   │   ├── index.ts
+│   │   └── schemas.ts
+│   ├── pipeline/
+│   │   ├── index.ts
+│   │   └── schemas.ts
+│   └── index.ts          # Registro de rotas
+├── plugins/
+│   └── clerk.ts          # Plugin Fastify para Clerk
 └── lib/
-    └── prisma.ts         # Instância singleton do PrismaClient
+    └── prisma.ts         # PrismaClient com extensão softDelete
 ```
 
 ---
@@ -90,11 +101,15 @@ fastify.get(
 );
 
 // ✅ Hook de auth (apps/api/src/hooks/auth.ts)
+import { verifyToken } from "@clerk/backend";
+
 export async function verifyClerkToken(request, reply) {
   try {
     const token = request.headers.authorization?.replace("Bearer ", "");
-    const session = await clerkClient.verifyToken(token);
-    request.userId = session.sub;
+    const payload = await verifyToken(token, {
+      issuer: request.headers.origin ? `${request.headers.origin}/` : undefined,
+    });
+    request.userId = payload.sub;
   } catch {
     reply.code(401).send({ error: "Unauthorized" });
   }

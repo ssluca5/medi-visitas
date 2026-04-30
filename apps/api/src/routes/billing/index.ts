@@ -14,44 +14,48 @@ const billingRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", resolveTenant);
 
   // POST /billing/checkout
-  app.post("/checkout", async (request, reply) => {
-    if (request.role !== "OWNER") {
-      return reply
-        .status(403)
-        .send({ error: "Apenas o proprietário pode assinar" });
-    }
+  app.post(
+    "/checkout",
+    { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
+    async (request, reply) => {
+      if (request.role !== "OWNER") {
+        return reply
+          .status(403)
+          .send({ error: "Apenas o proprietário pode assinar" });
+      }
 
-    const org = await prisma.organization.findUnique({
-      where: { id: request.organizationId! },
-    });
+      const org = await prisma.organization.findUnique({
+        where: { id: request.organizationId! },
+      });
 
-    if (!org) {
-      return reply.status(404).send({ error: "Organização não encontrada" });
-    }
+      if (!org) {
+        return reply.status(404).send({ error: "Organização não encontrada" });
+      }
 
-    if (org.status === "ATIVO") {
-      return reply
-        .status(409)
-        .send({ error: "Organização já possui assinatura ativa" });
-    }
+      if (org.status === "ATIVO") {
+        return reply
+          .status(409)
+          .send({ error: "Organização já possui assinatura ativa" });
+      }
 
-    const body = CheckoutSchema.parse(request.body);
+      const body = CheckoutSchema.parse(request.body);
 
-    try {
-      const checkoutUrl = await criarCheckout(
-        org.id,
-        org.stripeCustomerId,
-        body.plano,
-        request.userId!,
-      );
-      return reply.send({ checkoutUrl });
-    } catch (err) {
-      request.log.error({ err }, "Stripe checkout creation failed");
-      return reply
-        .status(502)
-        .send({ error: "Erro ao criar sessão de checkout" });
-    }
-  });
+      try {
+        const checkoutUrl = await criarCheckout(
+          org.id,
+          org.stripeCustomerId,
+          body.plano,
+          request.userId!,
+        );
+        return reply.send({ checkoutUrl });
+      } catch (err) {
+        request.log.error({ err }, "Stripe checkout creation failed");
+        return reply
+          .status(502)
+          .send({ error: "Erro ao criar sessão de checkout" });
+      }
+    },
+  );
 
   // POST /billing/portal
   app.post("/portal", async (request, reply) => {

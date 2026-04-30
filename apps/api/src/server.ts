@@ -1,3 +1,6 @@
+// Sentry deve ser importado PRIMEIRO, antes de qualquer outro módulo
+import "./instrument.js";
+
 import { config } from "dotenv";
 import { resolve } from "path";
 

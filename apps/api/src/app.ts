@@ -4,6 +4,7 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import { ZodError } from "zod";
+import { Sentry } from "./instrument.js";
 import meRoutes from "./routes/me";
 import profissionaisRoutes from "./routes/profissionais/index";
 import especialidadesRoutes from "./routes/especialidades/index";
@@ -24,31 +25,62 @@ import organizacaoRoutes from "./routes/organizacao/index.js";
 import transcricoesRoutes from "./routes/transcricoes/index.js";
 import gestorRoutes from "./routes/gestor/index.js";
 import relatoriosRoutes from "./routes/relatorios/index.js";
+import healthRoutes from "./routes/health.js";
 export async function buildApp() {
   const app = Fastify({
     logger: true,
   });
 
-  // Helmet — security headers (X-Frame-Options, HSTS, X-Content-Type-Options)
-  // CSP configurada no frontend SvelteKit onde HTML é renderizado
+  // Helmet — security headers
   await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", process.env.FRONTEND_URL ?? ""],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Clerk SDK precisa de recursos externos
+    hsts: {
+      maxAge: 63072000,
+      includeSubDomains: true,
+      preload: true,
+    },
     frameguard: { action: "deny" },
     noSniff: true,
-    hsts: { maxAge: 31536000, includeSubDomains: true },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    hidePoweredBy: true,
   });
 
-  // Rate limiting
+  // Rate limiting — 100 req/min por IP
   await app.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
+    errorResponseBuilder: (_request, context) => ({
+      error: "Muitas requisições. Tente novamente em alguns instantes.",
+      code: "RATE_LIMIT_EXCEEDED",
+      retryAfter: context.after,
+    }),
+    keyGenerator: (request) => {
+      return (
+        request.headers["x-forwarded-for"]?.toString().split(",")[0].trim() ??
+        request.ip
+      );
+    },
   });
 
-  // CORS — configurable via environment; fallback vazio exige configuração explícita em prod
-  const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-    : [];
+  // CORS — restrito aos domínios do MediVisitas em produção
+  const isProduction = process.env.NODE_ENV === "production";
+  const corsOrigins = isProduction
+    ? [
+        process.env.FRONTEND_URL ?? "https://app.medivisitas.com",
+        process.env.LANDING_URL ?? "https://medivisitas.com",
+      ]
+    : ["http://localhost:5173", "http://localhost:4321"];
 
   await app.register(cors, {
     origin: corsOrigins,
@@ -78,24 +110,83 @@ export async function buildApp() {
     },
   );
 
-  // Zod error handler
-  app.setErrorHandler((error, request, reply) => {
-    if (error instanceof ZodError) {
-      return reply.status(400).send({
-        error: "Dados inválidos",
-        details: error.errors.map((e) => ({
-          path: e.path.join("."),
-          message: e.message,
-        })),
+  // Handler global de erros — captura qualquer erro não tratado
+  app.setErrorHandler(
+    (error: Error & { statusCode?: number }, request, reply) => {
+      // Log estruturado no servidor (Railway/Render captura)
+      request.log.error({
+        err: error,
+        url: request.url,
+        method: request.method,
+        userId: (request as any).userId ?? "anon",
       });
-    }
-    // Default Fastify error handling for everything else
-    const statusCode = (error as { statusCode?: number }).statusCode ?? 500;
-    const message = (error as { message?: string }).message ?? "Erro interno";
-    return reply.status(statusCode).send({ error: message });
+
+      // Erros de validação Zod
+      if (error instanceof ZodError) {
+        return reply.status(400).send({
+          error: "Dados inválidos. Verifique os campos e tente novamente.",
+          code: "VALIDATION_ERROR",
+          details: error.errors.map((e) => ({
+            path: e.path.join("."),
+            message: e.message,
+          })),
+        });
+      }
+
+      // Rate limit
+      if (error.statusCode === 429) {
+        return reply.status(429).send({
+          error: "Muitas requisições. Tente novamente em alguns instantes.",
+          code: "RATE_LIMIT_EXCEEDED",
+        });
+      }
+
+      // Erros de validação do Fastify (schema)
+      if (error.statusCode === 400) {
+        return reply.status(400).send({
+          error: "Dados inválidos. Verifique os campos e tente novamente.",
+          code: "VALIDATION_ERROR",
+        });
+      }
+
+      // Erros de autenticação
+      if (error.statusCode === 401) {
+        return reply.status(401).send({
+          error: "Não autorizado.",
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      // Qualquer outro erro — mensagem genérica em produção
+      const statusCode = error.statusCode ?? 500;
+
+      // Capturar erros 5xx no Sentry
+      if (statusCode >= 500) {
+        Sentry.captureException(error, {
+          extra: { url: request.url, method: request.method },
+        });
+      }
+
+      return reply.status(statusCode).send({
+        error:
+          process.env.NODE_ENV === "production"
+            ? "Ocorreu um erro interno. Tente novamente."
+            : error.message,
+        code: "INTERNAL_ERROR",
+      });
+    },
+  );
+
+  // Handler para rotas não encontradas
+  app.setNotFoundHandler((request, reply) => {
+    reply.status(404).send({
+      error: "Rota não encontrada.",
+      code: "NOT_FOUND",
+    });
   });
 
   // Rotas
+  await app.register(healthRoutes); // Health check público (sem auth)
   await app.register(clerkWebhookRoutes); // Webhook público (sem auth)
   await app.register(stripeWebhookRoutes); // Stripe webhook público (sem auth)
   await app.register(meRoutes);

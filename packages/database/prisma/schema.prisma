@@ -335,6 +335,7 @@ model Visita {
   @@index([status])
   @@index([dataVisita])
   @@index([organizationId])
+  @@index([organizationId, dataVisita])
 }
 
 model MaterialTecnico {
@@ -394,6 +395,7 @@ model AgendaItem {
   @@index([status])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, dataHoraInicio])
 }
 
 // ============================================

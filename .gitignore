@@ -21,3 +21,4 @@ graphify-out/
 svelte-check-output.txt
 __pycache__/
 *.pyc
+.mcp.json

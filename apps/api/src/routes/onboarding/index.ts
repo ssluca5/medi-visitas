@@ -50,106 +50,114 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // POST /individual
-  app.post("/individual", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
+  app.post(
+    "/individual",
+    { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
+    async (request, reply) => {
+      const userId = request.userId;
+      if (!userId) return reply.status(401).send({ error: "Unauthorized" });
 
-    // Check if already onboarded
-    const existing = await prisma.organizationMembro.findFirst({
-      where: { userId, deletedAt: null },
-    });
-    if (existing) {
-      return reply.status(409).send({ error: "Onboarding já concluído" });
-    }
+      // Check if already onboarded
+      const existing = await prisma.organizationMembro.findFirst({
+        where: { userId, deletedAt: null },
+      });
+      if (existing) {
+        return reply.status(409).send({ error: "Onboarding já concluído" });
+      }
 
-    // Garantir que User existe no banco (dados do JWT)
-    await prisma.user.upsert({
-      where: { clerkId: userId },
-      update: {
-        ...(request.userEmail ? { email: request.userEmail } : {}),
-        ...(request.userName ? { name: request.userName } : {}),
-      },
-      create: {
-        clerkId: userId,
-        email: request.userEmail ?? `${userId}@placeholder.local`,
-        name: request.userName ?? null,
-      },
-    });
+      // Garantir que User existe no banco (dados do JWT)
+      await prisma.user.upsert({
+        where: { clerkId: userId },
+        update: {
+          ...(request.userEmail ? { email: request.userEmail } : {}),
+          ...(request.userName ? { name: request.userName } : {}),
+        },
+        create: {
+          clerkId: userId,
+          email: request.userEmail ?? `${userId}@placeholder.local`,
+          name: request.userName ?? null,
+        },
+      });
 
-    const org = await prisma.organization.create({
-      data: {
-        clerkOrgId: `org_${userId}`,
-        nome: "Minha Conta",
-        slug: `conta-${userId.slice(-8)}-${Date.now().toString(36)}`,
-        plano: "INDIVIDUAL",
-        status: "TRIAL_ATIVO",
-        trialExpiraEm: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        limiteUsuarios: 1,
-      },
-    });
+      const org = await prisma.organization.create({
+        data: {
+          clerkOrgId: `org_${userId}`,
+          nome: "Minha Conta",
+          slug: `conta-${userId.slice(-8)}-${Date.now().toString(36)}`,
+          plano: "INDIVIDUAL",
+          status: "TRIAL_ATIVO",
+          trialExpiraEm: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          limiteUsuarios: 1,
+        },
+      });
 
-    await prisma.organizationMembro.create({
-      data: {
-        organizationId: org.id,
-        userId,
-        role: "OWNER",
-      },
-    });
+      await prisma.organizationMembro.create({
+        data: {
+          organizationId: org.id,
+          userId,
+          role: "OWNER",
+        },
+      });
 
-    return reply.status(201).send(org);
-  });
+      return reply.status(201).send(org);
+    },
+  );
 
   // POST /empresa
-  app.post("/empresa", async (request, reply) => {
-    const userId = request.userId;
-    if (!userId) return reply.status(401).send({ error: "Unauthorized" });
+  app.post(
+    "/empresa",
+    { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
+    async (request, reply) => {
+      const userId = request.userId;
+      if (!userId) return reply.status(401).send({ error: "Unauthorized" });
 
-    const { nomeEmpresa } = EmpresaSchema.parse(request.body);
+      const { nomeEmpresa } = EmpresaSchema.parse(request.body);
 
-    const existing = await prisma.organizationMembro.findFirst({
-      where: { userId, deletedAt: null },
-    });
-    if (existing) {
-      return reply.status(409).send({ error: "Onboarding já concluído" });
-    }
+      const existing = await prisma.organizationMembro.findFirst({
+        where: { userId, deletedAt: null },
+      });
+      if (existing) {
+        return reply.status(409).send({ error: "Onboarding já concluído" });
+      }
 
-    // Garantir que User existe no banco (dados do JWT)
-    await prisma.user.upsert({
-      where: { clerkId: userId },
-      update: {
-        ...(request.userEmail ? { email: request.userEmail } : {}),
-        ...(request.userName ? { name: request.userName } : {}),
-      },
-      create: {
-        clerkId: userId,
-        email: request.userEmail ?? `${userId}@placeholder.local`,
-        name: request.userName ?? null,
-      },
-    });
+      // Garantir que User existe no banco (dados do JWT)
+      await prisma.user.upsert({
+        where: { clerkId: userId },
+        update: {
+          ...(request.userEmail ? { email: request.userEmail } : {}),
+          ...(request.userName ? { name: request.userName } : {}),
+        },
+        create: {
+          clerkId: userId,
+          email: request.userEmail ?? `${userId}@placeholder.local`,
+          name: request.userName ?? null,
+        },
+      });
 
-    const slug = slugify(nomeEmpresa);
-    const org = await prisma.organization.create({
-      data: {
-        clerkOrgId: `org_${userId}`,
-        nome: nomeEmpresa,
-        slug: `${slug}-${userId.slice(-4)}`,
-        plano: "EMPRESA",
-        status: "TRIAL_ATIVO",
-        trialExpiraEm: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        limiteUsuarios: 10,
-      },
-    });
+      const slug = slugify(nomeEmpresa);
+      const org = await prisma.organization.create({
+        data: {
+          clerkOrgId: `org_${userId}`,
+          nome: nomeEmpresa,
+          slug: `${slug}-${userId.slice(-4)}`,
+          plano: "EMPRESA",
+          status: "TRIAL_ATIVO",
+          trialExpiraEm: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          limiteUsuarios: 10,
+        },
+      });
 
-    await prisma.organizationMembro.create({
-      data: {
-        organizationId: org.id,
-        userId,
-        role: "OWNER",
-      },
-    });
+      await prisma.organizationMembro.create({
+        data: {
+          organizationId: org.id,
+          userId,
+          role: "OWNER",
+        },
+      });
 
-    return reply.status(201).send(org);
-  });
+      return reply.status(201).send(org);
+    },
+  );
 
   // PATCH /tour-reset — resetar o tour para permitir rever
   app.patch("/tour-reset", async (request, reply) => {

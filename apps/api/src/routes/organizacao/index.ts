@@ -176,84 +176,90 @@ export default async function organizacaoRoutes(
     });
 
     // POST /membros/convidar — Convidar membro (OWNER only)
-    protectedApp.post("/membros/convidar", async (request, reply) => {
-      if (!requireOwner(request, reply)) return;
+    protectedApp.post(
+      "/membros/convidar",
+      { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
+      async (request, reply) => {
+        if (!requireOwner(request, reply)) return;
 
-      const { email } = ConvidarSchema.parse(request.body);
+        const { email } = ConvidarSchema.parse(request.body);
 
-      // Check plan limits
-      const org = await prisma.organization.findUnique({
-        where: { id: request.organizationId },
-      });
-      if (!org) {
-        return reply.status(404).send({ error: "Organização não encontrada" });
-      }
-
-      const membrosAtivos = await prisma.organizationMembro.count({
-        where: { organizationId: request.organizationId, deletedAt: null },
-      });
-
-      const convitesPendentes = await prisma.organizationConvite.count({
-        where: { organizationId: request.organizationId, aceito: false },
-      });
-
-      if (membrosAtivos + convitesPendentes >= org.limiteUsuarios) {
-        return reply.status(403).send({
-          error: `Limite de ${org.limiteUsuarios} usuário(s) atingido (incluindo convites pendentes). Faça upgrade do plano.`,
+        // Check plan limits
+        const org = await prisma.organization.findUnique({
+          where: { id: request.organizationId },
         });
-      }
+        if (!org) {
+          return reply
+            .status(404)
+            .send({ error: "Organização não encontrada" });
+        }
 
-      // Check if user already member by checking if user exists and has a membership
-      const userExistente = await prisma.user.findUnique({
-        where: { email },
-        select: { clerkId: true },
-      });
+        const membrosAtivos = await prisma.organizationMembro.count({
+          where: { organizationId: request.organizationId, deletedAt: null },
+        });
 
-      if (userExistente) {
-        const membroExistente = await prisma.organizationMembro.findFirst({
+        const convitesPendentes = await prisma.organizationConvite.count({
+          where: { organizationId: request.organizationId, aceito: false },
+        });
+
+        if (membrosAtivos + convitesPendentes >= org.limiteUsuarios) {
+          return reply.status(403).send({
+            error: `Limite de ${org.limiteUsuarios} usuário(s) atingido (incluindo convites pendentes). Faça upgrade do plano.`,
+          });
+        }
+
+        // Check if user already member by checking if user exists and has a membership
+        const userExistente = await prisma.user.findUnique({
+          where: { email },
+          select: { clerkId: true },
+        });
+
+        if (userExistente) {
+          const membroExistente = await prisma.organizationMembro.findFirst({
+            where: {
+              organizationId: request.organizationId,
+              userId: userExistente.clerkId,
+              deletedAt: null,
+            },
+          });
+          if (membroExistente) {
+            return reply
+              .status(409)
+              .send({ error: "Usuário já é membro desta organização" });
+          }
+        }
+
+        // Check if there's already a pending invite for this email
+        const conviteExistente = await prisma.organizationConvite.findFirst({
           where: {
             organizationId: request.organizationId,
-            userId: userExistente.clerkId,
-            deletedAt: null,
+            email,
+            aceito: false,
           },
         });
-        if (membroExistente) {
+
+        if (conviteExistente) {
           return reply
             .status(409)
-            .send({ error: "Usuário já é membro desta organização" });
+            .send({ error: "Já existe um convite pendente para este email." });
         }
-      }
 
-      // Check if there's already a pending invite for this email
-      const conviteExistente = await prisma.organizationConvite.findFirst({
-        where: {
-          organizationId: request.organizationId,
-          email,
-          aceito: false,
-        },
-      });
+        // Expirar em 7 dias
+        const expiradoEm = new Date();
+        expiradoEm.setDate(expiradoEm.getDate() + 7);
 
-      if (conviteExistente) {
-        return reply
-          .status(409)
-          .send({ error: "Já existe um convite pendente para este email." });
-      }
+        const convite = await prisma.organizationConvite.create({
+          data: {
+            organizationId: request.organizationId!,
+            email,
+            convidadoPorUserId: request.userId!,
+            expiradoEm,
+          },
+        });
 
-      // Expirar em 7 dias
-      const expiradoEm = new Date();
-      expiradoEm.setDate(expiradoEm.getDate() + 7);
-
-      const convite = await prisma.organizationConvite.create({
-        data: {
-          organizationId: request.organizationId!,
-          email,
-          convidadoPorUserId: request.userId!,
-          expiradoEm,
-        },
-      });
-
-      return reply.status(201).send({ data: convite });
-    });
+        return reply.status(201).send({ data: convite });
+      },
+    );
 
     // DELETE /convites/:id — Cancelar convite (OWNER only)
     protectedApp.delete("/convites/:id", async (request, reply) => {
