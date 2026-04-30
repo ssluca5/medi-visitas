@@ -1,7 +1,13 @@
 .claude/settings.json
 .claude/settings.local.json
+
+# Environment variables (never commit secrets)
 .env
 .env.local
+.env.*.local
+.env.production
+!.env.example
+
 node_modules/
 
 # Build artifacts
@@ -11,3 +17,7 @@ apps/landing/dist/
 
 # Generated output
 graphify-out/
+.graphify_python
+svelte-check-output.txt
+__pycache__/
+*.pyc

@@ -1,5 +1,7 @@
 # MediVisitas — AGENTS.md
 
+<!-- Fonte única de verdade para todos os agentes AI (Gemini/Antigravity, Claude Code, etc.) -->
+
 > CRM para propagandistas farmacêuticos
 > Ambiente: Windows / PowerShell / pnpm monorepo
 
@@ -11,10 +13,10 @@
 | --------------- | ----------------------------- |
 | Frontend        | SvelteKit 2 (Svelte 5 Runes)  |
 | Styling         | Tailwind CSS v4 (CSS-first)   |
-| Backend         | Fastify 4.28                  |
+| Backend         | Fastify 5.8                   |
 | ORM             | Prisma 5.22                   |
 | Banco           | PostgreSQL via Supabase       |
-| Auth            | Clerk (`@clerk/backend` v1.8) |
+| Auth            | Clerk (`@clerk/backend` v3.4) |
 | IA / Áudio      | MiniMax 2.7 (Fase 5)          |
 | Package Manager | pnpm (monorepo)               |
 
@@ -138,14 +140,13 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 
 ## Referências Detalhadas
 
-| Módulo      | Referência                                              |
-| ----------- | ------------------------------------------------------- |
-| Backend     | `apps/api/README.md`                                    |
-| Frontend    | `apps/web/README.md`                                    |
-| Banco       | `packages/database/README.md`                           |
-| Convenções  | `.Codex/skills/medivisitas-conventions/SKILL.md`        |
-| Entidades   | `.Codex/skills/domain-model/refs/entities.md`           |
-| Verificação | `.Codex/skills/verification-before-completion/SKILL.md` |
+| Módulo      | Referência                                                |
+| ----------- | --------------------------------------------------------- |
+| Backend     | `apps/api/README.md`                                      |
+| Frontend    | `apps/web/README.md`                                      |
+| Banco       | `packages/database/README.md`                             |
+| Convenções  | `.agents/skills/medivisitas-conventions/SKILL.md`         |
+| Verificação | `.agents/skills/verification-before-completion/SKILL.md`  |
 
 ---
 
@@ -168,6 +169,12 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-04-27] `verifyToken` sem `authorizedParties` → adicionar `CLERK_AUTHORIZED_PARTIES` env var para CSRF protection
 - [2026-04-27] Prisma `softDelete` manual repetitivo → extensão `$extends` com `softDelete()` e `softDeleteMany()` em `$allModels`
 - [2026-04-27] Rota `/onboarding` sem `resolveTenant` sem documentação → adicionar comentário explicando decisão de design
+- [2026-04-30] CLAUDE.md dizia "Fastify 4.28" → projeto já usa Fastify **5.8.5** desde migração de dependências
+- [2026-04-30] `setErrorHandler` expunha `error.message` em produção → mensagem genérica em prod, log estruturado no server
+- [2026-04-30] `hooks.server.ts` sem headers de segurança → adicionados X-Frame-Options, X-Content-Type-Options, Referrer-Policy, HSTS
+- [2026-04-30] Rate limit sem `keyGenerator` → `x-forwarded-for` para funcionar atrás de proxy (Railway/Render)
+- [2026-04-30] Dashboard sem auth guard centralizado → criado `+layout.server.ts` com redirect para landing page
+- [2026-04-30] Falta rota `/health` → criada com check de banco para monitoramento de infra
 
 ### Fase 5 — IA: Transcrição com MiniMax 2.7
 
@@ -209,6 +216,15 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - **SEO:** @astrojs/sitemap, schema.org SoftwareApplication, OG tags
 - **Domínio:** medivisitas.com (landing) / app.medivisitas.com (app)
 - **Decisões:** Tailwind v4 via @tailwindcss/vite (não @astrojs/tailwind), screenshots como Svelte island com client:load, sem formulário de contato (apenas CTAs)
+
+### Fase Enterprise — Multi-usuário, Gestão e Relatórios
+
+- **Concluída em:** 2026-04-29
+- **Escopo:** Controle de Transcrições (limites por plano), Gestão de Equipe (convites e membros), Dashboard Gestor (resumo para OWNER), Relatórios (exportação CSV).
+- **Banco de Dados:** Migrations `transcricoes-controle` (campos `transcricoesUsadas`, `transcricoesMes`, `transcricoesExtras` na tabela `Organization`), `organization-convites` (nova model `OrganizationConvite`).
+- **Backend:** Novas rotas `/gestor/resumo`, `/organizacao/*`, `/relatorios/*`. Integração da validação de limite de transcrições no webhook do Stripe e nas rotas de áudio.
+- **Frontend:** Atualização do `ModalGravacao` (bloqueio sem saldo), novas telas `/dashboard/equipe`, `/convite/[id]`, `/dashboard/gestor`, `/dashboard/relatorios`. Links na Sidebar restritos a OWNER.
+- **Decisões:** Verificação de permissões via `requireOwner` nas rotas gerenciais; correção do `@fastify/helmet` `contentSecurityPolicy` (`directives` em vez de `policy`).
 
 ## Design System
 
