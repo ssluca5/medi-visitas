@@ -140,13 +140,13 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 
 ## Referências Detalhadas
 
-| Módulo      | Referência                                                |
-| ----------- | --------------------------------------------------------- |
-| Backend     | `apps/api/README.md`                                      |
-| Frontend    | `apps/web/README.md`                                      |
-| Banco       | `packages/database/README.md`                             |
-| Convenções  | `.agents/skills/medivisitas-conventions/SKILL.md`         |
-| Verificação | `.agents/skills/verification-before-completion/SKILL.md`  |
+| Módulo      | Referência                                               |
+| ----------- | -------------------------------------------------------- |
+| Backend     | `apps/api/README.md`                                     |
+| Frontend    | `apps/web/README.md`                                     |
+| Banco       | `packages/database/README.md`                            |
+| Convenções  | `.agents/skills/medivisitas-conventions/SKILL.md`        |
+| Verificação | `.agents/skills/verification-before-completion/SKILL.md` |
 
 ---
 
