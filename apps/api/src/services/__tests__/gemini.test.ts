@@ -4,51 +4,58 @@ describe("transcreverAudio", () => {
   beforeEach(() => {
     jest.resetModules();
     (globalThis as any).fetch = jest.fn();
-    process.env.MINIMAX_API_KEY = "test_key";
-    process.env.MINIMAX_GROUP_ID = "test_group";
+    process.env.GEMINI_API_KEY = "test_key";
   });
 
   it("retorna texto da transcrição", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ data: { text: "Transcrição de teste" } }),
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: "Transcrição de teste" }] } }],
+      }),
     });
 
-    const { transcreverAudio } = await import("../minimax.js");
+    const { transcreverAudio } = await import("../gemini.js");
     const result = await transcreverAudio(Buffer.from("audio"), "audio/webm");
     expect(result).toBe("Transcrição de teste");
   });
 
-  it("envia FormData com modelo speech-01-turbo", async () => {
+  it("envia inline_data com audio base64 e prompt de transcrição", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ data: { text: "ok" } }),
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: "ok" }] } }],
+      }),
     });
 
-    const { transcreverAudio } = await import("../minimax.js");
+    const { transcreverAudio } = await import("../gemini.js");
     await transcreverAudio(Buffer.from("audio"), "audio/webm");
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     const callArgs = (globalThis.fetch as any).mock.calls[0];
     const url = callArgs[0] as string;
     const options = callArgs[1] as any;
-    expect(url).toContain("/v1/audio/transcriptions");
-    expect(url).toContain("GroupId=test_group");
+    expect(url).toContain("gemini-2.0-flash:generateContent");
+    expect(url).toContain("key=test_key");
     expect(options.method).toBe("POST");
-    expect(options.body).toBeInstanceOf(FormData);
+    const body = JSON.parse(options.body);
+    expect(body.contents[0].parts[0].inline_data.mime_type).toBe("audio/webm");
+    expect(body.contents[0].parts[0].inline_data.data).toBe(
+      Buffer.from("audio").toString("base64"),
+    );
   });
 
-  it("lança erro quando MiniMax retorna status != 200", async () => {
+  it("lança erro quando Gemini retorna status != 200", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 500,
       text: async () => "Internal Server Error",
     });
 
-    const { transcreverAudio } = await import("../minimax.js");
+    const { transcreverAudio } = await import("../gemini.js");
     await expect(
       transcreverAudio(Buffer.from("audio"), "audio/webm"),
-    ).rejects.toThrow("MiniMax STT error: 500");
+    ).rejects.toThrow("Gemini STT error: 500");
   });
 });
 
@@ -56,26 +63,28 @@ describe("extrairCamposVisita", () => {
   beforeEach(() => {
     jest.resetModules();
     (globalThis as any).fetch = jest.fn();
-    process.env.MINIMAX_API_KEY = "test_key";
-    process.env.MINIMAX_GROUP_ID = "test_group";
+    process.env.GEMINI_API_KEY = "test_key";
   });
 
   it("retorna objeto com resumo, proximaAcao, objetivoVisita", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        choices: [
+        candidates: [
           {
-            message: {
-              content:
-                '{"resumo":"Paciente com dor","proximaAcao":"Retorno em 7 dias","objetivoVisita":"Avaliação"}',
+            content: {
+              parts: [
+                {
+                  text: '{"resumo":"Paciente com dor","proximaAcao":"Retorno em 7 dias","objetivoVisita":"Avaliação"}',
+                },
+              ],
             },
           },
         ],
       }),
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../gemini.js");
     const result = await extrairCamposVisita("transcrição teste");
     expect(result).toEqual({
       resumo: "Paciente com dor",
@@ -84,48 +93,48 @@ describe("extrairCamposVisita", () => {
     });
   });
 
-  it("envia prompt correto para chat completion", async () => {
+  it("envia prompt correto para generateContent", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        choices: [
+        candidates: [
           {
-            message: {
-              content: '{"resumo":"r","proximaAcao":"p","objetivoVisita":"o"}',
+            content: {
+              parts: [
+                { text: '{"resumo":"r","proximaAcao":"p","objetivoVisita":"o"}' },
+              ],
             },
           },
         ],
       }),
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../gemini.js");
     await extrairCamposVisita("texto teste");
 
     const callArgs = (globalThis.fetch as any).mock.calls[0];
     const url = callArgs[0] as string;
     const options = callArgs[1] as any;
-    expect(url).toContain("/v1/text/chatcompletion_v2");
+    expect(url).toContain("gemini-2.0-flash:generateContent");
     const body = JSON.parse(options.body);
-    expect(body.model).toBe("MiniMax-Text-01");
-    expect(body.temperature).toBe(0.1);
-    expect(body.messages).toHaveLength(2);
-    expect(body.messages[0].role).toBe("system");
-    expect(body.messages[1].content).toBe("texto teste");
+    expect(body.generationConfig.temperature).toBe(0.1);
+    expect(body.generationConfig.responseMimeType).toBe("application/json");
+    expect(body.contents[0].role).toBe("user");
+    expect(body.contents[0].parts[0].text).toBe("texto teste");
+    expect(body.system_instruction.parts[0].text).toContain("assistente médico");
   });
 
   it("fallback quando JSON inválido — resumo = transcricao.slice(0, 300)", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        choices: [
-          {
-            message: { content: "resposta sem JSON válido" },
-          },
+        candidates: [
+          { content: { parts: [{ text: "resposta sem JSON válido" }] } },
         ],
       }),
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../gemini.js");
     const longText = "x".repeat(500);
     const result = await extrairCamposVisita(longText);
     expect(result.resumo).toBe("x".repeat(300));
@@ -133,16 +142,16 @@ describe("extrairCamposVisita", () => {
     expect(result.objetivoVisita).toBe("");
   });
 
-  it("lança erro quando MiniMax retorna status != 200", async () => {
+  it("lança erro quando Gemini retorna status != 200", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 429,
       text: async () => "Rate limited",
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../gemini.js");
     await expect(extrairCamposVisita("texto")).rejects.toThrow(
-      "MiniMax Chat error: 429",
+      "Gemini Chat error: 429",
     );
   });
 });

@@ -12,7 +12,7 @@ import {
 import {
   transcreverAudio,
   extrairCamposVisita,
-} from "../../services/minimax.js";
+} from "../../services/gemini.js";
 import {
   verificarLimiteTranscricao,
   incrementarTranscricao,

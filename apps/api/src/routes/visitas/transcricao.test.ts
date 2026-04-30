@@ -26,7 +26,7 @@ describe("Transcrição Routes", () => {
       },
     };
 
-    const mockMinimax = {
+    const mockGemini = {
       transcreverAudio: jest.fn() as any,
       extrairCamposVisita: jest.fn() as any,
     };
@@ -40,8 +40,8 @@ describe("Transcrição Routes", () => {
       verifyToken: mockVerifyTokenFn,
     }));
     jestGlobal.unstable_mockModule(
-      "../../services/minimax.js",
-      () => mockMinimax,
+      "../../services/gemini.js",
+      () => mockGemini,
     );
 
     const Fastify = (await import("fastify")).default;
