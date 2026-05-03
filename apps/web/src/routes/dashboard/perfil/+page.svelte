@@ -49,7 +49,7 @@
 
 	function getPlanoLabel(plano: string | undefined) {
 		switch (plano) {
-			case 'BASICO': return 'Basico';
+			case 'BASICO': return 'Básico';
 			case 'PROFISSIONAL': return 'Profissional';
 			case 'EQUIPE': return 'Equipe';
 			case 'EMPRESARIAL': return 'Empresarial';
@@ -71,11 +71,11 @@
 
 	function getStatusBadge(status: string | undefined) {
 		switch (status) {
-			case 'TRIAL_ATIVO': return 'bg-amber-50 text-amber-700';
-			case 'ATIVO': return 'bg-emerald-50 text-emerald-700';
-			case 'TRIAL_EXPIRADO': return 'bg-red-50 text-red-700';
-			case 'CANCELADO': return 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-500))]';
-			default: return 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-500))]';
+			case 'TRIAL_ATIVO': return 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20';
+			case 'ATIVO': return 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20';
+			case 'TRIAL_EXPIRADO': return 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20';
+			case 'CANCELADO': return 'bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/20';
+			default: return 'bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/20';
 		}
 	}
 
@@ -109,155 +109,174 @@
 	<title>Meu Perfil — MediVisitas</title>
 </svelte:head>
 
-<div class="space-y-6">
-	<!-- Header -->
-	<div class="flex items-center gap-3 mb-6">
-		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
-			<User class="h-4.5 w-4.5 text-white" />
-		</div>
-		<div>
-			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Meu Perfil</h1>
-			<p class="text-xs text-[rgb(var(--slate-400))]">Gerencie suas informações e preferências</p>
+	<!-- Page Header -->
+	<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+		<div class="flex items-center gap-3">
+			<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+				<User class="h-4.5 w-4.5 text-white" />
+			</div>
+			<div>
+				<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Meu Perfil</h1>
+				<p class="text-[11px] text-[rgb(var(--slate-400))]">Gerencie suas informações pessoais e de segurança</p>
+			</div>
 		</div>
 	</div>
 
-	<div class="flex flex-col lg:flex-row gap-6">
+	<div class="flex flex-col lg:flex-row gap-6 w-full">
 		<!-- Sidebar de tabs -->
-		<div class="w-full lg:w-56 shrink-0">
-			<nav class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] overflow-hidden">
+		<aside class="w-full lg:w-64 shrink-0">
+			<nav class="space-y-1">
 				{#each tabs as tab}
 					{@const Icon = tab.icon}
 					<button
 						onclick={() => activeTab = tab.id}
-						class="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-all duration-200 cursor-pointer
+						class="group flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer
 							{activeTab === tab.id
-								? 'bg-blue-50 text-blue-700 border-l-2 border-blue-600'
-								: 'text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-50))] border-l-2 border-transparent'}"
+								? 'bg-slate-100 text-slate-900'
+								: 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}"
 					>
-						<Icon class="w-4 h-4 shrink-0" />
+						<Icon class="w-4 h-4 shrink-0 transition-colors {activeTab === tab.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}" />
 						{tab.label}
-						{#if activeTab === tab.id}
-							<ChevronRight class="w-3.5 h-3.5 ml-auto" />
-						{/if}
 					</button>
 				{/each}
 			</nav>
-		</div>
+		</aside>
 
 		<!-- Conteúdo da tab ativa -->
-		<div class="flex-1 min-w-0">
+		<div class="flex-1 w-full">
 			{#if activeTab === 'conta'}
-				<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-6 space-y-6">
-					<h2 class="text-base font-semibold text-[rgb(var(--slate-800))]">Informações da Conta</h2>
+				<div class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100">
+					<!-- Seção Nome -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
+						<div>
+							<p class="text-sm font-medium text-slate-900">Nome</p>
+							<p class="text-sm text-slate-500 mt-1">Como você quer ser chamado.</p>
+						</div>
+						<div class="sm:text-right">
+							<p class="text-sm font-medium text-slate-900">{data.me?.name || 'Não configurado'}</p>
+							<p class="text-xs text-slate-500 mt-1">Gerenciado pela sua conta de login</p>
+						</div>
+					</div>
 
-					<div class="grid gap-5">
+					<!-- Seção Email -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Nome</span>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">
-								{data.me?.name || 'Não configurado'}
-							</p>
-							<p class="text-xs mt-0.5 text-[rgb(var(--slate-400))]">
-								O nome é gerenciado pela sua conta de autenticação.
-							</p>
+							<p class="text-sm font-medium text-slate-900">Endereço de e-mail</p>
+							<p class="text-sm text-slate-500 mt-1">E-mail vinculado à sua conta.</p>
 						</div>
-						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">E-mail</span>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">{data.me?.email || 'E-mail não encontrado'}</p>
+						<div class="sm:text-right">
+							<p class="text-sm font-medium text-slate-900">{data.me?.email || 'E-mail não encontrado'}</p>
 						</div>
+					</div>
+
+					<!-- Seção Função -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Função na organização</span>
+							<p class="text-sm font-medium text-slate-900">Função</p>
+							<p class="text-sm text-slate-500 mt-1">Seu nível de acesso na organização.</p>
+						</div>
+						<div class="sm:text-right">
 							<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-								{data.me?.role === 'OWNER' ? 'bg-blue-50 text-blue-700' : 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
+								{data.me?.role === 'OWNER' ? 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20' : 'bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/20'}">
 								{data.me?.role === 'OWNER' ? 'Gestor' : 'Propagandista'}
 							</span>
 						</div>
 					</div>
-
-					<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
-						<p class="text-xs text-[rgb(var(--slate-400))]">
-							Para alterar seu nome ou e-mail, entre em contato com o suporte ou
-							acesse as configurações da sua conta de login.
-						</p>
-					</div>
 				</div>
 
 			{:else if activeTab === 'plano'}
-				<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-6 space-y-6">
-					<h2 class="text-base font-semibold text-[rgb(var(--slate-800))]">Plano & Assinatura</h2>
-
-					<div class="grid gap-4">
+				<div class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100">
+					<!-- Plano Atual -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Plano Atual</span>
-							<p class="text-lg font-bold text-[rgb(var(--slate-800))]">
+							<p class="text-sm font-medium text-slate-900">Plano Atual</p>
+							<p class="text-sm text-slate-500 mt-1">Plano vigente da sua assinatura.</p>
+						</div>
+						<div class="sm:text-right">
+							<p class="text-base font-semibold text-slate-900">
 								{#if data.billing?.status === 'TRIAL_ATIVO'}Trial gratuito
 								{:else}{getPlanoLabel(data.billing?.plano)}{/if}
 							</p>
 						</div>
+					</div>
+					<!-- Status -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Status</span>
+							<p class="text-sm font-medium text-slate-900">Status</p>
+							<p class="text-sm text-slate-500 mt-1">Situação atual da sua conta.</p>
+						</div>
+						<div class="sm:text-right flex flex-col items-start sm:items-end gap-2">
 							{#if data.billing?.status === 'TRIAL_ATIVO'}
-								<span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-									style="background-color: #fef3c7; color: #92400e;">
+								<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">
 									Trial ativo — {data.diasRestantesTrial ?? 0}d restantes
 								</span>
 							{:else if data.billing?.status === 'ATIVO'}
-								<span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-									style="background-color: #d1fae5; color: #065f46;">
+								<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
 									Assinatura ativa
 								</span>
 							{:else}
-								<span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {getStatusBadge(data.billing?.status)}">
+								<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {getStatusBadge(data.billing?.status)}">
 									{getStatusLabel(data.billing?.status)}
 								</span>
 							{/if}
-						</div>
-						{#if data.diasRestantesTrial !== null && data.diasRestantesTrial <= 3}
-							<div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
-								<p class="text-xs font-medium text-amber-800">
+
+							{#if data.diasRestantesTrial !== null && data.diasRestantesTrial <= 3}
+								<p class="text-xs font-medium text-amber-600 mt-1">
 									{#if data.diasRestantesTrial === 0}Seu trial expira hoje!
 									{:else if data.diasRestantesTrial === 1}Seu trial expira amanhã.
-									{:else}Faltam {data.diasRestantesTrial} dias para o trial expirar.{/if}
+									{:else}Faltam {data.diasRestantesTrial} dias para expirar.{/if}
 								</p>
-							</div>
-						{/if}
+							{/if}
+						</div>
 					</div>
-
-					<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
-						<a
-							href="/planos"
-							class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
-						>
-							<CreditCard class="w-3.5 h-3.5" />
+					<!-- Ação -->
+					<div class="p-6 bg-slate-50/50 rounded-b-xl flex justify-end">
+						<a href="/planos" class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm">
 							Gerenciar plano
-							<ChevronRight class="w-3 h-3" />
 						</a>
 					</div>
 				</div>
 
 			{:else if activeTab === 'organizacao'}
-				<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-6 space-y-6">
-					<h2 class="text-base font-semibold text-[rgb(var(--slate-800))]">Organização</h2>
-
-					<div class="grid gap-5">
+				<div class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100">
+					<!-- Nome -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Nome</span>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">
-								{data.org?.nome || 'Organização individual'}
-							</p>
+							<p class="text-sm font-medium text-slate-900">Nome</p>
+							<p class="text-sm text-slate-500 mt-1">Nome da sua organização.</p>
 						</div>
-						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">ID da Organização</span>
-							<p class="text-xs font-mono text-[rgb(var(--slate-500))]">{data.org?.id || data.me?.organizationId || 'Não disponível'}</p>
+						<div class="sm:text-right">
+							<p class="text-sm font-medium text-slate-900">{data.org?.nome || 'Organização individual'}</p>
 						</div>
+					</div>
+					<!-- ID -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Tipo</span>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">
-								{data.org?.limiteUsuarios === 1 ? 'Individual' : 'Equipe'}
-							</p>
+							<p class="text-sm font-medium text-slate-900">ID da Organização</p>
+							<p class="text-sm text-slate-500 mt-1">Identificador único interno.</p>
 						</div>
+						<div class="sm:text-right">
+							<p class="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-1 rounded">{data.org?.id || data.me?.organizationId || 'Não disponível'}</p>
+						</div>
+					</div>
+					<!-- Tipo -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Membro desde</span>
-							<p class="text-sm text-[rgb(var(--slate-800))]">
+							<p class="text-sm font-medium text-slate-900">Tipo</p>
+							<p class="text-sm text-slate-500 mt-1">Modelo de organização.</p>
+						</div>
+						<div class="sm:text-right">
+							<p class="text-sm font-medium text-slate-900">{data.org?.limiteUsuarios === 1 ? 'Individual' : 'Equipe'}</p>
+						</div>
+					</div>
+					<!-- Membro desde -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
+						<div>
+							<p class="text-sm font-medium text-slate-900">Membro desde</p>
+							<p class="text-sm text-slate-500 mt-1">Data de ingresso na organização.</p>
+						</div>
+						<div class="sm:text-right">
+							<p class="text-sm text-slate-900">
 								{data.org?.createdAt
 									? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(data.org.createdAt))
 									: '—'}
@@ -267,147 +286,134 @@
 				</div>
 
 			{:else if activeTab === 'seguranca'}
-				<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-6 space-y-5">
-					<h2 class="text-base font-semibold text-[rgb(var(--slate-800))]">Segurança da Conta</h2>
-
-					<!-- Alterar senha -->
-					<div class="flex items-start justify-between py-4 border-b border-[rgb(var(--slate-100))]">
+				<div class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100">
+					<!-- Senha -->
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">Senha</p>
-							<p class="text-xs mt-0.5 text-[rgb(var(--slate-400))]">
-								Altere sua senha de acesso ao MediVisitas
-							</p>
+							<p class="text-sm font-medium text-slate-900">Senha</p>
+							<p class="text-sm text-slate-500 mt-1">Altere sua senha de acesso ao MediVisitas.</p>
 						</div>
-						<button
-							onclick={solicitarRedefinicaoSenha}
-							class="h-8 px-3 rounded-lg border text-xs font-medium transition-colors hover:bg-[rgb(var(--slate-50))] cursor-pointer"
-							style="border-color: rgb(var(--slate-200)); color: rgb(var(--slate-600));"
-						>
-							Alterar senha
-						</button>
+						<div>
+							<button
+								onclick={solicitarRedefinicaoSenha}
+								class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm w-full sm:w-auto cursor-pointer"
+							>
+								Alterar senha
+							</button>
+						</div>
 					</div>
 
 					<!-- 2FA -->
-					<div class="flex items-start justify-between py-4 border-b border-[rgb(var(--slate-100))]">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">
-								Autenticação em dois fatores
-							</p>
-							<p class="text-xs mt-0.5 text-[rgb(var(--slate-400))]">
-								Adicione uma camada extra de segurança à sua conta
-							</p>
+							<p class="text-sm font-medium text-slate-900">Autenticação em dois fatores</p>
+							<p class="text-sm text-slate-500 mt-1">Adicione uma camada extra de segurança à sua conta.</p>
 						</div>
-						<button
-							onclick={configurar2FA}
-							class="h-8 px-3 rounded-lg border text-xs font-medium transition-colors hover:bg-[rgb(var(--slate-50))] cursor-pointer"
-							style="border-color: rgb(var(--slate-200)); color: rgb(var(--slate-600));"
-						>
-							Configurar
-						</button>
+						<div>
+							<button
+								onclick={configurar2FA}
+								class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm w-full sm:w-auto cursor-pointer"
+							>
+								Configurar
+							</button>
+						</div>
 					</div>
 
-					<!-- Sessão atual -->
-					<div class="py-4">
-						<p class="text-sm font-medium mb-1 text-[rgb(var(--slate-800))]">Sessão atual</p>
-						<p class="text-xs text-[rgb(var(--slate-400))]">
-							Navegador atual · {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date())}
-						</p>
+					<!-- Sessão -->
+					<div class="p-6 bg-slate-50/50 rounded-b-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+						<div>
+							<p class="text-sm font-medium text-slate-900">Sessões ativas</p>
+							<p class="text-sm text-slate-500 mt-1">
+								Navegador atual · {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date())}
+							</p>
+						</div>
 					</div>
 				</div>
 
 			{:else if activeTab === 'notificacoes'}
-				<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-6 space-y-5">
-					<h2 class="text-base font-semibold text-[rgb(var(--slate-800))]">Notificações</h2>
-
+				<div class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100">
 					<!-- Toggle: Visitas do dia -->
-					<div class="flex items-center justify-between py-3 border-b border-[rgb(var(--slate-100))]">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">Visitas do dia</p>
-							<p class="text-xs mt-0.5 text-[rgb(var(--slate-400))]">
-								Lembrete diário das visitas agendadas para hoje
-							</p>
+							<p class="text-sm font-medium text-slate-900">Visitas do dia</p>
+							<p class="text-sm text-slate-500 mt-1">Lembrete diário das visitas agendadas para hoje.</p>
 						</div>
-						<label class="relative inline-flex items-center cursor-pointer">
+						<label class="relative inline-flex items-center cursor-pointer shrink-0">
 							<input type="checkbox" checked class="sr-only peer" />
-							<div class="w-9 h-5 rounded-full peer peer-checked:bg-blue-600 bg-gray-200
-								after:content-[''] after:absolute after:top-0.5 after:left-0.5
-								after:bg-white after:rounded-full after:h-4 after:w-4
-								after:transition-all peer-checked:after:translate-x-4"></div>
+							<div class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
+								after:content-[''] after:absolute after:top-0.5 after:left-[2px]
+								after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
+								after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white shadow-sm border border-slate-200 peer-checked:border-blue-600"></div>
 						</label>
 					</div>
 
 					<!-- Toggle: Profissionais sem visita -->
-					<div class="flex items-center justify-between py-3 border-b border-[rgb(var(--slate-100))]">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">Profissionais sem visita recente</p>
-							<p class="text-xs mt-0.5 text-[rgb(var(--slate-400))]">
-								Alertas de profissionais sem visita há mais de 30 dias
-							</p>
+							<p class="text-sm font-medium text-slate-900">Profissionais sem visita recente</p>
+							<p class="text-sm text-slate-500 mt-1">Alertas de profissionais sem visita há mais de 30 dias.</p>
 						</div>
-						<label class="relative inline-flex items-center cursor-pointer">
+						<label class="relative inline-flex items-center cursor-pointer shrink-0">
 							<input type="checkbox" checked class="sr-only peer" />
-							<div class="w-9 h-5 rounded-full peer peer-checked:bg-blue-600 bg-gray-200
-								after:content-[''] after:absolute after:top-0.5 after:left-0.5
-								after:bg-white after:rounded-full after:h-4 after:w-4
-								after:transition-all peer-checked:after:translate-x-4"></div>
+							<div class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
+								after:content-[''] after:absolute after:top-0.5 after:left-[2px]
+								after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
+								after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white shadow-sm border border-slate-200 peer-checked:border-blue-600"></div>
 						</label>
 					</div>
 
 					<!-- Toggle: Agendamentos não realizados -->
-					<div class="flex items-center justify-between py-3 border-b border-[rgb(var(--slate-100))]">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">Agendamentos não realizados</p>
-							<p class="text-xs mt-0.5 text-[rgb(var(--slate-400))]">
-								Alertas de agendamentos vencidos sem registro de visita
-							</p>
+							<p class="text-sm font-medium text-slate-900">Agendamentos não realizados</p>
+							<p class="text-sm text-slate-500 mt-1">Alertas de agendamentos vencidos sem registro de visita.</p>
 						</div>
-						<label class="relative inline-flex items-center cursor-pointer">
+						<label class="relative inline-flex items-center cursor-pointer shrink-0">
 							<input type="checkbox" checked class="sr-only peer" />
-							<div class="w-9 h-5 rounded-full peer peer-checked:bg-blue-600 bg-gray-200
-								after:content-[''] after:absolute after:top-0.5 after:left-0.5
-								after:bg-white after:rounded-full after:h-4 after:w-4
-								after:transition-all peer-checked:after:translate-x-4"></div>
+							<div class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
+								after:content-[''] after:absolute after:top-0.5 after:left-[2px]
+								after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
+								after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white shadow-sm border border-slate-200 peer-checked:border-blue-600"></div>
 						</label>
 					</div>
 
 					<!-- Link para histórico -->
-					<div class="pt-2">
-						<a href="/dashboard/notificacoes"
-							class="text-xs font-medium flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors">
-							Ver histórico de notificações →
+					<div class="p-6 bg-slate-50/50 rounded-b-xl flex justify-end">
+						<a href="/dashboard/notificacoes" class="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+							Ver histórico completo &rarr;
 						</a>
 					</div>
 				</div>
 
 			{:else if activeTab === 'preferencias'}
-				<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-6 space-y-6">
-					<h2 class="text-base font-semibold text-[rgb(var(--slate-800))]">Preferências</h2>
-
+				<div class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100">
 					<!-- Tour -->
-					<div class="flex items-center justify-between py-3 border-b border-[rgb(var(--slate-100))]">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Tutorial de boas-vindas</p>
-							<p class="text-xs text-[rgb(var(--slate-400))] mt-0.5">Rever o guia passo a passo do primeiro acesso</p>
+							<p class="text-sm font-medium text-slate-900">Tutorial de boas-vindas</p>
+							<p class="text-sm text-slate-500 mt-1">Rever o guia passo a passo do primeiro acesso ao dashboard.</p>
 						</div>
-						<Button variant="outline" size="sm" onclick={reverTour} disabled={resetingTour}>
-							<RotateCcw class="w-3.5 h-3.5 mr-1.5" />
-							{resetingTour ? 'Resetando...' : 'Rever Tour'}
-						</Button>
+						<div>
+							<Button variant="outline" size="sm" onclick={reverTour} disabled={resetingTour}>
+								<RotateCcw class="w-3.5 h-3.5 mr-1.5" />
+								{resetingTour ? 'Resetando...' : 'Rever Tour'}
+							</Button>
+						</div>
 					</div>
 
 					<!-- Lembretes automáticos -->
-					<div class="flex items-start justify-between py-3">
+					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 						<div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Lembretes automáticos</p>
-							<p class="text-xs text-[rgb(var(--slate-400))] mt-0.5">Gerados diariamente às 06h com base na sua agenda</p>
+							<p class="text-sm font-medium text-slate-900">Lembretes automáticos</p>
+							<p class="text-sm text-slate-500 mt-1">Gerados diariamente às 06h com base na sua agenda.</p>
 						</div>
-						<span class="text-xs px-2 py-0.5 rounded-full mt-0.5"
-							style="background-color: #d1fae5; color: #065f46;">
-							Ativos
-						</span>
+						<div class="sm:text-right">
+							<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+								Ativos
+							</span>
+						</div>
 					</div>
 				</div>
 			{/if}
 		</div>
 	</div>
-</div>

@@ -588,11 +588,13 @@
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
-		<Button onclick={handleNovoProfissional} class="inline-flex gap-2">
-			<Plus class="h-4 w-4" />
-			<span class="hidden sm:inline">Novo Profissional</span>
-			<span class="sm:hidden">Novo</span>
-		</Button>
+		{#if profissionais.length > 0}
+			<Button onclick={handleNovoProfissional} class="inline-flex gap-2">
+				<Plus class="h-4 w-4" />
+				<span class="hidden sm:inline">Novo Profissional</span>
+				<span class="sm:hidden">Novo</span>
+			</Button>
+		{/if}
 	</div>
 </div>
 
@@ -673,9 +675,13 @@
 		icon={Users}
 		titulo="Nenhum profissional encontrado"
 		descricao="Use os filtros acima ou adicione um novo"
-		acaoLabel="Adicionar Profissional"
-		acaoOnclick={handleNovoProfissional}
-	/>
+	>
+		<Button onclick={handleNovoProfissional} class="inline-flex gap-2">
+			<Plus class="h-4 w-4" />
+			<span class="hidden sm:inline">Novo Profissional</span>
+			<span class="sm:hidden">Novo</span>
+		</Button>
+	</EmptyState>
 {:else}
 	<div class="card-surface overflow-hidden">
 		<table class="table-fixed w-full" aria-label="Lista de profissionais">

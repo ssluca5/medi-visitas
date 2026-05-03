@@ -7,8 +7,10 @@
   "scripts": {
     "generate": "prisma generate",
     "dev": "prisma studio",
-    "migrate": "prisma db push",
+    "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
+    "push": "echo Use migrate:dev em vez de db push",
     "seed": "node prisma/seed.js"
   },
   "prisma": {

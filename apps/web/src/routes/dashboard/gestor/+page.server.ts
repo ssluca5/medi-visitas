@@ -2,10 +2,11 @@ import type { PageServerLoad } from "./$types";
 import { apiFetch } from "$lib/api";
 import { redirect } from "@sveltejs/kit";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, parent }) => {
   const token = locals.sessionToken;
+  const parentData = await parent();
 
-  if (locals.role !== "OWNER") {
+  if (parentData.role !== "OWNER" || !parentData.temGestaoEquipe) {
     throw redirect(302, "/dashboard");
   }
 

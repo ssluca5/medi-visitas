@@ -74,7 +74,11 @@
 		<Menu class="h-5 w-5" />
 	</button>
 
-	<div class="flex-1 min-w-0 text-center">
+	<div class="flex-1 min-w-0 flex items-center justify-center gap-2">
+		<svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+			<rect width="32" height="32" rx="6" fill="#2563eb"/>
+			<text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
+		</svg>
 		<h1 class="text-base font-semibold text-[rgb(var(--slate-900))] tracking-tight">MediVisitas</h1>
 	</div>
 
@@ -88,8 +92,16 @@
 	<div class="flex flex-col h-full -m-6">
 		<!-- Drawer header -->
 		<div class="shrink-0 px-5 pt-5 pb-4 border-b border-[rgb(var(--slate-100))]">
-			<h1 class="text-lg font-semibold tracking-tight text-[rgb(var(--slate-900))]">MediVisitas</h1>
-			<p class="text-xs text-[rgb(var(--slate-400))] mt-0.5">CRM para Propagandistas</p>
+			<div class="flex items-center gap-2">
+				<svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+					<rect width="32" height="32" rx="6" fill="#2563eb"/>
+					<text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
+				</svg>
+				<div>
+					<h1 class="text-lg font-semibold tracking-tight text-[rgb(var(--slate-900))] leading-tight">MediVisitas</h1>
+					<p class="text-[10px] text-[rgb(var(--slate-400))] mt-0.5 leading-tight">CRM para Propagandistas</p>
+				</div>
+			</div>
 		</div>
 
 		<!-- Navigation -->

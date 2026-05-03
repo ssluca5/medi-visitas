@@ -1,6 +1,6 @@
 <script lang="ts">
   import { apiFetch } from '$lib/api';
-  import { toast } from 'svelte-sonner';
+  import { toast } from '$lib/stores/toast.svelte';
   import { Loader2, MailCheck, ShieldCheck, AlertCircle } from 'lucide-svelte';
   
   let { data } = $props<{ data: any }>();
@@ -10,7 +10,7 @@
 
   async function aceitarConvite() {
     if (!data.sessionToken) {
-      toast.error('Você precisa fazer login primeiro!');
+      toast.erro('Você precisa fazer login primeiro!');
       return;
     }
     
@@ -21,7 +21,7 @@
       });
       
       if (res.ok) {
-        toast.success('Convite aceito! Redirecionando...');
+        toast.sucesso('Convite aceito! Redirecionando...');
         setTimeout(() => {
           window.location.href = '/dashboard';
         }, 1500);

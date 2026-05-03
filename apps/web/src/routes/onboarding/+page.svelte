@@ -1,20 +1,83 @@
 <script lang="ts">
-  import { PUBLIC_API_URL } from '$env/static/public'
+  import { PUBLIC_API_URL, PUBLIC_LANDING_URL } from '$env/static/public'
   import { page } from '$app/state'
+  import { ArrowLeft, Check } from 'lucide-svelte'
+
+  type PlanoKey = 'BASICO' | 'PROFISSIONAL' | 'EQUIPE';
+
+  const planos: Array<{
+    key: PlanoKey;
+    nome: string;
+    descricao: string;
+    preco: string;
+    suporte: string;
+    tag?: string;
+    tagClasses?: string;
+    features: string[];
+  }> = [
+    {
+      key: 'BASICO',
+      nome: 'Básico',
+      descricao: 'Para organizar a carteira e manter a rotina comercial em dia.',
+      preco: 'R$ 79',
+      suporte: '48h',
+      tag: 'Essencial',
+      tagClasses: 'bg-slate-100 text-slate-700',
+      features: [
+        'Até 100 profissionais cadastrados',
+        'Agenda inteligente',
+        'Histórico de visitas',
+        'Pipeline comercial',
+        'Notificações automáticas'
+      ]
+    },
+    {
+      key: 'PROFISSIONAL',
+      nome: 'Profissional',
+      descricao: 'Para representantes que usam IA e relatórios no dia a dia.',
+      preco: 'R$ 149',
+      suporte: '24h',
+      tag: 'Mais completo',
+      tagClasses: 'bg-emerald-100 text-emerald-700',
+      features: [
+        'Profissionais ilimitados',
+        'Tudo do Básico',
+        '50 transcrições de IA por mês',
+        'Pacotes adicionais de IA',
+        'Relatórios e exportação CSV'
+      ]
+    },
+    {
+      key: 'EQUIPE',
+      nome: 'Equipe',
+      descricao: 'Para gestores com até 10 propagandistas na mesma operação.',
+      preco: 'R$ 349',
+      suporte: '4h',
+      tag: 'Para times',
+      tagClasses: 'bg-purple-100 text-purple-700',
+      features: [
+        'Tudo do Profissional',
+        'Até 10 usuários na equipe',
+        '200 transcrições compartilhadas',
+        'Dashboard do gestor',
+        'Uso de IA por membro'
+      ]
+    }
+  ];
 
   // Estados
   let etapa = $state<'escolha' | 'nome-empresa' | 'processando'>('escolha')
-  let opcaoSelecionada = $state<'trial-individual' | 'trial-empresa' | 'pagar-individual' | 'pagar-empresa'>('trial-individual')
+  let opcaoSelecionada = $state<PlanoKey>('PROFISSIONAL')
   let nomeEmpresa = $state('')
   let loading = $state(false)
   let erro = $state('')
 
   const sessionToken = $derived(page.data.sessionToken)
 
-  // Ao selecionar trial empresa ou pagar empresa → ir para etapa de nome
+  // Ao selecionar equipe → ir para etapa de nome
   function selecionarOpcao(opcao: typeof opcaoSelecionada) {
     opcaoSelecionada = opcao
-    if (opcao === 'trial-empresa' || opcao === 'pagar-empresa') {
+    if (opcao === 'EQUIPE') {
       etapa = 'nome-empresa'
     } else {
       // Individual — ir direto para confirmação
@@ -28,7 +91,7 @@
 
     try {
       // Determinar endpoint e body
-      const isEmpresa = opcaoSelecionada?.includes('empresa')
+      const isEmpresa = opcaoSelecionada === 'EQUIPE'
       const endpoint = isEmpresa
         ? `${PUBLIC_API_URL}/onboarding/empresa`
         : `${PUBLIC_API_URL}/onboarding/individual`
@@ -61,26 +124,23 @@
         throw new Error(msg)
       }
 
-      // Se escolheu pagar, redirecionar para checkout Stripe
-      if (opcaoSelecionada?.startsWith('pagar')) {
-        const plano = opcaoSelecionada === 'pagar-individual' ? 'BASICO' : 'EQUIPE'
-        const checkoutRes = await fetch(`${PUBLIC_API_URL}/billing/checkout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionToken}`,
-          },
-          body: JSON.stringify({ plano }),
-        })
+      // Redirecionar para checkout Stripe com o plano selecionado
+      const checkoutRes = await fetch(`${PUBLIC_API_URL}/billing/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({ plano: opcaoSelecionada }),
+      })
 
-        if (checkoutRes.ok) {
-          const { checkoutUrl } = await checkoutRes.json()
-          window.location.href = checkoutUrl
-          return
-        }
+      if (checkoutRes.ok) {
+        const { checkoutUrl } = await checkoutRes.json()
+        window.location.href = checkoutUrl
+        return
       }
 
-      // Trial — forçar reload completo para novo token Clerk
+      // Fallback
       await new Promise(r => setTimeout(r, 1000))
       window.location.href = '/dashboard'
 
@@ -123,12 +183,13 @@
     </div>
 
     <!-- BASE — Trust Indicators -->
-    <div class="grid grid-cols-3 gap-6 pt-8 border-t relative z-10"
+    <div class="grid grid-cols-4 gap-6 pt-8 border-t relative z-10"
       style="border-color: rgba(255,255,255,0.1);">
       {#each [
         { valor: '7 dias', label: 'Trial gratuito' },
-        { valor: '200+', label: 'Propagandistas' },
-        { valor: '4.9★', label: 'Avaliação média' },
+        { valor: 'Zero', label: 'Taxa de setup' },
+        { valor: 'Imediato', label: 'Acesso liberado' },
+        { valor: 'Fácil', label: 'Cancelamento online' },
       ] as m}
         <div>
           <p class="text-2xl font-bold" style="color: rgb(var(--slate-50));">{m.valor}</p>
@@ -157,172 +218,68 @@
     </div>
 
     <!-- Cards de opção -->
-    <div class="flex flex-col gap-4 w-full max-w-lg">
-
-      <!-- OPÇÃO A: Trial gratuito individual -->
-      <button
-        onclick={() => selecionarOpcao('trial-individual')}
-        disabled={loading}
-        class="w-full text-left p-5 rounded-2xl border-2 bg-white transition-all cursor-pointer relative group
-               disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]
-               ${opcaoSelecionada === 'trial-individual'
-                 ? 'border-blue-600 shadow-lg shadow-blue-600/10 ring-4 ring-blue-600/10'
-                 : 'border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-600/5'}"
-      >
-        <!-- Radio indicator -->
-        <div class="absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-                    ${opcaoSelecionada === 'trial-individual'
-                      ? 'border-blue-600 bg-blue-600'
-                      : 'border-slate-300 bg-white'}">
-          {#if opcaoSelecionada === 'trial-individual'}
-            <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          {/if}
-        </div>
-
-        <div class="flex items-start justify-between pr-8">
-          <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors
-                        ${opcaoSelecionada === 'trial-individual' ? 'bg-blue-600' : 'bg-blue-50'}">
-              <svg class="w-5 h-5 transition-colors ${opcaoSelecionada === 'trial-individual' ? 'text-white' : 'text-blue-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p class="font-semibold" style="color: #111827;">
-                Começar trial gratuito — 7 dias
-              </p>
-              <p class="text-sm mt-1" style="color: #6b7280;">
-                Uso individual. Sem cartão de crédito.
-                Explore tudo sem compromisso.
-              </p>
+    <div class="flex flex-col gap-5 w-full max-w-lg">
+      {#each planos as plano}
+        {@const isSelected = opcaoSelecionada === plano.key}
+        <button
+          type="button"
+          onclick={() => (opcaoSelecionada = plano.key)}
+          class="relative flex flex-col p-6 rounded-2xl border-2 text-left cursor-pointer transition-all duration-200
+            {isSelected
+              ? 'border-blue-600 bg-blue-50/30 ring-4 ring-blue-600/10 shadow-md'
+              : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50 shadow-sm'}"
+        >
+          <!-- Radio indicator -->
+          <div class="absolute top-6 right-6">
+            <div
+              class="flex items-center justify-center w-5 h-5 rounded-full border-2 transition-colors
+                {isSelected ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'}"
+            >
+              {#if isSelected}
+                <Check class="size-3 text-white" strokeWidth={3} />
+              {/if}
             </div>
           </div>
-          <span class="text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ml-3"
-            style="background-color: #d1fae5; color: #065f46;">
-            Grátis
-          </span>
-        </div>
-      </button>
 
-      <!-- OPÇÃO B: Assinar Individual -->
-      <button
-        onclick={() => selecionarOpcao('pagar-individual')}
-        disabled={loading}
-        class="w-full text-left p-5 rounded-2xl border-2 bg-white transition-all cursor-pointer relative group
-               disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]
-               ${opcaoSelecionada === 'pagar-individual'
-                 ? 'border-blue-600 shadow-lg shadow-blue-600/10 ring-4 ring-blue-600/10'
-                 : 'border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-600/5'}"
-      >
-        <!-- Radio indicator -->
-        <div class="absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-                    ${opcaoSelecionada === 'pagar-individual'
-                      ? 'border-blue-600 bg-blue-600'
-                      : 'border-slate-300 bg-white'}">
-          {#if opcaoSelecionada === 'pagar-individual'}
-            <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          {/if}
-        </div>
-
-        <div class="flex items-start gap-4 pr-8">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors
-                      ${opcaoSelecionada === 'pagar-individual' ? 'bg-blue-600' : 'bg-blue-50'}">
-            <svg class="w-5 h-5 transition-colors ${opcaoSelecionada === 'pagar-individual' ? 'text-white' : 'text-blue-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center justify-between mb-1">
-              <p class="font-semibold" style="color: #111827;">
-                Plano Basico
-              </p>
-              <p class="font-bold" style="color: #2563eb;">
-                R$ 79<span class="text-xs font-normal">/mês</span>
-              </p>
+          <!-- Top row: Tag, Nome e Preço -->
+          <div class="flex flex-col pr-8 w-full">
+            <div class="flex items-center gap-2 mb-1 min-h-[22px]">
+              {#if plano.tag}
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest {plano.tagClasses}"
+                >
+                  {plano.tag}
+                </span>
+              {/if}
             </div>
-            <p class="text-sm" style="color: #6b7280;">
-              Para propagandistas autônomos. Acesso completo,
-              transcrição por IA, agenda inteligente.
+            
+            <div class="flex items-center justify-between w-full">
+              <h2 class="text-lg font-semibold" style="color: var(--text-primary);">
+                {plano.nome}
+              </h2>
+              <div class="text-right">
+                <span class="text-2xl font-bold" style="color: var(--text-primary);">
+                  {plano.preco}
+                </span>
+                <span class="text-xs" style="color: var(--text-muted);">/mês</span>
+              </div>
+            </div>
+            
+            <p class="mt-1 text-sm leading-tight" style="color: var(--text-secondary);">
+              {plano.descricao}
             </p>
-            <ul class="flex flex-wrap gap-2 mt-3">
-              {#each ['100 profissionais', 'Pipeline', 'Agenda', 'Notificacoes'] as f}
-                <li class="flex items-center gap-1.5 text-xs" style="color: #475569;">
-                  <svg class="w-3.5 h-3.5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {f}
-                </li>
-              {/each}
-            </ul>
           </div>
-        </div>
-      </button>
 
-      <!-- OPÇÃO C: Assinar Empresa -->
-      <button
-        onclick={() => selecionarOpcao('pagar-empresa')}
-        disabled={loading}
-        class="w-full text-left p-5 rounded-2xl border-2 bg-white transition-all cursor-pointer relative group
-               disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]
-               ${opcaoSelecionada === 'pagar-empresa'
-                 ? 'border-violet-600 shadow-lg shadow-violet-600/10 ring-4 ring-violet-600/10'
-                 : 'border-slate-200 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-600/5'}"
-      >
-        <!-- Radio indicator -->
-        <div class="absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-                    ${opcaoSelecionada === 'pagar-empresa'
-                      ? 'border-violet-600 bg-violet-600'
-                      : 'border-slate-300 bg-white'}">
-          {#if opcaoSelecionada === 'pagar-empresa'}
-            <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          {/if}
-        </div>
-
-        <div class="flex items-start gap-4 pr-8">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors
-                      ${opcaoSelecionada === 'pagar-empresa' ? 'bg-violet-600' : 'bg-violet-50'}">
-            <svg class="w-5 h-5 transition-colors ${opcaoSelecionada === 'pagar-empresa' ? 'text-white' : 'text-violet-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
-                   M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
-                   m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-center justify-between mb-1">
-              <p class="font-semibold" style="color: #111827;">
-                Plano Equipe
-              </p>
-              <p class="font-bold" style="color: #7c3aed;">
-                R$ 49<span class="text-xs font-normal">/mês por usuário</span>
-              </p>
-            </div>
-            <p class="text-sm" style="color: #6b7280;">
-              Para gestores com equipe de propagandistas.
-              Dashboard consolidado e IA ilimitada.
-            </p>
-            <ul class="flex flex-wrap gap-2 mt-3">
-              {#each ['Ate 10 usuarios', 'IA 200/mês', 'Dashboard gestor', 'Relatórios'] as f}
-                <li class="flex items-center gap-1.5 text-xs" style="color: #475569;">
-                  <svg class="w-3.5 h-3.5 text-violet-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {f}
-                </li>
-              {/each}
-            </ul>
-          </div>
-        </div>
-      </button>
-
+          <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+            {#each plano.features as feature}
+              <li class="flex items-center gap-1.5 text-xs" style="color: var(--text-primary);">
+                <Check class="w-3.5 h-3.5 shrink-0" style="color: var(--status-ativo);" />
+                <span>{feature}</span>
+              </li>
+            {/each}
+          </ul>
+        </button>
+      {/each}
     </div>
 
     <!-- Botão Continuar -->
@@ -356,6 +313,18 @@
     <p class="mt-6 text-xs text-center max-w-lg" style="color: #94a3b8;">
       Todos os planos incluem 7 dias de trial. Cancele quando quiser.
     </p>
+
+    <!-- Link voltar para o site -->
+    <a
+      href={PUBLIC_LANDING_URL ?? 'http://localhost:4321'}
+      class="mt-6 text-sm transition-colors flex items-center gap-1"
+      style="color: #9ca3af;"
+      onmouseenter={(e) => (e.currentTarget.style.color = '#6b7280')}
+      onmouseleave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+    >
+      <ArrowLeft class="w-3.5 h-3.5" />
+      Voltar para o site
+    </a>
   </div>
 </div>
 
@@ -394,9 +363,9 @@
       <p class="text-xs font-semibold uppercase tracking-wider mb-1"
         style="color: #7c3aed;">VOCÊ ESCOLHEU</p>
       <p class="text-sm font-medium" style="color: #111827;">
-        {opcaoSelecionada === 'trial-empresa'
-          ? 'Trial gratuito de 7 dias — Plano Empresa'
-          : 'Plano Equipe — R$ 349/mês'}
+        {opcaoSelecionada === 'EQUIPE'
+          ? 'Plano Equipe — R$ 349/mês'
+          : `Plano ${opcaoSelecionada} — Assinatura Empresa`}
       </p>
     </div>
 
@@ -440,7 +409,7 @@
           Criando organização...
         </span>
       {:else}
-        {opcaoSelecionada === 'trial-empresa' ? 'Começar trial grátis →' : 'Continuar para pagamento →'}
+        Continuar para pagamento →
       {/if}
     </button>
 

@@ -1,9 +1,17 @@
 <script lang="ts">
   import { apiFetch } from '$lib/api';
-  import { Brain, Loader2, ShoppingCart } from 'lucide-svelte';
-  import { toast } from 'svelte-sonner';
+  import { Loader2, Mic } from 'lucide-svelte';
+  import { toast } from '$lib/stores/toast.svelte';
 
-  let { sessionToken } = $props<{ sessionToken: string }>();
+  let {
+    sessionToken,
+    plano = 'TRIAL',
+    pacotesIaDisponiveis = false
+  } = $props<{
+    sessionToken: string | null;
+    plano?: string;
+    pacotesIaDisponiveis?: boolean;
+  }>();
 
   let status = $state<{
     permitido: boolean;
@@ -21,6 +29,26 @@
     { quantidade: 100, label: '+100', preco: 'R$ 69' }
   ] as const;
 
+  const planoLabel = $derived.by(() => {
+    if (plano === 'BASICO') return 'Básico';
+    if (plano === 'PROFISSIONAL') return 'Pro';
+    if (plano === 'EQUIPE') return 'Equipe';
+    if (plano === 'EMPRESA' || plano === 'EMPRESARIAL') return 'Ilimitado';
+    return 'Trial';
+  });
+
+  const planoBasico = $derived(plano === 'BASICO' || status?.limite === 0);
+  const planoIlimitado = $derived(plano === 'EMPRESA' || plano === 'EMPRESARIAL' || (status?.limite ?? 0) >= 999999);
+  const porcentagem = $derived.by(() => {
+    if (!status || status.limite <= 0 || planoIlimitado) return 0;
+    return Math.min(100, Math.round((status.usadas / status.limite) * 100));
+  });
+  const corBarra = $derived.by(() => {
+    if (!status || status.restantes === 0 || porcentagem >= 100) return '#dc2626';
+    if (porcentagem >= 80) return '#f59e0b';
+    return '#2563eb';
+  });
+
   $effect(() => {
     async function fetchStatus() {
       try {
@@ -28,12 +56,11 @@
         if (res.ok) {
           status = await res.json();
         }
-      } catch (e) {
-        console.error(e);
       } finally {
         loading = false;
       }
     }
+
     fetchStatus();
   });
 
@@ -49,87 +76,85 @@
         if (data.checkoutUrl) window.location.href = data.checkoutUrl;
       } else {
         const data = await res.json().catch(() => null);
-        toast.error(data?.error ?? 'Erro ao iniciar compra.');
+        toast.erro(data?.error ?? 'Erro ao iniciar compra.');
       }
     } catch {
-      toast.error('Erro de conexao.');
+      toast.erro('Erro de conexao.');
     } finally {
       comprando = null;
     }
   }
 </script>
 
-{#if loading}
-  <div class="flex h-full min-h-32 items-center justify-center rounded-xl border bg-white p-5">
-    <Loader2 class="h-6 w-6 animate-spin" style="color: var(--ai-primary);" />
-  </div>
-{:else if status}
+{#if plano !== 'BASICO' && !planoIlimitado}
   <div
-    class="card-surface flex h-full flex-col rounded-xl border p-5"
-    style="background-color: var(--bg-surface); border-color: var(--border-base);"
+    class="fixed z-40"
+    style="bottom: 24px; right: 24px;"
   >
-    <div class="mb-3 flex items-center justify-between">
-      <div class="flex items-center gap-2" style="color: var(--ai-primary);">
-        <Brain class="h-5 w-5" />
-        <h3 class="text-sm font-semibold">MediVisitas AI</h3>
-      </div>
-      <span class="text-xs font-medium" style="color: var(--text-muted);">
-        {status.extras > 0 ? `${status.extras} extras` : 'Plano'}
-      </span>
-    </div>
-
-    {#if status.limite === 0}
-      <p class="text-sm" style="color: var(--text-secondary);">
-        Transcricoes por IA disponiveis a partir do Plano Profissional.
-      </p>
-      <a
-        href="/planos"
-        class="mt-4 inline-flex h-9 items-center justify-center rounded-lg text-sm font-medium text-white"
-        style="background-color: var(--brand-primary);"
-      >
-        Ver planos
-      </a>
-    {:else}
-      <div class="mb-4">
-        <div class="mb-1.5 flex items-end justify-between">
-          <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--text-secondary);">
-            Transcricoes
-          </span>
-          <div class="text-right">
-            <span class="text-lg font-semibold" style="color: {status.restantes === 0 ? 'var(--danger)' : 'var(--text-primary)'};">
-              {status.restantes}
-            </span>
-            <span class="text-xs" style="color: var(--text-muted);">/{status.limite + status.extras} restam</span>
+    <div class="flex w-72 flex-col rounded-xl border p-4 shadow-lg" style="background-color: #ffffff; border-color: #e5e7eb;">
+      <div class="mb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg" style="background-color: #f5f3ff;">
+            <Mic class="h-3.5 w-3.5" style="color: #7c3aed;" />
           </div>
+          <span class="text-sm font-medium" style="color: #111827;">Transcrições IA</span>
         </div>
-
-        <div class="h-2 w-full overflow-hidden rounded-full bg-[rgb(var(--slate-100))]">
-          <div
-            class="h-full rounded-full transition-all duration-500"
-            style="width: {Math.min(100, (status.usadas / Math.max(1, status.limite + status.extras)) * 100)}%; background-color: {status.restantes === 0 ? 'var(--danger)' : 'var(--ai-primary)'};"
-          ></div>
-        </div>
+        <span
+          class="rounded px-2 py-0.5 text-xs font-medium"
+          style="background-color: #f5f3ff; color: #7c3aed; font-size: 10px;"
+        >
+          {planoLabel}
+        </span>
       </div>
 
-      <div class="mt-auto grid grid-cols-3 gap-2">
-        {#each pacotes as pacote}
-          <button
-            onclick={() => comprarPacote(pacote.quantidade)}
-            disabled={comprando !== null}
-            class="flex flex-col items-center justify-center rounded-lg border px-2 py-2 text-xs font-medium transition-colors disabled:opacity-60"
-            style="border-color: var(--border-base); color: var(--text-primary); background-color: var(--bg-surface);"
-            title={`Comprar ${pacote.label} transcricoes`}
-          >
-            {#if comprando === pacote.quantidade}
-              <Loader2 class="h-4 w-4 animate-spin" style="color: var(--ai-primary);" />
-            {:else}
-              <ShoppingCart class="h-4 w-4" style="color: var(--ai-primary);" />
-              <span>{pacote.label}</span>
-              <span style="color: var(--text-muted);">{pacote.preco}</span>
-            {/if}
-          </button>
-        {/each}
-      </div>
-    {/if}
+      {#if loading}
+        <div class="flex flex-1 items-center justify-center py-8">
+          <Loader2 class="h-5 w-5 animate-spin" style="color: #7c3aed;" />
+        </div>
+      {:else if status}
+        <div class="mb-3">
+          <div class="mb-1.5 flex justify-between">
+            <span class="text-xs" style="color: #6b7280;">Usadas este mês</span>
+            <span class="text-xs font-medium" style="color: #111827;">
+              {status.usadas} / {status.limite}
+            </span>
+          </div>
+          <div class="h-1.5 w-full rounded-full" style="background-color: #f3f4f6;">
+            <div
+              class="h-1.5 rounded-full transition-all duration-500"
+              style="width: {porcentagem}%; background-color: {corBarra};"
+            ></div>
+          </div>
+          <p class="mt-1.5 text-xs" style="color: {status.restantes === 0 ? '#dc2626' : '#9ca3af'};">
+            {status.restantes === 0 ? 'Limite atingido' : `${status.restantes} restantes`}
+          </p>
+        </div>
+
+        {#if pacotesIaDisponiveis}
+          <p class="mb-2 text-xs" style="color: #9ca3af;">Comprar mais</p>
+          <div class="grid grid-cols-3 gap-1.5">
+            {#each pacotes as pacote}
+              <button
+                onclick={() => comprarPacote(pacote.quantidade)}
+                disabled={comprando !== null}
+                class="flex flex-col items-center rounded-lg border px-1 py-2 transition-all hover:border-purple-300 hover:bg-purple-50/30 disabled:opacity-50 cursor-pointer"
+                style="border-color: #e5e7eb;"
+              >
+                <span class="text-xs font-medium" style="color: #111827;">{pacote.label}</span>
+                <span class="text-xs" style="color: #9ca3af; font-size: 10px;">
+                  {#if comprando === pacote.quantidade}
+                    ...
+                  {:else}
+                    {pacote.preco}
+                  {/if}
+                </span>
+              </button>
+            {/each}
+          </div>
+        {/if}
+      {:else}
+        <p class="text-xs" style="color: #9ca3af;">Não foi possível carregar o uso de IA.</p>
+      {/if}
+    </div>
   </div>
 {/if}

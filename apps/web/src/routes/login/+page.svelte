@@ -24,52 +24,55 @@
 <div class="min-h-screen flex">
 
 	<!-- ═══ Painel Esquerdo — Dark / Identidade Visual ═══ -->
-	<div class="hidden lg:flex w-1/2 flex-col justify-between p-12"
-		style="background-color: #111827;">
+	<div class="hidden lg:flex w-1/2 flex-col justify-between p-12 relative overflow-hidden"
+		style="background-color: rgb(var(--slate-900));">
 
-		<!-- Logo -->
-		<div class="flex items-center gap-2">
-			<span class="text-xl font-bold text-white">MediVisitas</span>
-			<span class="w-2 h-2 rounded-full" style="background-color: #2563eb;"></span>
+		<!-- TOPO — Logo -->
+		<div class="relative z-10">
+			<div class="flex items-center gap-2">
+				<p class="text-2xl font-bold tracking-tight"
+					style="color: rgb(var(--slate-50));">MediVisitas</p>
+				<span class="w-2 h-2 rounded-full"
+					style="background-color: rgb(var(--accent));"></span>
+			</div>
+			<p class="text-sm mt-1.5"
+				style="color: rgb(var(--slate-300));">CRM para Propagandistas Farmacêuticos</p>
 		</div>
 
 		<!-- Citação central -->
-		<div>
-			<p class="text-3xl font-light leading-relaxed"
-				style="color: rgba(255,255,255,0.9); font-family: Inter, sans-serif;">
+		<div class="flex flex-col gap-4 relative z-10">
+			<p class="text-3xl md:text-4xl font-medium leading-snug"
+				style="color: rgb(var(--slate-50));">
 				"A ferramenta que transformou<br>
 				minha gestão de visitas.<br>
 				Simples, eficiente e inteligente."
 			</p>
-			<div class="mt-8 flex items-center gap-3">
-				<div class="w-10 h-10 rounded-full flex items-center justify-center
-								text-sm font-semibold text-white flex-shrink-0"
-					style="background-color: #2563eb;">
+			<div class="mt-4 flex items-center gap-3">
+				<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
+					style="background-color: rgb(var(--accent)); color: rgb(var(--slate-50));">
 					JF
 				</div>
 				<div>
-					<p class="text-sm font-medium text-white">Jamille Fritz</p>
-					<p class="text-xs" style="color: rgba(255,255,255,0.5);">
+					<p class="text-sm font-medium" style="color: rgb(var(--slate-50));">Jamille Fritz</p>
+					<p class="text-xs" style="color: rgb(var(--slate-400));">
 						Propagandista Farmacêutica · Natudermefarma
 					</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- Métricas no rodapé -->
-		<div class="grid grid-cols-4 gap-4 pt-8 border-t"
+		<!-- BASE — Trust Indicators -->
+		<div class="grid grid-cols-4 gap-6 pt-8 border-t relative z-10"
 			style="border-color: rgba(255,255,255,0.1);">
 			{#each [
-				{ valor: '200+', label: 'Propagandistas' },
-				{ valor: '4.9★', label: 'Avaliação' },
-				{ valor: '68%', label: 'Menos relatórios' },
-				{ valor: '7 dias', label: 'Trial grátis' },
+				{ valor: '200+', label: 'Usuários ativos' },
+				{ valor: '4.9★', label: 'Avaliação na loja' },
+				{ valor: '68%', label: 'Redução de relatórios' },
+				{ valor: '10h+', label: 'Economizadas/mês' },
 			] as m}
 				<div>
-					<p class="text-lg font-bold text-white">{m.valor}</p>
-					<p class="text-xs mt-0.5" style="color: rgba(255,255,255,0.4);">
-						{m.label}
-					</p>
+					<p class="text-2xl font-bold" style="color: rgb(var(--slate-50));">{m.valor}</p>
+					<p class="text-xs mt-1" style="color: rgba(255,255,255,0.4);">{m.label}</p>
 				</div>
 			{/each}
 		</div>

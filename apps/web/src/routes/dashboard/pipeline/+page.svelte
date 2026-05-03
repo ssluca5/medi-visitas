@@ -219,7 +219,7 @@
         type="date"
         bind:value={dataInicio}
         onchange={carregarDados}
-        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
+        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
       />
     </div>
     <div class="min-w-[160px]">
@@ -229,7 +229,7 @@
         type="date"
         bind:value={dataFim}
         onchange={carregarDados}
-        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
+        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
       />
     </div>
     <div>

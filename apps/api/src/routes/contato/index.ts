@@ -1,5 +1,10 @@
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 const ContatoEmpresarialSchema = z.object({
   nome: z.string().min(2),
@@ -14,33 +19,64 @@ const contatoRoutes: FastifyPluginAsync = async (app) => {
   app.post(
     "/empresarial",
     { config: { rateLimit: { max: 10, timeWindow: "1 hour" } } },
-    async (request) => {
+    async (request, reply) => {
+      console.log('[Env] CWD:', process.cwd())
+      console.log('[Contato] RESEND_API_KEY:', process.env.RESEND_API_KEY?.slice(0, 10) ?? 'AUSENTE')
+      console.log('[Contato] EMAIL_COMERCIAL:', process.env.EMAIL_COMERCIAL ?? 'AUSENTE')
       const data = ContatoEmpresarialSchema.parse(request.body);
-      const emailBody = [
-        "Novo contato Empresarial - MediVisitas",
-        "",
-        `Nome: ${data.nome}`,
-        `Email: ${data.email}`,
-        `Telefone: ${data.telefone}`,
-        `Empresa: ${data.empresa}`,
-        `Usuarios estimados: ${data.usuariosEstimados}`,
-        `Mensagem: ${data.mensagem ?? "Nao informada"}`,
-        "",
-        "Responda em ate 1 dia util.",
-      ].join("\n");
+      const emailComercial = process.env.EMAIL_COMERCIAL;
 
+      const emailHtml = `
+<h2>Novo Contato Empresarial — MediVisitas</h2>
+<table style="border-collapse:collapse;">
+  <tr><td><strong>Nome:</strong></td><td>${data.nome}</td></tr>
+  <tr><td><strong>Email:</strong></td><td>${data.email}</td></tr>
+  <tr><td><strong>Telefone:</strong></td><td>${data.telefone}</td></tr>
+  <tr><td><strong>Empresa:</strong></td><td>${data.empresa}</td></tr>
+  <tr><td><strong>Usuários estimados:</strong></td><td>${data.usuariosEstimados}</td></tr>
+  <tr><td><strong>Mensagem:</strong></td><td>${data.mensagem ?? "Não informada"}</td></tr>
+</table>
+<p style="color:#6b7280;margin-top:16px;">Responda em até 1 dia útil.</p>`;
+
+      // Log sempre (auditoria)
       request.log.info(
-        {
-          emailComercial: process.env.EMAIL_COMERCIAL ?? null,
-          contato: data,
-          emailBody,
-        },
+        { contato: data, emailComercial: emailComercial ?? null },
         "Contato empresarial recebido",
       );
 
+      // Enviar via Resend se configurado
+      if (resend && emailComercial) {
+        try {
+          const result = await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: [process.env.EMAIL_COMERCIAL!],
+            replyTo: data.email,
+            subject: `[MediVisitas] Contato Empresarial — ${data.empresa}`,
+            html: emailHtml,
+          });
+
+          if (result.error) {
+            console.error('[Resend] Erro da API:', result.error);
+            console.warn('[Resend] Email não enviado, verificar configuração');
+            request.log.error({ err: result.error }, "Falha ao enviar email via Resend (Erro da API)");
+          } else {
+            console.log('[Resend] Email enviado com sucesso:', result.data?.id);
+          }
+
+        } catch (emailError) {
+          console.error('[Resend] Erro detalhado:', JSON.stringify(emailError));
+          request.log.error({ err: emailError }, "Falha na requisição ao enviar email via Resend");
+          // Não retornamos 502 aqui. O erro é interno, o formulário foi preenchido corretamente.
+        }
+      } else {
+        request.log.warn(
+          "RESEND_API_KEY ou EMAIL_COMERCIAL não configurados — email não enviado",
+        );
+      }
+
       return {
         ok: true,
-        mensagem: "Entraremos em contato em ate 1 dia util.",
+        mensagem: "Entraremos em contato em até 1 dia útil.",
       };
     },
   );

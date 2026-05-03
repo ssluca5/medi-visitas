@@ -3,57 +3,57 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
 
 const planos = [
   {
-    nome: "Basico",
+    nome: "Básico",
     preco: "R$ 79",
     desc: "Para organizar a carteira e manter a rotina comercial em dia.",
-    cta: "Comecar 7 dias gratis",
+    cta: "Começar 7 dias grátis",
     popular: false,
     features: [
-      "Ate 100 profissionais",
+      "Até 100 profissionais",
       "Agenda inteligente",
-      "Historico de visitas",
+      "Histórico de visitas",
       "Pipeline comercial",
-      "Notificacoes automaticas",
+      "Notificações automáticas",
       "Suporte em 48h"
     ]
   },
   {
     nome: "Profissional",
     preco: "R$ 149",
-    desc: "Para representantes que usam IA e relatorios na rotina.",
+    desc: "Para representantes que usam IA e relatórios na rotina.",
     cta: "Assinar Profissional",
     popular: true,
     features: [
       "Profissionais ilimitados",
-      "50 transcricoes de IA/mes",
+      "50 transcrições de IA/mês",
       "Pacotes adicionais de IA",
-      "Relatorios e CSV",
-      "Tudo do Basico",
+      "Relatórios e CSV",
+      "Tudo do Básico",
       "Suporte em 24h"
     ]
   },
   {
     nome: "Equipe",
     preco: "R$ 349",
-    desc: "Para gestores com ate 10 propagandistas na equipe.",
+    desc: "Para gestores com até 10 propagandistas na equipe.",
     cta: "Assinar Equipe",
     popular: false,
     features: [
-      "Ate 10 usuarios",
-      "200 transcricoes compartilhadas",
+      "Até 10 usuários",
+      "200 transcrições compartilhadas",
       "Dashboard do gestor",
       "Uso de IA por membro",
       "Tudo do Profissional",
-      "Suporte prioritario em 4h"
+      "Suporte prioritário em 4h"
     ]
   }
 ];
 
 const comparativo = [
   ["Profissionais", "100", "Ilimitado", "Ilimitado"],
-  ["Transcricoes IA", "-", "50/mes", "200/mes"],
-  ["Relatorios CSV", "-", "Sim", "Sim"],
-  ["Gestao de equipe", "-", "-", "Ate 10"],
+  ["Transcrições IA", "-", "50/mês", "200/mês"],
+  ["Relatórios CSV", "-", "Sim", "Sim"],
+  ["Gestão de equipe", "-", "-", "Até 10"],
   ["Suporte", "48h", "24h", "4h"]
 ];
 ---
@@ -61,8 +61,8 @@ const comparativo = [
 <section class="section-plans" id="planos" aria-labelledby="plans-h2">
   <div class="plans-inner">
     <span class="pill pill-blue story-element" data-story-delay="0">Planos</span>
-    <h2 class="plans-h2 story-element" id="plans-h2" data-story-delay="1">Planos para cada fase da operacao.</h2>
-    <p class="plans-sub story-element" data-story-delay="2">Trial de 7 dias, sem cartao de credito.</p>
+    <h2 class="plans-h2 story-element" id="plans-h2" data-story-delay="1">Planos para cada fase da operação.</h2>
+    <p class="plans-sub story-element" data-story-delay="2">Trial de 7 dias, sem cartão de crédito.</p>
 
     <div class="plans-grid">
       {planos.map((plano, index) => (
@@ -70,13 +70,13 @@ const comparativo = [
           {plano.popular && <div class="popular-badge">Mais popular</div>}
           <div class="plan-name">{plano.nome}</div>
           <div class="plan-price">
-            <span>{plano.preco}</span><span class="plan-price-period">/mes</span>
+            <span>{plano.preco}</span><span class="plan-price-period">/mês</span>
           </div>
           <p class="plan-desc">{plano.desc}</p>
           <ul class="plan-list">
             {plano.features.map((feature) => <li>{feature}</li>)}
           </ul>
-          <a href={`${appUrl}/signup`} class="plan-cta">{plano.cta}</a>
+          <a href={`${appUrl}/planos`} class="plan-cta">{plano.cta}</a>
         </article>
       ))}
     </div>
@@ -84,8 +84,8 @@ const comparativo = [
     <div class="enterprise-card story-element" data-story-delay="4">
       <div>
         <div class="plan-name">Empresarial</div>
-        <h3>Mais de 10 usuarios</h3>
-        <p>Preco, onboarding e funcionalidades customizados para times maiores.</p>
+        <h3>Mais de 10 usuários</h3>
+        <p>Preço, onboarding e funcionalidades customizados para times maiores.</p>
       </div>
       <a href="/contato" class="enterprise-cta">Falar com o comercial</a>
     </div>
@@ -93,7 +93,7 @@ const comparativo = [
     <div class="comparison story-element" data-story-delay="5" aria-label="Tabela comparativa de planos">
       <div class="comparison-row comparison-head">
         <span>Funcionalidade</span>
-        <span>Basico</span>
+        <span>Básico</span>
         <span>Profissional</span>
         <span>Equipe</span>
       </div>
@@ -121,7 +121,9 @@ const comparativo = [
   .plans-h2 {
     font-size: clamp(34px, 4vw, 46px);
     font-weight: 700;
+    font-family: var(--font-display);
     color: var(--color-ink);
+    letter-spacing: -0.02em;
     margin-top: 16px;
   }
 

@@ -176,9 +176,11 @@
         <p class="text-xs text-[rgb(var(--slate-400))]">Gerencie seu cronograma global de visitas a profissionais</p>
       </div>
     </div>
-    <Button onclick={handleNovaVisita} class="gap-2">
-      <Plus class="w-4 h-4" /> Nova Visita
-    </Button>
+    {#if visitas.length > 0}
+      <Button onclick={handleNovaVisita} class="gap-2">
+        <Plus class="w-4 h-4" /> Nova Visita
+      </Button>
+    {/if}
   </div>
 
   <!-- Filtros -->
@@ -263,10 +265,12 @@
       <EmptyState
         icon={Calendar}
         titulo="Nenhuma visita encontrada"
-        descricao="Cadastre uma nova visita clicando no botão acima."
-        acaoLabel="Nova Visita"
-        acaoOnclick={() => sheetOpen = true}
-      />
+        descricao="Cadastre uma nova visita clicando no botão abaixo."
+      >
+        <Button onclick={handleNovaVisita} class="gap-2">
+          <Plus class="w-4 h-4" /> Nova Visita
+        </Button>
+      </EmptyState>
     {:else}
       <div class="overflow-x-auto">
         <table class="table-fixed w-full">

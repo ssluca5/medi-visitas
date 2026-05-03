@@ -179,7 +179,7 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 ### Fase 5 — IA: Transcrição com MiniMax 2.7
 
 - **Concluída em:** 2026-04-25
-- **Migration:** `audioUrl String?` em Visita (via `prisma db push`)
+- **Migration:** `audioUrl String?` em Visita (via `prisma migrate dev`)
 - **Dependência adicionada:** `@fastify/multipart@8`
 - **Serviço:** `apps/api/src/services/minimax.ts` (STT + Chat Completion)
 - **Rotas:** `POST /visitas/:id/transcricao`, `PATCH /visitas/:id/audio`

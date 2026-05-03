@@ -195,10 +195,13 @@
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
-		<Button onclick={handleNovo} class="hidden sm:inline-flex gap-2">
-			<Plus class="h-4 w-4" />
-			Novo Material
-		</Button>
+		{#if materiais.length > 0}
+			<Button onclick={handleNovo} class="inline-flex gap-2">
+				<Plus class="h-4 w-4" />
+				<span class="hidden sm:inline">Novo Material</span>
+				<span class="sm:hidden">Novo</span>
+			</Button>
+		{/if}
 	</div>
 </div>
 
@@ -244,9 +247,13 @@
     icon={Package}
     titulo="Nenhum material encontrado"
     descricao="Cadastre as amostras grátis, folders e apresentações que os RCs distribuem aos médicos."
-    acaoLabel="Cadastrar Primeiro Material"
-    acaoOnclick={handleNovo}
-  />
+  >
+		<Button onclick={handleNovo} class="inline-flex gap-2">
+			<Plus class="h-4 w-4" />
+			<span class="hidden sm:inline">Novo Material</span>
+			<span class="sm:hidden">Novo</span>
+		</Button>
+	</EmptyState>
 {:else}
   <div class="card-surface overflow-hidden">
     <table class="table-fixed w-full">
@@ -344,12 +351,14 @@
 {/if}
 
 <!-- Mobile FAB -->
+{#if materiais.length > 0}
 <Button
   class="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center !rounded-full shadow-lg sm:hidden z-10 p-0"
   onclick={handleNovo}
 >
   <Plus class="h-6 w-6 text-white" />
 </Button>
+{/if}
 
 <!-- Form Sheet -->
 <Sheet bind:open={sheetOpen} onclose={() => sheetOpen = false}>

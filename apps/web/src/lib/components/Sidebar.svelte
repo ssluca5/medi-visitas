@@ -124,9 +124,15 @@
 	<!-- Header with toggle -->
 	<div class="shrink-0 flex items-center justify-between px-5 pt-5 pb-4">
 		{#if !collapsed}
-			<div class="flex-1 min-w-0">
-				<h1 class="text-lg font-semibold tracking-tight text-[rgb(var(--slate-900))]">MediVisitas</h1>
-				<p class="text-xs text-[rgb(var(--slate-400))] mt-0.5">CRM para Propagandistas</p>
+			<div class="flex-1 min-w-0 flex items-center gap-2">
+				<svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+					<rect width="32" height="32" rx="6" fill="#2563eb"/>
+					<text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
+				</svg>
+				<div>
+					<h1 class="text-lg font-semibold tracking-tight text-[rgb(var(--slate-900))] leading-tight">MediVisitas</h1>
+					<p class="text-[10px] text-[rgb(var(--slate-400))] leading-tight">CRM para Propagandistas</p>
+				</div>
 			</div>
 			<button
 				onclick={toggleCollapse}
@@ -174,13 +180,44 @@
 			</a>
 		{/each}
 
-		<!-- Section Divider -->
+		<!-- Section Divider: Cadastros -->
 		{#if !collapsed}
-			<div class="pt-5 pb-1">
-				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]">
-					Configurações
-				</div>
+			<p class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider" style="color: #9ca3af; letter-spacing: 0.07em;">
+				Cadastros
+			</p>
+		{:else}
+			<div class="pt-3 pb-1 flex justify-center">
+				<div class="w-6 h-px bg-[rgb(var(--slate-200))]"></div>
 			</div>
+		{/if}
+
+		{#each cadAuxItems as item}
+			{@const active = isActive(item.href)}
+			{@const Icon = item.icon}
+			<a
+				href={item.href}
+				aria-current={active ? 'page' : undefined}
+				class={collapsed
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? 'bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}`
+					: active
+						? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]'
+						: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]'}
+				title={collapsed ? item.label : undefined}
+			>
+				<Icon class={active
+					? 'h-[18px] w-[18px] text-blue-600 transition-colors duration-200'
+					: 'h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200'} />
+				{#if !collapsed}
+					<span>{item.label}</span>
+				{/if}
+			</a>
+		{/each}
+
+		<!-- Section Divider: Configurações -->
+		{#if !collapsed}
+			<p class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider" style="color: #9ca3af; letter-spacing: 0.07em;">
+				Configurações
+			</p>
 		{:else}
 			<div class="pt-3 pb-1 flex justify-center">
 				<div class="w-6 h-px bg-[rgb(var(--slate-200))]"></div>
@@ -268,55 +305,7 @@
 				{/if}
 			</a>
 		{/if}
-
-		{#if !collapsed}
-			<div class="pt-5 pb-1">
-				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]">
-					Cadastros
-				</div>
-			</div>
-		{:else}
-			<div class="pt-3 pb-1 flex justify-center">
-				<div class="w-6 h-px bg-[rgb(var(--slate-200))]"></div>
-			</div>
-		{/if}
-
-		{#each cadAuxItems as item}
-			{@const active = isActive(item.href)}
-			{@const Icon = item.icon}
-			<a
-				href={item.href}
-				aria-current={active ? 'page' : undefined}
-				class={collapsed
-					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? 'bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}`
-					: active
-						? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]'
-						: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]'}
-				title={collapsed ? item.label : undefined}
-			>
-				<Icon class={active
-					? 'h-[18px] w-[18px] text-blue-600 transition-colors duration-200'
-					: 'h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200'} />
-				{#if !collapsed}
-					<span>{item.label}</span>
-				{/if}
-			</a>
-		{/each}
 	</nav>
-
-	<!-- Plan badge -->
-	{#if plano && !collapsed}
-		<div class="px-3 py-2 mb-1">
-			<span
-				class="text-xs px-2 py-0.5 rounded-full font-medium"
-				style={statusOrg === 'TRIAL_ATIVO'
-					? 'background-color: var(--trial-bg); color: var(--trial-text);'
-					: 'background-color: var(--success-bg); color: var(--success-text);'}
-			>
-				{planoLabel}
-			</span>
-		</div>
-	{/if}
 
 	<!-- Trial expiry banner -->
 	{#if diasRestantes !== null && diasRestantes <= 2 && !collapsed}
@@ -336,40 +325,46 @@
 		</div>
 	{/if}
 
-	<!-- User footer (anchored to bottom) -->
-	<div class="mt-auto shrink-0 border-t border-[rgb(var(--slate-200))] bg-white p-4">
-		<div
-			class="flex items-center w-full gap-3 px-1 py-2 transition-all duration-300"
-			class:flex-col={collapsed}
-			class:gap-2={collapsed}
-			class:items-center={collapsed}
-		>
-			<a
-				href="/dashboard/perfil"
-				class="flex items-center gap-3 flex-1 min-w-0 rounded-lg hover:bg-[rgb(var(--slate-50))] transition-all duration-200 px-1 py-1"
-				title="Meu Perfil"
-			>
-				<div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white shadow-sm shrink-0">
+	<!-- Footer da sidebar — estrutura correta -->
+	<div class="mt-auto shrink-0 border-t px-2 py-2 bg-white" style="border-color: #f3f4f6;">
+
+		<div class="flex items-center gap-1 transition-all duration-300"
+				 class:flex-col={collapsed}
+				 class:gap-2={collapsed}>
+			<a href="/dashboard/perfil"
+				class="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-gray-50"
+				title="Meu Perfil">
+				<!-- Avatar -->
+				<div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white shadow-sm"
+					style="background-color: #2563eb;">
 					{userName.charAt(0).toUpperCase()}
 				</div>
+				<!-- Nome + plano embaixo -->
 				{#if !collapsed}
-					<div class="flex-1 min-w-0">
-						<p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate">{userName}</p>
+					<div class="min-w-0 flex-1">
+						<p class="truncate text-sm font-medium" style="color: #111827;">
+							{userName}
+						</p>
+						<!-- Badge do plano aqui embaixo, menor e integrado -->
+						<p class="text-[10px] truncate" style="color: #2563eb; line-height: 1.2;">
+							{planoLabel}
+						</p>
 					</div>
 				{/if}
 			</a>
-			<div class="relative z-10 shrink-0">
+			<!-- Sino de notificações -->
+			<div class="relative z-10 flex-shrink-0">
 				<SinoNotificacoes {sessionToken} />
 			</div>
 		</div>
-		<button
-			onclick={sair}
-			aria-label="Sair do sistema"
-			class="mt-1 flex w-full items-center justify-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-400))] will-change-transform transition-all duration-200 ease-out hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-600))] hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98] cursor-pointer"
-		>
-			<LogOut class="h-4 w-4" />
+
+		<!-- Botão sair -->
+		<button onclick={sair}
+			class="mt-0.5 flex w-full items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-gray-50 hover:text-gray-600 cursor-pointer"
+			style="color: #9ca3af;">
+			<LogOut class="h-3.5 w-3.5" />
 			{#if !collapsed}
-				<span>Sair</span>
+				Sair
 			{/if}
 		</button>
 	</div>

@@ -49,8 +49,8 @@ export default async function organizacaoRoutes(
   app.get("/convites/token/:token", async (request, reply) => {
     const { token } = request.params as { token: string };
 
-    const convite = await prisma.organizationConvite.findUnique({
-      where: { id: token },
+    const convite = await prisma.organizationConvite.findFirst({
+      where: { id: token, deletedAt: null },
       include: { organization: true },
     });
 
@@ -80,8 +80,8 @@ export default async function organizacaoRoutes(
 
       const { token } = request.params as { token: string };
 
-      const convite = await prisma.organizationConvite.findUnique({
-        where: { id: token },
+      const convite = await prisma.organizationConvite.findFirst({
+        where: { id: token, deletedAt: null },
       });
 
       if (!convite || convite.aceito || convite.expiradoEm < new Date()) {
@@ -185,7 +185,7 @@ export default async function organizacaoRoutes(
       if (!requireOwner(request, reply)) return;
 
       const convites = await prisma.organizationConvite.findMany({
-        where: { organizationId: request.organizationId, aceito: false },
+        where: { organizationId: request.organizationId, aceito: false, deletedAt: null },
         orderBy: { createdAt: "desc" },
       });
 
@@ -253,6 +253,7 @@ export default async function organizacaoRoutes(
             organizationId: request.organizationId,
             email,
             aceito: false,
+            deletedAt: null,
           },
         });
 
@@ -291,6 +292,7 @@ export default async function organizacaoRoutes(
           id,
           organizationId: request.organizationId,
           aceito: false,
+          deletedAt: null,
         },
       });
 
@@ -300,8 +302,9 @@ export default async function organizacaoRoutes(
           .send({ error: "Convite não encontrado ou já processado." });
       }
 
-      await prisma.organizationConvite.delete({
+      await prisma.organizationConvite.update({
         where: { id },
+        data: { deletedAt: new Date() },
       });
 
       return reply.code(204).send();

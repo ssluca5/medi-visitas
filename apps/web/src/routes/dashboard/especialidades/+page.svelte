@@ -437,10 +437,13 @@
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
-		<Button onclick={handleNovaEspecialidade} class="hidden sm:inline-flex gap-2">
-			<Plus class="h-4 w-4" />
-			Nova Especialidade
-		</Button>
+		{#if categoriasOrdenadas.length > 0}
+			<Button onclick={handleNovaEspecialidade} class="inline-flex gap-2">
+				<Plus class="h-4 w-4" />
+				<span class="hidden sm:inline">Nova Especialidade</span>
+				<span class="sm:hidden">Nova</span>
+			</Button>
+		{/if}
 	</div>
 </div>
 
@@ -470,9 +473,13 @@
 		icon={Stethoscope}
 		titulo="Nenhuma especialidade cadastrada"
 		descricao="Comece adicionando a primeira especialidade"
-		acaoLabel="Criar Especialidade"
-		acaoOnclick={handleNovaEspecialidade}
-	/>
+	>
+		<Button onclick={handleNovaEspecialidade} class="inline-flex gap-2">
+			<Plus class="h-4 w-4" />
+			<span class="hidden sm:inline">Nova Especialidade</span>
+			<span class="sm:hidden">Nova</span>
+		</Button>
+	</EmptyState>
 {:else}
 	<div class="space-y-6">
 		{#each categoriasOrdenadas as categoria}

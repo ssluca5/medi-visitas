@@ -1,6 +1,6 @@
 <script lang="ts">
   import { apiFetch } from '$lib/api';
-  import { toast } from 'svelte-sonner';
+  import { toast } from '$lib/stores/toast.svelte';
   import { Users, Mail, UserPlus, Shield, Loader2, Trash2, Copy, Link, X } from 'lucide-svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   
@@ -60,15 +60,15 @@
       const json = await res.json();
       
       if (res.ok) {
-        toast.success('Convite gerado com sucesso!');
+        toast.sucesso('Convite gerado com sucesso!');
         inviteEmail = '';
         showInviteModal = false;
         loadData();
       } else {
-        toast.error(json.error || 'Erro ao enviar convite');
+        toast.erro(json.error || 'Erro ao enviar convite');
       }
     } catch(e) {
-      toast.error('Erro de conexão');
+      toast.erro('Erro de conexão');
     } finally {
       sendingInvite = false;
     }
@@ -91,14 +91,14 @@
       }
       
       if (res.ok) {
-        toast.success(itemToDelete.type === 'convite' ? 'Convite cancelado' : 'Membro removido');
+        toast.sucesso(itemToDelete.type === 'convite' ? 'Convite cancelado' : 'Membro removido');
         loadData();
       } else {
         const json = await res.json();
-        toast.error(json.error || 'Erro na operação');
+        toast.erro(json.error || 'Erro na operação');
       }
     } catch(e) {
-      toast.error('Erro de conexão');
+      toast.erro('Erro de conexão');
     } finally {
       showDeleteConfirm = false;
       itemToDelete = null;
@@ -108,7 +108,7 @@
   function copyInviteLink(token: string) {
     const url = `${window.location.origin}/aceitar-convite/${token}`;
     navigator.clipboard.writeText(url);
-    toast.success('Link do convite copiado!');
+    toast.sucesso('Link do convite copiado!');
   }
 </script>
 

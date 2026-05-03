@@ -101,6 +101,15 @@ body {
 }
 
 /* ──────────────────────────────────────────────
+   Custom Cursor for Date Inputs
+   ────────────────────────────────────────────── */
+
+input[type="date"],
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+/* ──────────────────────────────────────────────
    Global Premium Micro-interaction Utilities
    ────────────────────────────────────────────── */
 

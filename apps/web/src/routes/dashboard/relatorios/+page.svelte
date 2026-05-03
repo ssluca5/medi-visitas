@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { FileSpreadsheet, Download, Loader2 } from "lucide-svelte";
+  import { Users, Calendar, Download, Loader2, FileSpreadsheet } from "lucide-svelte";
   import { apiFetch } from "$lib/api";
 
   let { data } = $props();
@@ -39,79 +39,82 @@
   }
 </script>
 
-<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-  <div class="sm:flex sm:justify-between sm:items-center mb-8">
+<svelte:head>
+  <title>Relatórios — MediVisitas</title>
+</svelte:head>
+
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div class="flex items-center gap-3">
+    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+      <FileSpreadsheet class="h-4.5 w-4.5 text-white" />
+    </div>
     <div>
-      <h1 class="text-2xl font-bold text-slate-800">Relatórios</h1>
-      <p class="text-sm text-slate-500 mt-1">Exporte os dados da sua organização em formato CSV para análise avançada.</p>
+      <h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Relatórios</h1>
+      <p class="text-[11px] text-[rgb(var(--slate-400))]">Exporte os dados da sua organização em formato CSV para análise avançada.</p>
     </div>
   </div>
+</div>
 
-  {#if errorMsg}
-    <div class="mb-6 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
-      {errorMsg}
-    </div>
-  {/if}
+{#if errorMsg}
+  <div class="mb-6 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200">
+    {errorMsg}
+  </div>
+{/if}
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Profissionais -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-      <div class="p-5 flex-1">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
-            <FileSpreadsheet class="w-5 h-5" />
-          </div>
-          <h2 class="text-lg font-semibold text-slate-800">Profissionais</h2>
-        </div>
-        <p class="text-sm text-slate-500 mb-6">
-          Exportação completa da base de profissionais cadastrados pela sua equipe, incluindo dados de contato, localidade, especialidade e estágio no funil.
-        </p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- Profissionais -->
+  <div class="flex flex-col bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 transition-all duration-300 group">
+    <div class="flex items-center gap-4 mb-4">
+      <div class="p-3 bg-blue-50 text-blue-600 rounded-xl transition-colors">
+        <Users class="size-6" />
       </div>
-      <div class="px-5 py-4 border-t border-slate-100 bg-slate-50">
-        <button
-          class="w-full flex justify-center items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          onclick={() => downloadCSV("profissionais")}
-          disabled={isDownloadingProfissionais}
-        >
-          {#if isDownloadingProfissionais}
-            <Loader2 class="w-4 h-4 animate-spin" />
-            Processando...
-          {:else}
-            <Download class="w-4 h-4" />
-            Baixar CSV
-          {/if}
-        </button>
-      </div>
+      <h3 class="text-lg font-bold text-slate-900">Profissionais</h3>
     </div>
 
-    <!-- Visitas -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-      <div class="p-5 flex-1">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
-            <FileSpreadsheet class="w-5 h-5" />
-          </div>
-          <h2 class="text-lg font-semibold text-slate-800">Visitas e Agenda</h2>
-        </div>
-        <p class="text-sm text-slate-500 mb-6">
-          Exportação de todo o histórico de visitas e agendamentos realizados pela equipe, incluindo status, profissional visitado, anotações e quem realizou a visita.
-        </p>
+    <p class="text-sm text-slate-500 leading-relaxed mb-8 flex-1">
+      Exportação completa da base de profissionais cadastrados pela sua equipe, incluindo dados de contato, localidade, especialidade e estágio no funil.
+    </p>
+
+    <button
+      class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-sm font-medium rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      onclick={() => downloadCSV("profissionais")}
+      disabled={isDownloadingProfissionais}
+    >
+      {#if isDownloadingProfissionais}
+        <Loader2 class="size-4 animate-spin" />
+        Processando...
+      {:else}
+        <Download class="size-4" />
+        Baixar arquivo CSV
+      {/if}
+    </button>
+  </div>
+
+  <!-- Visitas -->
+  <div class="flex flex-col bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-blue-300 transition-all duration-300 group">
+    <div class="flex items-center gap-4 mb-4">
+      <div class="p-3 bg-blue-50 text-blue-600 rounded-xl transition-colors">
+        <Calendar class="size-6" />
       </div>
-      <div class="px-5 py-4 border-t border-slate-100 bg-slate-50">
-        <button
-          class="w-full flex justify-center items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          onclick={() => downloadCSV("visitas")}
-          disabled={isDownloadingVisitas}
-        >
-          {#if isDownloadingVisitas}
-            <Loader2 class="w-4 h-4 animate-spin" />
-            Processando...
-          {:else}
-            <Download class="w-4 h-4" />
-            Baixar CSV
-          {/if}
-        </button>
-      </div>
+      <h3 class="text-lg font-bold text-slate-900">Visitas e Agenda</h3>
     </div>
+
+    <p class="text-sm text-slate-500 leading-relaxed mb-8 flex-1">
+      Exportação de todo o histórico de visitas e agendamentos realizados pela equipe, incluindo status, profissional visitado, anotações e quem realizou a visita.
+    </p>
+
+    <button
+      class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-sm font-medium rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      onclick={() => downloadCSV("visitas")}
+      disabled={isDownloadingVisitas}
+    >
+      {#if isDownloadingVisitas}
+        <Loader2 class="size-4 animate-spin" />
+        Processando...
+      {:else}
+        <Download class="size-4" />
+        Baixar arquivo CSV
+      {/if}
+    </button>
   </div>
 </div>

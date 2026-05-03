@@ -122,25 +122,25 @@ model User {
 }
 
 model Organization {
-  id                String              @id @default(cuid())
-  clerkOrgId        String              @unique
-  nome              String
-  slug              String              @unique
-  plano             PlanoOrganizacao    @default(TRIAL)
-  status            StatusOrganizacao   @default(TRIAL_ATIVO)
-  trialExpiraEm     DateTime
-  planoAtivoEm      DateTime?
-  stripeCustomerId  String?             @unique
-  stripeSubId       String?             @unique
-  limiteUsuarios    Int                 @default(1)
-  limiteProfissionais Int               @default(100)
-  transcricoesLimite Int                @default(7)
-  transcricoesUsadas Int                @default(0)
-  transcricoesMes    String?
-  transcricoesExtras Int                @default(0)
-  deletedAt         DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id                  String              @id @default(cuid())
+  clerkOrgId          String              @unique
+  nome                String
+  slug                String              @unique
+  plano               PlanoOrganizacao    @default(TRIAL)
+  status              StatusOrganizacao   @default(TRIAL_ATIVO)
+  trialExpiraEm       DateTime
+  planoAtivoEm        DateTime?
+  stripeCustomerId    String?             @unique
+  stripeSubId         String?             @unique
+  limiteUsuarios      Int                 @default(1)
+  limiteProfissionais Int                 @default(100)
+  transcricoesLimite  Int                 @default(7)
+  transcricoesUsadas  Int                 @default(0)
+  transcricoesMes     String?
+  transcricoesExtras  Int                 @default(0)
+  deletedAt           DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 
   membros           OrganizationMembro[]
   profissionais     Profissional[]
@@ -180,10 +180,12 @@ model OrganizationConvite {
   convidadoPorUserId String
   aceito             Boolean      @default(false)
   expiradoEm         DateTime
+  deletedAt          DateTime?
   createdAt          DateTime     @default(now())
 
   @@index([organizationId])
   @@index([email])
+  @@index([deletedAt])
 }
 
 model Especialidade {

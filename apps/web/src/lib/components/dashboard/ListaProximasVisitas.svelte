@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Clock } from 'lucide-svelte';
+  import { Clock, CalendarPlus } from 'lucide-svelte';
   import type { StatusAgenda, PrioridadeAgenda } from '$lib/types';
 
   interface Props {
@@ -27,27 +27,41 @@
   }
 
   const prioridadeBadge: Record<string, string> = {
-    URGENTE: 'bg-red-50 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
-    ALTA: 'bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
-    MEDIA: 'bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
-    BAIXA: 'bg-[rgb(var(--slate-50))] text-[rgb(var(--slate-400))] px-2 py-0.5 rounded text-[10px] font-bold ml-2'
+    URGENTE: 'bg-red-50 text-red-700 px-2 py-0.5 rounded-md text-[10px] font-bold ml-2',
+    ALTA: 'bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md text-[10px] font-bold ml-2',
+    MEDIA: 'bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md text-[10px] font-bold ml-2',
+    BAIXA: 'bg-[rgb(var(--slate-50))] text-[rgb(var(--slate-400))] px-2 py-0.5 rounded-md text-[10px] font-bold ml-2'
   };
 </script>
 
-<div class="card-surface p-5 h-full">
+<div class="card-premium h-full">
   <h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Próximos Agendamentos</h3>
 
   {#if agendamentos.length === 0}
-    <div class="text-center py-8">
-      <p class="text-sm text-[rgb(var(--slate-400))]">Nenhum agendamento futuro</p>
+    <div class="flex flex-col items-center justify-center py-10 flex-1">
+      <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 mb-3">
+        <CalendarPlus class="h-6 w-6 text-blue-400" />
+      </div>
+      <p class="text-sm font-medium text-[rgb(var(--slate-600))]">Nenhum agendamento futuro</p>
+      <p class="text-xs text-[rgb(var(--slate-400))] mt-1 text-center max-w-[240px]">
+        Organize sua rotina agendando a próxima visita médica.
+      </p>
+      <a
+        href="/dashboard/agenda"
+        class="mt-4 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+        style="background-color: #2563eb;"
+      >
+        <CalendarPlus class="h-4 w-4" />
+        Agendar visita
+      </a>
     </div>
   {:else}
-    <div class="space-y-2.5">
+    <div class="space-y-2 flex-1">
       {#each agendamentos as ag}
         <div
-          class="flex items-center gap-3 p-3 rounded-lg hover:bg-[rgb(var(--slate-50))] transition-all duration-200 group"
+          class="flex items-center gap-3 p-3.5 rounded-xl hover:bg-[rgb(var(--slate-50))] transition-all duration-200 group"
         >
-          <div class="flex-shrink-0 w-12 text-center">
+          <div class="flex-shrink-0 w-14 text-center">
             <span class="text-[13px] font-bold text-violet-600">{formatHora(ag.dataHoraInicio)}</span>
             <span class="block text-[10px] text-[rgb(var(--slate-400))] mt-0.5">{formatData(ag.dataHoraInicio)}</span>
           </div>
@@ -68,3 +82,15 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .card-premium {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+  }
+</style>

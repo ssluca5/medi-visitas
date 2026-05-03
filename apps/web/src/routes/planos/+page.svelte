@@ -22,21 +22,24 @@
     descricao: string;
     preco: string;
     suporte: string;
-    destaque?: string;
+    tag?: string;
+    tagClasses?: string;
     features: string[];
   }> = [
     {
       key: 'BASICO',
-      nome: 'Basico',
+      nome: 'Básico',
       descricao: 'Para organizar a carteira e manter a rotina comercial em dia.',
       preco: 'R$ 79',
       suporte: '48h',
+      tag: 'Essencial',
+      tagClasses: 'bg-slate-100 text-slate-700',
       features: [
-        'Ate 100 profissionais cadastrados',
+        'Até 100 profissionais cadastrados',
         'Agenda inteligente',
-        'Historico de visitas',
+        'Histórico de visitas',
         'Pipeline comercial',
-        'Notificacoes automaticas'
+        'Notificações automáticas'
       ]
     },
     {
@@ -45,25 +48,28 @@
       descricao: 'Para representantes que usam IA e relatórios no dia a dia.',
       preco: 'R$ 149',
       suporte: '24h',
-      destaque: 'Mais completo',
+      tag: 'Mais completo',
+      tagClasses: 'bg-emerald-100 text-emerald-700',
       features: [
         'Profissionais ilimitados',
-        'Tudo do Basico',
-        '50 transcricoes de IA por mes',
+        'Tudo do Básico',
+        '50 transcrições de IA por mês',
         'Pacotes adicionais de IA',
-        'Relatorios e exportacao CSV'
+        'Relatórios e exportação CSV'
       ]
     },
     {
       key: 'EQUIPE',
       nome: 'Equipe',
-      descricao: 'Para gestores com ate 10 propagandistas na mesma operacao.',
+      descricao: 'Para gestores com até 10 propagandistas na mesma operação.',
       preco: 'R$ 349',
       suporte: '4h',
+      tag: 'Para times',
+      tagClasses: 'bg-purple-100 text-purple-700',
       features: [
         'Tudo do Profissional',
-        'Ate 10 usuarios na equipe',
-        '200 transcricoes compartilhadas',
+        'Até 10 usuários na equipe',
+        '200 transcrições compartilhadas',
         'Dashboard do gestor',
         'Uso de IA por membro'
       ]
@@ -74,6 +80,11 @@
   let error = $state<string | null>(null);
   let modalContatoAberto = $state(false);
   const clerkCtx = useClerkContext();
+
+  // Radio Card: plano selecionado — default no plano atual (se encerrado, pré-seleciona para renovação)
+  const isEncerrado = $derived(data.status === 'SUSPENSO' || data.status === 'CANCELADO');
+  let selectedPlan = $state<PlanoKey | null>(data.plano as PlanoKey | null);
+  const selectedNome = $derived(planos.find((p) => p.key === selectedPlan)?.nome ?? '');
 
   async function sair() {
     const redirectUrl = PUBLIC_LANDING_URL ?? 'http://localhost:4321';
@@ -97,14 +108,14 @@
 
       if (!res.ok) {
         const errData = await res.json();
-        error = errData.error || 'Erro ao criar sessao de checkout';
+        error = errData.error || 'Erro ao criar sessão de checkout';
         return;
       }
 
       const { checkoutUrl } = await res.json();
       window.location.href = checkoutUrl;
     } catch {
-      error = 'Erro de conexao. Tente novamente.';
+      error = 'Erro de conexão. Tente novamente.';
     } finally {
       loading = null;
     }
@@ -132,7 +143,7 @@
       const { portalUrl } = await res.json();
       window.location.href = portalUrl;
     } catch {
-      error = 'Erro de conexao. Tente novamente.';
+      error = 'Erro de conexão. Tente novamente.';
     } finally {
       loading = null;
     }
@@ -144,147 +155,172 @@
 </svelte:head>
 
 <div class="min-h-screen" style="background-color: var(--bg-primary);">
-  <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <a href="/dashboard" class="text-sm font-medium" style="color: var(--brand-primary);">
-          Voltar para o dashboard
-        </a>
-        <h1 class="mt-4 text-2xl font-semibold" style="color: var(--text-primary);">
-          {data.status === 'SUSPENSO' || data.status === 'CANCELADO'
-            ? 'Sua assinatura foi encerrada'
-            : 'Planos'}
-        </h1>
-        <p class="mt-1 text-sm" style="color: var(--text-secondary);">
-          {#if data.status === 'TRIAL_ATIVO'}
-            Trial ativo: {data.diasRestantes ?? 0} dia(s) restantes.
-          {:else if data.status === 'SUSPENSO' || data.status === 'CANCELADO'}
-            Escolha um plano para continuar usando o MediVisitas.
-          {:else}
-            Escolha o plano ideal para sua rotina comercial.
-          {/if}
-        </p>
-      </div>
-
+  <div class="w-full max-w-5xl mx-auto px-6 py-12 flex flex-col min-h-screen">
+    <!-- 1. Barra superior: Voltar (esq) + Sair (dir) -->
+    <header class="flex items-center justify-between w-full mb-12">
+      <a href="/dashboard" class="text-sm font-medium transition-opacity hover:opacity-80" style="color: var(--brand-primary);">
+        ← Voltar para o dashboard
+      </a>
       {#if data.status === 'SUSPENSO' || data.status === 'CANCELADO'}
         <button
           onclick={sair}
-          class="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm"
+          class="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm transition-colors hover:bg-slate-50 cursor-pointer"
           style="background-color: var(--bg-surface); border-color: var(--border-base); color: var(--text-secondary);"
         >
           <LogOut class="h-4 w-4" />
           Sair da conta
         </button>
       {/if}
+    </header>
+
+    <!-- 2. Cabeçalho centralizado (funil visual) -->
+    <div class="text-center mb-12 flex flex-col items-center">
+      <h1 class="text-3xl md:text-4xl font-bold mb-3" style="color: var(--text-primary);">
+        {data.status === 'SUSPENSO' || data.status === 'CANCELADO'
+          ? 'Sua assinatura foi encerrada'
+          : 'Planos'}
+      </h1>
+      <p class="text-base max-w-lg" style="color: var(--text-secondary);">
+        {#if data.status === 'TRIAL_ATIVO'}
+          Trial ativo: {data.diasRestantes ?? 0} dia(s) restantes.
+        {:else if data.status === 'SUSPENSO' || data.status === 'CANCELADO'}
+          Escolha um plano para reativar sua conta e continuar organizando suas visitas.
+        {:else}
+          Escolha o plano ideal para sua rotina comercial.
+        {/if}
+      </p>
     </div>
 
     {#if error}
       <div
-        class="mb-5 rounded-lg border px-4 py-3 text-sm"
+        class="mb-8 rounded-lg border px-4 py-3 text-sm"
         style="background-color: var(--danger-light); border-color: var(--danger-border); color: var(--danger);"
       >
         {error}
       </div>
     {/if}
 
-    <div class="grid gap-4 lg:grid-cols-3">
+    <!-- 3. Radio Cards: 3 colunas selecionáveis -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
       {#each planos as plano}
+        {@const isSelected = selectedPlan === plano.key}
         {@const isAtual = data.plano === plano.key}
-        <div
-          class="flex rounded-xl border p-6"
-          style="background-color: var(--bg-surface); border-color: {isAtual ? 'var(--brand-primary)' : 'var(--border-base)'}; border-width: {isAtual ? '2px' : '1px'};"
+        <button
+          type="button"
+          onclick={() => (selectedPlan = plano.key)}
+          class="relative flex flex-col p-8 rounded-2xl border-2 text-left cursor-pointer transition-all duration-200
+            {isSelected
+              ? 'border-blue-600 bg-blue-50/30 ring-4 ring-blue-600/10 shadow-md'
+              : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50 shadow-sm'}"
         >
-          <div class="flex w-full flex-col">
-            <div class="flex min-h-7 items-center gap-2">
-              {#if isAtual}
-                <span
-                  class="rounded-full px-3 py-1 text-xs font-semibold"
-                  style="background-color: var(--brand-light); color: var(--brand-dark);"
-                >
-                  Seu plano atual
-                </span>
-              {:else if plano.destaque}
-                <span
-                  class="rounded-full px-3 py-1 text-xs font-semibold"
-                  style="background-color: var(--success-bg); color: var(--success-text);"
-                >
-                  {plano.destaque}
-                </span>
-              {/if}
-            </div>
-
-            <h2 class="mt-3 text-lg font-semibold" style="color: var(--text-primary);">
-              {plano.nome}
-            </h2>
-            <p class="mt-1 min-h-10 text-sm" style="color: var(--text-secondary);">
-              {plano.descricao}
-            </p>
-
-            <div class="mt-4">
-              <span class="text-3xl font-semibold" style="color: var(--text-primary);">
-                {plano.preco}
-              </span>
-              <span class="text-sm" style="color: var(--text-muted);">/mes</span>
-            </div>
-
-            <ul class="mt-5 flex-1 space-y-2">
-              {#each plano.features as feature}
-                <li class="flex items-start gap-2 text-sm" style="color: var(--text-primary);">
-                  <Check class="mt-0.5 h-4 w-4 shrink-0" style="color: var(--status-ativo);" />
-                  <span>{feature}</span>
-                </li>
-              {/each}
-            </ul>
-
-            <p class="mt-4 text-xs" style="color: var(--text-muted);">
-              Suporte por email - resposta em {plano.suporte}
-            </p>
-
-            <div class="mt-6">
-              {#if isAtual && data.status === 'ATIVO' && data.temStripe}
-                <button
-                  onclick={gerenciarAssinatura}
-                  disabled={loading !== null}
-                  class="h-10 w-full rounded-lg border text-sm font-medium disabled:opacity-50"
-                  style="border-color: var(--brand-primary); color: var(--brand-primary);"
-                >
-                  {loading === 'PORTAL' ? 'Abrindo...' : 'Gerenciar assinatura'}
-                </button>
-              {:else}
-                <button
-                  onclick={() => assinar(plano.key)}
-                  disabled={loading !== null || isAtual}
-                  class="h-10 w-full rounded-lg text-sm font-semibold text-white disabled:opacity-50"
-                  style="background-color: var(--brand-primary);"
-                >
-                  {loading === plano.key ? 'Aguarde...' : isAtual ? 'Plano selecionado' : 'Assinar agora'}
-                </button>
+          <!-- Radio indicator -->
+          <div class="absolute top-8 right-8">
+            <div
+              class="flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors
+                {isSelected ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}"
+            >
+              {#if isSelected}
+                <Check class="size-3.5 text-white" />
               {/if}
             </div>
           </div>
-        </div>
+
+          <!-- Tag area — altura fixa para alinhamento -->
+          <div class="flex min-h-[28px] items-center gap-2">
+            {#if isAtual && !isEncerrado}
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-blue-100 text-blue-700"
+              >
+                Seu plano atual
+              </span>
+            {:else if plano.tag}
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest {plano.tagClasses}"
+              >
+                {plano.tag}
+              </span>
+            {/if}
+          </div>
+
+          <h2 class="mt-3 text-lg font-semibold" style="color: var(--text-primary);">
+            {plano.nome}
+          </h2>
+          <p class="mt-1 min-h-10 text-sm" style="color: var(--text-secondary);">
+            {plano.descricao}
+          </p>
+
+          <div class="mt-4">
+            <span class="text-3xl font-bold" style="color: var(--text-primary);">
+              {plano.preco}
+            </span>
+            <span class="text-sm" style="color: var(--text-muted);">/mês</span>
+          </div>
+
+          <ul class="mt-5 flex-1 space-y-2">
+            {#each plano.features as feature}
+              <li class="flex items-start gap-2 text-sm" style="color: var(--text-primary);">
+                <Check class="mt-0.5 h-4 w-4 shrink-0" style="color: var(--status-ativo);" />
+                <span>{feature}</span>
+              </li>
+            {/each}
+          </ul>
+
+          <p class="mt-4 text-xs" style="color: var(--text-muted);">
+            Suporte por email — resposta em {plano.suporte}
+          </p>
+
+          <!-- Botão removido para unificar ação no CTA global -->
+        </button>
       {/each}
     </div>
 
+    <!-- CTA Global centralizado -->
+    <div class="w-full flex justify-center mt-10 mb-12">
+      <button
+        disabled={!selectedPlan || loading !== null || (selectedPlan === data.plano && data.status === 'ATIVO' && !data.temStripe)}
+        onclick={() => {
+          if (!selectedPlan) return;
+          if (selectedPlan === data.plano && data.status === 'ATIVO' && data.temStripe) {
+            gerenciarAssinatura();
+          } else {
+            assinar(selectedPlan);
+          }
+        }}
+        class="w-full max-w-sm h-14 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-base rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+      >
+        {#if loading === 'PORTAL'}
+          Abrindo portal...
+        {:else if loading}
+          Processando...
+        {:else if selectedPlan && selectedPlan === data.plano && data.status === 'ATIVO'}
+          {data.temStripe ? 'Gerenciar assinatura' : `Plano ${selectedNome} ativo`}
+        {:else if selectedPlan && selectedPlan === data.plano}
+          Renovar plano {selectedNome} →
+        {:else if selectedPlan}
+          Assinar plano {selectedNome} →
+        {:else}
+          Selecione um plano
+        {/if}
+      </button>
+    </div>
+
+    <!-- 4. Card Empresarial (mesma largura da grid) -->
     <div
-      class="mt-4 rounded-xl border p-6"
+      class="w-full rounded-2xl border p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
       style="background-color: var(--bg-surface); border-color: var(--border-base);"
     >
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Empresarial</h2>
-          <p class="mt-1 max-w-2xl text-sm" style="color: var(--text-secondary);">
-            Para equipes com mais de 10 propagandistas. Preco e funcionalidades customizados para sua operacao.
-          </p>
-        </div>
-        <button
-          onclick={() => (modalContatoAberto = true)}
-          class="h-10 rounded-lg px-5 text-sm font-semibold text-white"
-          style="background-color: var(--ai-primary);"
-        >
-          Falar com o comercial
-        </button>
+      <div>
+        <h3 class="text-lg font-bold" style="color: var(--text-primary);">Empresarial</h3>
+        <p class="text-sm mt-1" style="color: var(--text-secondary);">
+          Para equipes com mais de 10 propagandistas. Preço e funcionalidades customizados.
+        </p>
       </div>
+      <button
+        onclick={() => (modalContatoAberto = true)}
+        class="whitespace-nowrap px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition-all shadow-md hover:-translate-y-0.5 cursor-pointer"
+      >
+        Falar com o comercial
+      </button>
     </div>
   </div>
 </div>

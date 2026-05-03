@@ -1,32 +1,23 @@
 ---
 const appUrl = import.meta.env.PUBLIC_APP_URL;
-const isHome = Astro.url.pathname === "/";
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <header class="navbar fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-transparent bg-transparent" id="navbar">
   <div style="width: 100%; padding: 0 clamp(32px, 6vw, 80px);">
     <div style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding-top: 24px; padding-bottom: 24px;">
       <a href="/" class="flex items-center gap-2 text-[17px] font-bold text-ink tracking-tight" style="flex-shrink: 0;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-blue">
-          <path d="M4 21V5C4 4.44772 4.44772 4 5 4H7.5L12 13L16.5 4H19C19.5523 4 20 4.44772 20 5V21H17V9.5L12 18L7 9.5V21H4Z" fill="currentColor"/>
+        <svg width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+          <rect width="32" height="32" rx="6" fill="#2563eb"/>
+          <text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
         </svg>
         MediVisitas
       </a>
 
       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-secondary" id="navLinks" style="flex: 1; justify-content: center; font-size: 15px;">
-        {isHome ? (
-          <>
-            <a href="#solucao" class="hover:text-ink transition-colors">Produto</a>
-            <a href="#planos" class="hover:text-ink transition-colors">Planos</a>
-            <a href="#prova" class="hover:text-ink transition-colors">Depoimentos</a>
-          </>
-        ) : (
-          <>
-            <a href="/funcionalidades" class="hover:text-ink transition-colors">Funcionalidades</a>
-            <a href="/planos" class="hover:text-ink transition-colors">Planos</a>
-            <a href="/contato" class="hover:text-ink transition-colors">Contato</a>
-          </>
-        )}
+        <a href="/#solucao" class="nav-link">Funcionalidades</a>
+        <a href="/#planos" class="nav-link">Planos</a>
+        <a href="/contato" class="nav-link">Contato</a>
       </div>
 
       <div class="flex items-center gap-4">
@@ -39,7 +30,7 @@ const isHome = Astro.url.pathname === "/";
           </svg>
         </button>
         <a href={`${appUrl}/login`} class="hidden sm:inline-flex text-sm font-medium text-ink-secondary hover:text-blue hover:bg-off-white px-4 py-2.5 rounded-xl transition-colors">Fazer login</a>
-        <a href="#planos" class="btn btn-primary" style="height: 44px; padding: 0 20px; font-size: 14px;">Começar grátis</a>
+        <a href="/#planos" class="btn btn-primary" style="height: 44px; padding: 0 20px; font-size: 14px;">Começar grátis</a>
         
         <button class="nav-toggle md:hidden flex flex-col justify-center items-center w-11 h-11 gap-1.5 cursor-pointer" id="navToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
           <span class="nav-toggle-bar block w-5 h-0.5 bg-ink rounded-full transition-all duration-200"></span>
@@ -57,6 +48,34 @@ const isHome = Astro.url.pathname === "/";
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom-color: var(--color-border);
+  }
+
+  :global(.nav-link) {
+    color: var(--color-ink-secondary);
+    text-decoration: none;
+    transition: color 200ms;
+    position: relative;
+    padding-bottom: 4px;
+  }
+
+  :global(.nav-link:hover) {
+    color: var(--color-ink);
+  }
+
+  :global(.nav-active) {
+    color: var(--color-blue) !important;
+    font-weight: 600;
+  }
+
+  :global(.nav-active::after) {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-blue);
+    border-radius: 1px;
   }
 
   .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {

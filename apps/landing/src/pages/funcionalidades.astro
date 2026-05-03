@@ -9,12 +9,91 @@ import Footer from "../components/Footer.astro";
 <Base title="Funcionalidades — MediVisitas" description="Conheça todas as funcionalidades do MediVisitas: cadastro de profissionais, agenda inteligente, pipeline comercial, gravação com IA e mais.">
   <Header />
   <main>
-    <section class="pb-10 pt-24 text-center bg-off-white">
-      <h1 class="text-[48px] font-bold leading-[1.2] tracking-[-0.02em] text-ink">Funcionalidades</h1>
-      <p class="mt-4 text-xl leading-[1.6] text-ink-secondary">Tudo que você precisa para gerenciar suas visitas</p>
+    <section class="func-hero" aria-labelledby="func-h1">
+      <div class="func-hero-inner">
+        <h1 class="func-h1 story-element" id="func-h1" data-story-delay="0">Tudo que você precisa<br />em um só lugar.</h1>
+        <p class="func-sub story-element" data-story-delay="2">Funcionalidades pensadas para o dia a dia do propagandista farmacêutico.</p>
+      </div>
     </section>
     <Features />
     <CTA />
   </main>
   <Footer />
 </Base>
+
+<style>
+  .func-hero {
+    background: var(--color-off-white);
+    padding: 140px clamp(24px, 5vw, 80px) 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .func-hero::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .func-hero-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .func-h1 {
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    letter-spacing: -0.025em;
+    line-height: 1.0;
+    margin-top: 16px;
+  }
+
+  .func-sub {
+    font-size: 20px;
+    color: var(--color-ink-secondary);
+    margin-top: 20px;
+    line-height: 1.6;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* === Animações de Entrada === */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .story-element {
+    opacity: 0;
+    animation: slideUpFade 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .story-element[data-story-delay="0"] { animation-delay: 0s; }
+  .story-element[data-story-delay="1"] { animation-delay: 0.1s; }
+  .story-element[data-story-delay="2"] { animation-delay: 0.2s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-element {
+      animation-name: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

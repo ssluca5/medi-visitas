@@ -9,12 +9,88 @@ import Footer from "../components/Footer.astro";
 <Base title="Planos — MediVisitas" description="Escolha o plano ideal para você ou sua equipe. Trial de 7 dias gratuito.">
   <Header />
   <main>
-    <section class="pb-10 pt-24 text-center bg-off-white">
-      <h1 class="text-[48px] font-bold leading-[1.2] tracking-[-0.02em] text-ink">Planos</h1>
-      <p class="mt-4 text-xl leading-[1.6] text-ink-secondary">Escolha o plano ideal para o seu momento</p>
+    <section class="plans-hero" aria-labelledby="plans-h1">
+      <div class="plans-hero-inner">
+        <h1 class="plans-h1 story-element" id="plans-h1" data-story-delay="0">Escolha o plano ideal<br />para o seu momento.</h1>
+        <p class="plans-sub story-element" data-story-delay="2">Trial de 7 dias gratuito, sem cartão de crédito.</p>
+      </div>
     </section>
     <Planos />
     <CTA />
   </main>
   <Footer />
 </Base>
+
+<style>
+  .plans-hero {
+    background: var(--color-off-white);
+    padding: 140px clamp(24px, 5vw, 80px) 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .plans-hero::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .plans-hero-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .plans-h1 {
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    letter-spacing: -0.025em;
+    line-height: 1.0;
+    margin-top: 16px;
+  }
+
+  .plans-sub {
+    font-size: 20px;
+    color: var(--color-ink-secondary);
+    margin-top: 20px;
+    line-height: 1.6;
+  }
+
+  /* === Animações de Entrada === */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .story-element {
+    opacity: 0;
+    animation: slideUpFade 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .story-element[data-story-delay="0"] { animation-delay: 0s; }
+  .story-element[data-story-delay="1"] { animation-delay: 0.1s; }
+  .story-element[data-story-delay="2"] { animation-delay: 0.2s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-element {
+      animation-name: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

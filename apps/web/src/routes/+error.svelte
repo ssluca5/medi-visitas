@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Home, RotateCcw, AlertTriangle, ShieldX, FileQuestion } from 'lucide-svelte';
 
 	const statusConfig: Record<number, { icon: typeof AlertTriangle; title: string; desc: string; emoji: string }> = {
@@ -23,7 +23,7 @@
 		}
 	};
 
-	const status = $derived($page.status);
+	const status = $derived(page.status);
 	const config = $derived(statusConfig[status] || statusConfig[500]);
 </script>
 
@@ -47,7 +47,7 @@
 
 		<!-- Descrição -->
 		<p class="text-sm mb-8" style="color: #9ca3af;">
-			{$page.error?.message || config.desc}
+			{page.error?.message || config.desc}
 		</p>
 
 		<!-- Ações -->

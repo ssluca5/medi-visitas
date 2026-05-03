@@ -6,6 +6,7 @@
 	import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import MobileNav from '$lib/components/MobileNav.svelte';
+	import WidgetTranscricoes from '$lib/components/dashboard/WidgetTranscricoes.svelte';
 	import { ClerkProvider } from 'svelte-clerk';
 	import type { Snippet } from 'svelte';
 
@@ -71,6 +72,12 @@
 					{@render children()}
 				</div>
 			</main>
+			
+			<WidgetTranscricoes 
+				sessionToken={data.sessionToken}
+				plano={data.plano}
+				pacotesIaDisponiveis={data.limites?.pacotesIaDisponiveis}
+			/>
 		</div>
 	{:else}
 		{@render children()}

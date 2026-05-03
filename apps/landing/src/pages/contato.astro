@@ -2,39 +2,261 @@
 import Base from "../layouts/Base.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+
+const appUrl = import.meta.env.PUBLIC_APP_URL;
 ---
 
 <Base title="Contato — MediVisitas" description="Entre em contato com o time MediVisitas. Estamos prontos para ajudar.">
   <Header />
   <main>
-    <section class="pb-10 pt-24 text-center bg-off-white">
-      <h1 class="text-[48px] font-bold leading-[1.2] tracking-[-0.02em] text-ink">Contato</h1>
-      <p class="mt-4 text-xl leading-[1.6] text-ink-secondary">Estamos prontos para ajudar</p>
+    <section class="contact-hero" aria-labelledby="contact-h1">
+      <div class="contact-hero-inner">
+        <h1 class="contact-h1 story-element" id="contact-h1" data-story-delay="0">Estamos prontos<br />para ajudar.</h1>
+        <p class="contact-sub story-element" data-story-delay="2">Fale com nosso time comercial ou envie uma mensagem. Respondemos em até 24h.</p>
+      </div>
     </section>
-    <section class="py-20 bg-surface">
-      <div class="mx-auto max-w-2xl px-8">
-        <div class="rounded-xl border border-border bg-surface p-8">
-          <h2 class="text-xl font-bold text-ink">Fale conosco</h2>
-          <div class="mt-6 space-y-4">
-            <div>
-              <h3 class="text-sm font-semibold text-ink">Email</h3>
-              <a href="mailto:contato@medivisitas.com" class="text-sm text-blue hover:underline">contato@medivisitas.com</a>
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-ink">WhatsApp</h3>
-              <a href="https://wa.me/5500000000000" class="text-sm text-blue hover:underline">+55 (00) 00000-0000</a>
-            </div>
+
+    <section class="contact-body">
+      <div class="contact-grid">
+        <article class="contact-card story-element" data-story-delay="0">
+          <div class="contact-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
           </div>
+          <h2 class="contact-card-title">Email</h2>
+          <p class="contact-card-desc">Envie sua dúvida ou solicite uma demonstração.</p>
+          <a href="mailto:contato@medivisitas.com" class="contact-card-link">contato@medivisitas.com</a>
+        </article>
+
+        <article class="contact-card story-element" data-story-delay="1">
+          <div class="contact-card-icon whatsapp">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <h2 class="contact-card-title">WhatsApp</h2>
+          <p class="contact-card-desc">Atendimento rápido para dúvidas comerciais.</p>
+          <a href="https://wa.me/5500000000000" class="contact-card-link">+55 (00) 00000-0000</a>
+        </article>
+
+        <article class="contact-card story-element" data-story-delay="2">
+          <div class="contact-card-icon schedule">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <h2 class="contact-card-title">Agendar demonstração</h2>
+          <p class="contact-card-desc">Veja o MediVisitas funcionando ao vivo, com um especialista.</p>
+          <a href="mailto:contato@medivisitas.com?subject=Demonstração MediVisitas" class="contact-card-link">Solicitar demonstração →</a>
+        </article>
+      </div>
+
+      <div class="contact-cta story-element" data-story-delay="3">
+        <div class="contact-cta-content">
+          <h2 class="contact-cta-title">Pronto para começar?</h2>
+          <p class="contact-cta-desc">Crie sua conta e comece o trial gratuito de 7 dias. Sem cartão de crédito.</p>
         </div>
-        <div class="mt-10 rounded-xl border border-blue bg-blue-light p-8 text-center">
-          <h2 class="text-xl font-bold text-ink">Pronto para começar?</h2>
-          <p class="mt-2 text-sm text-ink-secondary">Crie sua conta e comece o trial gratuito de 7 dias.</p>
-          <a href="https://app.medivisitas.com/signup" class="mt-6 inline-block rounded-lg bg-blue px-6 py-3 text-sm font-semibold text-on-primary transition-opacity hover:opacity-90">
-            Começar grátis
-          </a>
-        </div>
+        <a href={`${appUrl}/signup`} class="btn btn-primary">Começar grátis →</a>
       </div>
     </section>
   </main>
   <Footer />
 </Base>
+
+<style>
+  /* === Hero === */
+  .contact-hero {
+    background: var(--color-off-white);
+    padding: 140px clamp(24px, 5vw, 80px) 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-hero::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .contact-hero-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .contact-h1 {
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 800;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    letter-spacing: -0.025em;
+    line-height: 1.0;
+    margin-top: 16px;
+  }
+
+  .contact-sub {
+    font-size: 20px;
+    color: var(--color-ink-secondary);
+    margin-top: 20px;
+    line-height: 1.6;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* === Body === */
+  .contact-body {
+    background: var(--color-surface);
+    padding: 80px clamp(24px, 5vw, 80px) 120px;
+  }
+
+  .contact-grid {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* === Cards === */
+  .contact-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 36px;
+    transition: transform 250ms, box-shadow 250ms, border-color 250ms;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.15);
+    border-color: var(--color-blue);
+  }
+
+  .contact-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-blue-light);
+    color: var(--color-blue);
+  }
+
+  .contact-card-icon.whatsapp {
+    background: var(--color-green-light);
+    color: var(--color-green);
+  }
+
+  .contact-card-icon.schedule {
+    background: color-mix(in srgb, var(--color-purple) 10%, transparent);
+    color: var(--color-purple);
+  }
+
+  .contact-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    margin-top: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .contact-card-desc {
+    font-size: 15px;
+    color: var(--color-ink-secondary);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .contact-card-link {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-blue);
+    text-decoration: none;
+    transition: color 200ms;
+  }
+
+  .contact-card-link:hover {
+    color: var(--color-blue-hover);
+    text-decoration: underline;
+  }
+
+  /* === CTA Banner === */
+  .contact-cta {
+    max-width: 1120px;
+    margin: 48px auto 0;
+    background: var(--color-blue-light);
+    border: 1px solid color-mix(in srgb, var(--color-blue) 20%, transparent);
+    border-radius: 20px;
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  .contact-cta-title {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+  }
+
+  .contact-cta-desc {
+    font-size: 15px;
+    color: var(--color-ink-secondary);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* === Responsive === */
+  @media (max-width: 900px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+      max-width: 520px;
+    }
+
+    .contact-cta {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+
+  /* === Animações de Entrada === */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .story-element {
+    opacity: 0;
+    animation: slideUpFade 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  .story-element[data-story-delay="0"] { animation-delay: 0s; }
+  .story-element[data-story-delay="1"] { animation-delay: 0.1s; }
+  .story-element[data-story-delay="2"] { animation-delay: 0.2s; }
+  .story-element[data-story-delay="3"] { animation-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-element {
+      animation-name: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

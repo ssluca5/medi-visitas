@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		icon?: any;
 		icone?: string;
@@ -6,9 +8,10 @@
 		descricao: string;
 		acaoLabel?: string;
 		acaoOnclick?: () => void;
+		children?: Snippet;
 	}
 
-	let { icon: Icon, icone, titulo, descricao, acaoLabel, acaoOnclick }: Props = $props();
+	let { icon: Icon, icone, titulo, descricao, acaoLabel, acaoOnclick, children }: Props = $props();
 </script>
 
 <div class="flex flex-col items-center justify-center py-16 px-6 text-center rounded-xl border border-[rgb(var(--slate-200))] bg-white">
@@ -24,7 +27,11 @@
 	<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))]">{titulo}</h3>
 	<p class="text-xs mt-1 max-w-xs leading-relaxed text-[rgb(var(--slate-400))]">{descricao}</p>
 
-	{#if acaoLabel && acaoOnclick}
+	{#if children}
+		<div class="mt-5">
+			{@render children()}
+		</div>
+	{:else if acaoLabel && acaoOnclick}
 		<button
 			onclick={acaoOnclick}
 			class="mt-5 h-9 px-4 rounded-lg text-xs font-medium text-white bg-blue-600 cursor-pointer
