@@ -33,8 +33,9 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
         throw redirect(302, "/planos?motivo=trial_expirado");
       }
 
-      // Buscar nome real do usuário via /me
+      // Buscar nome real e tourConcluidoEm do usuário via /me
       let userName = locals.userName ?? "Usuário";
+      let tourConcluidoEm: string | null = null;
       try {
         const meRes = await fetch(`${PUBLIC_API_URL}/me`, {
           headers: { Authorization: `Bearer ${locals.sessionToken}` },
@@ -42,6 +43,7 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
         if (meRes.ok) {
           const me = await meRes.json();
           if (me?.name) userName = me.name;
+          tourConcluidoEm = me?.tourConcluidoEm ?? null;
         }
       } catch {
         // Falha ao buscar /me — usar userName do JWT
@@ -53,8 +55,11 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
         userName,
         role: data.role,
         plano: data.plano,
+        status: data.status,
         organizationId: data.organizationId,
         trialExpiraEm: data.trialExpiraEm,
+        limites: data.limites,
+        tourConcluidoEm,
       };
     }
   } catch (e) {

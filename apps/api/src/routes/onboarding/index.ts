@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { prisma } from "../../lib/prisma.js";
+import { getLimitesPlano } from "../../services/planos.js";
 import { z } from "zod";
 
 function slugify(text: string): string {
@@ -46,6 +47,7 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       plano: membro.organization.plano,
       status: membro.organization.status,
       trialExpiraEm: membro.organization.trialExpiraEm.toISOString(),
+      limites: getLimitesPlano(membro.organization.plano),
     });
   });
 
@@ -79,15 +81,18 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
         },
       });
 
+      const limites = getLimitesPlano("TRIAL");
       const org = await prisma.organization.create({
         data: {
           clerkOrgId: `org_${userId}`,
           nome: "Minha Conta",
           slug: `conta-${userId.slice(-8)}-${Date.now().toString(36)}`,
-          plano: "INDIVIDUAL",
+          plano: "TRIAL",
           status: "TRIAL_ATIVO",
           trialExpiraEm: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          limiteUsuarios: 1,
+          limiteUsuarios: limites.limiteUsuarios,
+          limiteProfissionais: limites.limiteProfissionais,
+          transcricoesLimite: limites.transcricoesLimite,
         },
       });
 
@@ -135,15 +140,18 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       });
 
       const slug = slugify(nomeEmpresa);
+      const limites = getLimitesPlano("TRIAL");
       const org = await prisma.organization.create({
         data: {
           clerkOrgId: `org_${userId}`,
           nome: nomeEmpresa,
           slug: `${slug}-${userId.slice(-4)}`,
-          plano: "EMPRESA",
+          plano: "TRIAL",
           status: "TRIAL_ATIVO",
           trialExpiraEm: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          limiteUsuarios: 10,
+          limiteUsuarios: limites.limiteUsuarios,
+          limiteProfissionais: limites.limiteProfissionais,
+          transcricoesLimite: limites.transcricoesLimite,
         },
       });
 

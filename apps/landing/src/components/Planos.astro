@@ -1,49 +1,107 @@
 ---
 const appUrl = import.meta.env.PUBLIC_APP_URL;
+
+const planos = [
+  {
+    nome: "Basico",
+    preco: "R$ 79",
+    desc: "Para organizar a carteira e manter a rotina comercial em dia.",
+    cta: "Comecar 7 dias gratis",
+    popular: false,
+    features: [
+      "Ate 100 profissionais",
+      "Agenda inteligente",
+      "Historico de visitas",
+      "Pipeline comercial",
+      "Notificacoes automaticas",
+      "Suporte em 48h"
+    ]
+  },
+  {
+    nome: "Profissional",
+    preco: "R$ 149",
+    desc: "Para representantes que usam IA e relatorios na rotina.",
+    cta: "Assinar Profissional",
+    popular: true,
+    features: [
+      "Profissionais ilimitados",
+      "50 transcricoes de IA/mes",
+      "Pacotes adicionais de IA",
+      "Relatorios e CSV",
+      "Tudo do Basico",
+      "Suporte em 24h"
+    ]
+  },
+  {
+    nome: "Equipe",
+    preco: "R$ 349",
+    desc: "Para gestores com ate 10 propagandistas na equipe.",
+    cta: "Assinar Equipe",
+    popular: false,
+    features: [
+      "Ate 10 usuarios",
+      "200 transcricoes compartilhadas",
+      "Dashboard do gestor",
+      "Uso de IA por membro",
+      "Tudo do Profissional",
+      "Suporte prioritario em 4h"
+    ]
+  }
+];
+
+const comparativo = [
+  ["Profissionais", "100", "Ilimitado", "Ilimitado"],
+  ["Transcricoes IA", "-", "50/mes", "200/mes"],
+  ["Relatorios CSV", "-", "Sim", "Sim"],
+  ["Gestao de equipe", "-", "-", "Ate 10"],
+  ["Suporte", "48h", "24h", "4h"]
+];
 ---
 
 <section class="section-plans" id="planos" aria-labelledby="plans-h2">
   <div class="plans-inner">
     <span class="pill pill-blue story-element" data-story-delay="0">Planos</span>
-    <h2 class="plans-h2 story-element" id="plans-h2" data-story-delay="1">Escolha como começar.</h2>
-    <p class="plans-sub story-element" data-story-delay="2">7 dias grátis em qualquer plano.</p>
-    <div class="plans-toggle story-element" data-story-delay="3" role="tablist" aria-label="Período de cobrança">
-      <button type="button" class="active" data-period="monthly" role="tab" aria-selected="true">Mensal</button>
-      <button type="button" data-period="yearly" role="tab" aria-selected="false">Anual <span class="yearly-note">−2 meses</span></button>
-    </div>
+    <h2 class="plans-h2 story-element" id="plans-h2" data-story-delay="1">Planos para cada fase da operacao.</h2>
+    <p class="plans-sub story-element" data-story-delay="2">Trial de 7 dias, sem cartao de credito.</p>
 
     <div class="plans-grid">
-      <div class="plan-card plan-individual story-element" data-story-delay="2">
-        <div class="plan-name">Individual</div>
-        <div class="plan-price">
-          <span data-monthly="R$ 79" data-yearly="R$ 65">R$ 79</span><span class="plan-price-period">/mês</span>
-        </div>
-        <p class="plan-desc">Para o propagandista autônomo que cuida da própria carteira.</p>
-        <ul class="plan-list">
-          <li>Carteira ilimitada de médicos</li>
-          <li>Agenda inteligente diária</li>
-          <li>Gravação por voz + IA</li>
-          <li>Pipeline visual de jornada</li>
-          <li>Relatórios e exportação</li>
-        </ul>
-        <a href={`${appUrl}/signup`} class="plan-cta">Começar 7 dias grátis</a>
-      </div>
+      {planos.map((plano, index) => (
+        <article class={`plan-card ${plano.popular ? "plan-popular" : ""} story-element`} data-story-delay={index + 1}>
+          {plano.popular && <div class="popular-badge">Mais popular</div>}
+          <div class="plan-name">{plano.nome}</div>
+          <div class="plan-price">
+            <span>{plano.preco}</span><span class="plan-price-period">/mes</span>
+          </div>
+          <p class="plan-desc">{plano.desc}</p>
+          <ul class="plan-list">
+            {plano.features.map((feature) => <li>{feature}</li>)}
+          </ul>
+          <a href={`${appUrl}/signup`} class="plan-cta">{plano.cta}</a>
+        </article>
+      ))}
+    </div>
 
-      <div class="plan-card plan-empresa story-element" data-story-delay="3">
-        <div class="plan-name">Empresa</div>
-        <div class="plan-price">
-          <span data-monthly="R$ 49" data-yearly="R$ 40">R$ 49</span><span class="plan-price-period">/usuário/mês</span>
-        </div>
-        <p class="plan-desc">Para times de propaganda e gerentes regionais.</p>
-        <ul class="plan-list">
-          <li>Tudo do plano Individual</li>
-          <li>Painel do gestor com KPIs</li>
-          <li>Distribuição de carteira por região</li>
-          <li>Onboarding e treinamento da equipe</li>
-          <li>Suporte dedicado</li>
-        </ul>
-        <a href={`${appUrl}/signup`} class="plan-cta">Falar com vendas</a>
+    <div class="enterprise-card story-element" data-story-delay="4">
+      <div>
+        <div class="plan-name">Empresarial</div>
+        <h3>Mais de 10 usuarios</h3>
+        <p>Preco, onboarding e funcionalidades customizados para times maiores.</p>
       </div>
+      <a href="/contato" class="enterprise-cta">Falar com o comercial</a>
+    </div>
+
+    <div class="comparison story-element" data-story-delay="5" aria-label="Tabela comparativa de planos">
+      <div class="comparison-row comparison-head">
+        <span>Funcionalidade</span>
+        <span>Basico</span>
+        <span>Profissional</span>
+        <span>Equipe</span>
+      </div>
+      {comparativo.map((row) => (
+        <div class="comparison-row">
+          {row.map((cell) => <span>{cell}</span>)}
+        </div>
+      ))}
     </div>
   </div>
 </section>
@@ -51,20 +109,19 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
 <style>
   .section-plans {
     background: var(--color-surface);
-    padding: 120px clamp(24px, 5vw, 80px);
+    padding: 112px clamp(24px, 5vw, 80px);
   }
 
   .plans-inner {
-    max-width: 900px;
+    max-width: 1120px;
     margin: 0 auto;
     text-align: center;
   }
 
   .plans-h2 {
-    font-size: clamp(36px, 4.5vw, 48px);
+    font-size: clamp(34px, 4vw, 46px);
     font-weight: 700;
     color: var(--color-ink);
-    letter-spacing: -0.025em;
     margin-top: 16px;
   }
 
@@ -74,170 +131,216 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
     margin-top: 12px;
   }
 
-  .plans-toggle {
-    display: inline-flex;
-    background: var(--color-off-white);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    padding: 4px;
-    margin-top: 32px;
-  }
-
-  .plans-toggle button {
-    background: transparent;
-    border: none;
-    padding: 8px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-ink-secondary);
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background 200ms, color 200ms;
-    font-family: inherit;
-  }
-
-  .plans-toggle button.active {
-    background: var(--color-surface);
-    color: var(--color-ink);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-
-  .yearly-note {
-    opacity: 0.7;
-    font-weight: 500;
-  }
-
   .plans-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-top: 48px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 44px;
     text-align: left;
   }
 
+  .plan-card,
+  .enterprise-card,
+  .comparison {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+  }
+
   .plan-card {
-    border-radius: 20px;
-    padding: 40px;
+    position: relative;
+    padding: 30px;
     display: flex;
     flex-direction: column;
   }
 
-  .plan-individual {
-    background: var(--color-off-white);
-    border: 1px solid var(--color-border);
+  .plan-popular {
+    border-color: var(--color-blue);
+    box-shadow: 0 14px 36px color-mix(in srgb, var(--color-blue) 12%, transparent);
   }
 
-  .plan-empresa {
-    background: var(--color-surface-inverted);
-    border: 1px solid var(--color-surface-inverted);
-    color: var(--color-text-inverted);
+  .popular-badge {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-blue) 10%, transparent);
+    color: var(--color-blue);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
   }
 
   .plan-name {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--color-ink-secondary);
   }
 
-  .plan-empresa .plan-name { color: color-mix(in srgb, var(--color-text-inverted) 60%, transparent); }
-
   .plan-price {
-    font-size: 56px;
+    font-size: 42px;
     font-weight: 800;
     color: var(--color-ink);
     margin-top: 12px;
-    letter-spacing: -0.03em;
     line-height: 1;
-    font-variant-numeric: tabular-nums;
   }
 
-  .plan-empresa .plan-price { color: var(--color-text-inverted); }
-
   .plan-price-period {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--color-ink-muted);
     margin-left: 4px;
   }
 
-  .plan-empresa .plan-price-period { color: color-mix(in srgb, var(--color-text-inverted) 50%, transparent); }
-
   .plan-desc {
+    min-height: 44px;
     font-size: 14px;
     color: var(--color-ink-secondary);
-    margin-top: 8px;
+    margin-top: 12px;
+    line-height: 1.55;
   }
-
-  .plan-empresa .plan-desc { color: color-mix(in srgb, var(--color-text-inverted) 70%, transparent); }
 
   .plan-list {
     list-style: none;
-    margin: 28px 0;
+    margin: 24px 0;
+    padding: 0;
     flex: 1;
   }
 
   .plan-list li {
     font-size: 14px;
     color: var(--color-ink);
-    padding: 10px 0;
+    padding: 8px 0;
     display: flex;
-    align-items: flex-start;
     gap: 10px;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .plan-empresa .plan-list li {
-    color: color-mix(in srgb, var(--color-text-inverted) 85%, transparent);
-    border-bottom-color: color-mix(in srgb, var(--color-text-inverted) 8%, transparent);
   }
 
   .plan-list li::before {
-    content: "\2713";
+    content: "✓";
     color: var(--color-blue);
-    font-weight: 700;
-    margin-top: 1px;
+    font-weight: 800;
   }
 
-  .plan-empresa .plan-list li::before { color: var(--color-blue-400); }
-
-  .plan-cta {
-    display: flex;
+  .plan-cta,
+  .enterprise-cta {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 48px;
+    min-height: 46px;
     border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     text-decoration: none;
-    width: 100%;
-    transition: background 200ms, transform 200ms;
+    transition: transform 180ms, background 180ms;
   }
 
-  .plan-individual .plan-cta {
-    background: var(--color-ink);
+  .plan-cta {
+    width: 100%;
+    background: var(--color-blue);
     color: var(--color-surface);
   }
 
-  .plan-individual .plan-cta:hover { transform: translateY(-2px); }
-
-  .plan-empresa .plan-cta {
-    background: var(--color-text-inverted);
-    color: var(--color-surface-inverted);
+  .plan-cta:hover,
+  .enterprise-cta:hover {
+    transform: translateY(-2px);
   }
 
-  .plan-empresa .plan-cta:hover { background: var(--color-text-inverted); transform: translateY(-2px); filter: brightness(1.1); }
-
-  @media (max-width: 900px) {
-    .plans-grid { grid-template-columns: 1fr; }
+  .enterprise-card {
+    margin-top: 20px;
+    padding: 28px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    text-align: left;
+    background: var(--color-off-white);
   }
 
-  @media (max-width: 540px) {
-    .plan-card { padding: 32px; }
+  .enterprise-card h3 {
+    color: var(--color-ink);
+    font-size: 22px;
+    margin-top: 8px;
   }
 
-  /* === Animações de Entrada === */
+  .enterprise-card p {
+    color: var(--color-ink-secondary);
+    margin-top: 6px;
+  }
+
+  .enterprise-cta {
+    padding: 0 22px;
+    color: var(--color-surface);
+    background: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .comparison {
+    margin-top: 32px;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .comparison-row {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .comparison-row:first-child {
+    border-top: 0;
+  }
+
+  .comparison-row span {
+    padding: 14px 16px;
+    color: var(--color-ink-secondary);
+    font-size: 14px;
+  }
+
+  .comparison-row span:not(:first-child) {
+    text-align: center;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .comparison-head {
+    background: var(--color-off-white);
+  }
+
+  .comparison-head span {
+    color: var(--color-ink);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 960px) {
+    .plans-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .enterprise-card {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .enterprise-cta {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .comparison {
+      overflow-x: auto;
+    }
+
+    .comparison-row {
+      min-width: 620px;
+    }
+  }
+
   @keyframes slideUpFade {
     0% {
       opacity: 0;
@@ -249,11 +352,6 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
     }
   }
 
-  @keyframes justFade {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-
   .story-element {
     opacity: 0;
     animation: slideUpFade 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
@@ -263,11 +361,6 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
   .story-element[data-story-delay="1"] { animation-delay: 0.1s; }
   .story-element[data-story-delay="2"] { animation-delay: 0.2s; }
   .story-element[data-story-delay="3"] { animation-delay: 0.3s; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .story-element {
-      animation-name: justFade;
-      transform: none !important;
-    }
-  }
+  .story-element[data-story-delay="4"] { animation-delay: 0.4s; }
+  .story-element[data-story-delay="5"] { animation-delay: 0.5s; }
 </style>

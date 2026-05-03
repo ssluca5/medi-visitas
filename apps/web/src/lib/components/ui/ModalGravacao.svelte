@@ -24,7 +24,7 @@
   let objetivoVisita = $state('');
   let erro = $state('');
   let erroLimite = $state(false);
-  let comprando = $state(false);
+  let comprando = $state<number | null>(null);
   let gravacao = useGravacaoAudio();
 
   function formatarDuracao(segundos: number): string {
@@ -57,7 +57,9 @@
       if (res.ok) {
         const data = await res.json();
         if (!data.permitido) {
-          erro = 'Você atingiu o limite mensal de transcrições do seu plano.';
+          erro = data.limite === 0
+            ? 'Transcricoes por IA estao disponiveis a partir do Plano Profissional.'
+            : 'Limite de transcricoes atingido. Compre um pacote adicional para continuar.';
           erroLimite = true;
           return false;
         }
@@ -105,7 +107,7 @@
       });
 
       if (res.status === 402) {
-        erro = 'Você atingiu o limite mensal de transcrições do seu plano.';
+        erro = 'Limite de transcricoes atingido. Compre um pacote adicional para continuar.';
         erroLimite = true;
         etapa = 'selecionar';
         gravacao.descartar();
@@ -148,12 +150,16 @@
     }
   }
 
-  async function comprarPacote() {
+  async function comprarPacote(quantidade: 20 | 50 | 100) {
     try {
-      comprando = true;
+      comprando = quantidade;
       const res = await fetch(`${PUBLIC_API_URL}/transcricoes/comprar-pacote`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionToken}` }
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantidade })
       });
       if (res.ok) {
         const data = await res.json();
@@ -161,12 +167,13 @@
           window.location.href = data.checkoutUrl;
         }
       } else {
-        erro = 'Erro ao iniciar compra.';
+        const data = await res.json().catch(() => null);
+        erro = data?.error ?? 'Erro ao iniciar compra.';
       }
     } catch {
       erro = 'Erro de conexão.';
     } finally {
-      comprando = false;
+      comprando = null;
     }
   }
 </script>
@@ -345,18 +352,26 @@
               {erro}
             </div>
             {#if erroLimite}
-              <button
-                onclick={comprarPacote}
-                disabled={comprando}
-                class="mt-1 w-full flex items-center justify-center gap-2 py-2 px-3 bg-red-100 hover:bg-red-200 text-red-800 font-medium rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {#if comprando}
-                  <Loader2 class="h-4 w-4 animate-spin" />
-                  Processando...
-                {:else}
-                  Comprar pacote adicional (+20)
-                {/if}
-              </button>
+              <div class="mt-1 grid grid-cols-3 gap-2">
+                {#each [
+                  { quantidade: 20, label: '+20', preco: 'R$ 19' },
+                  { quantidade: 50, label: '+50', preco: 'R$ 39' },
+                  { quantidade: 100, label: '+100', preco: 'R$ 69' }
+                ] as pacote}
+                  <button
+                    onclick={() => comprarPacote(pacote.quantidade as 20 | 50 | 100)}
+                    disabled={comprando !== null}
+                    class="flex min-h-14 flex-col items-center justify-center rounded-md bg-red-100 px-2 py-2 text-xs font-medium text-red-800 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {#if comprando === pacote.quantidade}
+                      <Loader2 class="h-4 w-4 animate-spin" />
+                    {:else}
+                      <span>{pacote.label}</span>
+                      <span>{pacote.preco}</span>
+                    {/if}
+                  </button>
+                {/each}
+              </div>
             {/if}
           </div>
         {/if}

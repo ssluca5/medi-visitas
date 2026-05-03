@@ -26,6 +26,7 @@ import transcricoesRoutes from "./routes/transcricoes/index.js";
 import gestorRoutes from "./routes/gestor/index.js";
 import relatoriosRoutes from "./routes/relatorios/index.js";
 import healthRoutes from "./routes/health.js";
+import contatoRoutes from "./routes/contato/index.js";
 export async function buildApp() {
   const app = Fastify({
     logger: true,
@@ -56,9 +57,10 @@ export async function buildApp() {
     hidePoweredBy: true,
   });
 
-  // Rate limiting — 100 req/min por IP
+  // Rate limiting — mais generoso em dev (SvelteKit SSR faz ~5 requests por page load)
+  const isDevMode = process.env.NODE_ENV !== "production";
   await app.register(rateLimit, {
-    max: 100,
+    max: isDevMode ? 300 : 100,
     timeWindow: "1 minute",
     errorResponseBuilder: (_request, context) => ({
       error: "Muitas requisições. Tente novamente em alguns instantes.",
@@ -102,7 +104,8 @@ export async function buildApp() {
     (req, body, done) => {
       (req as any).rawBody = body;
       try {
-        const json = JSON.parse(body.toString());
+        const bodyStr = body.toString().trim();
+        const json = bodyStr ? JSON.parse(bodyStr) : {};
         done(null, json);
       } catch (err) {
         done(err as Error, undefined);
@@ -189,6 +192,7 @@ export async function buildApp() {
   await app.register(healthRoutes); // Health check público (sem auth)
   await app.register(clerkWebhookRoutes); // Webhook público (sem auth)
   await app.register(stripeWebhookRoutes); // Stripe webhook público (sem auth)
+  await app.register(contatoRoutes, { prefix: "/contato" });
   await app.register(meRoutes);
   await app.register(profissionaisRoutes);
   await app.register(especialidadesRoutes);

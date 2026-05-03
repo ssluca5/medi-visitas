@@ -7,6 +7,7 @@ declare global {
       sessionId: string | null;
       sessionToken: string | null;
       userName: string | null;
+      userEmail: string | null;
     }
   }
 }

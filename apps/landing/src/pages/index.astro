@@ -11,15 +11,16 @@ import FAQ from "../components/FAQ.astro";
 import CTA from "../components/CTA.astro";
 import Footer from "../components/Footer.astro";
 
-const appUrl = import.meta.env.PUBLIC_APP_URL;
+// Verificação server-side — sem loop, sem cookie frágil
+const { userId } = Astro.locals.auth();
+const appUrl = import.meta.env.PUBLIC_APP_URL || 'http://localhost:5173';
+
+if (userId) {
+  return Astro.redirect(`${appUrl}/dashboard`, 302);
+}
 ---
 
 <Base>
-  <script is:inline define:vars={{ appUrl }}>
-    if (document.cookie.includes("__med_session=")) {
-      window.location.href = appUrl + "/dashboard";
-    }
-  </script>
   <Header />
   <main id="main" role="main">
     <Opening />

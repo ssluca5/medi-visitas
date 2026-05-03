@@ -63,7 +63,7 @@
 
       // Se escolheu pagar, redirecionar para checkout Stripe
       if (opcaoSelecionada?.startsWith('pagar')) {
-        const plano = opcaoSelecionada === 'pagar-individual' ? 'INDIVIDUAL' : 'EMPRESA'
+        const plano = opcaoSelecionada === 'pagar-individual' ? 'BASICO' : 'EQUIPE'
         const checkoutRes = await fetch(`${PUBLIC_API_URL}/billing/checkout`, {
           method: 'POST',
           headers: {
@@ -240,7 +240,7 @@
           <div class="flex-1">
             <div class="flex items-center justify-between mb-1">
               <p class="font-semibold" style="color: #111827;">
-                Plano Individual
+                Plano Basico
               </p>
               <p class="font-bold" style="color: #2563eb;">
                 R$ 79<span class="text-xs font-normal">/mês</span>
@@ -251,7 +251,7 @@
               transcrição por IA, agenda inteligente.
             </p>
             <ul class="flex flex-wrap gap-2 mt-3">
-              {#each ['Cadastro ilimitado', 'IA 50/mês', 'Pipeline', 'Agenda'] as f}
+              {#each ['100 profissionais', 'Pipeline', 'Agenda', 'Notificacoes'] as f}
                 <li class="flex items-center gap-1.5 text-xs" style="color: #475569;">
                   <svg class="w-3.5 h-3.5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -299,7 +299,7 @@
           <div class="flex-1">
             <div class="flex items-center justify-between mb-1">
               <p class="font-semibold" style="color: #111827;">
-                Plano Empresa
+                Plano Equipe
               </p>
               <p class="font-bold" style="color: #7c3aed;">
                 R$ 49<span class="text-xs font-normal">/mês por usuário</span>
@@ -310,7 +310,7 @@
               Dashboard consolidado e IA ilimitada.
             </p>
             <ul class="flex flex-wrap gap-2 mt-3">
-              {#each ['Múltiplos usuários', 'IA ilimitada', 'Dashboard gestor', 'Relatórios'] as f}
+              {#each ['Ate 10 usuarios', 'IA 200/mês', 'Dashboard gestor', 'Relatórios'] as f}
                 <li class="flex items-center gap-1.5 text-xs" style="color: #475569;">
                   <svg class="w-3.5 h-3.5 text-violet-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -396,7 +396,7 @@
       <p class="text-sm font-medium" style="color: #111827;">
         {opcaoSelecionada === 'trial-empresa'
           ? 'Trial gratuito de 7 dias — Plano Empresa'
-          : 'Plano Empresa — R$ 49/mês por usuário'}
+          : 'Plano Equipe — R$ 349/mês'}
       </p>
     </div>
 

@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { resolveTenant } from "../../hooks/tenant.js";
 import { prisma } from "../../lib/prisma.js";
+import { getLimitesPlano } from "../../services/planos.js";
 import { z } from "zod";
 
 const ConvidarSchema = z.object({
@@ -21,6 +22,20 @@ function requireOwner(
     reply
       .status(403)
       .send({ error: "Apenas o proprietário pode gerenciar membros" });
+    return false;
+  }
+  return true;
+}
+
+function requireGestaoEquipe(
+  request: { plano?: string },
+  reply: { status: (code: number) => { send: (body: unknown) => unknown } },
+) {
+  if (!getLimitesPlano(request.plano).temGestaoEquipe) {
+    reply.status(402).send({
+      error: "Gestao de equipe disponivel no Plano Equipe.",
+      code: "FEATURE_NOT_AVAILABLE",
+    });
     return false;
   }
   return true;
@@ -131,6 +146,7 @@ export default async function organizacaoRoutes(
 
     // GET /membros — Listar membros (OWNER only)
     protectedApp.get("/membros", async (request, reply) => {
+      if (!requireGestaoEquipe(request, reply)) return;
       if (!requireOwner(request, reply)) return;
 
       const membros = await prisma.organizationMembro.findMany({
@@ -165,6 +181,7 @@ export default async function organizacaoRoutes(
 
     // GET /convites — Listar convites pendentes (OWNER only)
     protectedApp.get("/convites", async (request, reply) => {
+      if (!requireGestaoEquipe(request, reply)) return;
       if (!requireOwner(request, reply)) return;
 
       const convites = await prisma.organizationConvite.findMany({
@@ -180,6 +197,7 @@ export default async function organizacaoRoutes(
       "/membros/convidar",
       { config: { rateLimit: { max: 5, timeWindow: "1 hour" } } },
       async (request, reply) => {
+        if (!requireGestaoEquipe(request, reply)) return;
         if (!requireOwner(request, reply)) return;
 
         const { email } = ConvidarSchema.parse(request.body);
@@ -263,6 +281,7 @@ export default async function organizacaoRoutes(
 
     // DELETE /convites/:id — Cancelar convite (OWNER only)
     protectedApp.delete("/convites/:id", async (request, reply) => {
+      if (!requireGestaoEquipe(request, reply)) return;
       if (!requireOwner(request, reply)) return;
 
       const { id } = request.params as { id: string };
@@ -290,6 +309,7 @@ export default async function organizacaoRoutes(
 
     // DELETE /membros/:userId — Remover membro (OWNER only)
     protectedApp.delete("/membros/:userId", async (request, reply) => {
+      if (!requireGestaoEquipe(request, reply)) return;
       if (!requireOwner(request, reply)) return;
 
       const { userId } = request.params as { userId: string };
@@ -323,6 +343,7 @@ export default async function organizacaoRoutes(
 
     // PATCH /membros/:userId/role — Alterar role (OWNER only)
     protectedApp.patch("/membros/:userId/role", async (request, reply) => {
+      if (!requireGestaoEquipe(request, reply)) return;
       if (!requireOwner(request, reply)) return;
 
       const { userId } = request.params as { userId: string };

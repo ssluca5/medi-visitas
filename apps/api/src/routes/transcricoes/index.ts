@@ -3,11 +3,27 @@ import { prisma } from "../../lib/prisma.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { resolveTenant } from "../../hooks/tenant.js";
 import { verificarLimiteTranscricao } from "../../services/transcricoes.js";
-import Stripe from "stripe";
+import { criarCheckoutPacoteIa } from "../../services/stripe.js";
+import { getLimitesPlano } from "../../services/planos.js";
+import { z } from "zod";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2026-04-22.dahlia",
+const ComprarPacoteSchema = z.object({
+  quantidade: z.union([z.literal(20), z.literal(50), z.literal(100)]).default(20),
 });
+
+function getPriceIdPacoteIa(quantidade: 20 | 50 | 100): string {
+  const map = {
+    20: process.env.STRIPE_PRICE_IA_20 ?? process.env.STRIPE_PRICE_PACOTE_TRANSCRICOES,
+    50: process.env.STRIPE_PRICE_IA_50,
+    100: process.env.STRIPE_PRICE_IA_100,
+  };
+
+  const priceId = map[quantidade];
+  if (!priceId) {
+    throw new Error(`Price ID nao configurado para pacote IA +${quantidade}`);
+  }
+  return priceId;
+}
 
 const transcricoesRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", async (request, reply) => {
@@ -27,29 +43,30 @@ const transcricoesRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const org = await prisma.organization.findUnique({
         where: { id: request.organizationId! },
-        select: { stripeCustomerId: true },
+        select: { plano: true, stripeCustomerId: true },
       });
 
-      const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        payment_method_types: ["card"],
-        customer: org?.stripeCustomerId ?? undefined,
-        line_items: [
-          {
-            price: process.env.STRIPE_PRICE_PACOTE_TRANSCRICOES!,
-            quantity: 1,
-          },
-        ],
-        success_url: `${process.env.APP_URL}/dashboard?pacote=transcricoes`,
-        cancel_url: `${process.env.APP_URL}/dashboard`,
-        metadata: {
-          organizationId: request.organizationId!,
-          tipo: "PACOTE_TRANSCRICOES",
-          quantidade: "20",
-        },
-      });
+      if (!org) {
+        return reply.status(404).send({ error: "Organizacao nao encontrada" });
+      }
 
-      return { checkoutUrl: session.url };
+      const limites = getLimitesPlano(org.plano);
+      if (!limites.pacotesIaDisponiveis) {
+        return reply.status(402).send({
+          error: "Pacotes adicionais de IA estao disponiveis a partir do Plano Profissional.",
+          code: "FEATURE_NOT_AVAILABLE",
+        });
+      }
+
+      const body = ComprarPacoteSchema.parse(request.body ?? {});
+      const checkoutUrl = await criarCheckoutPacoteIa(
+        request.organizationId!,
+        org.stripeCustomerId,
+        body.quantidade,
+        getPriceIdPacoteIa(body.quantidade),
+      );
+
+      return { checkoutUrl };
     },
   );
 };

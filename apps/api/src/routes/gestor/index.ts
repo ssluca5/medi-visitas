@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { resolveTenant } from "../../hooks/tenant.js";
 import { prisma } from "../../lib/prisma.js";
+import { getLimitesPlano } from "../../services/planos.js";
 
 function requireOwner(
   request: { role?: string },
@@ -16,6 +17,20 @@ function requireOwner(
   return true;
 }
 
+function requireGestaoEquipe(
+  request: { plano?: string },
+  reply: { status: (code: number) => { send: (body: unknown) => unknown } },
+) {
+  if (!getLimitesPlano(request.plano).temGestaoEquipe) {
+    reply.status(402).send({
+      error: "Dashboard do gestor disponivel no Plano Equipe.",
+      code: "FEATURE_NOT_AVAILABLE",
+    });
+    return false;
+  }
+  return true;
+}
+
 export default async function gestorRoutes(
   app: FastifyInstance,
 ): Promise<void> {
@@ -25,6 +40,7 @@ export default async function gestorRoutes(
   });
 
   app.get("/resumo", async (request, reply) => {
+    if (!requireGestaoEquipe(request, reply)) return;
     if (!requireOwner(request, reply)) return;
 
     const organizationId = request.organizationId!;

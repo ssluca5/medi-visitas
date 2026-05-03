@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { resolveTenant } from "../../hooks/tenant.js";
 import { prisma } from "../../lib/prisma.js";
+import { getLimitesPlano } from "../../services/planos.js";
 import { stringify } from "csv-stringify/sync";
 
 function requireOwner(
@@ -17,6 +18,20 @@ function requireOwner(
   return true;
 }
 
+function requireRelatorios(
+  request: { plano?: string },
+  reply: { status: (code: number) => { send: (body: unknown) => unknown } },
+) {
+  if (!getLimitesPlano(request.plano).temRelatorios) {
+    reply.status(402).send({
+      error: "Relatorios disponiveis a partir do Plano Profissional.",
+      code: "FEATURE_NOT_AVAILABLE",
+    });
+    return false;
+  }
+  return true;
+}
+
 export default async function relatoriosRoutes(
   app: FastifyInstance,
 ): Promise<void> {
@@ -26,6 +41,7 @@ export default async function relatoriosRoutes(
   });
 
   app.get("/profissionais", async (request, reply) => {
+    if (!requireRelatorios(request, reply)) return;
     if (!requireOwner(request, reply)) return;
 
     const organizationId = request.organizationId!;
@@ -58,6 +74,7 @@ export default async function relatoriosRoutes(
   });
 
   app.get("/visitas", async (request, reply) => {
+    if (!requireRelatorios(request, reply)) return;
     if (!requireOwner(request, reply)) return;
 
     const organizationId = request.organizationId!;

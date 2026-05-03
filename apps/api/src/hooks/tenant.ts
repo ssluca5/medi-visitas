@@ -5,6 +5,7 @@ declare module "fastify" {
   interface FastifyRequest {
     organizationId?: string;
     role?: "OWNER" | "MEMBER";
+    plano?: string;
   }
 }
 
@@ -51,6 +52,9 @@ export async function resolveTenant(
   }
 
   const org = membro.organization;
+  request.organizationId = org.id;
+  request.role = membro.role as "OWNER" | "MEMBER";
+  request.plano = org.plano;
 
   // Check trial expiration
   if (org.status === "TRIAL_ATIVO" && org.trialExpiraEm < new Date()) {
@@ -66,14 +70,15 @@ export async function resolveTenant(
   }
 
   // Check suspended/cancelled
-  if (org.status === "SUSPENSO" || org.status === "CANCELADO") {
+  const allowBillingRecovery = request.url.startsWith("/billing");
+  if (
+    !allowBillingRecovery &&
+    (org.status === "SUSPENSO" || org.status === "CANCELADO")
+  ) {
     reply.status(402).send({
       error: "Conta suspensa. Verifique o pagamento.",
       code: "ACCOUNT_SUSPENDED",
     });
     return;
   }
-
-  request.organizationId = org.id;
-  request.role = membro.role as "OWNER" | "MEMBER";
 }

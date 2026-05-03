@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import Stripe from "stripe";
 import { stripe } from "../../services/stripe.js";
 import { prisma } from "../../lib/prisma.js";
+import { getLimitesPlano } from "../../services/planos.js";
 
 export default async function stripeWebhookRoutes(app: FastifyInstance) {
   app.post(
@@ -36,7 +37,10 @@ export default async function stripeWebhookRoutes(app: FastifyInstance) {
             const session = event.data.object as Stripe.Checkout.Session;
             const metadata = session.metadata || {};
 
-            if (metadata.tipo === "PACOTE_TRANSCRICOES") {
+            if (
+              metadata.tipo === "PACOTE_IA" ||
+              metadata.tipo === "PACOTE_TRANSCRICOES"
+            ) {
               const quantidade = parseInt(metadata.quantidade || "20", 10);
               await prisma.organization.update({
                 where: { id: metadata.organizationId },
@@ -88,7 +92,9 @@ export default async function stripeWebhookRoutes(app: FastifyInstance) {
                 stripeSubId: session.subscription as string,
                 plano: plano as any,
                 planoAtivoEm: new Date(),
-                limiteUsuarios: plano === "INDIVIDUAL" ? 1 : org.limiteUsuarios,
+                limiteUsuarios: getLimitesPlano(plano).limiteUsuarios,
+                limiteProfissionais: getLimitesPlano(plano).limiteProfissionais,
+                transcricoesLimite: getLimitesPlano(plano).transcricoesLimite,
               },
             });
 

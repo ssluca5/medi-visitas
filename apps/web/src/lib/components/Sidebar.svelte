@@ -14,6 +14,7 @@
 	} from 'lucide-svelte';
 	import type { NavItem } from '$lib/types';
 	import SinoNotificacoes from '$lib/components/layout/SinoNotificacoes.svelte';
+	import { PUBLIC_LANDING_URL } from '$env/static/public';
 
 	interface Props {
 		userName: string;
@@ -22,12 +23,25 @@
 		organizationId?: string;
 		trialExpiraEm?: string;
 		role?: string;
+		statusOrg?: string;
+		temRelatorios?: boolean;
+		temGestaoEquipe?: boolean;
 	}
 
-	let { userName, sessionToken, plano, organizationId, trialExpiraEm, role }: Props = $props();
+	let {
+		userName,
+		sessionToken,
+		plano,
+		organizationId,
+		trialExpiraEm,
+		role,
+		statusOrg,
+		temRelatorios = false,
+		temGestaoEquipe = false
+	}: Props = $props();
 
 	let diasRestantes = $derived.by(() => {
-		if (!trialExpiraEm || plano !== "TRIAL") return null;
+		if (!trialExpiraEm || statusOrg !== 'TRIAL_ATIVO') return null;
 		const expira = new Date(trialExpiraEm);
 		const agora = new Date();
 		const diff = Math.ceil((expira.getTime() - agora.getTime()) / (1000 * 60 * 60 * 24));
@@ -59,10 +73,19 @@
 		{ href: '/dashboard/pipeline', label: 'Pipeline', icon: BarChart3 }
 	];
 
-	const adminItems: NavItem[] = role === 'OWNER' ? [
+	const adminItems: NavItem[] = role === 'OWNER' && temGestaoEquipe ? [
 		{ href: '/dashboard/equipe', label: 'Equipe', icon: Users },
 		{ href: '/dashboard/gestor', label: 'Gestão/Resumo', icon: BarChart3 }
 	] : [];
+
+	let planoLabel = $derived.by(() => {
+		if (statusOrg === 'TRIAL_ATIVO') return `Trial - ${diasRestantes ?? 0}d`;
+		if (plano === 'BASICO') return 'Basico';
+		if (plano === 'PROFISSIONAL') return 'Profissional';
+		if (plano === 'EQUIPE') return 'Equipe';
+		if (plano === 'EMPRESARIAL') return 'Empresarial';
+		return plano ?? 'Plano';
+	});
 
 	const cadAuxItems: NavItem[] = [
 		{ href: '/dashboard/profissionais', label: 'Profissionais', icon: Users },
@@ -79,6 +102,16 @@
 
 	function toggleCollapse() {
 		collapsed = !collapsed;
+	}
+
+	import { useClerkContext } from 'svelte-clerk';
+	const clerkCtx = useClerkContext();
+
+	async function sair() {
+		const redirectUrl = PUBLIC_LANDING_URL ?? 'http://localhost:4321';
+		await clerkCtx.clerk?.signOut({ redirectUrl });
+		// Fallback caso o signOut não redirecione automaticamente
+		window.location.href = redirectUrl;
 	}
 </script>
 
@@ -176,6 +209,66 @@
 			</a>
 		{/each}
 
+		{#if role === 'OWNER' && !temGestaoEquipe}
+			<span
+				class={collapsed
+					? 'flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+					: 'flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed'}
+				title="Disponivel no Plano Equipe"
+			>
+				<Users class="h-[18px] w-[18px]" />
+				{#if !collapsed}
+					<span>Equipe</span>
+					<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Equipe</span>
+				{/if}
+			</span>
+			<span
+				class={collapsed
+					? 'flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+					: 'flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed'}
+				title="Disponivel no Plano Equipe"
+			>
+				<BarChart3 class="h-[18px] w-[18px]" />
+				{#if !collapsed}
+					<span>Gestor</span>
+					<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Equipe</span>
+				{/if}
+			</span>
+		{/if}
+
+		{#if !temRelatorios}
+			<span
+				class={collapsed
+					? 'flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+					: 'flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed'}
+				title="Disponivel no Plano Profissional"
+			>
+				<FileText class="h-[18px] w-[18px]" />
+				{#if !collapsed}
+					<span>Relatorios</span>
+					<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Pro</span>
+				{/if}
+			</span>
+		{:else}
+			<a
+				href="/dashboard/relatorios"
+				aria-current={isActive('/dashboard/relatorios') ? 'page' : undefined}
+				class={collapsed
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${isActive('/dashboard/relatorios') ? 'bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}`
+					: isActive('/dashboard/relatorios')
+						? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]'
+						: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]'}
+				title={collapsed ? 'Relatorios' : undefined}
+			>
+				<FileText class={isActive('/dashboard/relatorios')
+					? 'h-[18px] w-[18px] text-blue-600 transition-colors duration-200'
+					: 'h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200'} />
+				{#if !collapsed}
+					<span>Relatorios</span>
+				{/if}
+			</a>
+		{/if}
+
 		{#if !collapsed}
 			<div class="pt-5 pb-1">
 				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]">
@@ -215,11 +308,12 @@
 	{#if plano && !collapsed}
 		<div class="px-3 py-2 mb-1">
 			<span
-				class="text-xs px-2 py-0.5 rounded-full font-medium {plano === 'TRIAL' || plano === 'INDIVIDUAL'
-					? 'bg-amber-100 text-amber-800'
-					: 'bg-emerald-100 text-emerald-800'}"
+				class="text-xs px-2 py-0.5 rounded-full font-medium"
+				style={statusOrg === 'TRIAL_ATIVO'
+					? 'background-color: var(--trial-bg); color: var(--trial-text);'
+					: 'background-color: var(--success-bg); color: var(--success-text);'}
 			>
-				{plano === 'INDIVIDUAL' ? 'Individual' : plano === 'TRIAL' ? 'Trial' : plano === 'EMPRESA' ? 'Empresa' : plano}
+				{planoLabel}
 			</span>
 		</div>
 	{/if}
@@ -268,17 +362,15 @@
 				<SinoNotificacoes {sessionToken} />
 			</div>
 		</div>
-		<form method="POST" action="/api/logout">
-			<button
-				type="submit"
-				aria-label="Sair do sistema"
-				class="mt-1 flex w-full items-center justify-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-400))] will-change-transform transition-all duration-200 ease-out hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-600))] hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98] cursor-pointer"
-			>
-				<LogOut class="h-4 w-4" />
-				{#if !collapsed}
-					<span>Sair</span>
-				{/if}
-			</button>
-		</form>
+		<button
+			onclick={sair}
+			aria-label="Sair do sistema"
+			class="mt-1 flex w-full items-center justify-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-400))] will-change-transform transition-all duration-200 ease-out hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-600))] hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98] cursor-pointer"
+		>
+			<LogOut class="h-4 w-4" />
+			{#if !collapsed}
+				<span>Sair</span>
+			{/if}
+		</button>
 	</div>
 </aside>

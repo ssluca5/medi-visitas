@@ -6,8 +6,8 @@ import { createClerkClient, verifyToken } from "@clerk/backend";
 const clerk = createClerkClient({ secretKey: CLERK_SECRET_KEY });
 const COOKIE_NAME = "__med_session";
 
-// Cache por JWT — TTL de 55 minutos (JWT do Clerk deve estar ≥ 1h)
-const CACHE_TTL_MS = 55 * 60 * 1000;
+// Cache por JWT — TTL de 60 segundos para detectar sessões revogadas rapidamente
+const CACHE_TTL_MS = 60 * 1000;
 
 const MAX_CACHE_SIZE = 1000;
 
@@ -42,7 +42,7 @@ setInterval(() => {
     }
   }
   keysToDelete.forEach((k) => authCache.delete(k));
-}, 5 * 60_000); // A cada 5 minutos
+}, 60_000); // A cada 60 segundos
 
 async function getUserFromToken(token: string): Promise<{
   userId: string | null;
@@ -66,6 +66,7 @@ async function getUserFromToken(token: string): Promise<{
     sessionId: string | null;
     sessionToken: string;
     userName: string | null;
+    userEmail: string | null;
   } | null = null;
 
   // Fluxo 1: JWT (eyJ...) — verificar com Clerk
@@ -91,6 +92,7 @@ async function getUserFromToken(token: string): Promise<{
         sessionId: (payload.sid as string) ?? null,
         sessionToken: token,
         userName: name,
+        userEmail: email || null,
       };
     } catch {
       // Verificação remota falhou — NÃO retornar null imediatamente
@@ -123,6 +125,7 @@ async function getUserFromToken(token: string): Promise<{
           sessionId: session.id,
           sessionToken,
           userName: null,
+          userEmail: null,
         };
       }
     } catch {
@@ -190,6 +193,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       locals.sessionId = user.sessionId;
       locals.sessionToken = user.sessionToken;
       locals.userName = user.userName;
+      locals.userEmail = user.userEmail;
     }
 
     // Redirecionar limpando query params
@@ -209,9 +213,15 @@ export const handle: Handle = async ({ event, resolve }) => {
       locals.sessionId = user.sessionId;
       locals.sessionToken = user.sessionToken;
       locals.userName = user.userName;
+      locals.userEmail = user.userEmail;
     } else {
       // Verificação falhou — deletar cookie e forçar re-login
       cookies.delete(COOKIE_NAME, { path: "/" });
+      locals.userId = null;
+      locals.sessionId = null;
+      locals.sessionToken = null;
+      locals.userName = null;
+      locals.userEmail = null;
     }
   }
 

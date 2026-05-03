@@ -49,9 +49,10 @@
 
 	function getPlanoLabel(plano: string | undefined) {
 		switch (plano) {
-			case 'INDIVIDUAL': return 'Individual';
-			case 'EMPRESA': return 'Empresa';
-			case 'ENTERPRISE': return 'Enterprise';
+			case 'BASICO': return 'Basico';
+			case 'PROFISSIONAL': return 'Profissional';
+			case 'EQUIPE': return 'Equipe';
+			case 'EMPRESARIAL': return 'Empresarial';
 			case 'TRIAL': return 'Trial gratuito';
 			default: return plano || '—';
 		}
@@ -188,9 +189,7 @@
 						<div>
 							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Plano Atual</span>
 							<p class="text-lg font-bold text-[rgb(var(--slate-800))]">
-								{#if data.billing?.plano === 'INDIVIDUAL'}Individual
-								{:else if data.billing?.plano === 'EMPRESA'}Empresa
-								{:else if data.billing?.status === 'TRIAL_ATIVO'}Trial gratuito
+								{#if data.billing?.status === 'TRIAL_ATIVO'}Trial gratuito
 								{:else}{getPlanoLabel(data.billing?.plano)}{/if}
 							</p>
 						</div>
@@ -253,7 +252,7 @@
 						<div>
 							<span class="block text-xs font-medium uppercase tracking-wider text-[rgb(var(--slate-400))] mb-1.5">Tipo</span>
 							<p class="text-sm font-medium text-[rgb(var(--slate-800))]">
-								{data.org?.limiteUsuarios === 1 ? 'Individual' : 'Empresa'}
+								{data.org?.limiteUsuarios === 1 ? 'Individual' : 'Equipe'}
 							</p>
 						</div>
 						<div>

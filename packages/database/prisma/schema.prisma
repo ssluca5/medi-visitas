@@ -86,9 +86,10 @@ enum Tratamento {
 
 enum PlanoOrganizacao {
   TRIAL
-  INDIVIDUAL
-  EMPRESA
-  ENTERPRISE
+  BASICO
+  PROFISSIONAL
+  EQUIPE
+  EMPRESARIAL
 }
 
 enum StatusOrganizacao {
@@ -132,6 +133,8 @@ model Organization {
   stripeCustomerId  String?             @unique
   stripeSubId       String?             @unique
   limiteUsuarios    Int                 @default(1)
+  limiteProfissionais Int               @default(100)
+  transcricoesLimite Int                @default(7)
   transcricoesUsadas Int                @default(0)
   transcricoesMes    String?
   transcricoesExtras Int                @default(0)

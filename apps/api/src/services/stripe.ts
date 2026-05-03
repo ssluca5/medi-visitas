@@ -9,27 +9,20 @@ if (!process.env.STRIPE_SECRET_KEY) {
 // O Stripe só é chamado de fato quando o usuário assina
 export const stripe = new Stripe(
   process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
-  {
-    apiVersion: "2026-04-22.dahlia",
-  },
 );
 
 export async function criarCheckout(
   organizationId: string,
   stripeCustomerId: string | null,
-  plano: "INDIVIDUAL" | "EMPRESA",
+  plano: "BASICO" | "PROFISSIONAL" | "EQUIPE",
   userId: string,
+  priceId: string,
 ): Promise<string> {
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error(
       "Billing não configurado. Adicione STRIPE_SECRET_KEY no .env",
     );
   }
-
-  const priceId =
-    plano === "INDIVIDUAL"
-      ? process.env.STRIPE_PRICE_INDIVIDUAL!
-      : process.env.STRIPE_PRICE_EMPRESA!;
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
@@ -41,6 +34,36 @@ export async function criarCheckout(
     metadata: { organizationId, userId, plano },
     subscription_data: {
       metadata: { organizationId },
+    },
+    locale: "pt-BR",
+  });
+
+  return session.url!;
+}
+
+export async function criarCheckoutPacoteIa(
+  organizationId: string,
+  stripeCustomerId: string | null,
+  quantidade: 20 | 50 | 100,
+  priceId: string,
+): Promise<string> {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "Billing nao configurado. Adicione STRIPE_SECRET_KEY no .env",
+    );
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    customer: stripeCustomerId ?? undefined,
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${process.env.APP_URL}/dashboard?pacote=ia`,
+    cancel_url: `${process.env.APP_URL}/dashboard`,
+    metadata: {
+      organizationId,
+      tipo: "PACOTE_IA",
+      quantidade: String(quantidade),
     },
     locale: "pt-BR",
   });

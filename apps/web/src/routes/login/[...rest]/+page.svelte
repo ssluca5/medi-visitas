@@ -1,0 +1,209 @@
+<script lang="ts">
+	import { PUBLIC_LANDING_URL } from '$env/static/public';
+	import { ArrowLeft } from 'lucide-svelte';
+	import { SignIn } from 'svelte-clerk';
+</script>
+
+<svelte:head>
+	<title>Login — MediVisitas</title>
+</svelte:head>
+
+<div class="min-h-screen flex">
+
+	<!-- ═══ Painel Esquerdo — Dark / Identidade Visual ═══ -->
+	<div class="hidden lg:flex w-1/2 flex-col justify-between p-12"
+		style="background-color: #111827;">
+
+		<!-- Logo -->
+		<div class="flex items-center gap-2">
+			<span class="text-xl font-bold text-white">MediVisitas</span>
+			<span class="w-2 h-2 rounded-full" style="background-color: #2563eb;"></span>
+		</div>
+
+		<!-- Citação central -->
+		<div>
+			<p class="text-3xl font-light leading-relaxed"
+				style="color: rgba(255,255,255,0.9); font-family: Inter, sans-serif;">
+				"A ferramenta que transformou<br>
+				minha gestão de visitas.<br>
+				Simples, eficiente e inteligente."
+			</p>
+			<div class="mt-8 flex items-center gap-3">
+				<div class="w-10 h-10 rounded-full flex items-center justify-center
+								text-sm font-semibold text-white flex-shrink-0"
+					style="background-color: #2563eb;">
+					JF
+				</div>
+				<div>
+					<p class="text-sm font-medium text-white">Jamille Fritz</p>
+					<p class="text-xs" style="color: rgba(255,255,255,0.5);">
+						Propagandista Farmacêutica · Natudermefarma
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Métricas no rodapé -->
+		<div class="grid grid-cols-4 gap-4 pt-8 border-t"
+			style="border-color: rgba(255,255,255,0.1);">
+			{#each [
+				{ valor: '200+', label: 'Propagandistas' },
+				{ valor: '4.9★', label: 'Avaliação' },
+				{ valor: '68%', label: 'Menos relatórios' },
+				{ valor: '7 dias', label: 'Trial grátis' },
+			] as m}
+				<div>
+					<p class="text-lg font-bold text-white">{m.valor}</p>
+					<p class="text-xs mt-0.5" style="color: rgba(255,255,255,0.4);">
+						{m.label}
+					</p>
+				</div>
+			{/each}
+		</div>
+	</div>
+
+	<!-- ═══ Painel Direito — formulário Clerk customizado ═══ -->
+	<div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-8"
+		style="background-color: #f8f9fa;">
+
+		<!-- Logo mobile -->
+		<div class="lg:hidden flex items-center gap-2 mb-8">
+			<span class="text-xl font-bold" style="color: #111827;">MediVisitas</span>
+			<span class="w-2 h-2 rounded-full" style="background-color: #2563eb;"></span>
+		</div>
+
+		<!-- Título -->
+		<div class="w-full max-w-sm mb-6 text-center">
+			<h1 class="text-2xl font-bold" style="color: #111827;">Bem-vindo</h1>
+			<p class="text-sm mt-1" style="color: #6b7280;">
+				Faça login para acessar sua conta
+			</p>
+		</div>
+
+		<!-- Componente Clerk — mesma aparência da página principal -->
+		<SignIn
+			appearance={{
+				layout: {
+					logoPlacement: 'none',
+					showOptionalFields: false,
+					privacyPageUrl: '',
+					termsPageUrl: '',
+				},
+				variables: {
+					colorPrimary: '#2563eb',
+					colorBackground: '#ffffff',
+					colorText: '#111827',
+					colorTextSecondary: '#6b7280',
+					colorTextOnPrimaryBackground: '#ffffff',
+					colorInputBackground: '#ffffff',
+					colorInputText: '#111827',
+					colorDanger: '#dc2626',
+					colorSuccess: '#059669',
+					colorWarning: '#f59e0b',
+					colorNeutral: '#6b7280',
+					colorAlphaShade: '#111827',
+					fontFamily: 'Inter, sans-serif',
+					fontSize: '14px',
+					fontWeight: {
+						normal: 400,
+						medium: 500,
+						bold: 600,
+					},
+					borderRadius: '10px',
+					spacingUnit: '4px',
+				},
+				elements: {
+					rootBox: 'w-full max-w-sm',
+					card: {
+						boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
+						border: '1px solid #e5e7eb',
+						borderRadius: '16px',
+						padding: '32px',
+						backgroundColor: '#ffffff',
+					},
+					headerTitle: { display: 'none' },
+					headerSubtitle: { display: 'none' },
+					logoBox: { display: 'none' },
+					logoImage: { display: 'none' },
+					formButtonPrimary: {
+						backgroundColor: '#2563eb',
+						borderRadius: '10px',
+						height: '44px',
+						fontSize: '14px',
+						fontWeight: '600',
+						'&:hover': { backgroundColor: '#1d4ed8' },
+						'&:focus': { outline: '2px solid #2563eb', outlineOffset: '2px' },
+					},
+					formFieldInput: {
+						borderColor: '#e5e7eb',
+						borderRadius: '10px',
+						height: '40px',
+						fontSize: '14px',
+						'&:focus': {
+							borderColor: '#2563eb',
+							boxShadow: '0 0 0 3px rgba(37,99,235,0.1)',
+						},
+					},
+					formFieldLabel: {
+						fontSize: '13px',
+						fontWeight: '500',
+						color: '#374151',
+					},
+					socialButtonsBlockButton: {
+						borderColor: '#e5e7eb',
+						borderRadius: '10px',
+						height: '40px',
+						fontSize: '14px',
+						color: '#374151',
+						'&:hover': { backgroundColor: '#f9fafb', borderColor: '#d1d5db' },
+					},
+					socialButtonsBlockButtonText: {
+						fontSize: '14px',
+						fontWeight: '500',
+					},
+					dividerLine: { backgroundColor: '#e5e7eb' },
+					dividerText: { color: '#9ca3af', fontSize: '12px' },
+					footerActionLink: {
+						color: '#2563eb',
+						fontWeight: '500',
+						fontSize: '13px',
+						'&:hover': { color: '#1d4ed8' },
+					},
+					footerActionText: {
+						color: '#6b7280',
+						fontSize: '13px',
+					},
+					footer: { display: 'none' },
+					footerPages: { display: 'none' },
+					footerPagesLink: { display: 'none' },
+					formFieldErrorText: {
+						color: '#dc2626',
+						fontSize: '12px',
+					},
+					alertText: { fontSize: '13px' },
+					otpCodeFieldInput: {
+						borderColor: '#e5e7eb',
+						borderRadius: '8px',
+						'&:focus': { borderColor: '#2563eb' },
+					},
+				},
+			}}
+			routing="path"
+			path="/login"
+			signUpUrl="/onboarding"
+			fallbackRedirectUrl="/dashboard"
+		/>
+
+		<!-- Link voltar para o site -->
+		<a
+			href={PUBLIC_LANDING_URL ?? 'http://localhost:4321'}
+			class="mt-6 text-sm transition-colors flex items-center gap-1"
+			style="color: #9ca3af;"
+			onmouseenter={(e) => (e.currentTarget.style.color = '#6b7280')}
+			onmouseleave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+		>
+			<ArrowLeft class="w-3.5 h-3.5" />
+			Voltar para o site
+		</a>
+	</div>
+</div>

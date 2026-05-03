@@ -15,6 +15,7 @@
 	import type { NavItem } from '$lib/types';
 	import Sheet from '$lib/components/ui/Sheet.svelte';
 	import SinoNotificacoes from '$lib/components/layout/SinoNotificacoes.svelte';
+	import { PUBLIC_LANDING_URL } from '$env/static/public';
 
 	interface Props {
 		userName: string;
@@ -47,6 +48,16 @@
 
 	function closeDrawer() {
 		drawerOpen = false;
+	}
+
+	import { useClerkContext } from 'svelte-clerk';
+	const clerkCtx = useClerkContext();
+
+	async function sair() {
+		const redirectUrl = PUBLIC_LANDING_URL ?? 'http://localhost:4321';
+		await clerkCtx.clerk?.signOut({ redirectUrl });
+		// Fallback caso o signOut não redirecione automaticamente
+		window.location.href = redirectUrl;
 	}
 </script>
 
@@ -133,16 +144,14 @@
 					<p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate">{userName}</p>
 				</div>
 			</div>
-			<form method="POST" action="/api/logout">
-				<button
-					type="submit"
-					aria-label="Sair do sistema"
-					class="mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[rgb(var(--slate-400))] transition-all duration-200 ease-out hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-600))] cursor-pointer"
-				>
-					<LogOut class="h-4 w-4" />
-					<span>Sair</span>
-				</button>
-			</form>
+			<button
+				onclick={sair}
+				aria-label="Sair do sistema"
+				class="mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[rgb(var(--slate-400))] transition-all duration-200 ease-out hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-600))] cursor-pointer"
+			>
+				<LogOut class="h-4 w-4" />
+				<span>Sair</span>
+			</button>
 		</div>
 	</div>
 </Sheet>

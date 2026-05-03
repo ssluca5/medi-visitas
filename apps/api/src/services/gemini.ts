@@ -21,26 +21,23 @@ export async function transcreverAudio(
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const res = await fetch(
-      getUrl(`/models/${GEMINI_MODEL}:generateContent`),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { inline_data: { mime_type: mimeType, data: audioBase64 } },
-                {
-                  text: "Transcreva este áudio para texto em português. Retorne apenas a transcrição, sem comentários adicionais.",
-                },
-              ],
-            },
-          ],
-        }),
-        signal: controller.signal,
-      },
-    );
+    const res = await fetch(getUrl(`/models/${GEMINI_MODEL}:generateContent`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { inline_data: { mime_type: mimeType, data: audioBase64 } },
+              {
+                text: "Transcreva este áudio para texto em português. Retorne apenas a transcrição, sem comentários adicionais.",
+              },
+            ],
+          },
+        ],
+      }),
+      signal: controller.signal,
+    });
 
     if (!res.ok) {
       const text = await res.text();
@@ -63,32 +60,29 @@ export async function extrairCamposVisita(
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const res = await fetch(
-      getUrl(`/models/${GEMINI_MODEL}:generateContent`),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [
-              {
-                text:
-                  "Você é um assistente médico. Analise a transcrição de uma visita e extraia EXATAMENTE 3 campos em JSON válido.\n\n" +
-                  "Responda APENAS com JSON no formato:\n" +
-                  '{"resumo": "resumo conciso da visita", "proximaAcao": "próxima ação recomendada", "objetivoVisita": "objetivo principal da visita"}\n\n' +
-                  "NÃO adicione texto fora do JSON.",
-              },
-            ],
-          },
-          contents: [{ role: "user", parts: [{ text: transcricao }] }],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json",
-          },
-        }),
-        signal: controller.signal,
-      },
-    );
+    const res = await fetch(getUrl(`/models/${GEMINI_MODEL}:generateContent`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: {
+          parts: [
+            {
+              text:
+                "Você é um assistente médico. Analise a transcrição de uma visita e extraia EXATAMENTE 3 campos em JSON válido.\n\n" +
+                "Responda APENAS com JSON no formato:\n" +
+                '{"resumo": "resumo conciso da visita", "proximaAcao": "próxima ação recomendada", "objetivoVisita": "objetivo principal da visita"}\n\n' +
+                "NÃO adicione texto fora do JSON.",
+            },
+          ],
+        },
+        contents: [{ role: "user", parts: [{ text: transcricao }] }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: "application/json",
+        },
+      }),
+      signal: controller.signal,
+    });
 
     if (!res.ok) {
       const text = await res.text();

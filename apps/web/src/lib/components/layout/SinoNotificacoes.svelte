@@ -16,19 +16,25 @@
 
 	// Polling leve a cada 60s para atualizar badge
 	$effect(() => {
+		if (!sessionToken) return; // Sem token — não fazer polling
 		carregarContagem();
 		const intervalo = setInterval(carregarContagem, 60_000);
 		return () => clearInterval(intervalo);
 	});
 
 	async function carregarContagem() {
-		const res = await fetch(
-			`${PUBLIC_API_URL}/notificacoes/contagem`,
-			{ headers: { Authorization: `Bearer ${sessionToken}` } }
-		);
-		if (res.ok) {
-			const data = await res.json();
-			naoLidas = data.naoLidas;
+		if (!sessionToken) return;
+		try {
+			const res = await fetch(
+				`${PUBLIC_API_URL}/notificacoes/contagem`,
+				{ headers: { Authorization: `Bearer ${sessionToken}` } }
+			);
+			if (res.ok) {
+				const data = await res.json();
+				naoLidas = data.naoLidas;
+			}
+		} catch {
+			// Falha de rede — ignorar silenciosamente
 		}
 	}
 </script>

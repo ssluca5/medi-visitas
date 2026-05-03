@@ -30,6 +30,20 @@ export default async function profissionaisRoutes(
       const data = CreateProfissionalInputSchema.parse(request.body);
 
       const { endereco, contatos, ...profissionalData } = data;
+      const org = await prisma.organization.findUnique({
+        where: { id: request.organizationId! },
+        select: { limiteProfissionais: true },
+      });
+      const totalProfissionais = await prisma.profissional.count({
+        where: { organizationId: request.organizationId!, deletedAt: null },
+      });
+
+      if (org && totalProfissionais >= org.limiteProfissionais) {
+        return reply.status(402).send({
+          error: `Limite de ${org.limiteProfissionais} profissionais atingido para seu plano.`,
+          code: "PROFESSIONAL_LIMIT_REACHED",
+        });
+      }
 
       // Criar endereço se fornecido
       let enderecoId: string | undefined;

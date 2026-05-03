@@ -11,7 +11,9 @@ describe("transcreverAudio", () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        candidates: [{ content: { parts: [{ text: "Transcrição de teste" }] } }],
+        candidates: [
+          { content: { parts: [{ text: "Transcrição de teste" }] } },
+        ],
       }),
     });
 
@@ -101,7 +103,9 @@ describe("extrairCamposVisita", () => {
           {
             content: {
               parts: [
-                { text: '{"resumo":"r","proximaAcao":"p","objetivoVisita":"o"}' },
+                {
+                  text: '{"resumo":"r","proximaAcao":"p","objetivoVisita":"o"}',
+                },
               ],
             },
           },
@@ -121,7 +125,9 @@ describe("extrairCamposVisita", () => {
     expect(body.generationConfig.responseMimeType).toBe("application/json");
     expect(body.contents[0].role).toBe("user");
     expect(body.contents[0].parts[0].text).toBe("texto teste");
-    expect(body.system_instruction.parts[0].text).toContain("assistente médico");
+    expect(body.system_instruction.parts[0].text).toContain(
+      "assistente médico",
+    );
   });
 
   it("fallback quando JSON inválido — resumo = transcricao.slice(0, 300)", async () => {

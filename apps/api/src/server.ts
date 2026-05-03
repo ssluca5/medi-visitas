@@ -1,14 +1,9 @@
-// Sentry deve ser importado PRIMEIRO, antes de qualquer outro módulo
+import "./env.js";
+
+// Sentry deve ser importado PRIMEIRO, antes de qualquer outro módulo (logo após variáveis de ambiente)
 import "./instrument.js";
 
-import { config } from "dotenv";
-import { resolve } from "path";
-
-// Carregar .env primeiro, depois .env.local sobrescreve (prioridade)
-config({ path: resolve(process.cwd(), ".env") });
-config({ path: resolve(process.cwd(), ".env.local"), override: true });
-
-import { buildApp } from "./app";
+import { buildApp } from "./app.js";
 
 async function start() {
   const app = await buildApp();

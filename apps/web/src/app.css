@@ -22,6 +22,25 @@
 }
 
 :root {
+  --bg-primary: #f8f9fa;
+  --bg-surface: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --brand-primary: #2563eb;
+  --brand-light: #eff6ff;
+  --border-base: #e5e7eb;
+  --status-ativo: #059669;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --danger-border: #fecaca;
+  --brand-dark: #1e40af;
+  --ai-primary: #7c3aed;
+  --trial-bg: #fef3c7;
+  --trial-text: #92400e;
+  --success-bg: #d1fae5;
+  --success-text: #065f46;
+
   /* Surfaces (RGB triplets for alpha compositing) */
   --color-surface: 255 255 255;
   --color-surface-2: 248 250 252;
