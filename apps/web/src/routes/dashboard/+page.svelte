@@ -17,6 +17,8 @@
 			sessionToken: string | null;
 			tourConcluidoEm: string | null;
 			role: 'OWNER' | 'MEMBER' | null;
+			plano?: string;
+			pacotesIaDisponiveis?: boolean;
 		};
 	}
 
@@ -266,7 +268,11 @@
 			{/if}
 		</div>
 		<div class="lg:col-span-1 h-full">
-			<WidgetTranscricoes sessionToken={data.sessionToken!} />
+			<WidgetTranscricoes
+				sessionToken={data.sessionToken!}
+				plano={data.plano ?? 'TRIAL'}
+				pacotesIaDisponiveis={data.pacotesIaDisponiveis ?? false}
+			/>
 		</div>
 	</div>
 
