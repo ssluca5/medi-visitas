@@ -75,7 +75,10 @@ async function getUserFromToken(token: string): Promise<{
   // Fluxo 1: JWT (eyJ...) — verificar com Clerk
   if (token.startsWith("eyJ")) {
     try {
-      console.log("[AUTH] Fluxo 1: Verificando JWT...", token.substring(0, 30) + "...");
+      console.log(
+        "[AUTH] Fluxo 1: Verificando JWT...",
+        token.substring(0, 30) + "...",
+      );
       const payload = await verifyToken(token, {
         secretKey: CLERK_SECRET_KEY,
         jwtKey: CLERK_JWT_KEY || undefined,
@@ -101,7 +104,10 @@ async function getUserFromToken(token: string): Promise<{
         userEmail: email || null,
       };
     } catch (verifyErr) {
-      console.log("[AUTH] JWT verificação falhou:", verifyErr instanceof Error ? verifyErr.message : verifyErr);
+      console.log(
+        "[AUTH] JWT verificação falhou:",
+        verifyErr instanceof Error ? verifyErr.message : verifyErr,
+      );
       // Verificação remota falhou (ex: JWT expirado).
       // Tentar extrair o sid e renovar o token.
       try {
@@ -112,21 +118,34 @@ async function getUserFromToken(token: string): Promise<{
           if (payloadObj.sid) {
             const tokenObj = await clerk.sessions.getToken(
               payloadObj.sid,
-              "medivisitas"
+              "medivisitas",
             );
             if (tokenObj && tokenObj.jwt) {
-              console.log("[AUTH] Token renovado via getToken('medivisitas')", tokenObj.jwt.substring(0, 30) + "...");
+              console.log(
+                "[AUTH] Token renovado via getToken('medivisitas')",
+                tokenObj.jwt.substring(0, 30) + "...",
+              );
               // Validar o novo token
               const newPayload = await verifyToken(tokenObj.jwt, {
                 secretKey: CLERK_SECRET_KEY,
                 jwtKey: CLERK_JWT_KEY || undefined,
               });
-              console.log("[AUTH] Token renovado verificado OK, sub:", newPayload.sub);
-              const firstName = (newPayload as Record<string, unknown>).firstName as string | undefined;
-              const lastName = (newPayload as Record<string, unknown>).lastName as string | undefined;
-              const email = (newPayload as Record<string, unknown>).email as string | undefined;
-              const name = [firstName, lastName].filter(Boolean).join(" ") || email || null;
-              
+              console.log(
+                "[AUTH] Token renovado verificado OK, sub:",
+                newPayload.sub,
+              );
+              const firstName = (newPayload as Record<string, unknown>)
+                .firstName as string | undefined;
+              const lastName = (newPayload as Record<string, unknown>)
+                .lastName as string | undefined;
+              const email = (newPayload as Record<string, unknown>).email as
+                | string
+                | undefined;
+              const name =
+                [firstName, lastName].filter(Boolean).join(" ") ||
+                email ||
+                null;
+
               result = {
                 userId: newPayload.sub ?? null,
                 sessionId: payloadObj.sid,
@@ -138,14 +157,20 @@ async function getUserFromToken(token: string): Promise<{
           }
         }
       } catch (refreshErr) {
-        console.log("[AUTH] Falha ao renovar token:", refreshErr instanceof Error ? refreshErr.message : refreshErr);
+        console.log(
+          "[AUTH] Falha ao renovar token:",
+          refreshErr instanceof Error ? refreshErr.message : refreshErr,
+        );
       }
     }
   }
 
   // Fluxo 2: Token opaco (dvb_...) — converter para JWT via Clerk
   if (!result && !token.startsWith("eyJ")) {
-    console.log("[AUTH] Fluxo 2: Token opaco, convertendo...", token.substring(0, 20) + "...");
+    console.log(
+      "[AUTH] Fluxo 2: Token opaco, convertendo...",
+      token.substring(0, 20) + "...",
+    );
     try {
       const client = await clerk.clients.verifyClient(token);
       const session = client.sessions?.find(
@@ -207,17 +232,29 @@ export const handle: Handle = async ({ event, resolve }) => {
     url.searchParams.get("__session_token");
 
   if (clerkToken) {
-    console.log("[AUTH] Token do redirect Clerk:", clerkToken.substring(0, 30) + "...", "isJWT:", clerkToken.startsWith("eyJ"));
+    console.log(
+      "[AUTH] Token do redirect Clerk:",
+      clerkToken.substring(0, 30) + "...",
+      "isJWT:",
+      clerkToken.startsWith("eyJ"),
+    );
     const user = await getUserFromToken(clerkToken);
 
     if (user) {
-      console.log("[AUTH] Usuário extraído:", { userId: user.userId, sessionTokenIsJwt: user.sessionToken.startsWith("eyJ"), sessionTokenPrefix: user.sessionToken.substring(0, 30) + "..." });
+      console.log("[AUTH] Usuário extraído:", {
+        userId: user.userId,
+        sessionTokenIsJwt: user.sessionToken.startsWith("eyJ"),
+        sessionTokenPrefix: user.sessionToken.substring(0, 30) + "...",
+      });
       // Armazenar o JWT real no cookie (não o token opaco)
       // Isso evita chamadas repetidas ao Clerk para converter token opaco → JWT
       const jwtToStore = user.sessionToken.startsWith("eyJ")
         ? user.sessionToken
         : clerkToken;
-      console.log("[AUTH] Cookie stored:", { isJwt: jwtToStore.startsWith("eyJ"), prefix: jwtToStore.substring(0, 30) + "..." });
+      console.log("[AUTH] Cookie stored:", {
+        isJwt: jwtToStore.startsWith("eyJ"),
+        prefix: jwtToStore.substring(0, 30) + "...",
+      });
 
       cookies.set(COOKIE_NAME, jwtToStore, {
         path: "/",

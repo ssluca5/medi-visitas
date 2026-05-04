@@ -18,7 +18,10 @@ export const GET: RequestHandler = async ({ locals }) => {
         "medivisitas",
       );
     } catch (tokenError) {
-      console.error("Falha ao obter token do template medivisitas:", tokenError);
+      console.error(
+        "Falha ao obter token do template medivisitas:",
+        tokenError,
+      );
       return json({ error: "Template token failed" }, { status: 500 });
     }
 

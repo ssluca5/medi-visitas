@@ -26,6 +26,8 @@
     if (visitaGravavel) {
       visitaParaGravar = visitaGravavel.id;
       modalGravacaoAberto = true;
+    } else {
+      toasts.show('info', 'Nenhuma visita agendada ou realizada disponível para gravação.');
     }
   }
 

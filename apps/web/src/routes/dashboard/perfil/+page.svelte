@@ -147,6 +147,12 @@
 			temaSalvo === "dark" ||
 			document.documentElement.getAttribute("data-theme") === "dark";
 		temaCarregado = true;
+
+		// Verifica se há hash na URL para abrir a tab correta
+		const hash = window.location.hash.replace("#", "");
+		if (hash && tabs.some(t => t.id === hash)) {
+			activeTab = hash;
+		}
 	});
 
 	$effect(() => {
@@ -155,7 +161,16 @@
 		document.documentElement.setAttribute("data-theme", tema);
 		localStorage.setItem("theme", tema);
 	});
+
+	function handleHashChange() {
+		const hash = window.location.hash.replace("#", "");
+		if (hash && tabs.some(t => t.id === hash)) {
+			activeTab = hash;
+		}
+	}
 </script>
+
+<svelte:window onhashchange={handleHashChange} />
 
 <svelte:head>
 	<title>Meu Perfil — MediVisitas</title>

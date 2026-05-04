@@ -46,15 +46,22 @@ export async function verifyClerkToken(
 
     const isJwt = token.startsWith("eyJ");
     request.log.info(
-      { tokenType: isJwt ? "JWT" : "opaque", tokenPrefix: token.substring(0, 20) + "..." },
-      "Verifying Clerk token"
+      {
+        tokenType: isJwt ? "JWT" : "opaque",
+        tokenPrefix: token.substring(0, 20) + "...",
+      },
+      "Verifying Clerk token",
     );
 
     const { CLERK_SECRET_KEY, CLERK_JWT_KEY, authorizedParties } = getEnvVars();
 
     request.log.info(
-      { hasJwtKey: !!CLERK_JWT_KEY, hasAuthorizedParties: !!authorizedParties, authorizedParties },
-      "Auth config"
+      {
+        hasJwtKey: !!CLERK_JWT_KEY,
+        hasAuthorizedParties: !!authorizedParties,
+        authorizedParties,
+      },
+      "Auth config",
     );
 
     const payload = await verifyToken(token, {
@@ -79,10 +86,16 @@ export async function verifyClerkToken(
       [firstName, lastName].filter(Boolean).join(" ").trim() ||
       undefined;
 
-    request.log.info({ userId: request.userId, email: request.userEmail }, "Token verified OK");
+    request.log.info(
+      { userId: request.userId, email: request.userEmail },
+      "Token verified OK",
+    );
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
-    request.log.error({ err, errMsg, stack: err instanceof Error ? err.stack : undefined }, "Clerk token verification failed");
+    request.log.error(
+      { err, errMsg, stack: err instanceof Error ? err.stack : undefined },
+      "Clerk token verification failed",
+    );
     reply.code(401).send({ error: "Unauthorized" });
   }
 }
