@@ -2,8 +2,7 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { apiFetch } from '$lib/api';
-  import { ArrowLeft, CalendarPlus, Phone, Mail, MapPin, Calendar, Clock, Package, Pencil, FileText, Target, User, Activity, ListTodo } from 'lucide-svelte';
-  import Button from '$lib/components/ui/Button.svelte';
+  import { ArrowLeft, CalendarPlus, Calendar, Clock, Package, Pencil, FileText, Target, User, Activity, ListTodo } from 'lucide-svelte';
   import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
   import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
   import TimelineProfissional from '$lib/components/crm/TimelineProfissional.svelte';

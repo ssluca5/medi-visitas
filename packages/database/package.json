@@ -4,6 +4,23 @@
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./enums": {
+      "types": "./src/enums.ts",
+      "default": "./src/enums.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "enums": [
+        "./src/enums.ts"
+      ]
+    }
+  },
   "scripts": {
     "generate": "prisma generate",
     "dev": "prisma studio",
@@ -13,13 +30,10 @@
     "push": "echo Use migrate:dev em vez de db push",
     "seed": "node prisma/seed.js"
   },
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "dependencies": {
-    "@prisma/client": "5.22.0"
+    "@prisma/client": "^6.19.3"
   },
   "devDependencies": {
-    "prisma": "5.22.0"
+    "prisma": "^6.19.3"
   }
 }

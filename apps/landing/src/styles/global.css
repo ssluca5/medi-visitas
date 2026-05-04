@@ -143,6 +143,22 @@ summary:focus-visible {
   box-shadow: 0 10px 25px -8px rgba(37, 99, 235, 0.5);
 }
 
+.btn-secondary {
+  background: transparent;
+  color: var(--color-ink);
+  height: 52px;
+  padding: 0 28px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-off-white);
+  border-color: var(--color-ink-muted);
+}
+
 .btn-light {
   background: var(--color-surface);
   color: var(--color-blue);

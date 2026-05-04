@@ -4,7 +4,7 @@ import { PUBLIC_API_URL, PUBLIC_LANDING_URL } from "$env/static/public";
 
 export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
   // Public routes — no redirect
-  const publicRoutes = ["/login", "/onboarding", "/planos"];
+  const publicRoutes = ["/login", "/signup", "/onboarding", "/planos"];
   if (publicRoutes.some((r) => url.pathname.startsWith(r))) {
     return {
       userId: locals.userId ?? null,

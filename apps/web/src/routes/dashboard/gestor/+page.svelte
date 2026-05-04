@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Users, Stethoscope, CalendarCheck, FileText, Download } from 'lucide-svelte';
+	import { Users, Stethoscope, CalendarCheck, FileText } from 'lucide-svelte';
 	import CardResumo from '$lib/components/dashboard/CardResumo.svelte';
 	import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
 

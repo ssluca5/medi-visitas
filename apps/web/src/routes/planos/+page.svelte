@@ -83,7 +83,7 @@
 
   // Radio Card: plano selecionado — default no plano atual (se encerrado, pré-seleciona para renovação)
   const isEncerrado = $derived(data.status === 'SUSPENSO' || data.status === 'CANCELADO');
-  let selectedPlan = $state<PlanoKey | null>(data.plano as PlanoKey | null);
+  let selectedPlan = $derived<PlanoKey | null>(data.plano as PlanoKey | null);
   const selectedNome = $derived(planos.find((p) => p.key === selectedPlan)?.nome ?? '');
 
   async function sair() {
@@ -158,9 +158,15 @@
   <div class="w-full max-w-5xl mx-auto px-6 py-12 flex flex-col min-h-screen">
     <!-- 1. Barra superior: Voltar (esq) + Sair (dir) -->
     <header class="flex items-center justify-between w-full mb-12">
-      <a href="/dashboard" class="text-sm font-medium transition-opacity hover:opacity-80" style="color: var(--brand-primary);">
-        ← Voltar para o dashboard
-      </a>
+      {#if data.status === 'ATIVO' || data.status === 'TRIAL_ATIVO'}
+        <a href="/dashboard" class="text-sm font-medium transition-opacity hover:opacity-80" style="color: var(--brand-primary);">
+          ← Voltar para o dashboard
+        </a>
+      {:else}
+        <a href="/onboarding" class="text-sm font-medium transition-opacity hover:opacity-80" style="color: var(--brand-primary);">
+          ← Voltar para o início
+        </a>
+      {/if}
       {#if data.status === 'SUSPENSO' || data.status === 'CANCELADO'}
         <button
           onclick={sair}

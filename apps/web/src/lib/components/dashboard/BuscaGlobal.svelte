@@ -13,7 +13,6 @@
   let query = $state('');
   let resultados = $state<BuscaResultado[]>([]);
   let aberto = $state(false);
-  let loading = $state(false);
   let timer: ReturnType<typeof setTimeout>;
 
   $effect(() => {
@@ -25,7 +24,6 @@
 
     clearTimeout(timer);
     timer = setTimeout(async () => {
-      loading = true;
       try {
         const res = await apiFetch(`/busca?q=${encodeURIComponent(query)}`, sessionToken);
         if (res.ok) {
@@ -33,8 +31,9 @@
           resultados = json.resultados;
           aberto = resultados.length > 0;
         }
-      } finally {
-        loading = false;
+      } catch {
+        resultados = [];
+        aberto = false;
       }
     }, 300);
   });

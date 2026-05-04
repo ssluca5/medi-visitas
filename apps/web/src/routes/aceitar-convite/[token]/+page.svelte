@@ -6,7 +6,7 @@
   let { data } = $props<{ data: any }>();
   
   let aceitando = $state(false);
-  let errorMsg = $state(data.error);
+  let errorMsg = $derived<string | null>(data.error ?? null);
 
   async function aceitarConvite() {
     if (!data.sessionToken) {
@@ -29,7 +29,7 @@
         const json = await res.json();
         errorMsg = json.error || 'Erro ao aceitar convite';
       }
-    } catch(e) {
+    } catch {
       errorMsg = 'Erro de conexão';
     } finally {
       aceitando = false;

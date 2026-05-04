@@ -24,6 +24,7 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
   // é feita manualmente em cada handler.
   app.addHook("preHandler", async (request, reply) => {
     await verifyClerkToken(request, reply);
+    if (reply.sent) return;
   });
 
   // GET /status
@@ -84,7 +85,7 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       const limites = getLimitesPlano("TRIAL");
       const org = await prisma.organization.create({
         data: {
-          clerkOrgId: `org_${userId}`,
+          clerkOrgId: `org_${userId}_${Date.now().toString(36)}`,
           nome: "Minha Conta",
           slug: `conta-${userId.slice(-8)}-${Date.now().toString(36)}`,
           plano: "TRIAL",
@@ -143,7 +144,7 @@ const onboardingRoutes: FastifyPluginAsync = async (app) => {
       const limites = getLimitesPlano("TRIAL");
       const org = await prisma.organization.create({
         data: {
-          clerkOrgId: `org_${userId}`,
+          clerkOrgId: `org_${userId}_${Date.now().toString(36)}`,
           nome: nomeEmpresa,
           slug: `${slug}-${userId.slice(-4)}`,
           plano: "TRIAL",

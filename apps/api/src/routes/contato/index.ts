@@ -20,9 +20,15 @@ const contatoRoutes: FastifyPluginAsync = async (app) => {
     "/empresarial",
     { config: { rateLimit: { max: 10, timeWindow: "1 hour" } } },
     async (request, reply) => {
-      console.log('[Env] CWD:', process.cwd())
-      console.log('[Contato] RESEND_API_KEY:', process.env.RESEND_API_KEY?.slice(0, 10) ?? 'AUSENTE')
-      console.log('[Contato] EMAIL_COMERCIAL:', process.env.EMAIL_COMERCIAL ?? 'AUSENTE')
+      console.log("[Env] CWD:", process.cwd());
+      console.log(
+        "[Contato] RESEND_API_KEY:",
+        process.env.RESEND_API_KEY?.slice(0, 10) ?? "AUSENTE",
+      );
+      console.log(
+        "[Contato] EMAIL_COMERCIAL:",
+        process.env.EMAIL_COMERCIAL ?? "AUSENTE",
+      );
       const data = ContatoEmpresarialSchema.parse(request.body);
       const emailComercial = process.env.EMAIL_COMERCIAL;
 
@@ -48,7 +54,7 @@ const contatoRoutes: FastifyPluginAsync = async (app) => {
       if (resend && emailComercial) {
         try {
           const result = await resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: "onboarding@resend.dev",
             to: [process.env.EMAIL_COMERCIAL!],
             replyTo: data.email,
             subject: `[MediVisitas] Contato Empresarial — ${data.empresa}`,
@@ -56,16 +62,21 @@ const contatoRoutes: FastifyPluginAsync = async (app) => {
           });
 
           if (result.error) {
-            console.error('[Resend] Erro da API:', result.error);
-            console.warn('[Resend] Email não enviado, verificar configuração');
-            request.log.error({ err: result.error }, "Falha ao enviar email via Resend (Erro da API)");
+            console.error("[Resend] Erro da API:", result.error);
+            console.warn("[Resend] Email não enviado, verificar configuração");
+            request.log.error(
+              { err: result.error },
+              "Falha ao enviar email via Resend (Erro da API)",
+            );
           } else {
-            console.log('[Resend] Email enviado com sucesso:', result.data?.id);
+            console.log("[Resend] Email enviado com sucesso:", result.data?.id);
           }
-
         } catch (emailError) {
-          console.error('[Resend] Erro detalhado:', JSON.stringify(emailError));
-          request.log.error({ err: emailError }, "Falha na requisição ao enviar email via Resend");
+          console.error("[Resend] Erro detalhado:", JSON.stringify(emailError));
+          request.log.error(
+            { err: emailError },
+            "Falha na requisição ao enviar email via Resend",
+          );
           // Não retornamos 502 aqui. O erro é interno, o formulário foi preenchido corretamente.
         }
       } else {

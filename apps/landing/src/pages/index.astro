@@ -13,7 +13,7 @@ import Footer from "../components/Footer.astro";
 
 // Verificação server-side — sem loop, sem cookie frágil
 const { userId } = Astro.locals.auth();
-const appUrl = import.meta.env.PUBLIC_APP_URL || 'http://localhost:5173';
+const appUrl = import.meta.env.PUBLIC_APP_URL || 'https://app.medivisitas.com';
 
 if (userId) {
   return Astro.redirect(`${appUrl}/dashboard`, 302);

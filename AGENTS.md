@@ -17,7 +17,7 @@
 | ORM             | Prisma 5.22                   |
 | Banco           | PostgreSQL via Supabase       |
 | Auth            | Clerk (`@clerk/backend` v3.4) |
-| IA / Áudio      | MiniMax 2.7 (Fase 5)          |
+| IA / Áudio      | Google Gemini (Fase 5)        |
 | Package Manager | pnpm (monorepo)               |
 
 ---
@@ -114,7 +114,7 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 | 2    | Cadastro profissionais + Potencial | ✅ Concluída |
 | 3    | Histórico de visitas + Materiais   | ✅ Concluída |
 | 4    | Agenda inteligente                 | ✅ Concluída |
-| 5    | IA — transcrição MiniMax 2.7       | ✅ Concluída |
+| 5    | IA — transcrição Google Gemini     | ✅ Concluída |
 | 6    | Dashboard + CRM avançado           | ✅ Concluída |
 | 7    | Pipeline comercial + Analytics     | ✅ Concluída |
 | 8    | Notificações + Lembretes           | ✅ Concluída |
@@ -176,15 +176,15 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-04-30] Dashboard sem auth guard centralizado → criado `+layout.server.ts` com redirect para landing page
 - [2026-04-30] Falta rota `/health` → criada com check de banco para monitoramento de infra
 
-### Fase 5 — IA: Transcrição com MiniMax 2.7
+### Fase 5 — IA: Transcrição com Google Gemini
 
 - **Concluída em:** 2026-04-25
 - **Migration:** `audioUrl String?` em Visita (via `prisma migrate dev`)
 - **Dependência adicionada:** `@fastify/multipart@8`
-- **Serviço:** `apps/api/src/services/minimax.ts` (STT + Chat Completion)
+- **Serviço:** `apps/api/src/services/gemini.ts` (STT + Chat Completion)
 - **Rotas:** `POST /visitas/:id/transcricao`, `PATCH /visitas/:id/audio`
 - **Frontend:** `useGravacaoAudio.svelte.ts`, `BotaoGravacao.svelte`, `ModalGravacao.svelte`
-- **Testes:** 9/9 passando (7 minimax service + 2 route auth)
+- **Testes:** testado (gemini service + route auth)
 - **Decisões:** `Buffer` → `Uint8Array` para compatibilidade com `BlobPart` TypeScript, `@fastify/multipart@8` (v9 exige Fastify 5), mock ESM do `@clerk/backend` pré-defeituoso nos testes de rota
 
 ### Fase 8 — Notificações + Lembretes Automáticos

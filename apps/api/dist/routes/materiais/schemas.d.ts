@@ -1,38 +1,59 @@
 import { z } from "zod";
-export declare const TipoMaterialSchema: z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>;
-export declare const CreateMaterialInputSchema: z.ZodObject<{
+export declare const TipoMaterialSchema: z.ZodEnum<
+  ["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]
+>;
+export declare const CreateMaterialInputSchema: z.ZodObject<
+  {
     nome: z.ZodString;
     descricao: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     tipo: z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>;
-    arquivoUrl: z.ZodNullable<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>>;
-}, "strip", z.ZodTypeAny, {
+    arquivoUrl: z.ZodNullable<
+      z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     nome: string;
     tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
-}, {
+  },
+  {
     nome: string;
     tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
-}>;
-export declare const UpdateMaterialInputSchema: z.ZodObject<{
+  }
+>;
+export declare const UpdateMaterialInputSchema: z.ZodObject<
+  {
     nome: z.ZodOptional<z.ZodString>;
     descricao: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>;
-    tipo: z.ZodOptional<z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>>;
-    arquivoUrl: z.ZodOptional<z.ZodNullable<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>>>;
-}, "strip", z.ZodTypeAny, {
+    tipo: z.ZodOptional<
+      z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>
+    >;
+    arquivoUrl: z.ZodOptional<
+      z.ZodNullable<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>>
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     nome?: string | undefined;
     tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
-}, {
+  },
+  {
     nome?: string | undefined;
     tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     descricao?: string | null | undefined;
     arquivoUrl?: string | null | undefined;
-}>;
-export declare const MaterialOutputSchema: z.ZodObject<{
+  }
+>;
+export declare const MaterialOutputSchema: z.ZodObject<
+  {
     id: z.ZodString;
     nome: z.ZodString;
     descricao: z.ZodNullable<z.ZodString>;
@@ -41,7 +62,10 @@ export declare const MaterialOutputSchema: z.ZodObject<{
     createdAt: z.ZodDate;
     updatedAt: z.ZodDate;
     deletedAt: z.ZodNullable<z.ZodDate>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     id: string;
     deletedAt: Date | null;
     createdAt: Date;
@@ -50,7 +74,8 @@ export declare const MaterialOutputSchema: z.ZodObject<{
     tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao: string | null;
     arquivoUrl: string | null;
-}, {
+  },
+  {
     id: string;
     deletedAt: Date | null;
     createdAt: Date;
@@ -59,106 +84,138 @@ export declare const MaterialOutputSchema: z.ZodObject<{
     tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
     descricao: string | null;
     arquivoUrl: string | null;
-}>;
-export declare const ListMateriaisQuerySchema: z.ZodObject<{
+  }
+>;
+export declare const ListMateriaisQuerySchema: z.ZodObject<
+  {
     page: z.ZodDefault<z.ZodNumber>;
     pageSize: z.ZodDefault<z.ZodNumber>;
     busca: z.ZodOptional<z.ZodString>;
-    tipo: z.ZodOptional<z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>>;
+    tipo: z.ZodOptional<
+      z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>
+    >;
     incluirInativos: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     page: number;
     pageSize: number;
     tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     busca?: string | undefined;
     incluirInativos?: string | undefined;
-}, {
+  },
+  {
     tipo?: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA" | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
     busca?: string | undefined;
     incluirInativos?: string | undefined;
-}>;
-export declare const MateriaisListOutputSchema: z.ZodObject<{
-    data: z.ZodArray<z.ZodObject<{
-        id: z.ZodString;
-        nome: z.ZodString;
-        descricao: z.ZodNullable<z.ZodString>;
-        tipo: z.ZodEnum<["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]>;
-        arquivoUrl: z.ZodNullable<z.ZodString>;
-        createdAt: z.ZodDate;
-        updatedAt: z.ZodDate;
-        deletedAt: z.ZodNullable<z.ZodDate>;
-    }, "strip", z.ZodTypeAny, {
-        id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-        nome: string;
-        tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-        descricao: string | null;
-        arquivoUrl: string | null;
-    }, {
-        id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-        nome: string;
-        tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-        descricao: string | null;
-        arquivoUrl: string | null;
-    }>, "many">;
-    pagination: z.ZodObject<{
+  }
+>;
+export declare const MateriaisListOutputSchema: z.ZodObject<
+  {
+    data: z.ZodArray<
+      z.ZodObject<
+        {
+          id: z.ZodString;
+          nome: z.ZodString;
+          descricao: z.ZodNullable<z.ZodString>;
+          tipo: z.ZodEnum<
+            ["BULA", "FOLDER", "APRESENTACAO", "AMOSTRA", "OUTRO"]
+          >;
+          arquivoUrl: z.ZodNullable<z.ZodString>;
+          createdAt: z.ZodDate;
+          updatedAt: z.ZodDate;
+          deletedAt: z.ZodNullable<z.ZodDate>;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          id: string;
+          deletedAt: Date | null;
+          createdAt: Date;
+          updatedAt: Date;
+          nome: string;
+          tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
+          descricao: string | null;
+          arquivoUrl: string | null;
+        },
+        {
+          id: string;
+          deletedAt: Date | null;
+          createdAt: Date;
+          updatedAt: Date;
+          nome: string;
+          tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
+          descricao: string | null;
+          arquivoUrl: string | null;
+        }
+      >,
+      "many"
+    >;
+    pagination: z.ZodObject<
+      {
         page: z.ZodNumber;
         pageSize: z.ZodNumber;
         total: z.ZodNumber;
         totalPages: z.ZodNumber;
-    }, "strip", z.ZodTypeAny, {
+      },
+      "strip",
+      z.ZodTypeAny,
+      {
         page: number;
         pageSize: number;
         total: number;
         totalPages: number;
-    }, {
+      },
+      {
         page: number;
         pageSize: number;
         total: number;
         totalPages: number;
-    }>;
-}, "strip", z.ZodTypeAny, {
+      }
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     data: {
-        id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-        nome: string;
-        tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-        descricao: string | null;
-        arquivoUrl: string | null;
+      id: string;
+      deletedAt: Date | null;
+      createdAt: Date;
+      updatedAt: Date;
+      nome: string;
+      tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
+      descricao: string | null;
+      arquivoUrl: string | null;
     }[];
     pagination: {
-        page: number;
-        pageSize: number;
-        total: number;
-        totalPages: number;
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
     };
-}, {
+  },
+  {
     data: {
-        id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-        nome: string;
-        tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
-        descricao: string | null;
-        arquivoUrl: string | null;
+      id: string;
+      deletedAt: Date | null;
+      createdAt: Date;
+      updatedAt: Date;
+      nome: string;
+      tipo: "OUTRO" | "BULA" | "FOLDER" | "APRESENTACAO" | "AMOSTRA";
+      descricao: string | null;
+      arquivoUrl: string | null;
     }[];
     pagination: {
-        page: number;
-        pageSize: number;
-        total: number;
-        totalPages: number;
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
     };
-}>;
+  }
+>;
 export type CreateMaterialInput = z.infer<typeof CreateMaterialInputSchema>;
 export type UpdateMaterialInput = z.infer<typeof UpdateMaterialInputSchema>;
 export type MaterialOutput = z.infer<typeof MaterialOutputSchema>;

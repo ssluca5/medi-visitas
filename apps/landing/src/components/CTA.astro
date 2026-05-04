@@ -1,5 +1,5 @@
 ---
-const appUrl = import.meta.env.PUBLIC_APP_URL;
+const appUrl = import.meta.env.PUBLIC_APP_URL || 'https://app.medivisitas.com';
 ---
 
 <section class="cta-section-final" aria-labelledby="cta-final-h2">
@@ -18,12 +18,12 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
       Cadastre-se em 2 minutos. Organize sua carteira em 1 dia. Veja a diferença na primeira semana.
     </p>
     <div class="cta-buttons story-element" data-story-delay="3">
-      <a href="/planos" class="btn btn-light">Começar minha transformação →</a>
+      <a href={`${appUrl}/signup`} class="btn btn-light">Criar conta grátis →</a>
       <a href={`${appUrl}/login`} class="cta-secondary">Já tenho conta</a>
     </div>
     <div class="cta-trust story-element" data-story-delay="4">
       <span>&#10003; 7 dias grátis</span>
-      <span>&#10003; Sem cartão</span>
+      <span>&#10003; Sem cartão de crédito</span>
       <span>&#10003; Cancele quando quiser</span>
     </div>
   </div>

@@ -1,15 +1,34 @@
-import { jest, describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+  afterAll,
+} from "@jest/globals";
 
 let mockVerifyTokenFn: any;
+let mockUserUpsert: any;
+let mockMemberFindFirst: any;
 let app: any;
 
 describe("GET /me", () => {
   beforeAll(async () => {
     mockVerifyTokenFn = jest.fn() as jest.Mock;
+    mockUserUpsert = jest.fn();
+    mockMemberFindFirst = jest.fn();
 
     const jestGlobal = jest as any;
     jestGlobal.unstable_mockModule("@clerk/backend", () => ({
       verifyToken: mockVerifyTokenFn,
+    }));
+
+    jestGlobal.unstable_mockModule("../lib/prisma.js", () => ({
+      prisma: {
+        user: { upsert: mockUserUpsert },
+        organizationMembro: { findFirst: mockMemberFindFirst },
+      },
     }));
 
     jestGlobal.unstable_mockModule("../hooks/auth.js", () => ({
@@ -36,6 +55,12 @@ describe("GET /me", () => {
     const meRoute = await import("./me.js");
     app.register(meRoute.default);
     await app.ready();
+  });
+
+  beforeEach(() => {
+    mockVerifyTokenFn.mockReset();
+    mockUserUpsert.mockReset();
+    mockMemberFindFirst.mockReset();
   });
 
   afterAll(async () => {
@@ -75,6 +100,13 @@ describe("GET /me", () => {
     };
 
     mockVerifyTokenFn.mockResolvedValueOnce(mockUser as never);
+    mockUserUpsert.mockResolvedValueOnce({
+      id: "db_user_123",
+      email: "user_123@placeholder.local",
+      name: null,
+      tourConcluidoEm: null,
+    });
+    mockMemberFindFirst.mockResolvedValueOnce(null);
 
     const response = await app.inject({
       method: "GET",

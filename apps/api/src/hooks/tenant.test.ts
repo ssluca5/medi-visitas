@@ -30,6 +30,7 @@ describe("resolveTenant", () => {
     request = {
       userId: "user_123",
       orgId: undefined,
+      url: "/profissionais",
       log: { error: jest.fn() },
     };
     reply = {

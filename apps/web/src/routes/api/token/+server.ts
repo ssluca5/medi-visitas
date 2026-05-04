@@ -15,15 +15,11 @@ export const GET: RequestHandler = async ({ locals }) => {
     try {
       tokenInfo = await clerk.sessions.getToken(
         locals.sessionId,
-        "access_token",
+        "medivisitas",
       );
     } catch (tokenError) {
-      console.error("Falha ao obter access_token:", tokenError);
-      // Tentativa de fallback com session_token
-      tokenInfo = await clerk.sessions.getToken(
-        locals.sessionId,
-        "session_token",
-      );
+      console.error("Falha ao obter token do template medivisitas:", tokenError);
+      return json({ error: "Template token failed" }, { status: 500 });
     }
 
     if (tokenInfo && tokenInfo.jwt) {

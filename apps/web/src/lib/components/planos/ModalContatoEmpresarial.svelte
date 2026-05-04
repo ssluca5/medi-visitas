@@ -65,14 +65,17 @@
     style="background: rgb(17 24 39 / 0.5); backdrop-filter: blur(4px);"
     transition:fade={{ duration: 150 }}
     onclick={fechar}
-    role="dialog"
-    aria-modal="true"
+    role="presentation"
   >
     <!-- Modal Container -->
     <div
       class="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       transition:fly={{ y: 16, duration: 220, easing: cubicOut }}
       onclick={(event) => event.stopPropagation()}
+      onkeydown={(event) => event.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+      tabindex="-1"
     >
       {#if enviado}
         <!-- ══════════ Estado de Sucesso ══════════ -->

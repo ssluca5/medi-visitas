@@ -171,7 +171,7 @@
         const err = await res.json().catch(() => null);
         toasts.show('error', err?.error || 'Erro ao mover profissional');
       }
-    } catch (e) {
+    } catch {
       // Reverter em caso de erro de rede
       pipeline.data[destino] = pipeline.data[destino].filter((p) => p.id !== profId);
       pipeline.data[origem] = [...pipeline.data[origem], prof];

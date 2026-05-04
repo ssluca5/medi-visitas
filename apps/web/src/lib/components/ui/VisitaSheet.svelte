@@ -91,7 +91,9 @@
         const todos = json.data || json;
         profissionaisFiltrados = todos.filter((p: Profissional) => !!p.nome.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8);
       }
-    } catch {}
+    } catch {
+      profissionaisFiltrados = [];
+    }
   }
 
   // Carregar dados quando a drawer abre ou quando visita muda
@@ -220,7 +222,7 @@
       } else {
         toasts.show('error', 'Erro ao excluir visita.');
       }
-    } catch (err) {
+    } catch {
       toasts.show('error', 'Erro inesperado de conexão.');
     } finally {
       loading = false;
@@ -253,7 +255,7 @@
           {#if profissionalId && !visita?.profissionalId}
             {#if typeof profissionalId === 'string' && profissionalNome}
               <div class="mb-4">
-                <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</label>
+                <span class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</span>
                 <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-[rgb(var(--slate-700))] font-medium">
                   {profissionalNome}
                 </div>
@@ -261,7 +263,7 @@
             {/if}
           {:else if visita?.profissionalId}
             <div class="mb-4">
-              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</label>
+              <span class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</span>
               <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-[rgb(var(--slate-700))] font-medium">
                 {visita.profissional?.nome || 'Profissional'}
               </div>

@@ -1,5 +1,5 @@
 ---
-const appUrl = import.meta.env.PUBLIC_APP_URL;
+const appUrl = import.meta.env.PUBLIC_APP_URL || 'https://app.medivisitas.com';
 ---
 
 <section class="section-opening" aria-labelledby="opening-h1">
@@ -16,12 +16,11 @@ const appUrl = import.meta.env.PUBLIC_APP_URL;
       <p class="opening-sub story-element" data-story-delay="1">
         A maioria dos propagandistas começa o dia sem saber a resposta. O MediVisitas muda isso.
       </p>
-      <p class="opening-trust story-element" data-story-delay="1">
-        7 dias grátis · Sem cartão · Setup em 5 min
-      </p>
       <div class="opening-cta-row story-element" data-story-delay="1">
-        <a href="#planos" class="btn btn-primary">Descobrir como →</a>
+        <a href={`${appUrl}/signup`} class="btn btn-primary">Começar grátis →</a>
+        <a href="#planos" class="btn btn-secondary">Ver planos</a>
       </div>
+      <p class="opening-trust story-element" data-story-delay="1" style="margin-top: 16px;">7 dias grátis · Sem cartão de crédito · Cancele quando quiser</p>
     </div>
 
     <div class="clock-card" data-parallax="-0.05">

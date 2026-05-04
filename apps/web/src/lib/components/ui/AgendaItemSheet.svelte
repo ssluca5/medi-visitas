@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { AgendaItem, PrioridadeAgenda, StatusAgenda } from '$lib/types';
 	import Sheet from './Sheet.svelte';
-	import Button from './Button.svelte';
 	import { Calendar, Clock, User, FileText, AlertTriangle, Search } from 'lucide-svelte';
 	import type { Profissional } from '$lib/types';
 	import { apiFetch } from '$lib/api';
@@ -66,7 +65,9 @@
 				const todos = json.data || json;
 				profissionaisFiltrados = todos.filter((p: Profissional) => !!p.nome.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8);
 			}
-		} catch {}
+		} catch {
+			profissionaisFiltrados = [];
+		}
 	}
 
 	let isEdit = $derived(!!item);

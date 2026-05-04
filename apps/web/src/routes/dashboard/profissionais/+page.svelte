@@ -38,8 +38,6 @@
 		ClassificacaoRelacionamento,
 		SubEspecialidade,
 		ContatoTipo,
-		Sexo,
-		Tratamento,
 		Visita
 	} from '$lib/types';
 
@@ -280,7 +278,9 @@
 				const json = await response.json();
 				especialidades = json.data;
 			}
-		} catch {}
+		} catch {
+			especialidades = [];
+		}
 	}
 
 	onMount(() => {
@@ -504,7 +504,7 @@
 				profissionais = profissionais.map((p) => (p.id === updated.id ? updated : p));
 				toasts.show('success', `${prof.nome}: ${estagioConfig[proximo].label}`);
 			}
-		} catch (err) {
+		} catch {
 			toasts.show('error', 'Erro ao avançar estágio');
 		}
 	}
@@ -524,7 +524,7 @@
 				profissionais = profissionais.map((p) => (p.id === updated.id ? updated : p));
 				toasts.show('success', `${prof.nome}: ${estagioConfig[anterior].label}`);
 			}
-		} catch (err) {
+		} catch {
 			toasts.show('error', 'Erro ao retroceder estágio');
 		}
 	}
@@ -542,7 +542,7 @@
 				profissionais = profissionais.map((p) => (p.id === updated.id ? updated : p));
 				toasts.show('success', isAtivo ? `"${prof.nome}" inativado.` : `"${prof.nome}" reativado.`);
 			}
-		} catch (err) {
+		} catch {
 			toasts.show('error', 'Erro ao alterar status');
 		}
 	}

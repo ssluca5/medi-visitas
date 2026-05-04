@@ -13,6 +13,7 @@ import {
   transcreverAudio,
   extrairCamposVisita,
 } from "../../services/gemini.js";
+import { sanitizeAudioBuffer } from "../../services/sanitize-audio.js";
 import {
   verificarLimiteTranscricao,
   incrementarTranscricao,
@@ -283,8 +284,20 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(400).send({ error: "Arquivo excede 10MB" });
     }
 
+    // Sanitizar metadados do áudio antes de enviar para API externa
+    const { buffer: cleanBuffer, sanitized } = sanitizeAudioBuffer(
+      buffer,
+      mimeType,
+    );
+    if (sanitized) {
+      request.log.info(
+        { visitaId: id, mimeType },
+        "Metadados de áudio removidos",
+      );
+    }
+
     // Passo 1: STT (Speech-to-Text)
-    const transcricao = await transcreverAudio(buffer, mimeType);
+    const transcricao = await transcreverAudio(cleanBuffer, mimeType);
 
     // Passo 2: Chat Completion (extração estruturada)
     const campos = await extrairCamposVisita(transcricao);

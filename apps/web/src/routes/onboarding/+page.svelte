@@ -3,9 +3,9 @@
   import { page } from '$app/state'
   import { ArrowLeft, Check } from 'lucide-svelte'
 
-  type PlanoKey = 'BASICO' | 'PROFISSIONAL' | 'EQUIPE';
+  type PlanoKey = 'GRATUITO' | 'BASICO' | 'PROFISSIONAL' | 'EQUIPE';
 
-  const planos: Array<{
+  const todosPlanos: Array<{
     key: PlanoKey;
     nome: string;
     descricao: string;
@@ -15,6 +15,22 @@
     tagClasses?: string;
     features: string[];
   }> = [
+    {
+      key: 'GRATUITO',
+      nome: '7 dias grátis',
+      descricao: 'Experimente por 7 dias sem compromisso. Sem cartão de crédito.',
+      preco: 'Grátis',
+      suporte: '48h',
+      tag: 'Recomendado',
+      tagClasses: 'bg-emerald-100 text-emerald-700',
+      features: [
+        '7 dias de acesso completo',
+        'Até 100 profissionais cadastrados',
+        'Agenda inteligente',
+        'Histórico de visitas',
+        'Pipeline comercial'
+      ]
+    },
     {
       key: 'BASICO',
       nome: 'Básico',
@@ -34,17 +50,17 @@
     {
       key: 'PROFISSIONAL',
       nome: 'Profissional',
-      descricao: 'Para representantes que usam IA e relatórios no dia a dia.',
+      descricao: 'Para representantes que usam IA e relatórios na rotina.',
       preco: 'R$ 149',
       suporte: '24h',
-      tag: 'Mais completo',
-      tagClasses: 'bg-emerald-100 text-emerald-700',
+      tag: 'Mais popular',
+      tagClasses: 'bg-blue-100 text-blue-700',
       features: [
         'Profissionais ilimitados',
-        'Tudo do Básico',
-        '50 transcrições de IA por mês',
+        '50 transcrições de IA/mês',
         'Pacotes adicionais de IA',
-        'Relatórios e exportação CSV'
+        'Relatórios e CSV',
+        'Tudo do Básico'
       ]
     },
     {
@@ -65,139 +81,289 @@
     }
   ];
 
-  // Estados
-  let etapa = $state<'escolha' | 'nome-empresa' | 'processando'>('escolha')
-  let opcaoSelecionada = $state<PlanoKey>('PROFISSIONAL')
-  let nomeEmpresa = $state('')
-  let loading = $state(false)
-  let erro = $state('')
+  // Plano da query string (?plano=BASICO, PROFISSIONAL, EQUIPE)
+  // Mapeia slugs da landing para keys do onboarding
+  const planoParamMap: Record<string, PlanoKey> = {
+    'BASICO': 'BASICO',
+    'PROFISSIONAL': 'PROFISSIONAL',
+    'EQUIPE': 'EQUIPE',
+  };
+  const planoParam = $derived(page.url.searchParams.get('plano'));
+  const planoFiltrado = $derived(planoParam ? planoParamMap[planoParam] : null);
 
-  const sessionToken = $derived(page.data.sessionToken)
+	// Filtra planos: sem param → só gratuito; com param → só o plano escolhido
+	const planos = $derived(
+		planoFiltrado
+			? todosPlanos.filter(p => p.key === planoFiltrado)
+			: todosPlanos.filter(p => p.key === 'GRATUITO')
+	);
 
-  // Ao selecionar equipe → ir para etapa de nome
-  function selecionarOpcao(opcao: typeof opcaoSelecionada) {
-    opcaoSelecionada = opcao
-    if (opcao === 'EQUIPE') {
-      etapa = 'nome-empresa'
-    } else {
-      // Individual — ir direto para confirmação
-      confirmar()
-    }
-  }
+	type PlanoInfo = {
+		nome: string;
+		preco?: string;
+		badge?: string;
+		depoimento?: string;
+		autorNome?: string;
+		autorCargo?: string;
+		autorIniciais?: string;
+		autorAvatarUrl?: string;
+		metricas: { valor: string; rotulo: string }[];
+	};
 
-  async function confirmar() {
-    loading = true
-    erro = ''
+	const planosInfo: Record<PlanoKey, PlanoInfo> = {
+		GRATUITO: {
+			nome: '7 dias grátis.\nSem cartão de crédito.',
+			metricas: [
+				{ valor: '7 dias', rotulo: 'Grátis para testar' },
+				{ valor: '100', rotulo: 'Profissionais' },
+				{ valor: '200+', rotulo: 'Propagandistas' },
+				{ valor: '4.9★', rotulo: 'Avaliação' },
+			],
+		},
+		BASICO: {
+			nome: 'Plano Básico',
+			preco: 'R$ 79/mês',
+			badge: 'Ideal para começar',
+			depoimento: 'A agenda inteligente mudou minha rotina. Nunca mais esqueci uma visita.',
+			autorNome: 'Carlos Almeida',
+			autorCargo: 'Propagandista (3 anos)',
+			autorIniciais: 'CA',
+			autorAvatarUrl: 'https://i.pravatar.cc/150?img=11',
+			metricas: [
+				{ valor: 'R$ 79', rotulo: 'Por mês' },
+				{ valor: '100', rotulo: 'Profissionais' },
+				{ valor: '48h', rotulo: 'Suporte' },
+				{ valor: '1', rotulo: 'Usuário' },
+			],
+		},
+		PROFISSIONAL: {
+			nome: 'Plano Profissional',
+			preco: 'R$ 149/mês',
+			badge: 'O mais popular',
+			depoimento: 'Com a transcrição de IA, meus relatórios ficam prontos antes do almoço.',
+			autorNome: 'Marina Silva',
+			autorCargo: 'Propagandista (8 anos)',
+			autorIniciais: 'MS',
+			autorAvatarUrl: 'https://i.pravatar.cc/150?img=5',
+			metricas: [
+				{ valor: 'R$ 149', rotulo: 'Por mês' },
+				{ valor: '500+', rotulo: 'Profissionais' },
+				{ valor: '50', rotulo: 'Transcrições IA' },
+				{ valor: '24h', rotulo: 'Suporte' },
+			],
+		},
+		EQUIPE: {
+			nome: 'Plano Equipe',
+			preco: 'R$ 349/mês',
+			badge: 'Para times',
+			depoimento: 'Consigo acompanhar toda a operação em tempo real pelo dashboard.',
+			autorNome: 'Roberto Gomes',
+			autorCargo: 'Gestor (12 anos)',
+			autorIniciais: 'RG',
+			autorAvatarUrl: 'https://i.pravatar.cc/150?img=33',
+			metricas: [
+				{ valor: 'R$ 349', rotulo: 'Por mês' },
+				{ valor: '10', rotulo: 'Usuários' },
+				{ valor: '200', rotulo: 'Transcrições IA' },
+				{ valor: '4h', rotulo: 'Suporte' },
+			],
+		},
+	};
 
-    try {
-      // Determinar endpoint e body
-      const isEmpresa = opcaoSelecionada === 'EQUIPE'
-      const endpoint = isEmpresa
-        ? `${PUBLIC_API_URL}/onboarding/empresa`
-        : `${PUBLIC_API_URL}/onboarding/individual`
+	// Estados
+	let etapa = $state<'escolha' | 'nome-empresa' | 'processando'>('escolha')
+	let opcaoSelecionada = $state<PlanoKey>(planoFiltrado ?? 'GRATUITO')
+	let nomeEmpresa = $state('')
+	let loading = $state(false)
+	let erro = $state('')
 
-      const body = isEmpresa
-        ? JSON.stringify({ nomeEmpresa: nomeEmpresa.trim() })
-        : undefined
+	const sessionToken = $derived(page.data.sessionToken)
+	const planoDados = $derived(planosInfo[opcaoSelecionada]);
+	const planoUnico = $derived(planos[0]);
 
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-      }
-      if (body) {
-        headers['Content-Type'] = 'application/json'
-      }
+	/**
+	 * Obtém um token válido — usa o sessionToken do layout,
+	 * ou tenta refresh via /api/token se for null.
+	 */
+	async function getValidToken(): Promise<string> {
+		if (sessionToken) return sessionToken;
+		// Tentar refresh do token via endpoint server-side
+		try {
+			const res = await fetch('/api/token');
+			if (res.ok) {
+				const data = await res.json();
+				if (data.token) return data.token;
+			}
+		} catch { /* ignore */ }
+		throw new Error('Sessão expirada. Por favor, faça login novamente.');
+	}
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers,
-        body,
-      })
 
-      if (!res.ok) {
-        let msg = 'Erro ao criar organização'
-        try {
-          const data = await res.json()
-          if (data.error) msg = data.error
-        } catch {
-          // response body may be empty or non-JSON
-        }
-        throw new Error(msg)
-      }
+	function selecionarOpcao(opcao: typeof opcaoSelecionada) {
+		opcaoSelecionada = opcao
+		if (opcao === 'EQUIPE') {
+			etapa = 'nome-empresa'
+		} else if (opcao === 'GRATUITO') {
+			confirmarGratuito()
+		} else {
+			confirmar()
+		}
+	}
 
-      // Redirecionar para checkout Stripe com o plano selecionado
-      const checkoutRes = await fetch(`${PUBLIC_API_URL}/billing/checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
-        body: JSON.stringify({ plano: opcaoSelecionada }),
-      })
+	async function confirmarGratuito() {
+		loading = true
+		erro = ''
 
-      if (checkoutRes.ok) {
-        const { checkoutUrl } = await checkoutRes.json()
-        window.location.href = checkoutUrl
-        return
-      }
+		try {
+			const token = await getValidToken()
+			const res = await fetch(`${PUBLIC_API_URL}/onboarding/individual`, {
+				method: 'POST',
+				headers: { Authorization: `Bearer ${token}` },
+			})
 
-      // Fallback
-      await new Promise(r => setTimeout(r, 1000))
-      window.location.href = '/dashboard'
+			if (!res.ok) {
+				let msg = 'Erro ao criar organização'
+				try {
+					const data = await res.json()
+					if (data.error) msg = data.error
+				} catch { /* empty */ }
+				throw new Error(msg)
+			}
 
-    } catch (e) {
-      erro = e instanceof Error ? e.message : 'Erro desconhecido'
-      loading = false
-    }
-  }
+			window.location.href = '/dashboard'
+		} catch (e) {
+			erro = e instanceof Error ? e.message : 'Erro desconhecido'
+			loading = false
+		}
+	}
+
+	async function confirmar() {
+		loading = true
+		erro = ''
+
+		try {
+			const token = await getValidToken()
+			const isEmpresa = opcaoSelecionada === 'EQUIPE'
+			const endpoint = isEmpresa
+				? `${PUBLIC_API_URL}/onboarding/empresa`
+				: `${PUBLIC_API_URL}/onboarding/individual`
+
+			const body = isEmpresa
+				? JSON.stringify({ nomeEmpresa: nomeEmpresa.trim() })
+				: undefined
+
+			const headers: Record<string, string> = {
+				Authorization: `Bearer ${token}`,
+			}
+			if (body) {
+				headers['Content-Type'] = 'application/json'
+			}
+
+			const res = await fetch(endpoint, {
+				method: 'POST',
+				headers,
+				body,
+			})
+
+			if (!res.ok) {
+				let msg = 'Erro ao criar organização'
+				try {
+					const data = await res.json()
+					if (data.error) msg = data.error
+				} catch { /* empty */ }
+				throw new Error(msg)
+			}
+
+			// Paid plans: redirect to Stripe Checkout
+			const checkoutRes = await fetch(`${PUBLIC_API_URL}/billing/checkout`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({ plano: opcaoSelecionada }),
+			})
+
+			if (checkoutRes.ok) {
+				const { checkoutUrl } = await checkoutRes.json()
+				window.location.href = checkoutUrl
+				return
+			}
+
+			throw new Error('Erro ao criar sessão de pagamento')
+		} catch (e) {
+			erro = e instanceof Error ? e.message : 'Erro desconhecido'
+			loading = false
+		}
+	}
 </script>
 
 {#if etapa === 'escolha'}
 <div class="flex h-screen w-full overflow-hidden bg-white font-sans">
 
-  <!-- ═══ Painel Esquerdo — Dark / Proposta de Valor ═══ -->
-  <div class="hidden lg:flex w-1/2 flex-col justify-between p-12 relative overflow-hidden"
-    style="background-color: rgb(var(--slate-900));">
+	<!-- ═══ Painel Esquerdo — Dark / Identidade Visual ═══ -->
+	<div class="hidden lg:flex w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-slate-900">
 
-    <!-- TOPO — Logo -->
-    <div class="relative z-10">
-      <div class="flex items-center gap-2">
-        <p class="text-2xl font-bold tracking-tight"
-          style="color: rgb(var(--slate-50));">MediVisitas</p>
-        <span class="w-2 h-2 rounded-full"
-          style="background-color: rgb(var(--accent));"></span>
-      </div>
-      <p class="text-sm mt-1.5"
-        style="color: rgb(var(--slate-300));">CRM para Propagandistas Farmacêuticos</p>
-    </div>
+		<!-- Glow Radial no Fundo -->
+		<div class="absolute top-1/4 left-0 w-96 h-96 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- MEIO — Proposta de Valor -->
-    <div class="flex flex-col gap-4 relative z-10">
-      <h2 class="text-3xl md:text-4xl font-medium leading-snug"
-        style="color: rgb(var(--slate-50));">
-        "Transforme sua rotina de visitas em resultados reais."
-      </h2>
-      <p class="text-sm"
-        style="color: rgb(var(--slate-400));">
-        Escolha o plano ideal para o seu momento. Faça o upgrade ou cancele a qualquer momento, sem burocracia.
-      </p>
-    </div>
+		<!-- TOPO — Logo -->
+		<div class="relative z-10">
+			<div class="flex items-center gap-2">
+				<p class="text-2xl font-bold tracking-tight text-white">MediVisitas</p>
+				<span class="w-2 h-2 rounded-full bg-brand-500"></span>
+			</div>
+			<p class="text-sm mt-1.5 text-slate-400">CRM para Propagandistas Farmacêuticos</p>
+		</div>
 
-    <!-- BASE — Trust Indicators -->
-    <div class="grid grid-cols-4 gap-6 pt-8 border-t relative z-10"
-      style="border-color: rgba(255,255,255,0.1);">
-      {#each [
-        { valor: '7 dias', label: 'Trial gratuito' },
-        { valor: 'Zero', label: 'Taxa de setup' },
-        { valor: 'Imediato', label: 'Acesso liberado' },
-        { valor: 'Fácil', label: 'Cancelamento online' },
-      ] as m}
-        <div>
-          <p class="text-2xl font-bold" style="color: rgb(var(--slate-50));">{m.valor}</p>
-          <p class="text-xs mt-1" style="color: rgba(255,255,255,0.4);">{m.label}</p>
-        </div>
-      {/each}
-    </div>
-  </div>
+		<!-- MEIO — Cabeçalho e Depoimento -->
+		<div class="flex flex-col gap-8 relative z-10">
+			<!-- Título e Badge -->
+			<div class="mb-2">
+				<h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 whitespace-pre-line">{planoDados.nome}</h1>
+				<div class="flex items-center gap-3">
+					{#if planoDados.preco}
+						<span class="text-xl font-medium text-slate-300">{planoDados.preco}</span>
+					{/if}
+					{#if planoDados.badge}
+						<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-brand-500/20 text-brand-50 border border-brand-500/30 uppercase tracking-widest">
+							{planoDados.badge}
+						</span>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Depoimento Premium -->
+			{#if planoDados.depoimento}
+				<div class="flex flex-col gap-4 relative z-10 mt-4">
+					<p class="text-2xl md:text-3xl font-medium leading-snug text-slate-50">
+						"{planoDados.depoimento}"
+					</p>
+					
+					<div class="mt-2 flex items-center gap-3">
+						<div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 bg-brand-500 text-white">
+							{planoDados.autorIniciais}
+						</div>
+						
+						<div class="flex flex-col">
+							<span class="text-sm font-medium text-slate-50">{planoDados.autorNome}</span>
+							<span class="text-xs text-slate-400 mt-0.5">{planoDados.autorCargo}</span>
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
+
+		<!-- BASE — Métricas -->
+		<div class="grid grid-cols-4 gap-6 pt-8 border-t relative z-10" style="border-color: rgba(255,255,255,0.1);">
+			{#each planoDados.metricas as m}
+				<div>
+					<p class="text-2xl font-bold text-slate-50">{m.valor}</p>
+					<p class="text-xs mt-1" style="color: rgba(255,255,255,0.4);">{m.rotulo}</p>
+				</div>
+			{/each}
+		</div>
+	</div>
 
   <!-- ═══ Painel Direito — Escolha de Planos ═══ -->
   <div class="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 sm:px-12 md:px-20 bg-white relative overflow-y-auto">
@@ -212,107 +378,83 @@
     </div>
 
     <!-- Cabeçalho -->
-    <div class="mb-8 text-center w-full max-w-lg">
-      <h1 class="text-3xl font-bold mb-2" style="color: #0f172a;">Como você quer começar?</h1>
-      <p class="text-sm" style="color: #64748b;">Escolha uma opção abaixo. Você pode mudar depois.</p>
+    <div class="mb-10 text-center lg:text-left w-full max-w-md mx-auto lg:mx-0">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Tudo pronto para começar</h1>
+      <p class="text-sm text-slate-500">
+        {#if opcaoSelecionada === 'GRATUITO'}
+          Aproveite seu período de teste. Você pode cancelar quando quiser.
+        {:else}
+          Você escolheu o plano {planoUnico.nome}. Finalize para começar.
+        {/if}
+      </p>
     </div>
 
-    <!-- Cards de opção -->
-    <div class="flex flex-col gap-5 w-full max-w-lg">
-      {#each planos as plano}
-        {@const isSelected = opcaoSelecionada === plano.key}
-        <button
-          type="button"
-          onclick={() => (opcaoSelecionada = plano.key)}
-          class="relative flex flex-col p-6 rounded-2xl border-2 text-left cursor-pointer transition-all duration-200
-            {isSelected
-              ? 'border-blue-600 bg-blue-50/30 ring-4 ring-blue-600/10 shadow-md'
-              : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50 shadow-sm'}"
-        >
-          <!-- Radio indicator -->
-          <div class="absolute top-6 right-6">
-            <div
-              class="flex items-center justify-center w-5 h-5 rounded-full border-2 transition-colors
-                {isSelected ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'}"
-            >
-              {#if isSelected}
-                <Check class="size-3 text-white" strokeWidth={3} />
-              {/if}
-            </div>
-          </div>
+    <!-- Summary Card -->
+    <div class="w-full max-w-md mx-auto lg:mx-0 p-8 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col mb-8">
+      <div class="pb-6 border-b border-slate-200/80 mb-6">
+        <h2 class="text-2xl font-bold text-slate-900">{planoUnico.nome}</h2>
+        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+          {#if opcaoSelecionada === 'GRATUITO'}
+            Acesso total a todas as ferramentas premium do MediVisitas. Sem cobranças automáticas.
+          {:else}
+            {planoUnico.descricao}
+          {/if}
+        </p>
+      </div>
 
-          <!-- Top row: Tag, Nome e Preço -->
-          <div class="flex flex-col pr-8 w-full">
-            <div class="flex items-center gap-2 mb-1 min-h-[22px]">
-              {#if plano.tag}
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest {plano.tagClasses}"
-                >
-                  {plano.tag}
-                </span>
-              {/if}
-            </div>
-            
-            <div class="flex items-center justify-between w-full">
-              <h2 class="text-lg font-semibold" style="color: var(--text-primary);">
-                {plano.nome}
-              </h2>
-              <div class="text-right">
-                <span class="text-2xl font-bold" style="color: var(--text-primary);">
-                  {plano.preco}
-                </span>
-                <span class="text-xs" style="color: var(--text-muted);">/mês</span>
-              </div>
-            </div>
-            
-            <p class="mt-1 text-sm leading-tight" style="color: var(--text-secondary);">
-              {plano.descricao}
-            </p>
-          </div>
+      <ul class="space-y-4 mb-8">
+        {#if opcaoSelecionada === 'GRATUITO'}
+          <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+            <Check class="size-5 text-emerald-500 shrink-0"/>
+            <span>Gestão completa da sua carteira de profissionais</span>
+          </li>
+          <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+            <Check class="size-5 text-emerald-500 shrink-0"/>
+            <span>Agenda inteligente com histórico de visitas</span>
+          </li>
+          <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+            <Check class="size-5 text-emerald-500 shrink-0"/>
+            <span>Relatórios e pipeline comercial integrados</span>
+          </li>
+        {:else}
+          {#each planoUnico.features.slice(0, 3) as feature}
+            <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+              <Check class="size-5 text-emerald-500 shrink-0"/>
+              <span>{feature}</span>
+            </li>
+          {/each}
+        {/if}
+      </ul>
 
-          <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-2">
-            {#each plano.features as feature}
-              <li class="flex items-center gap-1.5 text-xs" style="color: var(--text-primary);">
-                <Check class="w-3.5 h-3.5 shrink-0" style="color: var(--status-ativo);" />
-                <span>{feature}</span>
-              </li>
-            {/each}
-          </ul>
-        </button>
-      {/each}
-    </div>
+      <!-- Botão Continuar -->
+      <button
+        onclick={() => selecionarOpcao(opcaoSelecionada)}
+        disabled={loading}
+        class="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+      >
+        {#if loading}
+          <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
+            <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Processando...
+        {:else}
+          {opcaoSelecionada === 'GRATUITO' ? 'Começar meu teste grátis' : 'Continuar para pagamento'} <span>&rarr;</span>
+        {/if}
+      </button>
 
-    <!-- Botão Continuar -->
-    <button
-      onclick={() => selecionarOpcao(opcaoSelecionada)}
-      disabled={loading}
-      class="mt-6 w-full max-w-lg h-12 rounded-xl text-sm font-semibold text-white
-             transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed
-             hover:opacity-90 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
-      style="background-color: #2563eb;">
-      {#if loading}
-        <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/>
-          <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-        </svg>
-        Processando...
-      {:else}
-        Continuar
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
+      {#if erro}
+        <p class="mt-4 text-sm text-center" style="color: #dc2626;">{erro}</p>
       {/if}
-    </button>
 
-    <!-- Erro -->
-    {#if erro}
-      <p class="mt-4 text-sm text-center max-w-lg" style="color: #dc2626;">{erro}</p>
-    {/if}
-
-    <!-- Nota de rodapé -->
-    <p class="mt-6 text-xs text-center max-w-lg" style="color: #94a3b8;">
-      Todos os planos incluem 7 dias de trial. Cancele quando quiser.
-    </p>
+      <p class="mt-5 text-xs text-slate-400 text-center">
+        {#if opcaoSelecionada === 'GRATUITO'}
+          Não exigimos cartão de crédito neste momento.
+        {:else}
+          Planos pagos podem ser cancelados a qualquer momento.
+        {/if}
+      </p>
+    </div>
 
     <!-- Link voltar para o site -->
     <a
@@ -351,7 +493,7 @@
 
     <!-- Título -->
     <h1 class="text-2xl font-bold mb-2" style="color: #111827;">
-      {opcaoSelecionada === 'trial-empresa' ? 'Começar trial da empresa' : 'Configurar plano Empresa'}
+      Configurar plano Empresa
     </h1>
     <p class="text-sm mb-6" style="color: #6b7280;">
       Informe o nome da sua representação comercial.

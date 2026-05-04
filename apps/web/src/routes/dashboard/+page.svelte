@@ -22,15 +22,9 @@
 		};
 	}
 
-	let mostrarTour = $state(false);
-
-	$effect(() => {
-		if (!data.tourConcluidoEm) {
-			mostrarTour = true;
-		}
-	});
-
 	let { data }: Props = $props();
+
+	let mostrarTour = $state(!data.tourConcluidoEm);
 
 	const resumo = $derived(data.resumo);
 	const alertas = $derived(data.alertas);
@@ -48,7 +42,10 @@
 			try {
 				const res = await apiFetch(`/busca?q=${encodeURIComponent(query)}`, data.sessionToken);
 				if (res.ok) { const json = await res.json(); resultados = json.resultados; aberto = resultados.length > 0; }
-			} catch {}
+			} catch {
+				resultados = [];
+				aberto = false;
+			}
 		}, 300);
 	});
 

@@ -53,15 +53,6 @@ const {
     "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "847"}
   })} />
 
-  <!-- Script para prevenir FOUC (Flash of Unstyled Content) do tema -->
-  <script is:inline>
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
-  </script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 </head>
 <body>
@@ -268,38 +259,6 @@ const {
     function formatNum(n, decimals) {
       if (decimals > 0) return n.toFixed(decimals).replace('.', ',');
       return Math.round(n).toLocaleString('pt-BR');
-    }
-
-    // Theme Toggle
-    var themeToggle = document.getElementById('themeToggle');
-    var sunIcon = document.getElementById('sunIcon');
-    var moonIcon = document.getElementById('moonIcon');
-    if (themeToggle && sunIcon && moonIcon) {
-      // Initial state
-      var initialIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (initialIsDark) {
-        sunIcon.classList.remove('hidden');
-        moonIcon.classList.add('hidden');
-      } else {
-        moonIcon.classList.remove('hidden');
-        sunIcon.classList.add('hidden');
-      }
-
-      themeToggle.addEventListener('click', function() {
-        var currentIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        var newTheme = currentIsDark ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        
-        if (newTheme === 'dark') {
-          sunIcon.classList.remove('hidden');
-          moonIcon.classList.add('hidden');
-        } else {
-          moonIcon.classList.remove('hidden');
-          sunIcon.classList.add('hidden');
-        }
-      });
     }
 
     // Plan pricing live region

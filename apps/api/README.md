@@ -6,14 +6,18 @@
 
 ## Stack local
 
-| Item      | Detalhe                            |
-| --------- | ---------------------------------- |
-| Framework | Fastify                            |
-| ORM       | Prisma (via `packages/database`)   |
-| Validação | Zod + `@fastify/type-provider-zod` |
-| Auth      | Clerk JWT em `preHandler`          |
-| Logger    | Pino (nativo do Fastify)           |
-| Porta dev | `3002`                             |
+| Item          | Detalhe                               |
+| ------------- | ------------------------------------- |
+| Framework     | Fastify 5.8                           |
+| ORM           | Prisma 5.22 (via `packages/database`) |
+| Validação     | Zod                                   |
+| Auth          | Clerk JWT em `preHandler`             |
+| Pagamentos    | Stripe SDK v22                        |
+| Email         | Resend                                |
+| Monitoramento | Sentry                                |
+| IA            | Google Gemini                         |
+| Logger        | Pino (nativo do Fastify)              |
+| Porta dev     | `3002`                                |
 
 ---
 
@@ -54,30 +58,133 @@ PORT=3002
 
 ```
 apps/api/src/
-├── app.ts                # Instância Fastify + registro de plugins
-├── server.ts             # Entry point (listen)
+├── app.ts                    # Instância Fastify + registro de plugins e middlewares
+├── server.ts                 # Entry point (listen)
+├── env.ts                    # dotenv loader
+├── instrument.ts             # Sentry init
 ├── hooks/
-│   └── auth.ts           # preHandler Clerk JWT (verifyToken from @clerk/backend)
-├── routes/               # Schemas co-locados em cada diretório de rota
-│   ├── profissionais/
-│   │   ├── index.ts      # Rotas CRUD
-│   │   ├── schemas.ts    # Zod schemas
-│   │   └── timeline.ts   # Timeline do profissional
-│   ├── visitas/
-│   │   ├── index.ts
-│   │   └── schemas.ts
-│   ├── agenda/
-│   │   ├── index.ts
-│   │   └── schemas.ts
-│   ├── pipeline/
-│   │   ├── index.ts
-│   │   └── schemas.ts
-│   └── index.ts          # Registro de rotas
+│   ├── auth.ts               # preHandler Clerk JWT (verifyToken from @clerk/backend)
+│   ├── auth.test.ts          # Testes do hook de auth
+│   └── tenant.ts             # Resolução de tenant (organizationId, role, plano)
+├── lib/
+│   ├── prisma.ts             # PrismaClient com extensão softDelete + slow query log
+│   └── tenant.ts             # Builders tipados (buildTenantWhere, buildResourceWhere)
 ├── plugins/
-│   └── clerk.ts          # Plugin Fastify para Clerk
-└── lib/
-    └── prisma.ts         # PrismaClient com extensão softDelete
+│   └── clerk.ts              # Plugin Fastify: decora request com userId/orgId
+├── schemas/
+│   └── me.ts                 # Schemas Zod compartilhados (/me)
+├── services/
+│   ├── gemini.ts             # Integração Google Gemini (STT + Chat Completion)
+│   ├── planos.ts             # Lógica de planos/assinaturas
+│   ├── stripe.ts             # Stripe Checkout + Customer Portal
+│   ├── transcricoes.ts       # Controle de cotas de transcrição
+│   └── __tests__/
+│       └── gemini.test.ts    # Testes do serviço Gemini
+├── scripts/
+│   └── fix-categorias.ts     # Script one-off de migração de dados
+└── routes/
+    ├── health.ts             # GET /health — público (check de banco)
+    ├── me.ts                 # GET /me, PATCH /me/tour — dados do usuário logado
+    ├── me.test.ts            # Testes /me
+    ├── profissionais/
+    │   ├── index.ts          # CRUD profissionais
+    │   ├── schemas.ts        # Zod schemas
+    │   ├── timeline.ts       # GET /profissionais/timeline
+    │   └── timeline.test.ts  # Testes timeline
+    ├── especialidades/
+    │   └── index.ts          # CRUD especialidades
+    ├── subespecialidades/
+    │   └── index.ts          # CRUD subespecialidades
+    ├── materiais/
+    │   ├── index.ts          # CRUD materiais técnicos
+    │   └── schemas.ts
+    ├── visitas/
+    │   ├── index.ts          # CRUD visitas + upload áudio + transcrição
+    │   ├── schemas.ts
+    │   └── transcricao.test.ts
+    ├── agenda/
+    │   ├── index.ts          # CRUD agenda inteligente
+    │   └── schemas.ts
+    ├── pipeline/
+    │   ├── index.ts          # Kanban + funil + métricas pipeline
+    │   ├── schemas.ts
+    │   └── index.test.ts
+    ├── dashboard/
+    │   ├── index.ts          # KPI cards + alertas + próximas visitas
+    │   ├── schemas.ts
+    │   └── index.test.ts
+    ├── busca/
+    │   ├── index.ts          # Busca global
+    │   ├── schemas.ts
+    │   └── index.test.ts
+    ├── notificacoes/
+    │   ├── index.ts          # CRUD notificações + polling
+    │   ├── schemas.ts
+    │   └── index.test.ts
+    ├── onboarding/
+    │   ├── index.ts          # Status do onboarding
+    │   └── index.test.ts
+    ├── organizacao/
+    │   └── index.ts          # Gestão da organização + convites
+    ├── billing/
+    │   └── index.ts          # Stripe checkout + portal + status
+    ├── transcricoes/
+    │   └── index.ts          # Controle de transcrições disponíveis
+    ├── gestor/
+    │   └── index.ts          # Dashboard do gestor (OWNER only)
+    ├── relatorios/
+    │   └── index.ts          # Exportação CSV (OWNER only)
+    ├── contato/
+    │   └── index.ts          # POST /contato — formulário público
+    └── webhooks/
+        ├── clerk.ts          # Webhook Clerk (user.created/updated/deleted) via Svix
+        ├── stripe.ts         # Webhook Stripe (checkout/completed, subscription, invoices)
+        └── stripe.test.ts    # Testes webhook Stripe
 ```
+
+## Endpoints
+
+| Método           | Rota                        | Auth        | Descrição                                        |
+| ---------------- | --------------------------- | ----------- | ------------------------------------------------ |
+| `GET`            | `/health`                   | Público     | Health check com verificação de banco            |
+| `GET`            | `/me`                       | JWT         | Dados do usuário logado                          |
+| `PATCH`          | `/me/tour`                  | JWT         | Marcar tour como concluído                       |
+| `GET/POST`       | `/profissionais`            | JWT         | Listar/criar profissionais                       |
+| `GET/PUT/DELETE` | `/profissionais/:id`        | JWT         | Detalhe/editar/soft-delete profissional          |
+| `GET`            | `/profissionais/timeline`   | JWT         | Timeline de todos os profissionais               |
+| `GET/POST`       | `/especialidades`           | JWT         | Listar/criar especialidades                      |
+| `PUT/DELETE`     | `/especialidades/:id`       | JWT         | Editar/soft-delete especialidade                 |
+| `GET/POST`       | `/subespecialidades`        | JWT         | Listar/criar subespecialidades                   |
+| `PUT/DELETE`     | `/subespecialidades/:id`    | JWT         | Editar/soft-delete subespecialidade              |
+| `GET/POST`       | `/materiais`                | JWT         | Listar/criar materiais técnicos                  |
+| `PUT/DELETE`     | `/materiais/:id`            | JWT         | Editar/soft-delete material                      |
+| `GET/POST`       | `/visitas`                  | JWT         | Listar/criar visitas                             |
+| `GET/PUT`        | `/visitas/:id`              | JWT         | Detalhe/editar visita                            |
+| `POST`           | `/visitas/:id/transcricao`  | JWT         | Enviar áudio para transcrição                    |
+| `PATCH`          | `/visitas/:id/audio`        | JWT         | Atualizar URL do áudio                           |
+| `GET/POST`       | `/agenda`                   | JWT         | Listar/criar itens da agenda                     |
+| `PUT/DELETE`     | `/agenda/:id`               | JWT         | Editar/soft-delete item da agenda                |
+| `GET`            | `/pipeline`                 | JWT         | Kanban + funil + métricas de pipeline            |
+| `GET`            | `/dashboard/resumo`         | JWT         | KPI cards + próximas visitas                     |
+| `GET`            | `/dashboard/alertas`        | JWT         | Alertas de pipeline e visitas                    |
+| `GET`            | `/busca`                    | JWT         | Busca global (profissionais, visitas, materiais) |
+| `GET`            | `/notificacoes`             | JWT         | Listar notificações do usuário                   |
+| `PATCH`          | `/notificacoes/:id/lida`    | JWT         | Marcar notificação como lida                     |
+| `GET`            | `/onboarding/status`        | JWT         | Status do onboarding do usuário                  |
+| `GET`            | `/organizacao`              | JWT         | Detalhes da organização do usuário               |
+| `POST`           | `/organizacao/convites`     | JWT (OWNER) | Convidar membro para equipe                      |
+| `GET`            | `/organizacao/convites`     | JWT (OWNER) | Listar convites pendentes                        |
+| `GET`            | `/organizacao/membros`      | JWT         | Listar membros da organização                    |
+| `DELETE`         | `/organizacao/membros/:id`  | JWT (OWNER) | Remover membro                                   |
+| `POST`           | `/billing/checkout`         | JWT         | Criar sessão de checkout Stripe                  |
+| `POST`           | `/billing/portal`           | JWT         | Criar sessão do portal Stripe                    |
+| `GET`            | `/billing/status`           | JWT         | Status da assinatura atual                       |
+| `GET`            | `/transcricoes/disponiveis` | JWT         | Verificar transcrições disponíveis               |
+| `GET`            | `/gestor/resumo`            | JWT (OWNER) | Dashboard resumo do gestor                       |
+| `GET`            | `/relatorios/exportar`      | JWT (OWNER) | Exportar CSV de relatórios                       |
+| `POST`           | `/contato`                  | Público     | Formulário de contato                            |
+| `POST`           | `/webhooks/clerk`           | Svix        | Sincronização de usuários Clerk                  |
+| `POST`           | `/webhooks/stripe`          | Stripe      | Eventos de assinatura Stripe                     |
 
 ---
 

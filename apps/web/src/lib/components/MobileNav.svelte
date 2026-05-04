@@ -9,8 +9,7 @@
 		LogOut,
 		LayoutDashboard,
 		Package,
-		Menu,
-		Bell
+		Menu
 	} from 'lucide-svelte';
 	import type { NavItem } from '$lib/types';
 	import Sheet from '$lib/components/ui/Sheet.svelte';

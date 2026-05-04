@@ -32,7 +32,6 @@
 		userName,
 		sessionToken,
 		plano,
-		organizationId,
 		trialExpiraEm,
 		role,
 		statusOrg,
@@ -57,7 +56,9 @@
 			try {
 				const parsed = JSON.parse(stored);
 				collapsed = parsed.collapsed ?? false;
-			} catch {}
+			} catch {
+				collapsed = false;
+			}
 		}
 	});
 
@@ -66,17 +67,17 @@
 		localStorage.setItem('sidebar-state', JSON.stringify({ collapsed }));
 	});
 
-	const navItems: NavItem[] = [
-		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-		{ href: '/dashboard/agenda', label: 'Agenda', icon: Calendar },
+	const navItems: (NavItem & { tourAttr?: string })[] = [
+		{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, tourAttr: 'data-tour-dashboard' },
+		{ href: '/dashboard/agenda', label: 'Agenda', icon: Calendar, tourAttr: 'data-tour-agenda' },
 		{ href: '/dashboard/visitas', label: 'Visitas', icon: FileText },
-		{ href: '/dashboard/pipeline', label: 'Pipeline', icon: BarChart3 }
+		{ href: '/dashboard/pipeline', label: 'Pipeline', icon: BarChart3, tourAttr: 'data-tour-pipeline' }
 	];
 
-	const adminItems: NavItem[] = role === 'OWNER' && temGestaoEquipe ? [
+	let adminItems = $derived.by((): NavItem[] => role === 'OWNER' && temGestaoEquipe ? [
 		{ href: '/dashboard/equipe', label: 'Equipe', icon: Users },
 		{ href: '/dashboard/gestor', label: 'Gestão/Resumo', icon: BarChart3 }
-	] : [];
+	] : []);
 
 	let planoLabel = $derived.by(() => {
 		if (statusOrg === 'TRIAL_ATIVO') return `Trial - ${diasRestantes ?? 0}d`;
@@ -87,10 +88,10 @@
 		return plano ?? 'Plano';
 	});
 
-	const cadAuxItems: NavItem[] = [
-		{ href: '/dashboard/profissionais', label: 'Profissionais', icon: Users },
-		{ href: '/dashboard/especialidades', label: 'Especialidades', icon: Stethoscope },
-		{ href: '/dashboard/materiais', label: 'Materiais e Amostras', icon: Package }
+	const cadAuxItems: (NavItem & { tourAttr?: string })[] = [
+		{ href: '/dashboard/profissionais', label: 'Profissionais', icon: Users, tourAttr: 'data-tour-profissionais' },
+		{ href: '/dashboard/especialidades', label: 'Especialidades', icon: Stethoscope, tourAttr: 'data-tour-especialidades' },
+		{ href: '/dashboard/materiais', label: 'Materiais e Amostras', icon: Package, tourAttr: 'data-tour-materiais' }
 	];
 
 	let currentPath = $derived(page.url.pathname);
@@ -110,13 +111,13 @@
 	async function sair() {
 		const redirectUrl = PUBLIC_LANDING_URL ?? 'http://localhost:4321';
 		await clerkCtx.clerk?.signOut({ redirectUrl });
-		// Fallback caso o signOut não redirecione automaticamente
+		// Fallback caso o signOut nÃ£o redirecione automaticamente
 		window.location.href = redirectUrl;
 	}
 </script>
 
 <aside
-	aria-label="Navegação principal"
+	aria-label="NavegaÃ§Ã£o principal"
 	class="hidden flex-shrink-0 flex-col h-full bg-white border-r border-[rgb(var(--slate-200))] relative transition-[width] duration-300 ease-in-out lg:flex overflow-visible"
 	class:w-64={!collapsed}
 	class:w-16={collapsed}
@@ -161,6 +162,7 @@
 		{#each navItems as item}
 			{@const active = isActive(item.href)}
 			{@const Icon = item.icon}
+			{@const tourSpread = item.tourAttr ? { [item.tourAttr]: '' } : {}}
 			<a
 				href={item.href}
 				aria-current={active ? 'page' : undefined}
@@ -170,6 +172,7 @@
 						? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]'
 						: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]'}
 				title={collapsed ? item.label : undefined}
+				{...tourSpread}
 			>
 				<Icon class={active
 					? 'h-[18px] w-[18px] text-blue-600 transition-colors duration-200'
@@ -182,7 +185,7 @@
 
 		<!-- Section Divider: Cadastros -->
 		{#if !collapsed}
-			<p class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider" style="color: #9ca3af; letter-spacing: 0.07em;">
+			<p class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]" style="letter-spacing: 0.07em;">
 				Cadastros
 			</p>
 		{:else}
@@ -194,6 +197,7 @@
 		{#each cadAuxItems as item}
 			{@const active = isActive(item.href)}
 			{@const Icon = item.icon}
+			{@const tourSpread = item.tourAttr ? { [item.tourAttr]: '' } : {}}
 			<a
 				href={item.href}
 				aria-current={active ? 'page' : undefined}
@@ -203,6 +207,7 @@
 						? 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]'
 						: 'group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]'}
 				title={collapsed ? item.label : undefined}
+				{...tourSpread}
 			>
 				<Icon class={active
 					? 'h-[18px] w-[18px] text-blue-600 transition-colors duration-200'
@@ -215,7 +220,7 @@
 
 		<!-- Section Divider: Configurações -->
 		{#if !collapsed}
-			<p class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider" style="color: #9ca3af; letter-spacing: 0.07em;">
+			<p class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]" style="letter-spacing: 0.07em;">
 				Configurações
 			</p>
 		{:else}
@@ -314,7 +319,7 @@
 				{#if diasRestantes === 0}
 					Trial expira hoje
 				{:else if diasRestantes === 1}
-					Trial expira amanhã
+					Trial expira amanhÃ£
 				{:else}
 					Trial expira em {diasRestantes} dias
 				{/if}
@@ -325,8 +330,8 @@
 		</div>
 	{/if}
 
-	<!-- Footer da sidebar — estrutura correta -->
-	<div class="mt-auto shrink-0 border-t px-2 py-2 bg-white" style="border-color: #f3f4f6;">
+	<!-- Footer da sidebar â€” estrutura correta -->
+	<div class="mt-auto shrink-0 border-t px-2 py-2 bg-white border-[rgb(var(--slate-100))]">
 
 		<div class="flex items-center gap-1 transition-all duration-300"
 				 class:flex-col={collapsed}
@@ -342,26 +347,26 @@
 				<!-- Nome + plano embaixo -->
 				{#if !collapsed}
 					<div class="min-w-0 flex-1">
-						<p class="truncate text-sm font-medium" style="color: #111827;">
+						<p class="truncate text-sm font-medium text-[rgb(var(--slate-900))]">
 							{userName}
 						</p>
 						<!-- Badge do plano aqui embaixo, menor e integrado -->
-						<p class="text-[10px] truncate" style="color: #2563eb; line-height: 1.2;">
+						<p class="text-[10px] truncate text-blue-600" style="line-height: 1.2;">
 							{planoLabel}
 						</p>
 					</div>
 				{/if}
 			</a>
-			<!-- Sino de notificações -->
+			<!-- Sino de notificaÃ§Ãµes -->
 			<div class="relative z-10 flex-shrink-0">
 				<SinoNotificacoes {sessionToken} />
 			</div>
 		</div>
 
-		<!-- Botão sair -->
+		<!-- BotÃ£o sair -->
 		<button onclick={sair}
-			class="mt-0.5 flex w-full items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-gray-50 hover:text-gray-600 cursor-pointer"
-			style="color: #9ca3af;">
+			class="mt-0.5 flex w-full items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[rgb(var(--slate-400))] transition-colors hover:bg-gray-50 hover:text-gray-600 cursor-pointer"
+		>
 			<LogOut class="h-3.5 w-3.5" />
 			{#if !collapsed}
 				Sair

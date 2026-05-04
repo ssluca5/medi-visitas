@@ -2,7 +2,7 @@
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { apiFetch } from '$lib/api';
-	import { Users, Calendar, BarChart3, Stethoscope, Sparkles, ArrowRight, X, Check } from 'lucide-svelte';
+	import { Users, Calendar, BarChart3, Stethoscope, Package, ArrowRight, X, Check } from 'lucide-svelte';
 
 	interface Props {
 		sessionToken: string | null;
@@ -14,9 +14,15 @@
 	let currentStep = $state(0);
 	let visible = $state(true);
 
+	// Retângulo de recorte (spotlight) calculado a partir do elemento alvo
+	let cutout = $state<{ x: number; y: number; w: number; h: number } | null>(null);
+
+	// Estilo de posição do card
+	let cardStyle = $state('bottom: 24px; right: 24px;');
+
 	const steps = [
 		{
-			icon: Sparkles,
+			icon: null,
 			title: 'Bem-vindo ao MediVisitas!',
 			desc: 'Vamos conhecer as principais funcionalidades em alguns passos rápidos.',
 			color: '#2563eb',
@@ -45,38 +51,81 @@
 		},
 		{
 			icon: Stethoscope,
-			title: 'Especialidades & Materiais',
-			desc: 'Organize especialidades médicas e materiais técnicos para cada visita.',
+			title: 'Especialidades',
+			desc: 'Cadastre e organize as especialidades médicas dos profissionais da sua carteira.',
 			color: '#0891b2',
 			destaque: 'data-tour-especialidades',
+		},
+		{
+			icon: Package,
+			title: 'Materiais e Amostras',
+			desc: 'Gerencie materiais promocionais e amostras grátis para cada visita.',
+			color: '#8b5cf6',
+			destaque: 'data-tour-materiais',
 		},
 	];
 
 	let totalSteps = steps.length;
 	let StepIcon = $derived(steps[currentStep].icon);
 
-	function destacarElemento(attr: string) {
-		// Remover destaque anterior
-		document.querySelectorAll('[data-tour-highlighted]').forEach(el => {
-			el.removeAttribute('data-tour-highlighted');
-		});
-		// Destacar novo elemento
+	function atualizarPosicoes(attr: string) {
 		const el = document.querySelector(`[${attr}]`);
-		if (el) {
-			el.setAttribute('data-tour-highlighted', '');
-			el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		if (!el) {
+			cutout = null;
+			cardStyle = 'bottom: 24px; right: 24px;';
+			return;
 		}
+
+		el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+		const rect = el.getBoundingClientRect();
+		const padding = 8;
+
+		// Recorte (spotlight) com padding
+		cutout = {
+			x: rect.left - padding,
+			y: rect.top - padding,
+			w: rect.width + padding * 2,
+			h: rect.height + padding * 2,
+		};
+
+		// Posicionar card à direita do elemento
+		const cardWidth = 320;
+		const cardHeight = 260;
+		const gap = 20;
+
+		let left = rect.right + gap;
+		let top = rect.top + rect.height / 2 - cardHeight / 2;
+
+		// Se não couber à direita, colocar embaixo
+		if (left + cardWidth > window.innerWidth - 24) {
+			left = Math.max(24, rect.left);
+			top = rect.bottom + gap;
+		}
+
+		// Limitar aos bounds da viewport
+		top = Math.max(16, Math.min(top, window.innerHeight - cardHeight - 16));
+		left = Math.max(16, left);
+
+		cardStyle = `top: ${top}px; left: ${left}px;`;
 	}
 
 	$effect(() => {
-		if (visible && steps[currentStep]?.destaque) {
-			// Pequeno delay para garantir que o DOM está pronto
-			setTimeout(() => destacarElemento(steps[currentStep].destaque), 100);
+		if (!visible) return;
+
+		if (currentStep === 0) {
+			// Passo 0 (boas-vindas): sem spotlight, card no canto inferior direito
+			cutout = null;
+			cardStyle = 'bottom: 24px; right: 24px;';
+		} else {
+			const step = steps[currentStep];
+			if (step?.destaque) {
+				setTimeout(() => atualizarPosicoes(step.destaque), 120);
+			}
 		}
+
 		return () => {
-			document.querySelectorAll('[data-tour-highlighted]').forEach(el => {
-				el.removeAttribute('data-tour-highlighted');
-			});
+			cutout = null;
 		};
 	});
 
@@ -94,9 +143,7 @@
 
 	async function concluirTour() {
 		visible = false;
-		document.querySelectorAll('[data-tour-highlighted]').forEach(el => {
-			el.removeAttribute('data-tour-highlighted');
-		});
+		cutout = null;
 		try {
 			await apiFetch('/me/tour', sessionToken, { method: 'PATCH' });
 		} catch (e) {
@@ -111,17 +158,68 @@
 </script>
 
 {#if visible}
-	<!-- Overlay escuro de fundo -->
+	<!-- Overlay SVG com recorte (spotlight) — bloqueia TODOS os cliques -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="fixed inset-0 z-[9988] pointer-events-none"
-		style="background: rgba(0,0,0,0.55); transition: opacity 300ms;"
+		class="fixed inset-0 z-[9988]"
 		transition:fade={{ duration: 300 }}
-	></div>
+		onclick={(e) => e.stopPropagation()}
+		onkeydown={(e) => { if (e.key === 'Escape') pular(); }}
+		role="presentation"
+	>
+		<svg
+			width="100%"
+			height="100%"
+			xmlns="http://www.w3.org/2000/svg"
+			class="block"
+		>
+			<defs>
+				<mask id="tour-mask">
+					<!-- Branco = overlay visível (escuro) -->
+					<rect width="100%" height="100%" fill="white" />
+					<!-- Preto = recorte transparente (spotlight) -->
+					{#if cutout}
+						<rect
+							x={cutout.x}
+							y={cutout.y}
+							width={cutout.w}
+							height={cutout.h}
+							rx="10"
+							fill="black"
+						/>
+					{/if}
+				</mask>
+			</defs>
 
-	<!-- Card fixo no canto inferior direito -->
+			<!-- Fundo escuro com recorte -->
+			<rect
+				width="100%"
+				height="100%"
+				fill="rgba(0,0,0,0.5)"
+				mask="url(#tour-mask)"
+			/>
+
+			<!-- Anel brilhante ao redor do recorte -->
+			{#if cutout}
+				<rect
+					x={cutout.x}
+					y={cutout.y}
+					width={cutout.w}
+					height={cutout.h}
+					rx="10"
+					fill="none"
+					stroke={steps[currentStep].color}
+					stroke-width="2.5"
+					class="tour-ring"
+				/>
+			{/if}
+		</svg>
+	</div>
+
+	<!-- Card do tour — acima do overlay, interativo -->
 	<div
 		class="fixed z-[9991]"
-		style="bottom: 24px; right: 24px;"
+		style={cardStyle}
 		transition:fly={{ y: 20, duration: 300, easing: cubicOut }}
 	>
 		{#key currentStep}
@@ -143,7 +241,15 @@
 					<!-- Ícone -->
 					<div class="w-12 h-12 rounded-xl mx-auto flex items-center justify-center mb-3"
 						style="background-color: rgba(255,255,255,0.15);">
-						<StepIcon class="w-6 h-6 text-white" />
+						{#if StepIcon}
+							<StepIcon class="w-6 h-6 text-white" />
+						{:else}
+							<!-- Favicon MediVisitas -->
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="w-7 h-7">
+								<rect width="32" height="32" rx="6" fill="rgba(255,255,255,0.2)"/>
+								<text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
+							</svg>
+						{/if}
 					</div>
 
 					<h2 class="text-sm font-bold text-white">{steps[currentStep].title}</h2>
@@ -160,9 +266,10 @@
 				<div class="px-6 pb-5 flex items-center justify-between">
 					<!-- Indicadores -->
 					<div class="flex gap-1.5">
-						{#each steps as _, i}
+						{#each steps as step, i}
 							<div
 								class="h-1.5 rounded-full transition-all duration-300"
+								title={step.title}
 								style="width: {i === currentStep ? '16px' : '6px'}; background-color: {i === currentStep ? steps[currentStep].color : '#e5e7eb'};"
 							></div>
 						{/each}
@@ -173,16 +280,14 @@
 						{#if currentStep > 0}
 							<button
 								onclick={prevStep}
-								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border transition-colors cursor-pointer hover:bg-gray-50"
-								style="color: #6b7280; border-color: #e5e7eb;"
+								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] transition-colors cursor-pointer hover:bg-gray-50"
 							>
 								Anterior
 							</button>
 						{:else}
 							<button
 								onclick={pular}
-								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition-colors cursor-pointer hover:bg-gray-50"
-								style="color: #9ca3af;"
+								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg text-[rgb(var(--slate-400))] transition-colors cursor-pointer hover:bg-gray-50"
 							>
 								Pular
 							</button>
@@ -209,13 +314,16 @@
 {/if}
 
 <style>
-	:global([data-tour-highlighted]) {
-		outline: 3px solid #2563eb !important;
-		outline-offset: 6px !important;
-		border-radius: 8px !important;
-		box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55) !important;
-		position: relative !important;
-		z-index: 9990 !important;
-		transition: outline 0.3s ease, box-shadow 0.3s ease;
+	.tour-ring {
+		animation: tour-pulse 2s ease-in-out infinite;
+	}
+
+	@keyframes tour-pulse {
+		0%, 100% {
+			stroke-opacity: 1;
+		}
+		50% {
+			stroke-opacity: 0.5;
+		}
 	}
 </style>

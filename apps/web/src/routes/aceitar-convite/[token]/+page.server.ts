@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
     const convite = await res.json();
     return { convite, token, sessionToken: locals.sessionToken };
-  } catch (e) {
+  } catch {
     return { error: "Erro ao buscar dados do convite.", token };
   }
 };

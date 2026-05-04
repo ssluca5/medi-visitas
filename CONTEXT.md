@@ -46,7 +46,7 @@ Próximo passo: integração com API da farmácia (Fase 9).
 - Frontend: SvelteKit 2 (Svelte 5 Runes) + Tailwind CSS v4
 - Backend: Fastify 5.8 + Prisma 5.22 + PostgreSQL (Supabase)
 - Auth: Clerk (@clerk/backend v3.4)
-- IA/Áudio: MiniMax 2.7 (Fase 5 — transcrição)
+- IA/Áudio: Google Gemini (Fase 5 — transcrição)
 - Package Manager: pnpm monorepo
 - Landing: Astro 5 + Svelte islands
 

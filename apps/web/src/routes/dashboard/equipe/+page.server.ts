@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
         info,
       },
     };
-  } catch (e) {
+  } catch {
     return {
       sessionToken: token,
       me: null,

@@ -58,14 +58,26 @@
     }
   }
 
-  async function loadVisitas(page = 1) {
+  type VisitaFilters = {
+    status: StatusVisita | '';
+    busca: string;
+    dataInicio: string;
+    dataFim: string;
+  };
+
+  async function loadVisitas(page = 1, filters: VisitaFilters = {
+    status: filtroStatus,
+    busca: filtroBusca,
+    dataInicio: filtroDataInicio,
+    dataFim: filtroDataFim
+  }) {
     loading = true;
     try {
       let url = `/visitas?page=${page}&pageSize=${pagination.pageSize}`;
-      if (filtroStatus) url += `&status=${filtroStatus}`;
-      if (filtroBusca.trim()) url += `&q=${encodeURIComponent(filtroBusca.trim())}`;
-      if (filtroDataInicio) url += `&dataInicio=${new Date(filtroDataInicio).toISOString()}`;
-      if (filtroDataFim) url += `&dataFim=${new Date(filtroDataFim + 'T23:59:59').toISOString()}`;
+      if (filters.status) url += `&status=${filters.status}`;
+      if (filters.busca.trim()) url += `&q=${encodeURIComponent(filters.busca.trim())}`;
+      if (filters.dataInicio) url += `&dataInicio=${new Date(filters.dataInicio).toISOString()}`;
+      if (filters.dataFim) url += `&dataFim=${new Date(filters.dataFim + 'T23:59:59').toISOString()}`;
       const res = await apiFetch(url, data.sessionToken);
       if (res.ok) {
         const json = await res.json();
@@ -118,7 +130,9 @@
       } else {
         toasts.show('error', 'Erro ao excluir visita');
       }
-    } catch {}
+    } catch {
+      toasts.show('error', 'Erro ao excluir visita');
+    }
     deleteConfirmOpen = false;
     visitaToDelete = null;
   }
@@ -145,13 +159,14 @@
 
   // Filtro em tempo real — debounce para busca por texto
   $effect(() => {
-    // Track all filter values
-    filtroBusca;
-    filtroStatus;
-    filtroDataInicio;
-    filtroDataFim;
+    const filters = {
+      status: filtroStatus,
+      busca: filtroBusca,
+      dataInicio: filtroDataInicio,
+      dataFim: filtroDataFim
+    };
     clearTimeout(filterTimeout);
-    filterTimeout = setTimeout(() => loadVisitas(1), 300);
+    filterTimeout = setTimeout(() => loadVisitas(1, filters), 300);
   });
 
   onMount(() => {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Plus, Trash2, ChevronDown, ChevronRight, Stethoscope, Search, Power, Play } from 'lucide-svelte';
+	import { Plus, Trash2, ChevronDown, ChevronRight, Stethoscope, Power, Play } from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
 	import { toasts } from '$lib/stores/toast.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -9,8 +9,7 @@
 	import type {
 		Especialidade,
 		EspecialidadeFormData,
-		SubEspecialidade,
-		SubEspecialidadeFormData
+		SubEspecialidade
 	} from '$lib/types';
 
 	interface Props {
@@ -32,7 +31,6 @@
 	// Form fields
 	let formNome = $state('');
 	let formNomeError = $state(false);
-	let formCategoriaError = $state(false);
 	let formCategoria = $state('');
 
 	// Delete dialogs
@@ -90,7 +88,9 @@
 							const subData = await subRes.json();
 							return { ...esp, subEspecialidades: subData.data || [] };
 						}
-					} catch {}
+					} catch {
+						return { ...esp, subEspecialidades: [] };
+					}
 					return { ...esp, subEspecialidades: [] };
 				})
 			);
@@ -151,10 +151,8 @@
 
 	async function handleSalvarEspecialidade() {
 		formNomeError = false;
-		formCategoriaError = false;
 		if (!formNome.trim() || !formCategoria.trim()) {
 			if (!formNome.trim()) formNomeError = true;
-			if (!formCategoria.trim()) formCategoriaError = true;
 			toasts.show('error', 'Nome e categoria são obrigatórios.');
 			return;
 		}
@@ -217,7 +215,7 @@
 					toasts.show('success', result.ativo ? `"${esp.nome}" reativada.` : `"${esp.nome}" inativada.`);
 				}
 			}
-		} catch (err) {
+		} catch {
 			toasts.show('error', 'Erro ao alterar status');
 		}
 	}
@@ -271,7 +269,9 @@
 					return;
 				}
 			}
-		} catch {}
+		} catch {
+			deleteErrorMessage = null;
+		}
 
 		itemToDelete = esp;
 		deleteErrorMessage = null;

@@ -8,12 +8,16 @@ import { getLimitesPlano } from "../../services/planos.js";
 import { z } from "zod";
 
 const ComprarPacoteSchema = z.object({
-  quantidade: z.union([z.literal(20), z.literal(50), z.literal(100)]).default(20),
+  quantidade: z
+    .union([z.literal(20), z.literal(50), z.literal(100)])
+    .default(20),
 });
 
 function getPriceIdPacoteIa(quantidade: 20 | 50 | 100): string {
   const map = {
-    20: process.env.STRIPE_PRICE_IA_20 ?? process.env.STRIPE_PRICE_PACOTE_TRANSCRICOES,
+    20:
+      process.env.STRIPE_PRICE_IA_20 ??
+      process.env.STRIPE_PRICE_PACOTE_TRANSCRICOES,
     50: process.env.STRIPE_PRICE_IA_50,
     100: process.env.STRIPE_PRICE_IA_100,
   };
@@ -53,7 +57,8 @@ const transcricoesRoutes: FastifyPluginAsync = async (app) => {
       const limites = getLimitesPlano(org.plano);
       if (!limites.pacotesIaDisponiveis) {
         return reply.status(402).send({
-          error: "Pacotes adicionais de IA estao disponiveis a partir do Plano Profissional.",
+          error:
+            "Pacotes adicionais de IA estao disponiveis a partir do Plano Profissional.",
           code: "FEATURE_NOT_AVAILABLE",
         });
       }

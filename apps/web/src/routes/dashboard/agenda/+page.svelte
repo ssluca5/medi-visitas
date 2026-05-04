@@ -4,16 +4,13 @@
 	import type {
 		AgendaItem,
 		SugestaoProfissional,
-		PrioridadeAgenda,
 		StatusAgenda
 	} from '$lib/types';
 	import CalendarioSemanal from '$lib/components/ui/CalendarioSemanal.svelte';
 	import CalendarioMensal from '$lib/components/ui/CalendarioMensal.svelte';
 	import PainelSugestoes from '$lib/components/ui/PainelSugestoes.svelte';
 	import type { Visita, MaterialTecnico } from '$lib/types';
-	import Button from '$lib/components/ui/Button.svelte';
-	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
-	import { CalendarDays, CalendarRange, Plus, Sparkles } from 'lucide-svelte';
+	import { CalendarDays, CalendarRange, Sparkles } from 'lucide-svelte';
 
 	// Lazy-loaded: only needed when user opens the sheet
 	const VisitaSheetPromise = import('$lib/components/ui/VisitaSheet.svelte').then(m => m.default);
@@ -29,7 +26,6 @@
 	let sugestoes = $state<SugestaoProfissional[]>([]);
 	let loading = $state(true);
 	let loadingSugestoes = $state(false);
-	let saving = $state(false);
 	
 	let materiaisOptions = $state<MaterialTecnico[]>([]);
 
@@ -42,9 +38,6 @@
 	let agendarProfissionalNome = $state('');
 	let defaultDateStr = $state('');
 	let defaultTimeStr = $state('');
-
-	let confirmDeleteOpen = $state(false);
-	let deleteId = $state('');
 
 	let showSugestoes = $state(true);
 
@@ -168,7 +161,7 @@
 	// Reload on navigation
 	$effect(() => {
 		// Trigger on currentDate or viewMode change
-		const _ = currentDate.getTime() + (viewMode === 'semanal' ? 0 : 1);
+		dateRange();
 		loadItems();
 		loadSugestoes();
 	});
@@ -213,7 +206,7 @@
 		sheetOpen = true;
 	}
 
-	function handleVisitaDelete(id: string) {
+	function handleVisitaDelete() {
 		// VisitaSheet deletes it via API and calls this if successful.
 		// So we just reload the calendar items.
 		loadItems();
@@ -344,5 +337,4 @@
 		ondelete={handleVisitaDelete}
 	/>
 {/await}
-
 

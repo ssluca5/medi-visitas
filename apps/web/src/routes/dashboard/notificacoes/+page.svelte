@@ -19,13 +19,21 @@
 
 	let { data }: Props = $props();
 
-	let page = $state(data.page);
+	let page = $state(1);
 	let filtroLida = $state('');
-	let notificacoes = $state<Notificacao[]>(data.data);
-	let total = $state(data.total);
-	let naoLidas = $state(data.naoLidas);
-	let totalPages = $state(data.totalPages);
+	let notificacoes = $state<Notificacao[]>([]);
+	let total = $state(0);
+	let naoLidas = $state(0);
+	let totalPages = $state(0);
 	let loading = $state(false);
+
+	$effect(() => {
+		page = data.page;
+		notificacoes = data.data;
+		total = data.total;
+		naoLidas = data.naoLidas;
+		totalPages = data.totalPages;
+	});
 
 	$effect(() => {
 		// Re-carregar quando page ou filtroLida mudam

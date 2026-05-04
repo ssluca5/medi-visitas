@@ -184,7 +184,7 @@
 						{String(hora).padStart(2, '0')}:00
 					</span>
 				</div>
-				{#each diasSemana as dia, diaIdx}
+				{#each diasSemana as dia}
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div

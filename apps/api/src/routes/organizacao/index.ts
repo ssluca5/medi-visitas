@@ -185,7 +185,11 @@ export default async function organizacaoRoutes(
       if (!requireOwner(request, reply)) return;
 
       const convites = await prisma.organizationConvite.findMany({
-        where: { organizationId: request.organizationId, aceito: false, deletedAt: null },
+        where: {
+          organizationId: request.organizationId,
+          aceito: false,
+          deletedAt: null,
+        },
         orderBy: { createdAt: "desc" },
       });
 

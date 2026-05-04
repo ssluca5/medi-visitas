@@ -191,8 +191,10 @@
       class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
       transition:fly={{ y: 20, duration: 300, easing: cubicOut }}
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
       role="dialog"
       aria-modal="true"
+      tabindex="-1"
     >
       <!-- Header -->
       <div class="flex items-center justify-between p-5 border-b border-gray-100">
@@ -250,7 +252,7 @@
 
             {#if gravacao.gravando}
               <div class="flex items-center justify-center gap-1 mb-6">
-                {#each Array(5) as _, i}
+                {#each [0, 1, 2, 3, 4] as i}
                   <div
                     class="w-1 rounded-full animate-pulse"
                     style="height: {20 + Math.random() * 20}px; background-color: #7c3aed; animation-delay: {i * 100}ms;"

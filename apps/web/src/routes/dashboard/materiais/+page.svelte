@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Plus, Trash2, Package, Tag, FileText, Database, Info, Power, Play, Search } from 'lucide-svelte';
+  import { Plus, Trash2, Package, Database, Power, Play, Search } from 'lucide-svelte';
   import { apiFetch } from '$lib/api';
   import { toasts } from '$lib/stores/toast.svelte';
   import Button from '$lib/components/ui/Button.svelte';
@@ -109,7 +109,7 @@
         const errorData = await res.json().catch(() => null);
         toasts.show('error', errorData?.error || 'Erro ao salvar material');
       }
-    } catch(err) {
+    } catch {
       toasts.show('error', 'Erro ao salvar material');
     } finally {
       isSaving = false;
@@ -131,7 +131,7 @@
       } else {
         toasts.show('error', 'Erro ao excluir material');
       }
-    } catch(e) {
+    } catch {
       toasts.show('error', 'Erro interno');
     } finally {
       deleteConfirmOpen = false;
@@ -153,7 +153,7 @@
       } else {
         toasts.show('error', 'Erro ao mudar status do material');
       }
-    } catch(e) {
+    } catch {
       toasts.show('error', 'Erro interno');
     }
   }

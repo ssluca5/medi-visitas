@@ -1,119 +1,185 @@
 import { z } from "zod";
-export declare const PotencialPrescricaoSchema: z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>;
-export declare const EstagioPipelineSchema: z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>;
-export declare const TipoContatoSchema: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
-export declare const ClassificacaoRelacionamentoSchema: z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>;
-export declare const SexoSchema: z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>;
-export declare const TratamentoSchema: z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>;
+export declare const PotencialPrescricaoSchema: z.ZodEnum<
+  ["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]
+>;
+export declare const EstagioPipelineSchema: z.ZodEnum<
+  ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]
+>;
+export declare const TipoContatoSchema: z.ZodEnum<
+  ["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]
+>;
+export declare const ClassificacaoRelacionamentoSchema: z.ZodEnum<
+  ["FORTE", "INTERMEDIARIO", "FRACO"]
+>;
+export declare const SexoSchema: z.ZodEnum<
+  ["MASCULINO", "FEMININO", "NAO_INFORMADO"]
+>;
+export declare const TratamentoSchema: z.ZodEnum<
+  ["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]
+>;
 export declare const DEFAULT_POTENCIAL: "MEDIO";
 export declare const DEFAULT_ESTAGIO: "PROSPECTADO";
-export declare const EnderecoInputSchema: z.ZodOptional<z.ZodObject<{
-    logradouro: z.ZodOptional<z.ZodString>;
-    numero: z.ZodOptional<z.ZodString>;
-    complemento: z.ZodOptional<z.ZodString>;
-    bairro: z.ZodOptional<z.ZodString>;
-    cidade: z.ZodOptional<z.ZodString>;
-    estado: z.ZodOptional<z.ZodString>;
-    cep: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
-    logradouro?: string | undefined;
-    numero?: string | undefined;
-    complemento?: string | undefined;
-    bairro?: string | undefined;
-    cidade?: string | undefined;
-    estado?: string | undefined;
-    cep?: string | undefined;
-}, {
-    logradouro?: string | undefined;
-    numero?: string | undefined;
-    complemento?: string | undefined;
-    bairro?: string | undefined;
-    cidade?: string | undefined;
-    estado?: string | undefined;
-    cep?: string | undefined;
-}>>;
-export declare const ContatoInputSchema: z.ZodObject<{
+export declare const EnderecoInputSchema: z.ZodOptional<
+  z.ZodObject<
+    {
+      logradouro: z.ZodOptional<z.ZodString>;
+      numero: z.ZodOptional<z.ZodString>;
+      complemento: z.ZodOptional<z.ZodString>;
+      bairro: z.ZodOptional<z.ZodString>;
+      cidade: z.ZodOptional<z.ZodString>;
+      estado: z.ZodOptional<z.ZodString>;
+      cep: z.ZodOptional<z.ZodString>;
+    },
+    "strip",
+    z.ZodTypeAny,
+    {
+      logradouro?: string | undefined;
+      numero?: string | undefined;
+      complemento?: string | undefined;
+      bairro?: string | undefined;
+      cidade?: string | undefined;
+      estado?: string | undefined;
+      cep?: string | undefined;
+    },
+    {
+      logradouro?: string | undefined;
+      numero?: string | undefined;
+      complemento?: string | undefined;
+      bairro?: string | undefined;
+      cidade?: string | undefined;
+      estado?: string | undefined;
+      cep?: string | undefined;
+    }
+  >
+>;
+export declare const ContatoInputSchema: z.ZodObject<
+  {
     tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
     valor: z.ZodString;
     observacao: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
     valor: string;
     observacao?: string | undefined;
-}, {
+  },
+  {
     tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
     valor: string;
     observacao?: string | undefined;
-}>;
-export declare const CreateProfissionalInputSchema: z.ZodObject<{
+  }
+>;
+export declare const CreateProfissionalInputSchema: z.ZodObject<
+  {
     nome: z.ZodString;
     crm: z.ZodOptional<z.ZodString>;
     email: z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>;
     telefone: z.ZodOptional<z.ZodString>;
-    potencial: z.ZodDefault<z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>>;
-    estagioPipeline: z.ZodDefault<z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>>;
+    potencial: z.ZodDefault<
+      z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>
+    >;
+    estagioPipeline: z.ZodDefault<
+      z.ZodEnum<
+        ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]
+      >
+    >;
     especialidadeId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     subEspecialidadeId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    classificacao: z.ZodOptional<z.ZodNullable<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>>;
+    classificacao: z.ZodOptional<
+      z.ZodNullable<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>
+    >;
     cpfCnpj: z.ZodOptional<z.ZodString>;
     sexo: z.ZodOptional<z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>>;
     dataNascimento: z.ZodOptional<z.ZodString>;
-    tratamento: z.ZodOptional<z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>>;
+    tratamento: z.ZodOptional<
+      z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>
+    >;
     observacoes: z.ZodOptional<z.ZodString>;
     nomeConjuge: z.ZodOptional<z.ZodString>;
     dataNascConjuge: z.ZodOptional<z.ZodString>;
-    endereco: z.ZodOptional<z.ZodObject<{
-        logradouro: z.ZodOptional<z.ZodString>;
-        numero: z.ZodOptional<z.ZodString>;
-        complemento: z.ZodOptional<z.ZodString>;
-        bairro: z.ZodOptional<z.ZodString>;
-        cidade: z.ZodOptional<z.ZodString>;
-        estado: z.ZodOptional<z.ZodString>;
-        cep: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    }, {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    }>>;
-    contatos: z.ZodOptional<z.ZodArray<z.ZodObject<{
-        tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
-        valor: z.ZodString;
-        observacao: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }, {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }>, "many">>;
-}, "strip", z.ZodTypeAny, {
+    endereco: z.ZodOptional<
+      z.ZodObject<
+        {
+          logradouro: z.ZodOptional<z.ZodString>;
+          numero: z.ZodOptional<z.ZodString>;
+          complemento: z.ZodOptional<z.ZodString>;
+          bairro: z.ZodOptional<z.ZodString>;
+          cidade: z.ZodOptional<z.ZodString>;
+          estado: z.ZodOptional<z.ZodString>;
+          cep: z.ZodOptional<z.ZodString>;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          logradouro?: string | undefined;
+          numero?: string | undefined;
+          complemento?: string | undefined;
+          bairro?: string | undefined;
+          cidade?: string | undefined;
+          estado?: string | undefined;
+          cep?: string | undefined;
+        },
+        {
+          logradouro?: string | undefined;
+          numero?: string | undefined;
+          complemento?: string | undefined;
+          bairro?: string | undefined;
+          cidade?: string | undefined;
+          estado?: string | undefined;
+          cep?: string | undefined;
+        }
+      >
+    >;
+    contatos: z.ZodOptional<
+      z.ZodArray<
+        z.ZodObject<
+          {
+            tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
+            valor: z.ZodString;
+            observacao: z.ZodOptional<z.ZodString>;
+          },
+          "strip",
+          z.ZodTypeAny,
+          {
+            tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+            valor: string;
+            observacao?: string | undefined;
+          },
+          {
+            tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+            valor: string;
+            observacao?: string | undefined;
+          }
+        >,
+        "many"
+      >
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     nome: string;
     potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-    estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
+    estagioPipeline:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO";
     email?: string | undefined;
-    endereco?: {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    } | undefined;
+    endereco?:
+      | {
+          logradouro?: string | undefined;
+          numero?: string | undefined;
+          complemento?: string | undefined;
+          bairro?: string | undefined;
+          cidade?: string | undefined;
+          estado?: string | undefined;
+          cep?: string | undefined;
+        }
+      | undefined;
     crm?: string | undefined;
     telefone?: string | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
@@ -124,29 +190,40 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<{
     observacoes?: string | undefined;
     nomeConjuge?: string | undefined;
     dataNascConjuge?: string | undefined;
-    contatos?: {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }[] | undefined;
+    contatos?:
+      | {
+          tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+          valor: string;
+          observacao?: string | undefined;
+        }[]
+      | undefined;
     especialidadeId?: string | null | undefined;
     subEspecialidadeId?: string | null | undefined;
-}, {
+  },
+  {
     nome: string;
     email?: string | undefined;
-    endereco?: {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    } | undefined;
+    endereco?:
+      | {
+          logradouro?: string | undefined;
+          numero?: string | undefined;
+          complemento?: string | undefined;
+          bairro?: string | undefined;
+          cidade?: string | undefined;
+          estado?: string | undefined;
+          cep?: string | undefined;
+        }
+      | undefined;
     crm?: string | undefined;
     telefone?: string | undefined;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
-    estagioPipeline?: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO" | undefined;
+    estagioPipeline?:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO"
+      | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -155,85 +232,143 @@ export declare const CreateProfissionalInputSchema: z.ZodObject<{
     observacoes?: string | undefined;
     nomeConjuge?: string | undefined;
     dataNascConjuge?: string | undefined;
-    contatos?: {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }[] | undefined;
+    contatos?:
+      | {
+          tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+          valor: string;
+          observacao?: string | undefined;
+        }[]
+      | undefined;
     especialidadeId?: string | null | undefined;
     subEspecialidadeId?: string | null | undefined;
-}>;
-export declare const UpdateProfissionalInputSchema: z.ZodObject<{
+  }
+>;
+export declare const UpdateProfissionalInputSchema: z.ZodObject<
+  {
     nome: z.ZodOptional<z.ZodString>;
     crm: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    email: z.ZodOptional<z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>>;
+    email: z.ZodOptional<
+      z.ZodUnion<[z.ZodOptional<z.ZodString>, z.ZodLiteral<"">]>
+    >;
     telefone: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    potencial: z.ZodOptional<z.ZodDefault<z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>>>;
-    estagioPipeline: z.ZodOptional<z.ZodDefault<z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>>>;
+    potencial: z.ZodOptional<
+      z.ZodDefault<z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>>
+    >;
+    estagioPipeline: z.ZodOptional<
+      z.ZodDefault<
+        z.ZodEnum<
+          ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]
+        >
+      >
+    >;
     especialidadeId: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>;
-    subEspecialidadeId: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>;
-    classificacao: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>>>;
+    subEspecialidadeId: z.ZodOptional<
+      z.ZodOptional<z.ZodNullable<z.ZodString>>
+    >;
+    classificacao: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodNullable<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>
+      >
+    >;
     cpfCnpj: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    sexo: z.ZodOptional<z.ZodOptional<z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>>>;
+    sexo: z.ZodOptional<
+      z.ZodOptional<z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>>
+    >;
     dataNascimento: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    tratamento: z.ZodOptional<z.ZodOptional<z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>>>;
+    tratamento: z.ZodOptional<
+      z.ZodOptional<z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>>
+    >;
     observacoes: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     nomeConjuge: z.ZodOptional<z.ZodOptional<z.ZodString>>;
     dataNascConjuge: z.ZodOptional<z.ZodOptional<z.ZodString>>;
-    endereco: z.ZodOptional<z.ZodOptional<z.ZodObject<{
-        logradouro: z.ZodOptional<z.ZodString>;
-        numero: z.ZodOptional<z.ZodString>;
-        complemento: z.ZodOptional<z.ZodString>;
-        bairro: z.ZodOptional<z.ZodString>;
-        cidade: z.ZodOptional<z.ZodString>;
-        estado: z.ZodOptional<z.ZodString>;
-        cep: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    }, {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    }>>>;
-    contatos: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodObject<{
-        tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
-        valor: z.ZodString;
-        observacao: z.ZodOptional<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }, {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }>, "many">>>;
-}, "strip", z.ZodTypeAny, {
+    endereco: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodObject<
+          {
+            logradouro: z.ZodOptional<z.ZodString>;
+            numero: z.ZodOptional<z.ZodString>;
+            complemento: z.ZodOptional<z.ZodString>;
+            bairro: z.ZodOptional<z.ZodString>;
+            cidade: z.ZodOptional<z.ZodString>;
+            estado: z.ZodOptional<z.ZodString>;
+            cep: z.ZodOptional<z.ZodString>;
+          },
+          "strip",
+          z.ZodTypeAny,
+          {
+            logradouro?: string | undefined;
+            numero?: string | undefined;
+            complemento?: string | undefined;
+            bairro?: string | undefined;
+            cidade?: string | undefined;
+            estado?: string | undefined;
+            cep?: string | undefined;
+          },
+          {
+            logradouro?: string | undefined;
+            numero?: string | undefined;
+            complemento?: string | undefined;
+            bairro?: string | undefined;
+            cidade?: string | undefined;
+            estado?: string | undefined;
+            cep?: string | undefined;
+          }
+        >
+      >
+    >;
+    contatos: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodArray<
+          z.ZodObject<
+            {
+              tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
+              valor: z.ZodString;
+              observacao: z.ZodOptional<z.ZodString>;
+            },
+            "strip",
+            z.ZodTypeAny,
+            {
+              tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+              valor: string;
+              observacao?: string | undefined;
+            },
+            {
+              tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+              valor: string;
+              observacao?: string | undefined;
+            }
+          >,
+          "many"
+        >
+      >
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     email?: string | undefined;
-    endereco?: {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    } | undefined;
+    endereco?:
+      | {
+          logradouro?: string | undefined;
+          numero?: string | undefined;
+          complemento?: string | undefined;
+          bairro?: string | undefined;
+          cidade?: string | undefined;
+          estado?: string | undefined;
+          cep?: string | undefined;
+        }
+      | undefined;
     nome?: string | undefined;
     crm?: string | undefined;
     telefone?: string | undefined;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
-    estagioPipeline?: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO" | undefined;
+    estagioPipeline?:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO"
+      | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -242,29 +377,40 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<{
     observacoes?: string | undefined;
     nomeConjuge?: string | undefined;
     dataNascConjuge?: string | undefined;
-    contatos?: {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }[] | undefined;
+    contatos?:
+      | {
+          tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+          valor: string;
+          observacao?: string | undefined;
+        }[]
+      | undefined;
     especialidadeId?: string | null | undefined;
     subEspecialidadeId?: string | null | undefined;
-}, {
+  },
+  {
     email?: string | undefined;
-    endereco?: {
-        logradouro?: string | undefined;
-        numero?: string | undefined;
-        complemento?: string | undefined;
-        bairro?: string | undefined;
-        cidade?: string | undefined;
-        estado?: string | undefined;
-        cep?: string | undefined;
-    } | undefined;
+    endereco?:
+      | {
+          logradouro?: string | undefined;
+          numero?: string | undefined;
+          complemento?: string | undefined;
+          bairro?: string | undefined;
+          cidade?: string | undefined;
+          estado?: string | undefined;
+          cep?: string | undefined;
+        }
+      | undefined;
     nome?: string | undefined;
     crm?: string | undefined;
     telefone?: string | undefined;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
-    estagioPipeline?: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO" | undefined;
+    estagioPipeline?:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO"
+      | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | null | undefined;
     cpfCnpj?: string | undefined;
     sexo?: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | undefined;
@@ -273,47 +419,95 @@ export declare const UpdateProfissionalInputSchema: z.ZodObject<{
     observacoes?: string | undefined;
     nomeConjuge?: string | undefined;
     dataNascConjuge?: string | undefined;
-    contatos?: {
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao?: string | undefined;
-    }[] | undefined;
+    contatos?:
+      | {
+          tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+          valor: string;
+          observacao?: string | undefined;
+        }[]
+      | undefined;
     especialidadeId?: string | null | undefined;
     subEspecialidadeId?: string | null | undefined;
-}>;
-export declare const ListProfissionaisQuerySchema: z.ZodObject<{
+  }
+>;
+export declare const ListProfissionaisQuerySchema: z.ZodObject<
+  {
     page: z.ZodDefault<z.ZodNumber>;
     pageSize: z.ZodDefault<z.ZodNumber>;
     busca: z.ZodOptional<z.ZodString>;
-    potencial: z.ZodOptional<z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>>;
-    estagioPipeline: z.ZodOptional<z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>>;
+    potencial: z.ZodOptional<
+      z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>
+    >;
+    estagioPipeline: z.ZodOptional<
+      z.ZodEnum<
+        ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]
+      >
+    >;
     especialidadeId: z.ZodOptional<z.ZodString>;
-    classificacao: z.ZodOptional<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>;
-}, "strip", z.ZodTypeAny, {
+    classificacao: z.ZodOptional<
+      z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     page: number;
     pageSize: number;
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
-    estagioPipeline?: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO" | undefined;
+    estagioPipeline?:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO"
+      | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | undefined;
     especialidadeId?: string | undefined;
     busca?: string | undefined;
-}, {
+  },
+  {
     potencial?: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO" | undefined;
-    estagioPipeline?: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO" | undefined;
+    estagioPipeline?:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO"
+      | undefined;
     classificacao?: "FORTE" | "INTERMEDIARIO" | "FRACO" | undefined;
     especialidadeId?: string | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
     busca?: string | undefined;
-}>;
-export declare const UpdateEstagioInputSchema: z.ZodObject<{
-    estagioNovo: z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>;
-}, "strip", z.ZodTypeAny, {
-    estagioNovo: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
-}, {
-    estagioNovo: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
-}>;
-export declare const EnderecoOutputSchema: z.ZodObject<{
+  }
+>;
+export declare const UpdateEstagioInputSchema: z.ZodObject<
+  {
+    estagioNovo: z.ZodEnum<
+      ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
+    estagioNovo:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO";
+  },
+  {
+    estagioNovo:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO";
+  }
+>;
+export declare const EnderecoOutputSchema: z.ZodObject<
+  {
     id: z.ZodString;
     logradouro: z.ZodNullable<z.ZodString>;
     numero: z.ZodNullable<z.ZodString>;
@@ -322,7 +516,10 @@ export declare const EnderecoOutputSchema: z.ZodObject<{
     cidade: z.ZodNullable<z.ZodString>;
     estado: z.ZodNullable<z.ZodString>;
     cep: z.ZodNullable<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     id: string;
     logradouro: string | null;
     numero: string | null;
@@ -331,7 +528,8 @@ export declare const EnderecoOutputSchema: z.ZodObject<{
     cidade: string | null;
     estado: string | null;
     cep: string | null;
-}, {
+  },
+  {
     id: string;
     logradouro: string | null;
     numero: string | null;
@@ -340,154 +538,216 @@ export declare const EnderecoOutputSchema: z.ZodObject<{
     cidade: string | null;
     estado: string | null;
     cep: string | null;
-}>;
-export declare const EspecialidadeOutputSchema: z.ZodObject<{
+  }
+>;
+export declare const EspecialidadeOutputSchema: z.ZodObject<
+  {
     id: z.ZodString;
     nome: z.ZodString;
     categoria: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     id: string;
     nome: string;
     categoria: string;
-}, {
+  },
+  {
     id: string;
     nome: string;
     categoria: string;
-}>;
-export declare const SubEspecialidadeOutputSchema: z.ZodObject<{
+  }
+>;
+export declare const SubEspecialidadeOutputSchema: z.ZodObject<
+  {
     id: z.ZodString;
     nome: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     id: string;
     nome: string;
-}, {
+  },
+  {
     id: string;
     nome: string;
-}>;
-export declare const ContatoOutputSchema: z.ZodObject<{
+  }
+>;
+export declare const ContatoOutputSchema: z.ZodObject<
+  {
     id: z.ZodString;
     tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
     valor: z.ZodString;
     observacao: z.ZodNullable<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     id: string;
     tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
     valor: string;
     observacao: string | null;
-}, {
+  },
+  {
     id: string;
     tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
     valor: string;
     observacao: string | null;
-}>;
-export declare const ProfissionalOutputSchema: z.ZodObject<{
+  }
+>;
+export declare const ProfissionalOutputSchema: z.ZodObject<
+  {
     id: z.ZodString;
     nome: z.ZodString;
     crm: z.ZodNullable<z.ZodString>;
     email: z.ZodNullable<z.ZodString>;
     telefone: z.ZodNullable<z.ZodString>;
     potencial: z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>;
-    estagioPipeline: z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>;
+    estagioPipeline: z.ZodEnum<
+      ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]
+    >;
     especialidadeId: z.ZodNullable<z.ZodString>;
     enderecoId: z.ZodNullable<z.ZodString>;
     cpfCnpj: z.ZodNullable<z.ZodString>;
     sexo: z.ZodNullable<z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>>;
     dataNascimento: z.ZodNullable<z.ZodDate>;
-    tratamento: z.ZodNullable<z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>>;
+    tratamento: z.ZodNullable<
+      z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>
+    >;
     observacoes: z.ZodNullable<z.ZodString>;
     nomeConjuge: z.ZodNullable<z.ZodString>;
     dataNascConjuge: z.ZodNullable<z.ZodDate>;
     createdAt: z.ZodDate;
     updatedAt: z.ZodDate;
     deletedAt: z.ZodNullable<z.ZodDate>;
-    especialidade: z.ZodNullable<z.ZodObject<{
-        id: z.ZodString;
-        nome: z.ZodString;
-        categoria: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
-        id: string;
-        nome: string;
-        categoria: string;
-    }, {
-        id: string;
-        nome: string;
-        categoria: string;
-    }>>;
-    subEspecialidade: z.ZodNullable<z.ZodObject<{
-        id: z.ZodString;
-        nome: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
-        id: string;
-        nome: string;
-    }, {
-        id: string;
-        nome: string;
-    }>>;
-    endereco: z.ZodNullable<z.ZodObject<{
-        id: z.ZodString;
-        logradouro: z.ZodNullable<z.ZodString>;
-        numero: z.ZodNullable<z.ZodString>;
-        complemento: z.ZodNullable<z.ZodString>;
-        bairro: z.ZodNullable<z.ZodString>;
-        cidade: z.ZodNullable<z.ZodString>;
-        estado: z.ZodNullable<z.ZodString>;
-        cep: z.ZodNullable<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        id: string;
-        logradouro: string | null;
-        numero: string | null;
-        complemento: string | null;
-        bairro: string | null;
-        cidade: string | null;
-        estado: string | null;
-        cep: string | null;
-    }, {
-        id: string;
-        logradouro: string | null;
-        numero: string | null;
-        complemento: string | null;
-        bairro: string | null;
-        cidade: string | null;
-        estado: string | null;
-        cep: string | null;
-    }>>;
-    contatos: z.ZodArray<z.ZodObject<{
-        id: z.ZodString;
-        tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
-        valor: z.ZodString;
-        observacao: z.ZodNullable<z.ZodString>;
-    }, "strip", z.ZodTypeAny, {
-        id: string;
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao: string | null;
-    }, {
-        id: string;
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao: string | null;
-    }>, "many">;
-    classificacao: z.ZodNullable<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>;
-}, "strip", z.ZodTypeAny, {
+    especialidade: z.ZodNullable<
+      z.ZodObject<
+        {
+          id: z.ZodString;
+          nome: z.ZodString;
+          categoria: z.ZodString;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          id: string;
+          nome: string;
+          categoria: string;
+        },
+        {
+          id: string;
+          nome: string;
+          categoria: string;
+        }
+      >
+    >;
+    subEspecialidade: z.ZodNullable<
+      z.ZodObject<
+        {
+          id: z.ZodString;
+          nome: z.ZodString;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          id: string;
+          nome: string;
+        },
+        {
+          id: string;
+          nome: string;
+        }
+      >
+    >;
+    endereco: z.ZodNullable<
+      z.ZodObject<
+        {
+          id: z.ZodString;
+          logradouro: z.ZodNullable<z.ZodString>;
+          numero: z.ZodNullable<z.ZodString>;
+          complemento: z.ZodNullable<z.ZodString>;
+          bairro: z.ZodNullable<z.ZodString>;
+          cidade: z.ZodNullable<z.ZodString>;
+          estado: z.ZodNullable<z.ZodString>;
+          cep: z.ZodNullable<z.ZodString>;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          id: string;
+          logradouro: string | null;
+          numero: string | null;
+          complemento: string | null;
+          bairro: string | null;
+          cidade: string | null;
+          estado: string | null;
+          cep: string | null;
+        },
+        {
+          id: string;
+          logradouro: string | null;
+          numero: string | null;
+          complemento: string | null;
+          bairro: string | null;
+          cidade: string | null;
+          estado: string | null;
+          cep: string | null;
+        }
+      >
+    >;
+    contatos: z.ZodArray<
+      z.ZodObject<
+        {
+          id: z.ZodString;
+          tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
+          valor: z.ZodString;
+          observacao: z.ZodNullable<z.ZodString>;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          id: string;
+          tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+          valor: string;
+          observacao: string | null;
+        },
+        {
+          id: string;
+          tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+          valor: string;
+          observacao: string | null;
+        }
+      >,
+      "many"
+    >;
+    classificacao: z.ZodNullable<
+      z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     email: string | null;
     especialidade: {
-        id: string;
-        nome: string;
-        categoria: string;
+      id: string;
+      nome: string;
+      categoria: string;
     } | null;
     endereco: {
-        id: string;
-        logradouro: string | null;
-        numero: string | null;
-        complemento: string | null;
-        bairro: string | null;
-        cidade: string | null;
-        estado: string | null;
-        cep: string | null;
+      id: string;
+      logradouro: string | null;
+      numero: string | null;
+      complemento: string | null;
+      bairro: string | null;
+      cidade: string | null;
+      estado: string | null;
+      cep: string | null;
     } | null;
     subEspecialidade: {
-        id: string;
-        nome: string;
+      id: string;
+      nome: string;
     } | null;
     id: string;
     deletedAt: Date | null;
@@ -497,7 +757,12 @@ export declare const ProfissionalOutputSchema: z.ZodObject<{
     crm: string | null;
     telefone: string | null;
     potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-    estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
+    estagioPipeline:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO";
     classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
     cpfCnpj: string | null;
     sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -507,33 +772,34 @@ export declare const ProfissionalOutputSchema: z.ZodObject<{
     nomeConjuge: string | null;
     dataNascConjuge: Date | null;
     contatos: {
-        id: string;
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao: string | null;
+      id: string;
+      tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+      valor: string;
+      observacao: string | null;
     }[];
     especialidadeId: string | null;
     enderecoId: string | null;
-}, {
+  },
+  {
     email: string | null;
     especialidade: {
-        id: string;
-        nome: string;
-        categoria: string;
+      id: string;
+      nome: string;
+      categoria: string;
     } | null;
     endereco: {
-        id: string;
-        logradouro: string | null;
-        numero: string | null;
-        complemento: string | null;
-        bairro: string | null;
-        cidade: string | null;
-        estado: string | null;
-        cep: string | null;
+      id: string;
+      logradouro: string | null;
+      numero: string | null;
+      complemento: string | null;
+      bairro: string | null;
+      cidade: string | null;
+      estado: string | null;
+      cep: string | null;
     } | null;
     subEspecialidade: {
-        id: string;
-        nome: string;
+      id: string;
+      nome: string;
     } | null;
     id: string;
     deletedAt: Date | null;
@@ -543,7 +809,12 @@ export declare const ProfissionalOutputSchema: z.ZodObject<{
     crm: string | null;
     telefone: string | null;
     potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-    estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
+    estagioPipeline:
+      | "PROSPECTADO"
+      | "VISITADO"
+      | "INTERESSADO"
+      | "PRESCRITOR"
+      | "FIDELIZADO";
     classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
     cpfCnpj: string | null;
     sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
@@ -553,84 +824,187 @@ export declare const ProfissionalOutputSchema: z.ZodObject<{
     nomeConjuge: string | null;
     dataNascConjuge: Date | null;
     contatos: {
-        id: string;
-        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-        valor: string;
-        observacao: string | null;
+      id: string;
+      tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+      valor: string;
+      observacao: string | null;
     }[];
     especialidadeId: string | null;
     enderecoId: string | null;
-}>;
-export declare const PaginationMetaSchema: z.ZodObject<{
+  }
+>;
+export declare const PaginationMetaSchema: z.ZodObject<
+  {
     page: z.ZodNumber;
     pageSize: z.ZodNumber;
     total: z.ZodNumber;
     totalPages: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     page: number;
     pageSize: number;
     total: number;
     totalPages: number;
-}, {
+  },
+  {
     page: number;
     pageSize: number;
     total: number;
     totalPages: number;
-}>;
-export declare const ProfissionaisListOutputSchema: z.ZodObject<{
-    data: z.ZodArray<z.ZodObject<{
-        id: z.ZodString;
-        nome: z.ZodString;
-        crm: z.ZodNullable<z.ZodString>;
-        email: z.ZodNullable<z.ZodString>;
-        telefone: z.ZodNullable<z.ZodString>;
-        potencial: z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>;
-        estagioPipeline: z.ZodEnum<["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"]>;
-        especialidadeId: z.ZodNullable<z.ZodString>;
-        enderecoId: z.ZodNullable<z.ZodString>;
-        cpfCnpj: z.ZodNullable<z.ZodString>;
-        sexo: z.ZodNullable<z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>>;
-        dataNascimento: z.ZodNullable<z.ZodDate>;
-        tratamento: z.ZodNullable<z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>>;
-        observacoes: z.ZodNullable<z.ZodString>;
-        nomeConjuge: z.ZodNullable<z.ZodString>;
-        dataNascConjuge: z.ZodNullable<z.ZodDate>;
-        createdAt: z.ZodDate;
-        updatedAt: z.ZodDate;
-        deletedAt: z.ZodNullable<z.ZodDate>;
-        especialidade: z.ZodNullable<z.ZodObject<{
-            id: z.ZodString;
-            nome: z.ZodString;
-            categoria: z.ZodString;
-        }, "strip", z.ZodTypeAny, {
+  }
+>;
+export declare const ProfissionaisListOutputSchema: z.ZodObject<
+  {
+    data: z.ZodArray<
+      z.ZodObject<
+        {
+          id: z.ZodString;
+          nome: z.ZodString;
+          crm: z.ZodNullable<z.ZodString>;
+          email: z.ZodNullable<z.ZodString>;
+          telefone: z.ZodNullable<z.ZodString>;
+          potencial: z.ZodEnum<["BAIXO", "MEDIO", "ALTO", "ESTRATEGICO"]>;
+          estagioPipeline: z.ZodEnum<
+            [
+              "PROSPECTADO",
+              "VISITADO",
+              "INTERESSADO",
+              "PRESCRITOR",
+              "FIDELIZADO",
+            ]
+          >;
+          especialidadeId: z.ZodNullable<z.ZodString>;
+          enderecoId: z.ZodNullable<z.ZodString>;
+          cpfCnpj: z.ZodNullable<z.ZodString>;
+          sexo: z.ZodNullable<
+            z.ZodEnum<["MASCULINO", "FEMININO", "NAO_INFORMADO"]>
+          >;
+          dataNascimento: z.ZodNullable<z.ZodDate>;
+          tratamento: z.ZodNullable<
+            z.ZodEnum<["DR", "DRA", "PROF", "PROFA", "SR", "SRA"]>
+          >;
+          observacoes: z.ZodNullable<z.ZodString>;
+          nomeConjuge: z.ZodNullable<z.ZodString>;
+          dataNascConjuge: z.ZodNullable<z.ZodDate>;
+          createdAt: z.ZodDate;
+          updatedAt: z.ZodDate;
+          deletedAt: z.ZodNullable<z.ZodDate>;
+          especialidade: z.ZodNullable<
+            z.ZodObject<
+              {
+                id: z.ZodString;
+                nome: z.ZodString;
+                categoria: z.ZodString;
+              },
+              "strip",
+              z.ZodTypeAny,
+              {
+                id: string;
+                nome: string;
+                categoria: string;
+              },
+              {
+                id: string;
+                nome: string;
+                categoria: string;
+              }
+            >
+          >;
+          subEspecialidade: z.ZodNullable<
+            z.ZodObject<
+              {
+                id: z.ZodString;
+                nome: z.ZodString;
+              },
+              "strip",
+              z.ZodTypeAny,
+              {
+                id: string;
+                nome: string;
+              },
+              {
+                id: string;
+                nome: string;
+              }
+            >
+          >;
+          endereco: z.ZodNullable<
+            z.ZodObject<
+              {
+                id: z.ZodString;
+                logradouro: z.ZodNullable<z.ZodString>;
+                numero: z.ZodNullable<z.ZodString>;
+                complemento: z.ZodNullable<z.ZodString>;
+                bairro: z.ZodNullable<z.ZodString>;
+                cidade: z.ZodNullable<z.ZodString>;
+                estado: z.ZodNullable<z.ZodString>;
+                cep: z.ZodNullable<z.ZodString>;
+              },
+              "strip",
+              z.ZodTypeAny,
+              {
+                id: string;
+                logradouro: string | null;
+                numero: string | null;
+                complemento: string | null;
+                bairro: string | null;
+                cidade: string | null;
+                estado: string | null;
+                cep: string | null;
+              },
+              {
+                id: string;
+                logradouro: string | null;
+                numero: string | null;
+                complemento: string | null;
+                bairro: string | null;
+                cidade: string | null;
+                estado: string | null;
+                cep: string | null;
+              }
+            >
+          >;
+          contatos: z.ZodArray<
+            z.ZodObject<
+              {
+                id: z.ZodString;
+                tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
+                valor: z.ZodString;
+                observacao: z.ZodNullable<z.ZodString>;
+              },
+              "strip",
+              z.ZodTypeAny,
+              {
+                id: string;
+                tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+                valor: string;
+                observacao: string | null;
+              },
+              {
+                id: string;
+                tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+                valor: string;
+                observacao: string | null;
+              }
+            >,
+            "many"
+          >;
+          classificacao: z.ZodNullable<
+            z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>
+          >;
+        },
+        "strip",
+        z.ZodTypeAny,
+        {
+          email: string | null;
+          especialidade: {
             id: string;
             nome: string;
             categoria: string;
-        }, {
-            id: string;
-            nome: string;
-            categoria: string;
-        }>>;
-        subEspecialidade: z.ZodNullable<z.ZodObject<{
-            id: z.ZodString;
-            nome: z.ZodString;
-        }, "strip", z.ZodTypeAny, {
-            id: string;
-            nome: string;
-        }, {
-            id: string;
-            nome: string;
-        }>>;
-        endereco: z.ZodNullable<z.ZodObject<{
-            id: z.ZodString;
-            logradouro: z.ZodNullable<z.ZodString>;
-            numero: z.ZodNullable<z.ZodString>;
-            complemento: z.ZodNullable<z.ZodString>;
-            bairro: z.ZodNullable<z.ZodString>;
-            cidade: z.ZodNullable<z.ZodString>;
-            estado: z.ZodNullable<z.ZodString>;
-            cep: z.ZodNullable<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
+          } | null;
+          endereco: {
             id: string;
             logradouro: string | null;
             numero: string | null;
@@ -639,41 +1013,50 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<{
             cidade: string | null;
             estado: string | null;
             cep: string | null;
-        }, {
+          } | null;
+          subEspecialidade: {
             id: string;
-            logradouro: string | null;
-            numero: string | null;
-            complemento: string | null;
-            bairro: string | null;
-            cidade: string | null;
-            estado: string | null;
-            cep: string | null;
-        }>>;
-        contatos: z.ZodArray<z.ZodObject<{
-            id: z.ZodString;
-            tipo: z.ZodEnum<["TELEFONE", "EMAIL", "WHATSAPP", "OUTRO"]>;
-            valor: z.ZodString;
-            observacao: z.ZodNullable<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
+            nome: string;
+          } | null;
+          id: string;
+          deletedAt: Date | null;
+          createdAt: Date;
+          updatedAt: Date;
+          nome: string;
+          crm: string | null;
+          telefone: string | null;
+          potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
+          estagioPipeline:
+            | "PROSPECTADO"
+            | "VISITADO"
+            | "INTERESSADO"
+            | "PRESCRITOR"
+            | "FIDELIZADO";
+          classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
+          cpfCnpj: string | null;
+          sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
+          dataNascimento: Date | null;
+          tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
+          observacoes: string | null;
+          nomeConjuge: string | null;
+          dataNascConjuge: Date | null;
+          contatos: {
             id: string;
             tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
             valor: string;
             observacao: string | null;
-        }, {
-            id: string;
-            tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-            valor: string;
-            observacao: string | null;
-        }>, "many">;
-        classificacao: z.ZodNullable<z.ZodEnum<["FORTE", "INTERMEDIARIO", "FRACO"]>>;
-    }, "strip", z.ZodTypeAny, {
-        email: string | null;
-        especialidade: {
+          }[];
+          especialidadeId: string | null;
+          enderecoId: string | null;
+        },
+        {
+          email: string | null;
+          especialidade: {
             id: string;
             nome: string;
             categoria: string;
-        } | null;
-        endereco: {
+          } | null;
+          endereco: {
             id: string;
             logradouro: string | null;
             numero: string | null;
@@ -682,212 +1065,205 @@ export declare const ProfissionaisListOutputSchema: z.ZodObject<{
             cidade: string | null;
             estado: string | null;
             cep: string | null;
-        } | null;
-        subEspecialidade: {
+          } | null;
+          subEspecialidade: {
             id: string;
             nome: string;
-        } | null;
-        id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-        nome: string;
-        crm: string | null;
-        telefone: string | null;
-        potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-        estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
-        classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
-        cpfCnpj: string | null;
-        sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
-        dataNascimento: Date | null;
-        tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
-        observacoes: string | null;
-        nomeConjuge: string | null;
-        dataNascConjuge: Date | null;
-        contatos: {
+          } | null;
+          id: string;
+          deletedAt: Date | null;
+          createdAt: Date;
+          updatedAt: Date;
+          nome: string;
+          crm: string | null;
+          telefone: string | null;
+          potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
+          estagioPipeline:
+            | "PROSPECTADO"
+            | "VISITADO"
+            | "INTERESSADO"
+            | "PRESCRITOR"
+            | "FIDELIZADO";
+          classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
+          cpfCnpj: string | null;
+          sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
+          dataNascimento: Date | null;
+          tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
+          observacoes: string | null;
+          nomeConjuge: string | null;
+          dataNascConjuge: Date | null;
+          contatos: {
             id: string;
             tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
             valor: string;
             observacao: string | null;
-        }[];
-        especialidadeId: string | null;
-        enderecoId: string | null;
-    }, {
-        email: string | null;
-        especialidade: {
-            id: string;
-            nome: string;
-            categoria: string;
-        } | null;
-        endereco: {
-            id: string;
-            logradouro: string | null;
-            numero: string | null;
-            complemento: string | null;
-            bairro: string | null;
-            cidade: string | null;
-            estado: string | null;
-            cep: string | null;
-        } | null;
-        subEspecialidade: {
-            id: string;
-            nome: string;
-        } | null;
-        id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-        nome: string;
-        crm: string | null;
-        telefone: string | null;
-        potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-        estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
-        classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
-        cpfCnpj: string | null;
-        sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
-        dataNascimento: Date | null;
-        tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
-        observacoes: string | null;
-        nomeConjuge: string | null;
-        dataNascConjuge: Date | null;
-        contatos: {
-            id: string;
-            tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-            valor: string;
-            observacao: string | null;
-        }[];
-        especialidadeId: string | null;
-        enderecoId: string | null;
-    }>, "many">;
-    pagination: z.ZodObject<{
+          }[];
+          especialidadeId: string | null;
+          enderecoId: string | null;
+        }
+      >,
+      "many"
+    >;
+    pagination: z.ZodObject<
+      {
         page: z.ZodNumber;
         pageSize: z.ZodNumber;
         total: z.ZodNumber;
         totalPages: z.ZodNumber;
-    }, "strip", z.ZodTypeAny, {
+      },
+      "strip",
+      z.ZodTypeAny,
+      {
         page: number;
         pageSize: number;
         total: number;
         totalPages: number;
-    }, {
+      },
+      {
         page: number;
         pageSize: number;
         total: number;
         totalPages: number;
-    }>;
-}, "strip", z.ZodTypeAny, {
+      }
+    >;
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     data: {
-        email: string | null;
-        especialidade: {
-            id: string;
-            nome: string;
-            categoria: string;
-        } | null;
-        endereco: {
-            id: string;
-            logradouro: string | null;
-            numero: string | null;
-            complemento: string | null;
-            bairro: string | null;
-            cidade: string | null;
-            estado: string | null;
-            cep: string | null;
-        } | null;
-        subEspecialidade: {
-            id: string;
-            nome: string;
-        } | null;
+      email: string | null;
+      especialidade: {
         id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
         nome: string;
-        crm: string | null;
-        telefone: string | null;
-        potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-        estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
-        classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
-        cpfCnpj: string | null;
-        sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
-        dataNascimento: Date | null;
-        tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
-        observacoes: string | null;
-        nomeConjuge: string | null;
-        dataNascConjuge: Date | null;
-        contatos: {
-            id: string;
-            tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-            valor: string;
-            observacao: string | null;
-        }[];
-        especialidadeId: string | null;
-        enderecoId: string | null;
+        categoria: string;
+      } | null;
+      endereco: {
+        id: string;
+        logradouro: string | null;
+        numero: string | null;
+        complemento: string | null;
+        bairro: string | null;
+        cidade: string | null;
+        estado: string | null;
+        cep: string | null;
+      } | null;
+      subEspecialidade: {
+        id: string;
+        nome: string;
+      } | null;
+      id: string;
+      deletedAt: Date | null;
+      createdAt: Date;
+      updatedAt: Date;
+      nome: string;
+      crm: string | null;
+      telefone: string | null;
+      potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
+      estagioPipeline:
+        | "PROSPECTADO"
+        | "VISITADO"
+        | "INTERESSADO"
+        | "PRESCRITOR"
+        | "FIDELIZADO";
+      classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
+      cpfCnpj: string | null;
+      sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
+      dataNascimento: Date | null;
+      tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
+      observacoes: string | null;
+      nomeConjuge: string | null;
+      dataNascConjuge: Date | null;
+      contatos: {
+        id: string;
+        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+        valor: string;
+        observacao: string | null;
+      }[];
+      especialidadeId: string | null;
+      enderecoId: string | null;
     }[];
     pagination: {
-        page: number;
-        pageSize: number;
-        total: number;
-        totalPages: number;
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
     };
-}, {
+  },
+  {
     data: {
-        email: string | null;
-        especialidade: {
-            id: string;
-            nome: string;
-            categoria: string;
-        } | null;
-        endereco: {
-            id: string;
-            logradouro: string | null;
-            numero: string | null;
-            complemento: string | null;
-            bairro: string | null;
-            cidade: string | null;
-            estado: string | null;
-            cep: string | null;
-        } | null;
-        subEspecialidade: {
-            id: string;
-            nome: string;
-        } | null;
+      email: string | null;
+      especialidade: {
         id: string;
-        deletedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
         nome: string;
-        crm: string | null;
-        telefone: string | null;
-        potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
-        estagioPipeline: "PROSPECTADO" | "VISITADO" | "INTERESSADO" | "PRESCRITOR" | "FIDELIZADO";
-        classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
-        cpfCnpj: string | null;
-        sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
-        dataNascimento: Date | null;
-        tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
-        observacoes: string | null;
-        nomeConjuge: string | null;
-        dataNascConjuge: Date | null;
-        contatos: {
-            id: string;
-            tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-            valor: string;
-            observacao: string | null;
-        }[];
-        especialidadeId: string | null;
-        enderecoId: string | null;
+        categoria: string;
+      } | null;
+      endereco: {
+        id: string;
+        logradouro: string | null;
+        numero: string | null;
+        complemento: string | null;
+        bairro: string | null;
+        cidade: string | null;
+        estado: string | null;
+        cep: string | null;
+      } | null;
+      subEspecialidade: {
+        id: string;
+        nome: string;
+      } | null;
+      id: string;
+      deletedAt: Date | null;
+      createdAt: Date;
+      updatedAt: Date;
+      nome: string;
+      crm: string | null;
+      telefone: string | null;
+      potencial: "BAIXO" | "MEDIO" | "ALTO" | "ESTRATEGICO";
+      estagioPipeline:
+        | "PROSPECTADO"
+        | "VISITADO"
+        | "INTERESSADO"
+        | "PRESCRITOR"
+        | "FIDELIZADO";
+      classificacao: "FORTE" | "INTERMEDIARIO" | "FRACO" | null;
+      cpfCnpj: string | null;
+      sexo: "MASCULINO" | "FEMININO" | "NAO_INFORMADO" | null;
+      dataNascimento: Date | null;
+      tratamento: "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA" | null;
+      observacoes: string | null;
+      nomeConjuge: string | null;
+      dataNascConjuge: Date | null;
+      contatos: {
+        id: string;
+        tipo: "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
+        valor: string;
+        observacao: string | null;
+      }[];
+      especialidadeId: string | null;
+      enderecoId: string | null;
     }[];
     pagination: {
-        page: number;
-        pageSize: number;
-        total: number;
-        totalPages: number;
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
     };
-}>;
-export type CreateProfissionalInput = z.infer<typeof CreateProfissionalInputSchema>;
-export type UpdateProfissionalInput = z.infer<typeof UpdateProfissionalInputSchema>;
-export type ListProfissionaisQuery = z.infer<typeof ListProfissionaisQuerySchema>;
+  }
+>;
+export type CreateProfissionalInput = z.infer<
+  typeof CreateProfissionalInputSchema
+>;
+export type UpdateProfissionalInput = z.infer<
+  typeof UpdateProfissionalInputSchema
+>;
+export type ListProfissionaisQuery = z.infer<
+  typeof ListProfissionaisQuerySchema
+>;
 export type UpdateEstagioInput = z.infer<typeof UpdateEstagioInputSchema>;
-export type ClassificacaoRelacionamento = z.infer<typeof ClassificacaoRelacionamentoSchema>;
+export type ClassificacaoRelacionamento = z.infer<
+  typeof ClassificacaoRelacionamentoSchema
+>;
 export type ProfissionalOutput = z.infer<typeof ProfissionalOutputSchema>;
-export type ProfissionaisListOutput = z.infer<typeof ProfissionaisListOutputSchema>;
+export type ProfissionaisListOutput = z.infer<
+  typeof ProfissionaisListOutputSchema
+>;

@@ -170,6 +170,15 @@ export async function buildApp() {
         });
       }
 
+      // Monitorar picos de 401/403 (possíveis ataques)
+      if (statusCode === 401 || statusCode === 403) {
+        Sentry.captureEvent({
+          message: `Auth failure spike: ${statusCode} on ${request.method} ${request.url}`,
+          level: "warning",
+          tags: { code: String(statusCode), url: request.url },
+        });
+      }
+
       return reply.status(statusCode).send({
         error:
           process.env.NODE_ENV === "production"

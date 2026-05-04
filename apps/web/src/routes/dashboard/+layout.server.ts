@@ -27,21 +27,29 @@ export const load: LayoutServerLoad = async ({ locals, parent }) => {
     statusOrg: (parentData as Record<string, unknown>).status ?? null,
     limites: (parentData as Record<string, unknown>).limites ?? null,
     temRelatorios:
-      ((parentData as Record<string, unknown>).limites as
-        | { temRelatorios?: boolean }
-        | null)?.temRelatorios ?? false,
+      (
+        (parentData as Record<string, unknown>).limites as {
+          temRelatorios?: boolean;
+        } | null
+      )?.temRelatorios ?? false,
     temGestaoEquipe:
-      ((parentData as Record<string, unknown>).limites as
-        | { temGestaoEquipe?: boolean }
-        | null)?.temGestaoEquipe ?? false,
+      (
+        (parentData as Record<string, unknown>).limites as {
+          temGestaoEquipe?: boolean;
+        } | null
+      )?.temGestaoEquipe ?? false,
     temIa:
-      ((parentData as Record<string, unknown>).limites as
-        | { temIa?: boolean }
-        | null)?.temIa ?? false,
+      (
+        (parentData as Record<string, unknown>).limites as {
+          temIa?: boolean;
+        } | null
+      )?.temIa ?? false,
     pacotesIaDisponiveis:
-      ((parentData as Record<string, unknown>).limites as
-        | { pacotesIaDisponiveis?: boolean }
-        | null)?.pacotesIaDisponiveis ?? false,
+      (
+        (parentData as Record<string, unknown>).limites as {
+          pacotesIaDisponiveis?: boolean;
+        } | null
+      )?.pacotesIaDisponiveis ?? false,
     tourConcluidoEm:
       ((parentData as Record<string, unknown>).tourConcluidoEm as
         | string

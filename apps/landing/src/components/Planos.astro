@@ -1,12 +1,12 @@
 ---
-const appUrl = import.meta.env.PUBLIC_APP_URL;
+const appUrl = import.meta.env.PUBLIC_APP_URL || 'https://app.medivisitas.com';
 
 const planos = [
   {
     nome: "Básico",
+    slug: "BASICO",
     preco: "R$ 79",
     desc: "Para organizar a carteira e manter a rotina comercial em dia.",
-    cta: "Começar 7 dias grátis",
     popular: false,
     features: [
       "Até 100 profissionais",
@@ -19,9 +19,9 @@ const planos = [
   },
   {
     nome: "Profissional",
+    slug: "PROFISSIONAL",
     preco: "R$ 149",
     desc: "Para representantes que usam IA e relatórios na rotina.",
-    cta: "Assinar Profissional",
     popular: true,
     features: [
       "Profissionais ilimitados",
@@ -34,9 +34,9 @@ const planos = [
   },
   {
     nome: "Equipe",
+    slug: "EQUIPE",
     preco: "R$ 349",
     desc: "Para gestores com até 10 propagandistas na equipe.",
-    cta: "Assinar Equipe",
     popular: false,
     features: [
       "Até 10 usuários",
@@ -62,7 +62,6 @@ const comparativo = [
   <div class="plans-inner">
     <span class="pill pill-blue story-element" data-story-delay="0">Planos</span>
     <h2 class="plans-h2 story-element" id="plans-h2" data-story-delay="1">Planos para cada fase da operação.</h2>
-    <p class="plans-sub story-element" data-story-delay="2">Trial de 7 dias, sem cartão de crédito.</p>
 
     <div class="plans-grid">
       {planos.map((plano, index) => (
@@ -76,7 +75,7 @@ const comparativo = [
           <ul class="plan-list">
             {plano.features.map((feature) => <li>{feature}</li>)}
           </ul>
-          <a href={`${appUrl}/planos`} class="plan-cta">{plano.cta}</a>
+          <a href={`${appUrl}/signup?plano=${plano.slug}`} class="plan-cta">Assinar →</a>
         </article>
       ))}
     </div>
@@ -131,6 +130,7 @@ const comparativo = [
     font-size: 18px;
     color: var(--color-ink-secondary);
     margin-top: 12px;
+    line-height: 1.5;
   }
 
   .plans-grid {
@@ -151,7 +151,7 @@ const comparativo = [
 
   .plan-card {
     position: relative;
-    padding: 30px;
+    padding: 28px;
     display: flex;
     flex-direction: column;
   }
@@ -185,7 +185,7 @@ const comparativo = [
     font-size: 42px;
     font-weight: 800;
     color: var(--color-ink);
-    margin-top: 12px;
+    margin-top: 18px;
     line-height: 1;
   }
 

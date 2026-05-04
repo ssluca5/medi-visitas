@@ -27,6 +27,9 @@
 	<div class="hidden lg:flex w-1/2 flex-col justify-between p-12 relative overflow-hidden"
 		style="background-color: rgb(var(--slate-900));">
 
+		<!-- Glow Radial no Fundo -->
+		<div class="absolute top-1/4 left-0 w-96 h-96 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
 		<!-- TOPO — Logo -->
 		<div class="relative z-10">
 			<div class="flex items-center gap-2">

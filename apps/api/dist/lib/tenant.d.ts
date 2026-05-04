@@ -1,7 +1,13 @@
 import type { FastifyRequest } from "fastify";
-export declare function buildTenantWhere(request: FastifyRequest, options?: {
+export declare function buildTenantWhere(
+  request: FastifyRequest,
+  options?: {
     hasDeletedAt?: boolean;
-}): Record<string, unknown>;
-export declare function buildResourceWhere(request: FastifyRequest, options?: {
+  },
+): Record<string, unknown>;
+export declare function buildResourceWhere(
+  request: FastifyRequest,
+  options?: {
     hasDeletedAt?: boolean;
-}): Record<string, unknown>;
+  },
+): Record<string, unknown>;

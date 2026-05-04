@@ -1,12 +1,17 @@
 <script lang="ts">
   import { apiFetch } from '$lib/api';
   import { toast } from '$lib/stores/toast.svelte';
-  import { Users, Mail, UserPlus, Shield, Loader2, Trash2, Copy, Link, X } from 'lucide-svelte';
+  import { Users, Mail, UserPlus, Shield, Loader2, Trash2, Link, X } from 'lucide-svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   
   let { data } = $props<{ data: any }>();
-  let membros = $state(data.equipe.membros || []);
-  let convites = $state(data.equipe.convites || []);
+  let membros = $state<any[]>([]);
+  let convites = $state<any[]>([]);
+
+  $effect(() => {
+    membros = data.equipe.membros || [];
+    convites = data.equipe.convites || [];
+  });
   
   let isOwner = $derived(data.me?.role === 'OWNER');
   
@@ -40,7 +45,7 @@
         const json = await infoRes.json();
         data.equipe.info = json;
       }
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   }
@@ -67,7 +72,7 @@
       } else {
         toast.erro(json.error || 'Erro ao enviar convite');
       }
-    } catch(e) {
+    } catch {
       toast.erro('Erro de conexão');
     } finally {
       sendingInvite = false;
@@ -97,7 +102,7 @@
         const json = await res.json();
         toast.erro(json.error || 'Erro na operação');
       }
-    } catch(e) {
+    } catch {
       toast.erro('Erro de conexão');
     } finally {
       showDeleteConfirm = false;

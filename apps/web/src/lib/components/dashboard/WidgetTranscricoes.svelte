@@ -37,7 +37,6 @@
     return 'Trial';
   });
 
-  const planoBasico = $derived(plano === 'BASICO' || status?.limite === 0);
   const planoIlimitado = $derived(plano === 'EMPRESA' || plano === 'EMPRESARIAL' || (status?.limite ?? 0) >= 999999);
   const porcentagem = $derived.by(() => {
     if (!status || status.limite <= 0 || planoIlimitado) return 0;
@@ -91,13 +90,13 @@
     class="fixed z-40"
     style="bottom: 24px; right: 24px;"
   >
-    <div class="flex w-72 flex-col rounded-xl border p-4 shadow-lg" style="background-color: #ffffff; border-color: #e5e7eb;">
+    <div class="flex w-72 flex-col rounded-xl border border-[rgb(var(--slate-200))] bg-white p-4 shadow-lg">
       <div class="mb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg" style="background-color: #f5f3ff;">
             <Mic class="h-3.5 w-3.5" style="color: #7c3aed;" />
           </div>
-          <span class="text-sm font-medium" style="color: #111827;">Transcrições IA</span>
+          <span class="text-sm font-medium text-[rgb(var(--slate-900))]">Transcrições IA</span>
         </div>
         <span
           class="rounded px-2 py-0.5 text-xs font-medium"
@@ -114,34 +113,33 @@
       {:else if status}
         <div class="mb-3">
           <div class="mb-1.5 flex justify-between">
-            <span class="text-xs" style="color: #6b7280;">Usadas este mês</span>
-            <span class="text-xs font-medium" style="color: #111827;">
+            <span class="text-xs text-[rgb(var(--slate-500))]">Usadas este mês</span>
+            <span class="text-xs font-medium text-[rgb(var(--slate-900))]">
               {status.usadas} / {status.limite}
             </span>
           </div>
-          <div class="h-1.5 w-full rounded-full" style="background-color: #f3f4f6;">
+          <div class="h-1.5 w-full rounded-full bg-[rgb(var(--slate-100))]">
             <div
               class="h-1.5 rounded-full transition-all duration-500"
               style="width: {porcentagem}%; background-color: {corBarra};"
             ></div>
           </div>
-          <p class="mt-1.5 text-xs" style="color: {status.restantes === 0 ? '#dc2626' : '#9ca3af'};">
+          <p class="mt-1.5 text-xs" class:text-red-600={status.restantes === 0} class:text-[rgb(var(--slate-400))]={status.restantes !== 0}>
             {status.restantes === 0 ? 'Limite atingido' : `${status.restantes} restantes`}
           </p>
         </div>
 
         {#if pacotesIaDisponiveis}
-          <p class="mb-2 text-xs" style="color: #9ca3af;">Comprar mais</p>
+          <p class="mb-2 text-xs text-[rgb(var(--slate-400))]">Comprar mais</p>
           <div class="grid grid-cols-3 gap-1.5">
             {#each pacotes as pacote}
               <button
                 onclick={() => comprarPacote(pacote.quantidade)}
                 disabled={comprando !== null}
-                class="flex flex-col items-center rounded-lg border px-1 py-2 transition-all hover:border-purple-300 hover:bg-purple-50/30 disabled:opacity-50 cursor-pointer"
-                style="border-color: #e5e7eb;"
+                class="flex flex-col items-center rounded-lg border border-[rgb(var(--slate-200))] px-1 py-2 transition-all hover:border-purple-300 hover:bg-purple-50/30 disabled:opacity-50 cursor-pointer"
               >
-                <span class="text-xs font-medium" style="color: #111827;">{pacote.label}</span>
-                <span class="text-xs" style="color: #9ca3af; font-size: 10px;">
+                <span class="text-xs font-medium text-[rgb(var(--slate-900))]">{pacote.label}</span>
+                <span class="text-xs text-[rgb(var(--slate-400))]" style="font-size: 10px;">
                   {#if comprando === pacote.quantidade}
                     ...
                   {:else}
@@ -153,7 +151,7 @@
           </div>
         {/if}
       {:else}
-        <p class="text-xs" style="color: #9ca3af;">Não foi possível carregar o uso de IA.</p>
+        <p class="text-xs text-[rgb(var(--slate-400))]">Não foi possível carregar o uso de IA.</p>
       {/if}
     </div>
   </div>

@@ -12,7 +12,8 @@ const CheckoutSchema = z.object({
 
 function getPriceId(plano: "BASICO" | "PROFISSIONAL" | "EQUIPE"): string {
   const map = {
-    BASICO: process.env.STRIPE_PRICE_BASICO ?? process.env.STRIPE_PRICE_INDIVIDUAL,
+    BASICO:
+      process.env.STRIPE_PRICE_BASICO ?? process.env.STRIPE_PRICE_INDIVIDUAL,
     PROFISSIONAL: process.env.STRIPE_PRICE_PROFISSIONAL,
     EQUIPE: process.env.STRIPE_PRICE_EQUIPE ?? process.env.STRIPE_PRICE_EMPRESA,
   };

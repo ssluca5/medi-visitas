@@ -68,8 +68,10 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     plano:
       ((parentData as Record<string, unknown>).plano as string | null) ?? null,
     pacotesIaDisponiveis:
-      ((parentData as Record<string, unknown>).limites as
-        | { pacotesIaDisponiveis?: boolean }
-        | null)?.pacotesIaDisponiveis ?? false,
+      (
+        (parentData as Record<string, unknown>).limites as {
+          pacotesIaDisponiveis?: boolean;
+        } | null
+      )?.pacotesIaDisponiveis ?? false,
   };
 };

@@ -9,3 +9,22 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
+
+// Enums re-exportados para uso no frontend (evita duplicação de string literals)
+export {
+  StatusVisita,
+  TipoMaterial,
+  PotencialPrescricao,
+  EstagioPipeline,
+  ClassificacaoRelacionamento,
+  TipoContato,
+  Sexo,
+  StatusAgenda,
+  PrioridadeAgenda,
+  Tratamento,
+  PlanoOrganizacao,
+  StatusOrganizacao,
+  RoleMembro,
+  TipoNotificacao,
+  PrioridadeNotificacao,
+} from "@prisma/client";

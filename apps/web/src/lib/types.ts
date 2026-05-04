@@ -2,17 +2,39 @@
 // Tipos compartilhados — MediVisitas Frontend
 // ──────────────────────────────────────────────
 
-export type PotencialPrescricao = "ALTO" | "MEDIO" | "BAIXO" | "ESTRATEGICO";
-export type EstagioPipeline =
-  | "PROSPECTADO"
-  | "VISITADO"
-  | "INTERESSADO"
-  | "PRESCRITOR"
-  | "FIDELIZADO";
-export type ClassificacaoRelacionamento = "FORTE" | "INTERMEDIARIO" | "FRACO";
-export type ContatoTipo = "TELEFONE" | "EMAIL" | "WHATSAPP" | "OUTRO";
-export type Sexo = "MASCULINO" | "FEMININO" | "NAO_INFORMADO";
-export type Tratamento = "DR" | "DRA" | "PROF" | "PROFA" | "SR" | "SRA";
+// Enums do Prisma — fonte única de verdade (evita duplicação de string literals)
+import {
+  StatusVisita,
+  TipoMaterial,
+  PotencialPrescricao,
+  EstagioPipeline,
+  ClassificacaoRelacionamento,
+  Sexo,
+  StatusAgenda,
+  PrioridadeAgenda,
+  Tratamento,
+  TipoNotificacao,
+  PrioridadeNotificacao,
+  TipoContato,
+} from "@prisma/client";
+
+export {
+  StatusVisita,
+  TipoMaterial,
+  PotencialPrescricao,
+  EstagioPipeline,
+  ClassificacaoRelacionamento,
+  Sexo,
+  StatusAgenda,
+  PrioridadeAgenda,
+  Tratamento,
+  TipoNotificacao,
+  PrioridadeNotificacao,
+  TipoContato,
+};
+
+// Alias para compatibilidade (frontend usa ContatoTipo, Prisma usa TipoContato)
+export type ContatoTipo = TipoContato;
 
 export interface SubEspecialidade {
   id: string;
@@ -120,24 +142,6 @@ export interface NavItem {
   label: string;
   icon: any;
 }
-
-export type TipoMaterial =
-  | "BULA"
-  | "FOLDER"
-  | "APRESENTACAO"
-  | "AMOSTRA"
-  | "OUTRO";
-export type StatusVisita =
-  | "AGENDADA"
-  | "REALIZADA"
-  | "CANCELADA"
-  | "NAO_REALIZADA";
-export type StatusAgenda =
-  | "PLANEJADO"
-  | "CONFIRMADO"
-  | "REALIZADO"
-  | "CANCELADO";
-export type PrioridadeAgenda = "BAIXA" | "MEDIA" | "ALTA" | "URGENTE";
 
 export interface MaterialTecnico {
   id: string;
@@ -329,16 +333,6 @@ export interface TimelineItem {
 }
 
 // ── Notificações (Fase 8) ──
-
-export type TipoNotificacao =
-  | "VISITA_HOJE"
-  | "VISITA_ATRASADA"
-  | "SEM_VISITA_30_DIAS"
-  | "SEM_VISITA_60_DIAS"
-  | "PROSPECTADO_PENDENTE"
-  | "SISTEMA";
-
-export type PrioridadeNotificacao = "INFO" | "NORMAL" | "ALTA" | "URGENTE";
 
 export interface Notificacao {
   id: string;

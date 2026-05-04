@@ -10,11 +10,11 @@
 
 <div class="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
   <!-- Código do erro -->
-  <p class="text-7xl font-black mb-4" style="color: #e5e7eb;">
+  <p class="text-7xl font-black mb-4 text-[rgb(var(--slate-200))]">
     {page.status}
   </p>
 
-  <h1 class="text-xl font-semibold mb-2" style="color: #111827;">
+  <h1 class="text-xl font-semibold mb-2 text-[rgb(var(--slate-900))]">
     {#if page.status === 404}
       Essa página não existe
     {:else if page.status === 403}
@@ -24,7 +24,7 @@
     {/if}
   </h1>
 
-  <p class="text-sm mb-6" style="color: #9ca3af;">
+  <p class="text-sm mb-6 text-[rgb(var(--slate-400))]">
     {page.error?.message ?? 'Ocorreu um erro inesperado.'}
   </p>
 
@@ -40,8 +40,8 @@
     <button
       onclick={() => window.location.reload()}
       class="inline-flex items-center gap-2 h-10 px-5 rounded-lg border text-sm font-medium
-        transition-all duration-200 hover:bg-gray-50 cursor-pointer"
-      style="border-color: #e5e7eb; color: #374151;">
+        border-[rgb(var(--slate-200))] text-[rgb(var(--slate-700))]
+        transition-all duration-200 hover:bg-gray-50 cursor-pointer">
       <RotateCcw class="w-4 h-4" />
       Tentar novamente
     </button>

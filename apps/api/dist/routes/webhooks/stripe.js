@@ -2,122 +2,155 @@ import { stripe } from "../../services/stripe.js";
 import { prisma } from "../../lib/prisma.js";
 import { getLimitesPlano } from "../../services/planos.js";
 export default async function stripeWebhookRoutes(app) {
-    app.post("/webhooks/stripe", async (request, reply) => {
-        const sig = request.headers["stripe-signature"];
-        const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-        if (!endpointSecret) {
-            request.log.error("STRIPE_WEBHOOK_SECRET not configured");
-            return reply.code(500).send({ error: "Webhook secret not configured" });
+  app.post("/webhooks/stripe", async (request, reply) => {
+    const sig = request.headers["stripe-signature"];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!endpointSecret) {
+      request.log.error("STRIPE_WEBHOOK_SECRET not configured");
+      return reply.code(500).send({ error: "Webhook secret not configured" });
+    }
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        request.rawBody,
+        sig,
+        endpointSecret,
+      );
+    } catch (err) {
+      request.log.error(
+        { err },
+        "Stripe webhook signature verification failed",
+      );
+      return reply.code(400).send({ error: "Invalid signature" });
+    }
+    try {
+      switch (event.type) {
+        case "checkout.session.completed": {
+          const session = event.data.object;
+          const metadata = session.metadata || {};
+          if (
+            metadata.tipo === "PACOTE_IA" ||
+            metadata.tipo === "PACOTE_TRANSCRICOES"
+          ) {
+            const quantidade = parseInt(metadata.quantidade || "20", 10);
+            await prisma.organization.update({
+              where: { id: metadata.organizationId },
+              data: { transcricoesExtras: { increment: quantidade } },
+            });
+            request.log.info(
+              { organizationId: metadata.organizationId, quantidade },
+              "Package of transcriptions purchased",
+            );
+            break;
+          }
+          const { organizationId, plano } = metadata;
+          if (!organizationId || !plano) {
+            request.log.error("Missing metadata in checkout session");
+            break;
+          }
+          const org = await prisma.organization.findUnique({
+            where: { id: organizationId },
+          });
+          if (!org) {
+            request.log.error(
+              { organizationId },
+              "Organization not found for checkout",
+            );
+            break;
+          }
+          // Idempotency: skip if already ATIVO with same sub
+          if (
+            org.status === "ATIVO" &&
+            org.stripeSubId === session.subscription
+          ) {
+            request.log.info(
+              { organizationId },
+              "Checkout already processed, skipping",
+            );
+            break;
+          }
+          await prisma.organization.update({
+            where: { id: organizationId },
+            data: {
+              status: "ATIVO",
+              stripeCustomerId: session.customer,
+              stripeSubId: session.subscription,
+              plano: plano,
+              planoAtivoEm: new Date(),
+              limiteUsuarios: getLimitesPlano(plano).limiteUsuarios,
+              limiteProfissionais: getLimitesPlano(plano).limiteProfissionais,
+              transcricoesLimite: getLimitesPlano(plano).transcricoesLimite,
+            },
+          });
+          request.log.info(
+            { organizationId, plano },
+            "Organization activated via checkout",
+          );
+          break;
         }
-        let event;
-        try {
-            event = stripe.webhooks.constructEvent(request.rawBody, sig, endpointSecret);
+        case "invoice.payment_failed": {
+          const invoice = event.data.object;
+          const subscriptionRaw =
+            invoice.parent?.subscription_details?.subscription;
+          const subscriptionId =
+            typeof subscriptionRaw === "string"
+              ? subscriptionRaw
+              : subscriptionRaw?.id;
+          if (!subscriptionId) {
+            request.log.error("No subscription on failed invoice");
+            break;
+          }
+          const sub = await stripe.subscriptions.retrieve(subscriptionId);
+          const orgId = sub.metadata.organizationId;
+          const org = await prisma.organization.findUnique({
+            where: { id: orgId },
+          });
+          // Idempotency: skip if already SUSPENSO or CANCELADO
+          if (!org || org.status === "SUSPENSO" || org.status === "CANCELADO") {
+            break;
+          }
+          await prisma.organization.update({
+            where: { id: orgId },
+            data: { status: "SUSPENSO" },
+          });
+          request.log.info(
+            { orgId },
+            "Organization suspended due to payment failure",
+          );
+          break;
         }
-        catch (err) {
-            request.log.error({ err }, "Stripe webhook signature verification failed");
-            return reply.code(400).send({ error: "Invalid signature" });
+        case "customer.subscription.deleted": {
+          const sub = event.data.object;
+          const org = await prisma.organization.findFirst({
+            where: { stripeSubId: sub.id },
+          });
+          // Idempotency: skip if already CANCELADO
+          if (!org || org.status === "CANCELADO") {
+            break;
+          }
+          await prisma.organization.update({
+            where: { id: org.id },
+            data: { status: "CANCELADO" },
+          });
+          request.log.info(
+            { orgId: org.id },
+            "Organization cancelled via subscription deletion",
+          );
+          break;
         }
-        try {
-            switch (event.type) {
-                case "checkout.session.completed": {
-                    const session = event.data.object;
-                    const metadata = session.metadata || {};
-                    if (metadata.tipo === "PACOTE_IA" ||
-                        metadata.tipo === "PACOTE_TRANSCRICOES") {
-                        const quantidade = parseInt(metadata.quantidade || "20", 10);
-                        await prisma.organization.update({
-                            where: { id: metadata.organizationId },
-                            data: { transcricoesExtras: { increment: quantidade } },
-                        });
-                        request.log.info({ organizationId: metadata.organizationId, quantidade }, "Package of transcriptions purchased");
-                        break;
-                    }
-                    const { organizationId, plano } = metadata;
-                    if (!organizationId || !plano) {
-                        request.log.error("Missing metadata in checkout session");
-                        break;
-                    }
-                    const org = await prisma.organization.findUnique({
-                        where: { id: organizationId },
-                    });
-                    if (!org) {
-                        request.log.error({ organizationId }, "Organization not found for checkout");
-                        break;
-                    }
-                    // Idempotency: skip if already ATIVO with same sub
-                    if (org.status === "ATIVO" &&
-                        org.stripeSubId === session.subscription) {
-                        request.log.info({ organizationId }, "Checkout already processed, skipping");
-                        break;
-                    }
-                    await prisma.organization.update({
-                        where: { id: organizationId },
-                        data: {
-                            status: "ATIVO",
-                            stripeCustomerId: session.customer,
-                            stripeSubId: session.subscription,
-                            plano: plano,
-                            planoAtivoEm: new Date(),
-                            limiteUsuarios: getLimitesPlano(plano).limiteUsuarios,
-                            limiteProfissionais: getLimitesPlano(plano).limiteProfissionais,
-                            transcricoesLimite: getLimitesPlano(plano).transcricoesLimite,
-                        },
-                    });
-                    request.log.info({ organizationId, plano }, "Organization activated via checkout");
-                    break;
-                }
-                case "invoice.payment_failed": {
-                    const invoice = event.data.object;
-                    const subscriptionRaw = invoice.parent?.subscription_details?.subscription;
-                    const subscriptionId = typeof subscriptionRaw === "string"
-                        ? subscriptionRaw
-                        : subscriptionRaw?.id;
-                    if (!subscriptionId) {
-                        request.log.error("No subscription on failed invoice");
-                        break;
-                    }
-                    const sub = await stripe.subscriptions.retrieve(subscriptionId);
-                    const orgId = sub.metadata.organizationId;
-                    const org = await prisma.organization.findUnique({
-                        where: { id: orgId },
-                    });
-                    // Idempotency: skip if already SUSPENSO or CANCELADO
-                    if (!org ||
-                        org.status === "SUSPENSO" ||
-                        org.status === "CANCELADO") {
-                        break;
-                    }
-                    await prisma.organization.update({
-                        where: { id: orgId },
-                        data: { status: "SUSPENSO" },
-                    });
-                    request.log.info({ orgId }, "Organization suspended due to payment failure");
-                    break;
-                }
-                case "customer.subscription.deleted": {
-                    const sub = event.data.object;
-                    const org = await prisma.organization.findFirst({
-                        where: { stripeSubId: sub.id },
-                    });
-                    // Idempotency: skip if already CANCELADO
-                    if (!org || org.status === "CANCELADO") {
-                        break;
-                    }
-                    await prisma.organization.update({
-                        where: { id: org.id },
-                        data: { status: "CANCELADO" },
-                    });
-                    request.log.info({ orgId: org.id }, "Organization cancelled via subscription deletion");
-                    break;
-                }
-                default:
-                    request.log.info({ type: event.type }, "Unhandled Stripe webhook event");
-            }
-        }
-        catch (err) {
-            // Log but always return 200 to prevent Stripe retries
-            request.log.error({ err, type: event.type }, "Error processing Stripe webhook");
-        }
-        return reply.code(200).send({ received: true });
-    });
+        default:
+          request.log.info(
+            { type: event.type },
+            "Unhandled Stripe webhook event",
+          );
+      }
+    } catch (err) {
+      // Log but always return 200 to prevent Stripe retries
+      request.log.error(
+        { err, type: event.type },
+        "Error processing Stripe webhook",
+      );
+    }
+    return reply.code(200).send({ received: true });
+  });
 }
