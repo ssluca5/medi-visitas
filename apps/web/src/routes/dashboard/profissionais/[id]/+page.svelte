@@ -2,11 +2,16 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { apiFetch } from '$lib/api';
-  import { ArrowLeft, CalendarPlus, Calendar, Clock, Package, Pencil, FileText, Target, User, Activity, ListTodo } from 'lucide-svelte';
+  import { ArrowLeft, CalendarPlus, Calendar, Clock, Package, Pencil, FileText, Target, User, Activity, Briefcase, Heart, Hash, MapPin } from 'lucide-svelte';
   import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
   import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
   import TimelineProfissional from '$lib/components/crm/TimelineProfissional.svelte';
   import DetalheContatos from '$lib/components/crm/DetalheContatos.svelte';
+  import ResumoRelacionamento from '$lib/components/crm/ResumoRelacionamento.svelte';
+  import IndicadoresFrequencia from '$lib/components/crm/IndicadoresFrequencia.svelte';
+  import EvolucaoPipeline from '$lib/components/crm/EvolucaoPipeline.svelte';
+  import FollowUpsPendentes from '$lib/components/crm/FollowUpsPendentes.svelte';
+  import HistoricoMateriais from '$lib/components/crm/HistoricoMateriais.svelte';
   import type {
     Profissional,
     Visita,
@@ -14,7 +19,8 @@
     PotencialPrescricao,
     EstagioPipeline,
     ClassificacaoRelacionamento,
-    TimelineItem
+    TimelineItem,
+    VisaoGeralData
   } from '$lib/types';
 
   interface Props {
@@ -28,8 +34,9 @@
   let visitas = $state<Visita[]>([]);
   let materiaisOptions = $state<MaterialTecnico[]>([]);
   let timelineItens = $state<TimelineItem[]>([]);
+  let visaoGeralData = $state<VisaoGeralData | null>(null);
   let loading = $state(true);
-  let abaAtiva = $state<'timeline' | 'visitas' | 'agenda' | 'dados'>('timeline');
+  let abaAtiva = $state<'visao-geral' | 'visitas' | 'materiais' | 'dados'>('visao-geral');
 
   let visitaSheetOpen = $state(false);
   let visitaEmEdicao = $state<Visita | null>(null);
@@ -62,11 +69,11 @@
   async function loadData() {
     loading = true;
     try {
-      const [profRes, visitasRes, matRes, timelineRes] = await Promise.all([
+      const [profRes, visitasRes, matRes, visaoGeralRes] = await Promise.all([
         apiFetch(`/profissionais/${id}`, data.sessionToken),
         apiFetch(`/visitas?profissionalId=${id}&pageSize=50`, data.sessionToken),
         apiFetch(`/materiais?pageSize=100`, data.sessionToken),
-        apiFetch(`/profissionais/${id}/timeline`, data.sessionToken)
+        apiFetch(`/profissionais/${id}/visao-geral`, data.sessionToken)
       ]);
 
       if (profRes.ok) profissional = await profRes.json();
@@ -78,9 +85,8 @@
         const json = await matRes.json();
         materiaisOptions = json.data || json;
       }
-      if (timelineRes.ok) {
-        const json = await timelineRes.json();
-        timelineItens = json.itens || [];
+      if (visaoGeralRes.ok) {
+        visaoGeralData = await visaoGeralRes.json();
       }
     } catch(err) {
       console.error(err);
@@ -113,9 +119,9 @@
   }
 
   const tabs = [
-    { id: 'timeline' as const, label: 'Timeline', icon: Activity },
-    { id: 'visitas' as const, label: 'Visitas', icon: Calendar },
-    { id: 'agenda' as const, label: 'Agenda', icon: ListTodo },
+    { id: 'visao-geral' as const, label: 'Visão Geral', icon: Activity },
+    { id: 'visitas' as const, label: 'Próximas Visitas', icon: Calendar },
+    { id: 'materiais' as const, label: 'Materiais', icon: Package },
     { id: 'dados' as const, label: 'Dados', icon: User }
   ];
 </script>
@@ -130,7 +136,7 @@
   <div class="flex items-center mb-6">
     <a href="/dashboard/profissionais" class="flex items-center gap-1.5 text-sm font-medium text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] transition-colors group">
       <ArrowLeft class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-      Voltar para CRM
+      Voltar
     </a>
   </div>
 
@@ -259,33 +265,68 @@
         </div>
 
         <!-- Tab content -->
-        {#if abaAtiva === 'timeline'}
-          <TimelineProfissional itens={timelineItens} />
+        {#if abaAtiva === 'visao-geral'}
+          {#if visaoGeralData}
+            <div class="space-y-6">
+              <ResumoRelacionamento resumo={visaoGeralData.resumo} />
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <IndicadoresFrequencia frequencia={visaoGeralData.frequencia} />
+                <EvolucaoPipeline pipeline={visaoGeralData.pipeline} />
+              </div>
+              <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
+                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest mb-4">Timeline</h3>
+                <TimelineProfissional itens={visaoGeralData.timeline} />
+              </div>
+              <FollowUpsPendentes
+                followUps={visaoGeralData.followUps}
+                oneditarvisita={(visitaId) => {
+                  const visita = visitas.find(v => v.id === visitaId);
+                  if (visita) handleEditarVisita(visita);
+                }}
+              />
+            </div>
+          {:else}
+            <div class="text-center py-20 bg-white rounded-xl border border-dashed border-[rgb(var(--slate-200))]">
+              <p class="text-sm text-[rgb(var(--slate-500))]">Erro ao carregar dados.</p>
+              <button
+                type="button"
+                onclick={loadData}
+                class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          {/if}
 
         {:else if abaAtiva === 'visitas'}
-          {#if visitas.length === 0}
+          {@const proximasVisitas = visitas.filter(v => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return new Date(v.dataVisita) >= today;
+          }).sort((a, b) => new Date(a.dataVisita).getTime() - new Date(b.dataVisita).getTime())}
+          {#if proximasVisitas.length === 0}
             <div class="text-center py-20 bg-white rounded-xl border border-dashed border-[rgb(var(--slate-200))]">
               <div class="flex justify-center mb-4">
                 <div class="bg-[rgb(var(--slate-100))] p-3 rounded-full">
                   <Calendar class="w-7 h-7 text-[rgb(var(--slate-400))]" />
                 </div>
               </div>
-              <p class="text-sm font-medium text-[rgb(var(--slate-600))]">Nenhuma visita registrada</p>
-              <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Registre a primeira visita para este profissional.</p>
+              <p class="text-sm font-medium text-[rgb(var(--slate-600))]">Nenhuma visita futura registrada</p>
+              <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Registre a próxima visita para este profissional.</p>
               <button
                 type="button"
                 onclick={handleNovaVisita}
                 class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
               >
                 <CalendarPlus class="w-4 h-4" />
-                Criar primeira visita
+                Agendar visita
               </button>
             </div>
           {:else}
             <div class="relative ml-3 pl-6 space-y-6">
               <!-- Vertical line -->
               <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[rgb(var(--slate-100))]"></div>
-              {#each visitas as visita}
+              {#each proximasVisitas as visita}
                 <div class="relative">
                   <div class="absolute -left-[calc(1.5rem+5px)] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ring-[3px] ring-[rgb(var(--slate-50))] shadow-sm
                     {visita.status === 'REALIZADA' ? 'bg-emerald-500' : visita.status === 'CANCELADA' ? 'bg-red-500' : visita.status === 'NAO_REALIZADA' ? 'bg-[rgb(var(--slate-50))]0' : 'bg-blue-500'}
@@ -346,19 +387,180 @@
             </div>
           {/if}
 
-        {:else if abaAtiva === 'agenda'}
-          <div class="text-center py-12 bg-white rounded-xl border border-[rgb(var(--slate-100))]">
-            <p class="text-sm text-[rgb(var(--slate-400))]">Agenda deste profissional será exibida aqui</p>
-          </div>
+        {:else if abaAtiva === 'materiais'}
+          <HistoricoMateriais {visitas} />
 
         {:else if abaAtiva === 'dados'}
-          <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
-            <DetalheContatos
-              contatos={profissional.contatos ?? []}
-              telefone={profissional.telefone}
-              email={profissional.email}
-              endereco={profissional.endereco}
-            />
+          <div class="space-y-6">
+            <!-- Informações Profissionais -->
+            <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
+              <div class="flex items-center gap-2 mb-5">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <Briefcase class="w-4 h-4 text-blue-600" />
+                </div>
+                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Informações Profissionais</h3>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                <div>
+                  <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Nome Completo</p>
+                  <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{getNomeCompleto(profissional)}</p>
+                </div>
+                {#if profissional.especialidade}
+                  <div>
+                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Especialidade</p>
+                    <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">
+                      {profissional.especialidade.nome}
+                      {#if profissional.subEspecialidade}
+                        <span class="text-[rgb(var(--slate-400))] font-normal"> · {profissional.subEspecialidade.nome}</span>
+                      {/if}
+                    </p>
+                  </div>
+                {/if}
+                {#if profissional.crm}
+                  <div>
+                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">CRM</p>
+                    <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{profissional.crm}</p>
+                  </div>
+                {/if}
+                {#if profissional.potencial}
+                  <div>
+                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Potencial</p>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold tracking-wider {potencialConfig[profissional.potencial]?.class ?? ''}">
+                      {potencialConfig[profissional.potencial]?.label ?? profissional.potencial}
+                    </span>
+                  </div>
+                {/if}
+                {#if profissional.estagioPipeline}
+                  <div>
+                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Estágio Pipeline</p>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold tracking-wider {estagioConfig[profissional.estagioPipeline]?.class ?? ''}">
+                      {estagioConfig[profissional.estagioPipeline]?.label ?? profissional.estagioPipeline}
+                    </span>
+                  </div>
+                {/if}
+                {#if profissional.classificacao}
+                  <div>
+                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Classificação</p>
+                    <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold tracking-wider {classificacaoConfig[profissional.classificacao]?.class ?? ''}">
+                      {classificacaoConfig[profissional.classificacao]?.label ?? profissional.classificacao}
+                    </span>
+                  </div>
+                {/if}
+              </div>
+            </div>
+
+            <!-- Dados Pessoais -->
+            {#if profissional.cpfCnpj || profissional.sexo || profissional.dataNascimento}
+              <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
+                <div class="flex items-center gap-2 mb-5">
+                  <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+                    <User class="w-4 h-4 text-violet-600" />
+                  </div>
+                  <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Dados Pessoais</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                  {#if profissional.cpfCnpj}
+                    <div>
+                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">CPF / CNPJ</p>
+                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{profissional.cpfCnpj}</p>
+                    </div>
+                  {/if}
+                  {#if profissional.sexo}
+                    <div>
+                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Sexo</p>
+                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{sexoLabels[profissional.sexo] ?? profissional.sexo}</p>
+                    </div>
+                  {/if}
+                  {#if profissional.dataNascimento}
+                    <div>
+                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Data de Nascimento</p>
+                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                    </div>
+                  {/if}
+                  {#if profissional.tratamento}
+                    <div>
+                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Tratamento</p>
+                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{tratamentoLabels[profissional.tratamento] ?? profissional.tratamento}</p>
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            {/if}
+
+            <!-- Cônjuge -->
+            {#if profissional.nomeConjuge || profissional.dataNascConjuge}
+              <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
+                <div class="flex items-center gap-2 mb-5">
+                  <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center">
+                    <Heart class="w-4 h-4 text-pink-600" />
+                  </div>
+                  <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Cônjuge</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                  {#if profissional.nomeConjuge}
+                    <div>
+                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Nome</p>
+                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{profissional.nomeConjuge}</p>
+                    </div>
+                  {/if}
+                  {#if profissional.dataNascConjuge}
+                    <div>
+                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Data de Nascimento</p>
+                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascConjuge).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            {/if}
+
+            <!-- Observações -->
+            {#if profissional.observacoes}
+              <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
+                <div class="flex items-center gap-2 mb-5">
+                  <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <FileText class="w-4 h-4 text-amber-600" />
+                  </div>
+                  <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Observações</h3>
+                </div>
+                <p class="text-sm text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-4 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
+              </div>
+            {/if}
+
+            <!-- Contato e Endereço -->
+            <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
+              <div class="flex items-center gap-2 mb-5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <MapPin class="w-4 h-4 text-emerald-600" />
+                </div>
+                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Contato e Endereço</h3>
+              </div>
+              <DetalheContatos
+                contatos={profissional.contatos ?? []}
+                telefone={profissional.telefone}
+                email={profissional.email}
+                endereco={profissional.endereco}
+              />
+            </div>
+
+            <!-- Informações do Sistema -->
+            <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
+              <div class="flex items-center gap-2 mb-5">
+                <div class="w-8 h-8 rounded-lg bg-[rgb(var(--slate-100))] flex items-center justify-center">
+                  <Hash class="w-4 h-4 text-[rgb(var(--slate-500))]" />
+                </div>
+                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Informações do Sistema</h3>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                <div>
+                  <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Criado em</p>
+                  <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+                <div>
+                  <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Última atualização</p>
+                  <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.updatedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+              </div>
+            </div>
           </div>
         {/if}
       </div>
