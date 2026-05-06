@@ -21,7 +21,7 @@
 <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
   <div class="flex items-center gap-2 mb-4">
     <ArrowRight class="w-4 h-4 text-amber-600" />
-    <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Follow-ups Pendentes</h3>
+    <h3 class="eyebrow-text">Follow-ups Pendentes</h3>
   </div>
 
   {#if followUps.length > 0}

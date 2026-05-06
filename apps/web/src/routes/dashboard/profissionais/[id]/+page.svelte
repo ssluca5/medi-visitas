@@ -274,7 +274,7 @@
                 <EvolucaoPipeline pipeline={visaoGeralData.pipeline} />
               </div>
               <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
-                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest mb-4">Timeline</h3>
+                <h3 class="eyebrow-text mb-4">Timeline</h3>
                 <TimelineProfissional itens={visaoGeralData.timeline} />
               </div>
               <FollowUpsPendentes

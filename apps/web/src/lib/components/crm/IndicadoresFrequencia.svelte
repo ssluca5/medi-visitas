@@ -12,7 +12,7 @@
 <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
   <div class="flex items-center gap-2 mb-4">
     <Calendar class="w-4 h-4 text-emerald-600" />
-    <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Frequência & Intervalo</h3>
+    <h3 class="eyebrow-text">Frequência & Intervalo</h3>
   </div>
 
   {#if frequencia}

@@ -53,7 +53,7 @@
     <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
       <div class="flex items-center gap-2 mb-4">
         <Package class="w-4 h-4 text-indigo-600" />
-        <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Total Acumulado</h3>
+        <h3 class="eyebrow-text">Total Acumulado</h3>
       </div>
       <div class="space-y-2">
         {#each totaisPorMaterial as mat}
@@ -66,7 +66,7 @@
     </div>
 
     <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
-      <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest mb-4">Por Visita</h3>
+      <h3 class="eyebrow-text mb-4">Por Visita</h3>
       <div class="space-y-4">
         {#each visitasComMateriais as visita}
           <div class="border border-[rgb(var(--slate-100))] rounded-lg p-4">

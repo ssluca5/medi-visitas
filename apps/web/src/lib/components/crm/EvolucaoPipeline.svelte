@@ -20,7 +20,7 @@
 <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
   <div class="flex items-center gap-2 mb-4">
     <TrendingUp class="w-4 h-4 text-violet-600" />
-    <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Evolução no Pipeline</h3>
+    <h3 class="eyebrow-text">Evolução no Pipeline</h3>
   </div>
 
   {#if pipeline}
@@ -38,7 +38,7 @@
         </span>
       </div>
       <hr class="border-[rgb(var(--slate-100))]" />
-      <p class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-2">Histórico</p>
+      <p class="eyebrow-text mb-2">Histórico</p>
       {#each pipeline.historico as etapa}
         <div class="flex justify-between items-center">
           <span class="text-sm text-[rgb(var(--slate-600))]">{estagioLabels[etapa.estagio] ?? etapa.estagio}</span>
