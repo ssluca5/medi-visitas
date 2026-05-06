@@ -22,7 +22,7 @@ export async function timelineRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: "Profissional não encontrado" });
     }
 
-    const [visitas, estagioLogs, agendaItems] = await Promise.all([
+    const [visitas, estagioLogs] = await Promise.all([
       prisma.visita.findMany({
         where: {
           profissionalId: id,
@@ -48,18 +48,6 @@ export async function timelineRoutes(app: FastifyInstance) {
           estagioNovo: true,
         },
       }),
-      prisma.agendaItem.findMany({
-        where: { profissionalId: id, ...buildTenantWhere(request) },
-        orderBy: { dataHoraInicio: "desc" },
-        select: {
-          id: true,
-          dataHoraInicio: true,
-          dataHoraFim: true,
-          status: true,
-          prioridade: true,
-          observacoes: true,
-        },
-      }),
     ]);
 
     // Merge and sort by date descending
@@ -79,15 +67,6 @@ export async function timelineRoutes(app: FastifyInstance) {
         data: e.createdAt.toISOString(),
         estagioAnterior: e.estagioAnterior,
         estagioNovo: e.estagioNovo,
-      })),
-      ...agendaItems.map((a) => ({
-        tipo: "AGENDAMENTO" as const,
-        id: a.id,
-        data: a.dataHoraInicio.toISOString(),
-        dataFim: a.dataHoraFim.toISOString(),
-        status: a.status,
-        prioridade: a.prioridade,
-        observacoes: a.observacoes,
       })),
     ].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
