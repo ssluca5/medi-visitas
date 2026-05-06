@@ -175,6 +175,7 @@ export interface Visita {
 
   profissional?: {
     nome: string;
+    estagioPipeline?: EstagioPipeline;
     especialidade?: {
       nome: string;
     } | null;
@@ -257,7 +258,7 @@ export interface VisitasPeriodo {
   total: number;
 }
 
-// ── Dashboard ──
+// ── Dashboard (legado) ──
 
 export interface DashboardResumo {
   totalProfissionais: number;
@@ -286,6 +287,78 @@ export interface DashboardResumo {
       especialidade: { nome: string } | null;
     } | null;
   }>;
+}
+
+// ── Dashboard V2 ──
+
+export interface DashboardKpis {
+  visitasHoje: number;
+  metaDiaria: number;
+  visitasSemana: number;
+  metaSemanal: number;
+  visitasMes: number;
+  metaMensal: number;
+  medicosSemVisita30d: number;
+  taxaConversao: number;
+}
+
+export interface DashboardProximaVisita {
+  id: string;
+  profissionalId: string;
+  profissionalNome: string;
+  especialidade: string;
+  dataHora: string;
+  prioridade: string;
+  status: string;
+}
+
+export interface DashboardUltimaVisita {
+  id: string;
+  profissionalId: string;
+  profissionalNome: string;
+  especialidade: string;
+  dataHora: string;
+  status: string;
+  resumo: string | null;
+}
+
+export interface DashboardPipeline {
+  PROSPECTADO: number;
+  VISITADO: number;
+  INTERESSADO: number;
+  PRESCRITOR: number;
+  FIDELIZADO: number;
+}
+
+export interface DashboardAlerta {
+  tipo: "SEM_VISITA" | "META_EM_RISCO" | "ESTAGIO_PARADO";
+  profissionalId: string;
+  profissionalNome: string;
+  descricao: string;
+  urgencia: "alta" | "media";
+}
+
+export interface DashboardMedicoSemVisita {
+  id: string;
+  nome: string;
+  especialidade: string;
+  diasSemVisita: number;
+  estagioPipeline: string;
+}
+
+export interface DashboardResumoV2 {
+  kpis: DashboardKpis;
+  proximasVisitas: DashboardProximaVisita[];
+  ultimasVisitas: DashboardUltimaVisita[];
+  pipeline: DashboardPipeline;
+  alertas: DashboardAlerta[];
+  medicosSemVisita: DashboardMedicoSemVisita[];
+}
+
+export interface SugestaoBusca {
+  id: string;
+  nome: string;
+  especialidade: string;
 }
 
 export type AlertaTipo =
@@ -330,6 +403,43 @@ export interface TimelineItem {
   dataFim?: string;
   prioridade?: string;
   observacoes?: string | null;
+}
+
+// ── Visão Geral do Profissional ──
+
+export interface VisaoGeralData {
+  resumo: VisaoGeralResumo | null;
+  frequencia: VisaoGeralFrequencia | null;
+  pipeline: VisaoGeralPipeline | null;
+  timeline: TimelineItem[];
+  followUps: VisaoGeralFollowUp[];
+}
+
+export interface VisaoGeralResumo {
+  totalVisitas: number;
+  frequenciaMensal: number;
+  diasSemVisita: number;
+  tendencia: "crescendo" | "estavel" | "caindo";
+}
+
+export interface VisaoGeralFrequencia {
+  mediaMensal: number;
+  maiorIntervalo: number;
+  ultimos30d: number;
+  ultimos60d: number;
+  ultimos90d: number;
+}
+
+export interface VisaoGeralPipeline {
+  estagioAtual: string;
+  dataEntrada: string;
+  historico: { estagio: string; dias: number }[];
+}
+
+export interface VisaoGeralFollowUp {
+  visitaId: string;
+  acao: string;
+  dataVisitaOrigem: string;
 }
 
 // ── Notificações (Fase 8) ──
