@@ -426,14 +426,14 @@
 </svelte:head>
 
 <!-- Page Header -->
-<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-	<div class="flex items-center gap-3">
-		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+<div class="page-header">
+	<div class="page-header-main">
+		<div class="page-header-icon">
 			<Stethoscope class="h-4.5 w-4.5 text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Especialidades</h1>
-			<p class="text-[11px] text-[rgb(var(--slate-400))]">Gerencie as especialidades e subespecialidades médicas</p>
+			<h1 class="page-title">Especialidades</h1>
+			<p class="page-description">Gerencie as especialidades e subespecialidades médicas</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
@@ -452,7 +452,7 @@
 	<div class="card-surface flex items-center justify-center py-20">
 		<div class="flex flex-col items-center gap-3">
 			<div class="h-8 w-8 animate-spin rounded-full border-2 border-[rgb(var(--slate-200))] border-t-blue-600"></div>
-			<span class="text-sm text-[rgb(var(--slate-400))]">Carregando especialidades...</span>
+			<span class="text-muted-standard">Carregando especialidades...</span>
 		</div>
 	</div>
 {:else if error}
@@ -461,8 +461,8 @@
 			<Stethoscope class="h-6 w-6 text-red-400" />
 		</div>
 		<div class="text-center">
-			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Erro ao carregar</p>
-			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">{error}</p>
+			<p class="table-cell-primary">Erro ao carregar</p>
+			<p class="table-cell-secondary mt-1">{error}</p>
 		</div>
 		<Button variant="outline" size="sm" onclick={() => fetchEspecialidades()}>
 			Tentar novamente
@@ -490,10 +490,10 @@
 						<div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[rgb(var(--slate-100))]">
 							<Stethoscope class="h-3.5 w-3.5 text-[rgb(var(--slate-500))]" />
 						</div>
-						<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] tracking-wide">
+						<h3 class="section-title">
 							{formatarCategoria(categoria)}
 						</h3>
-						<span class="text-xs text-[rgb(var(--slate-400))]">({especialidadesAgrupadas[categoria].length})</span>
+						<span class="table-cell-secondary">({especialidadesAgrupadas[categoria].length})</span>
 					</div>
 					<button
 						onclick={() => { categoryToDelete = categoria; categoryDeleteConfirmOpen = true; }}
@@ -505,15 +505,15 @@
 				</div>
 
 				<!-- Table -->
-				<div class="card-surface overflow-hidden">
-					<table class="table-fixed w-full">
+				<div class="table-shell">
+					<table class="data-table">
 						<thead>
-							<tr class="border-b border-[rgb(var(--slate-100))]">
-								<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-12"></th>
-								<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[40%]">Nome</th>
-								<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[15%]">Subs</th>
-								<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[20%]">Status</th>
-								<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[25%]">Ações</th>
+							<tr>
+								<th class="table-head-cell text-left w-12"></th>
+								<th class="table-head-cell text-left w-[40%]">Nome</th>
+								<th class="table-head-cell text-center w-[15%]">Subs</th>
+								<th class="table-head-cell text-left w-[20%]">Status</th>
+								<th class="table-head-cell text-center w-[25%]">Ações</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -525,7 +525,7 @@
 									class:opacity-50={!esp.ativo}
 									onclick={() => handleEditarEspecialidade(esp)}
 								>
-									<td class="p-3.5">
+									<td class="table-cell">
 										{#if subCount > 0}
 											<button
 												onclick={(e) => { e.stopPropagation(); toggleExpand(esp.id); }}
@@ -540,19 +540,19 @@
 											</button>
 										{/if}
 									</td>
-									<td class="p-3.5">
-										<span class="text-sm font-medium text-[rgb(var(--slate-800))]" class:text-[rgb(var(--slate-400))]={!esp.ativo}>{esp.nome}</span>
+									<td class="table-cell">
+										<span class="table-cell-primary" class:text-[rgb(var(--slate-400))]={!esp.ativo}>{esp.nome}</span>
 									</td>
-									<td class="p-3.5 text-center">
+									<td class="table-cell text-center">
 										{#if subCount > 0}
 											<span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[rgb(var(--slate-100))] px-1.5 text-[11px] font-medium text-[rgb(var(--slate-600))]">
 												{subCount}
 											</span>
 										{:else}
-											<span class="text-xs text-[rgb(var(--slate-300))]">—</span>
+											<span class="table-cell-empty">—</span>
 										{/if}
 									</td>
-									<td class="p-3.5">
+									<td class="table-cell">
 										<span
 											class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
 											class:bg-emerald-50={esp.ativo}
@@ -563,7 +563,7 @@
 											{esp.ativo ? 'Ativa' : 'Inativa'}
 										</span>
 									</td>
-									<td class="p-3.5">
+									<td class="table-cell">
 										<div class="flex justify-center items-center gap-0.5">
 											<button
 												onclick={(e) => { e.stopPropagation(); handleToggleAtivo(esp); }}
@@ -796,11 +796,13 @@
 				</div>
 			</div>
 
-			<div class="flex justify-end gap-3 pt-4 border-t border-[rgb(var(--slate-100))]">
-				<Button variant="outline" onclick={() => (sheetOpen = false)}>Cancelar</Button>
-				<Button onclick={handleSalvarEspecialidade}>
-					{especialidadeEmEdicao ? 'Salvar' : 'Criar'}
-				</Button>
+			<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
+				<div class="flex flex-col-reverse gap-3">
+					<Button onclick={handleSalvarEspecialidade} class="w-full">
+						{especialidadeEmEdicao ? 'Salvar' : 'Criar'}
+					</Button>
+					<Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full">Cancelar</Button>
+				</div>
 			</div>
 		</div>
 	{/snippet}

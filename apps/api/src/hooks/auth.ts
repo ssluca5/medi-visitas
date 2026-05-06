@@ -31,6 +31,70 @@ declare module "fastify" {
   }
 }
 
+function getStringClaim(
+  claims: Record<string, unknown>,
+  keys: string[],
+): string | undefined {
+  for (const key of keys) {
+    const value = claims[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function getEmailFromClaims(
+  claims: Record<string, unknown>,
+): string | undefined {
+  const directEmail = getStringClaim(claims, [
+    "email",
+    "emailAddress",
+    "email_address",
+    "primaryEmailAddress",
+    "primary_email_address",
+  ]);
+
+  if (directEmail) return directEmail;
+
+  const emailAddresses = claims.email_addresses;
+  if (Array.isArray(emailAddresses)) {
+    for (const item of emailAddresses) {
+      if (item && typeof item === "object") {
+        const email = getStringClaim(item as Record<string, unknown>, [
+          "email_address",
+          "emailAddress",
+          "email",
+        ]);
+        if (email) return email;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+function getNameFromClaims(
+  claims: Record<string, unknown>,
+): string | undefined {
+  const fullName = getStringClaim(claims, ["name", "fullName", "full_name"]);
+  if (fullName) return fullName;
+
+  const firstName = getStringClaim(claims, [
+    "firstName",
+    "first_name",
+    "given_name",
+  ]);
+  const lastName = getStringClaim(claims, [
+    "lastName",
+    "last_name",
+    "family_name",
+  ]);
+  const name = [firstName, lastName].filter(Boolean).join(" ").trim();
+
+  return name || undefined;
+}
+
 export async function verifyClerkToken(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -75,16 +139,8 @@ export async function verifyClerkToken(
 
     // Extrair dados do usuário dos claims do JWT
     const claims = payload as Record<string, unknown>;
-    const email = claims.email as string | undefined;
-    const firstName = claims.first_name as string | undefined;
-    const lastName = claims.last_name as string | undefined;
-    const name = claims.name as string | undefined;
-
-    request.userEmail = email ?? undefined;
-    request.userName =
-      name ||
-      [firstName, lastName].filter(Boolean).join(" ").trim() ||
-      undefined;
+    request.userEmail = getEmailFromClaims(claims);
+    request.userName = getNameFromClaims(claims);
 
     request.log.info(
       { userId: request.userId, email: request.userEmail },

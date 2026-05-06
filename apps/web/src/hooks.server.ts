@@ -6,8 +6,8 @@ import { createClerkClient, verifyToken } from "@clerk/backend";
 const clerk = createClerkClient({ secretKey: CLERK_SECRET_KEY });
 const COOKIE_NAME = "__med_session";
 
-// Cache por JWT — TTL de 60 segundos para detectar sessões revogadas rapidamente
-const CACHE_TTL_MS = 60 * 1000;
+// Cache por JWT — TTL de 5 minutos, balance entre performance e detecção de revogações
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const MAX_CACHE_SIZE = 1000;
 
@@ -22,6 +22,67 @@ const authCache = new Map<
     expiresAt: number;
   }
 >();
+
+function getStringClaim(
+  claims: Record<string, unknown>,
+  keys: string[],
+): string | undefined {
+  for (const key of keys) {
+    const value = claims[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function getEmailFromClaims(claims: Record<string, unknown>): string | null {
+  const directEmail = getStringClaim(claims, [
+    "email",
+    "emailAddress",
+    "email_address",
+    "primaryEmailAddress",
+    "primary_email_address",
+  ]);
+
+  if (directEmail) return directEmail;
+
+  const emailAddresses = claims.email_addresses;
+  if (Array.isArray(emailAddresses)) {
+    for (const item of emailAddresses) {
+      if (item && typeof item === "object") {
+        const email = getStringClaim(item as Record<string, unknown>, [
+          "email_address",
+          "emailAddress",
+          "email",
+        ]);
+        if (email) return email;
+      }
+    }
+  }
+
+  return null;
+}
+
+function getNameFromClaims(claims: Record<string, unknown>): string | null {
+  const fullName = getStringClaim(claims, ["name", "fullName", "full_name"]);
+  if (fullName) return fullName;
+
+  const firstName = getStringClaim(claims, [
+    "firstName",
+    "first_name",
+    "given_name",
+  ]);
+  const lastName = getStringClaim(claims, [
+    "lastName",
+    "last_name",
+    "family_name",
+  ]);
+  const email = getEmailFromClaims(claims);
+  const name = [firstName, lastName].filter(Boolean).join(" ").trim();
+
+  return name || email;
+}
 
 // Limpar entradas expiradas e limitar tamanho do cache
 setInterval(() => {
@@ -85,23 +146,15 @@ async function getUserFromToken(token: string): Promise<{
       });
       console.log("[AUTH] JWT verificado OK, sub:", payload.sub);
       // Extrair userName dos claims customizados do template 'medivisitas'
-      const firstName = (payload as Record<string, unknown>).firstName as
-        | string
-        | undefined;
-      const lastName = (payload as Record<string, unknown>).lastName as
-        | string
-        | undefined;
-      const email = (payload as Record<string, unknown>).email as
-        | string
-        | undefined;
-      const name =
-        [firstName, lastName].filter(Boolean).join(" ") || email || null;
+      const claims = payload as Record<string, unknown>;
+      const email = getEmailFromClaims(claims);
+      const name = getNameFromClaims(claims);
       result = {
         userId: payload.sub ?? null,
         sessionId: (payload.sid as string) ?? null,
         sessionToken: token,
         userName: name,
-        userEmail: email || null,
+        userEmail: email,
       };
     } catch (verifyErr) {
       console.log(
@@ -134,24 +187,16 @@ async function getUserFromToken(token: string): Promise<{
                 "[AUTH] Token renovado verificado OK, sub:",
                 newPayload.sub,
               );
-              const firstName = (newPayload as Record<string, unknown>)
-                .firstName as string | undefined;
-              const lastName = (newPayload as Record<string, unknown>)
-                .lastName as string | undefined;
-              const email = (newPayload as Record<string, unknown>).email as
-                | string
-                | undefined;
-              const name =
-                [firstName, lastName].filter(Boolean).join(" ") ||
-                email ||
-                null;
+              const claims = newPayload as Record<string, unknown>;
+              const email = getEmailFromClaims(claims);
+              const name = getNameFromClaims(claims);
 
               result = {
                 userId: newPayload.sub ?? null,
                 sessionId: payloadObj.sid,
                 sessionToken: tokenObj.jwt,
                 userName: name,
-                userEmail: email || null,
+                userEmail: email,
               };
             }
           }
@@ -329,7 +374,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()",
+    "camera=(self), microphone=(self), geolocation=(self)",
   );
 
   // HSTS apenas em produção

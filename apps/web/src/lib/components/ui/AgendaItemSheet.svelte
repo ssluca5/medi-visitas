@@ -315,31 +315,41 @@
 		{/if}
 
 		<!-- Actions -->
-		<div class="flex items-center gap-2 pt-2">
-			<button
-				type="submit"
-				disabled={saving}
-				class="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 ease-out hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-			>
-				{#if saving}
-					<span class="flex items-center justify-center gap-2">
-						<span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
-						Salvando...
-					</span>
-				{:else}
-					{isEdit ? 'Atualizar' : 'Agendar'}
-				{/if}
-			</button>
+		<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
+			<div class="flex flex-col-reverse gap-3">
+				<button
+					type="submit"
+					disabled={saving}
+					class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 ease-out hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+				>
+					{#if saving}
+						<span class="flex items-center justify-center gap-2">
+							<span class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+							Salvando...
+						</span>
+					{:else}
+						{isEdit ? 'Atualizar' : 'Agendar'}
+					{/if}
+				</button>
 
-			{#if isEdit && onDelete && item}
+				{#if isEdit && onDelete && item}
+					<button
+						type="button"
+						class="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all duration-200 ease-out hover:bg-red-100 active:scale-[0.98] cursor-pointer"
+						onclick={() => onDelete?.(item!.id)}
+					>
+						Excluir
+					</button>
+				{/if}
+
 				<button
 					type="button"
-					class="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all duration-200 ease-out hover:bg-red-100 active:scale-[0.98] cursor-pointer"
-					onclick={() => onDelete?.(item!.id)}
+					class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-white px-4 py-2.5 text-sm font-semibold text-[rgb(var(--slate-600))] transition-all duration-200 ease-out hover:bg-[rgb(var(--slate-50))] active:scale-[0.98] cursor-pointer"
+					onclick={onClose}
 				>
-					Excluir
+					Cancelar
 				</button>
-			{/if}
+			</div>
 		</div>
 	</form>
 </Sheet>

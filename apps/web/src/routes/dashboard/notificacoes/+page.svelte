@@ -81,16 +81,16 @@
 
 <div>
 	<!-- Header -->
-	<div class="flex items-center justify-between mb-6">
-		<div class="flex items-center gap-3">
+	<div class="page-header">
+		<div class="page-header-main">
 			<div
 				class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm"
 			>
 				<Bell class="h-5 w-5 text-white" />
 			</div>
 			<div>
-				<h1 class="text-2xl font-semibold text-[rgb(var(--slate-900))]">Notificações</h1>
-				<p class="text-sm text-[rgb(var(--slate-500))] mt-0.5">
+				<h1 class="page-title">Notificações</h1>
+				<p class="page-description">
 					{total} notificação{total !== 1 ? 'ões' : ''} · {naoLidas} não lida{naoLidas !== 1
 						? 's'
 						: ''}

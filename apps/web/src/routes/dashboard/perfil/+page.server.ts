@@ -1,19 +1,53 @@
 import type { PageServerLoad } from "./$types";
 import { apiFetch } from "$lib/api";
 
+async function safeFetch(
+  path: string,
+  token: string | null,
+): Promise<Response | null> {
+  try {
+    return await apiFetch(path, token);
+  } catch {
+    return null;
+  }
+}
+
 export const load: PageServerLoad = async ({ locals }) => {
   const token = locals.sessionToken;
 
   try {
     const [meRes, billingRes, orgRes] = await Promise.all([
-      apiFetch("/me", token),
-      apiFetch("/billing/status", token),
-      apiFetch("/organizacao/info", token),
+      safeFetch("/me", token),
+      safeFetch("/billing/status", token),
+      safeFetch("/organizacao/info", token),
     ]);
 
-    const me = meRes.ok ? await meRes.json() : null;
-    const billing = billingRes.ok ? await billingRes.json() : null;
-    const org = orgRes.ok ? await orgRes.json() : null;
+    const me = meRes?.ok ? await meRes.json() : null;
+    const billing = billingRes?.ok ? await billingRes.json() : null;
+    const org = orgRes?.ok ? await orgRes.json() : null;
+    const meComFallback = me
+      ? {
+          ...me,
+          email:
+            me.email && !me.email.endsWith("@placeholder.local")
+              ? me.email
+              : (locals.userEmail ?? me.email),
+          name: me.name ?? locals.userName,
+        }
+      : locals.userId
+        ? {
+            id: locals.userId,
+            email: locals.userEmail ?? "",
+            name: locals.userName ?? null,
+            organizationId: null,
+            role: null,
+            tourConcluidoEm: null,
+            notifVisitasDia: true,
+            notifSemVisitaRecente: true,
+            notifAgendaNaoRealizada: true,
+            notifLembretesAuto: true,
+          }
+        : null;
 
     // Calcular dias restantes do trial
     let diasRestantesTrial: number | null = null;
@@ -26,7 +60,13 @@ export const load: PageServerLoad = async ({ locals }) => {
       );
     }
 
-    return { me, billing, diasRestantesTrial, org, sessionToken: token };
+    return {
+      me: meComFallback,
+      billing,
+      diasRestantesTrial,
+      org,
+      sessionToken: token,
+    };
   } catch {
     return {
       me: null,

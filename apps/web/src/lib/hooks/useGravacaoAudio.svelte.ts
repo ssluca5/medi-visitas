@@ -58,10 +58,15 @@ async function iniciar() {
       }
     }, 1000);
   } catch (err: any) {
-    erroPermissao =
-      err.name === "NotAllowedError"
-        ? "Permissão de microfone negada. Habilite nas configurações do navegador."
-        : `Erro ao acessar microfone: ${err.message}`;
+    if (err.name === "NotAllowedError") {
+      const temMediaDevices =
+        typeof navigator !== "undefined" && !!navigator.mediaDevices;
+      erroPermissao = temMediaDevices
+        ? "Permissão de microfone negada. Verifique: (1) Configurações do site → Microfone → Permitir (2) Windows → Privacidade → Microfone → ativado e Chrome permitido"
+        : "Microfone não disponível. Verifique se está acessando via localhost (HTTP não seguro bloqueia o microfone).";
+    } else {
+      erroPermissao = `Erro ao acessar microfone: ${err.message}`;
+    }
   }
 }
 

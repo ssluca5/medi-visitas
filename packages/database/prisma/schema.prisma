@@ -109,14 +109,19 @@ enum RoleMembro {
 // ============================================
 
 model User {
-  id              String    @id @default(cuid())
-  clerkId         String    @unique
-  email           String    @unique
-  name            String?
-  tourConcluidoEm DateTime?
-  deletedAt       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                      String    @id @default(cuid())
+  clerkId                 String    @unique
+  email                   String    @unique
+  name                    String?
+  tourConcluidoEm         DateTime?
+  // Preferências de notificação
+  notifVisitasDia         Boolean   @default(true)
+  notifSemVisitaRecente   Boolean   @default(true)
+  notifAgendaNaoRealizada Boolean   @default(true)
+  notifLembretesAuto      Boolean   @default(true)
+  deletedAt               DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
   @@index([clerkId])
 }

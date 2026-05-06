@@ -73,7 +73,7 @@ const onboardingRoutes = async (app) => {
       const limites = getLimitesPlano("TRIAL");
       const org = await prisma.organization.create({
         data: {
-          clerkOrgId: `org_${userId}`,
+          clerkOrgId: `org_${userId}_${Date.now().toString(36)}`,
           nome: "Minha Conta",
           slug: `conta-${userId.slice(-8)}-${Date.now().toString(36)}`,
           plano: "TRIAL",
@@ -125,7 +125,7 @@ const onboardingRoutes = async (app) => {
       const limites = getLimitesPlano("TRIAL");
       const org = await prisma.organization.create({
         data: {
-          clerkOrgId: `org_${userId}`,
+          clerkOrgId: `org_${userId}_${Date.now().toString(36)}`,
           nome: nomeEmpresa,
           slug: `${slug}-${userId.slice(-4)}`,
           plano: "TRIAL",

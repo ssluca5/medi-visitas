@@ -15,7 +15,7 @@
 | Pagamentos    | Stripe SDK v22                        |
 | Email         | Resend                                |
 | Monitoramento | Sentry                                |
-| IA            | Google Gemini                         |
+| IA            | MiniMax                               |
 | Logger        | Pino (nativo do Fastify)              |
 | Porta dev     | `3002`                                |
 
@@ -74,12 +74,12 @@ apps/api/src/
 ├── schemas/
 │   └── me.ts                 # Schemas Zod compartilhados (/me)
 ├── services/
-│   ├── gemini.ts             # Integração Google Gemini (STT + Chat Completion)
+│   ├── minimax.ts            # Integração MiniMax (STT + Chat Completion)
 │   ├── planos.ts             # Lógica de planos/assinaturas
 │   ├── stripe.ts             # Stripe Checkout + Customer Portal
 │   ├── transcricoes.ts       # Controle de cotas de transcrição
 │   └── __tests__/
-│       └── gemini.test.ts    # Testes do serviço Gemini
+│       └── minimax.test.ts   # Testes do serviço MiniMax
 ├── scripts/
 │   └── fix-categorias.ts     # Script one-off de migração de dados
 └── routes/

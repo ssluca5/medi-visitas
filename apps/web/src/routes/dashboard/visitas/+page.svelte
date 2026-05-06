@@ -5,9 +5,8 @@
   import Button from '$lib/components/ui/Button.svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   import type { Visita, PaginationInfo, StatusVisita, MaterialTecnico } from '$lib/types';
-  import { Calendar, Clock, Package, Plus, Trash2, Search, CalendarDays, ChevronLeft, ChevronRight, Copy } from 'lucide-svelte';
+  import { Calendar, Clock, Package, Plus, Trash2, Search, CalendarDays, ChevronLeft, ChevronRight, Copy, Mic } from 'lucide-svelte';
   import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
-  import BotaoGravacao from '$lib/components/ui/BotaoGravacao.svelte';
   import ModalGravacao from '$lib/components/ui/ModalGravacao.svelte';
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import { toasts } from '$lib/stores/toast.svelte';
@@ -21,14 +20,11 @@
   let modalGravacaoAberto = $state(false);
   let visitaParaGravar = $state<string | null>(null);
 
-  function abrirGravacao() {
-    const visitaGravavel = visitas.find(v => v.status === 'AGENDADA' || v.status === 'REALIZADA');
-    if (visitaGravavel) {
-      visitaParaGravar = visitaGravavel.id;
-      modalGravacaoAberto = true;
-    } else {
-      toasts.show('info', 'Nenhuma visita agendada ou realizada disponível para gravação.');
-    }
+  function abrirGravacaoVisita(event: Event, visita: Visita) {
+    event.stopPropagation();
+    if (isVisitaPassada(visita)) return;
+    visitaParaGravar = visita.id;
+    modalGravacaoAberto = true;
   }
 
   function handleGravacaoSalva() {
@@ -42,6 +38,13 @@
   let filtroBusca = $state('');
   let filtroDataInicio = $state('');
   let filtroDataFim = $state('');
+
+  let temFiltrosAtivos = $derived(
+    !!filtroBusca || !!filtroStatus || !!filtroDataInicio || !!filtroDataFim
+  );
+
+  // Total real de visitas cadastradas (sem filtros)
+  let totalCadastrados = $state(0);
 
   let materiaisOptions = $state<MaterialTecnico[]>([]);
   let sheetOpen = $state(false);
@@ -84,7 +87,13 @@
       if (res.ok) {
         const json = await res.json();
         visitas = json.data || json;
-        if (json.pagination) pagination = json.pagination;
+        if (json.pagination) {
+          pagination = json.pagination;
+          // Atualiza total cadastrados apenas quando não há filtros
+          if (!temFiltrosAtivos) {
+            totalCadastrados = json.pagination.total;
+          }
+        }
       }
     } catch(err) {
       console.error(err);
@@ -183,17 +192,17 @@
 
 <div class="space-y-6">
   <!-- Header -->
-  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-    <div class="flex items-center gap-3">
-      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+  <div class="page-header">
+    <div class="page-header-main">
+      <div class="page-header-icon">
         <CalendarDays class="h-4.5 w-4.5 text-white" />
       </div>
       <div>
-        <h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Histórico de Visitas</h1>
-        <p class="text-xs text-[rgb(var(--slate-400))]">Gerencie seu cronograma global de visitas a profissionais</p>
+        <h1 class="page-title">Histórico de Visitas</h1>
+        <p class="page-description">Gerencie seu cronograma global de visitas a profissionais</p>
       </div>
     </div>
-    {#if visitas.length > 0}
+    {#if totalCadastrados > 0 || visitas.length > 0}
       <Button onclick={handleNovaVisita} class="gap-2">
         <Plus class="w-4 h-4" /> Nova Visita
       </Button>
@@ -201,88 +210,85 @@
   </div>
 
   <!-- Filtros -->
-  <div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-4">
-    <div class="flex flex-wrap items-end gap-3">
+  <div class="card-surface p-4 mb-6" role="search" aria-label="Filtros de visitas">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1.4fr)_minmax(150px,1fr)_minmax(150px,1fr)_minmax(150px,1fr)]">
       <!-- Busca por nome -->
-      <div class="flex-1 min-w-[200px]">
-        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="buscaVisita">Buscar por profissional</label>
+      <div class="relative">
         <div class="relative">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--slate-400))]">
-            <Search class="w-4 h-4" />
-          </span>
+          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
           <input
             id="buscaVisita"
             type="text"
             bind:value={filtroBusca}
             onkeydown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-            placeholder="Nome do profissional..."
-            class="block w-full pl-9 rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50"
+            placeholder="Buscar por profissional..."
+            aria-label="Buscar por profissional"
+            class="input-base !pl-9"
           />
         </div>
       </div>
 
       <!-- Data início -->
-      <div class="min-w-[160px]">
-        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataInicio">Data início</label>
+      <div>
+        <label class="sr-only" for="dataInicio">Data início</label>
         <input
           id="dataInicio"
           type="date"
           bind:value={filtroDataInicio}
-          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
+          aria-label="Filtrar por data inicial"
+          title="Data início"
+          class="input-base cursor-pointer"
         />
       </div>
 
       <!-- Data fim -->
-      <div class="min-w-[160px]">
-        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataFim">Data fim</label>
+      <div>
+        <label class="sr-only" for="dataFim">Data fim</label>
         <input
           id="dataFim"
           type="date"
           bind:value={filtroDataFim}
-          class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
+          aria-label="Filtrar por data final"
+          title="Data fim"
+          class="input-base cursor-pointer"
         />
       </div>
 
       <!-- Status -->
-      <div class="min-w-[150px]">
-        <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="filtroStatusVisita">Status</label>
+      <div>
+        <label class="sr-only" for="filtroStatusVisita">Status</label>
         <select 
           id="filtroStatusVisita"
           bind:value={filtroStatus}
-          class="block w-full bg-[rgb(var(--slate-50))]/50 rounded-lg border border-[rgb(var(--slate-200))] py-2 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 shadow-sm cursor-pointer"
+          aria-label="Filtrar por status"
+          class="input-base cursor-pointer"
         >
-          <option value="">Todos</option>
+          <option value="">Todos os status</option>
           <option value="AGENDADA">Agendadas</option>
           <option value="REALIZADA">Realizadas</option>
           <option value="CANCELADA">Canceladas</option>
           <option value="NAO_REALIZADA">Não Realizadas</option>
         </select>
       </div>
-
-      <!-- Botões -->
-      <div class="flex gap-2">
-        <button
-          type="button"
-          onclick={limparFiltros}
-          class="px-3 py-2 text-xs font-medium text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] border border-[rgb(var(--slate-200))] rounded-lg hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer"
-        >
-          Limpar
-        </button>
-      </div>
     </div>
   </div>
 
   <!-- Grid / Tabela -->
-  <div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] overflow-hidden">
+  <div class="table-shell">
     {#if loading}
       <div class="flex justify-center p-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"></div>
       </div>
+    {:else if visitas.length === 0 && temFiltrosAtivos}
+      <div class="py-12 flex flex-col items-center justify-center text-center">
+        <p class="text-muted-standard">Nenhuma visita encontrada com esses filtros.</p>
+        <Button class="mt-4" variant="outline" onclick={limparFiltros}>Limpar Filtros</Button>
+      </div>
     {:else if visitas.length === 0}
       <EmptyState
         icon={Calendar}
-        titulo="Nenhuma visita encontrada"
-        descricao="Cadastre uma nova visita clicando no botão abaixo."
+        titulo="Nenhuma visita cadastrada"
+        descricao="Cadastre sua primeira visita para começar."
       >
         <Button onclick={handleNovaVisita} class="gap-2">
           <Plus class="w-4 h-4" /> Nova Visita
@@ -290,83 +296,100 @@
       </EmptyState>
     {:else}
       <div class="overflow-x-auto">
-        <table class="table-fixed w-full">
+        <table class="data-table">
           <thead>
-            <tr class="border-b border-[rgb(var(--slate-100))]">
-              <th class="text-left p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[24%]">Profissional</th>
-              <th class="text-left p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[22%]">Data / Hora</th>
-              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Duração</th>
-              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Materiais</th>
-              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[18%]">Status</th>
-              <th class="text-center p-3.5 text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Ações</th>
+            <tr>
+              <th class="table-head-cell text-left w-[28%]">Profissional</th>
+              <th class="table-head-cell text-center w-[22%]">Data / Hora</th>
+              <th class="table-head-cell text-center w-[12%]">Duração</th>
+              <th class="table-head-cell text-center w-[12%]">Materiais</th>
+              <th class="table-head-cell text-center w-[14%]">Status</th>
+              <th class="table-head-cell text-center w-[12%]">Ações</th>
             </tr>
           </thead>
           <tbody>
             {#each visitas as visita}
               {@const passada = isVisitaPassada(visita)}
               <tr 
-                class="border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60 group {passada ? 'opacity-70' : ''}"
+                class="group border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60"
                 onclick={(e) => handleEditarVisita(e, visita)}
               >
                 <!-- Profissional -->
-                <td class="p-3.5">
-                  <div>
-                    <p class="text-sm font-medium text-[rgb(var(--slate-900))]">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
-                    {#if visita.profissional?.especialidade}
-                      <span class="text-xs text-[rgb(var(--slate-400))]">
-                        {visita.profissional.especialidade.nome}
-                      </span>
-                    {/if}
+                <td class="table-cell">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white shadow-sm"
+                    >
+                      {(visita.profissional?.nome || 'P').charAt(0).toUpperCase()}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="table-cell-primary truncate">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
+                      {#if visita.profissional?.especialidade}
+                        <p class="table-cell-secondary truncate">
+                          {visita.profissional.especialidade.nome}
+                        </p>
+                      {/if}
+                    </div>
                   </div>
                 </td>
 
                 <!-- Data/Hora -->
-                <td class="p-3.5">
-                  <div class="flex items-center gap-1.5 text-sm text-[rgb(var(--slate-700))]">
+                <td class="table-cell text-center">
+                  <div class="inline-flex items-center gap-1.5 table-cell-primary">
                     <Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] shrink-0" />
-                    <span class="font-medium">
+                    <span>
                       {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
                     </span>
-                    <span class="font-medium">às</span>
-                    <span class="font-medium">
+                    <span>às</span>
+                    <span>
                       {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
                     </span>
                   </div>
                 </td>
 
                 <!-- Duração -->
-                <td class="p-3.5 text-center">
+                <td class="table-cell text-center">
                   {#if visita.duracaoMinutos}
-                    <div class="inline-flex items-center gap-1 text-sm text-[rgb(var(--slate-600))]">
+                    <div class="inline-flex items-center gap-1 table-cell-primary">
                       <Clock class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
                       {visita.duracaoMinutos} min
                     </div>
                   {:else}
-                    <span class="text-sm text-[rgb(var(--slate-300))]">—</span>
+                    <span class="table-cell-empty">—</span>
                   {/if}
                 </td>
 
                 <!-- Materiais -->
-                <td class="p-3.5 text-center">
-                  <div class="inline-flex items-center gap-1 text-sm text-[rgb(var(--slate-600))]" title={visita.materiais && visita.materiais.length > 0 ? visita.materiais.map(m => `${m.quantidade}x ${m.materialTecnico?.nome || 'Material'}`).join('\n') : 'Sem materiais'}>
+                <td class="table-cell text-center">
+                  <div class="inline-flex items-center gap-1 table-cell-primary" title={visita.materiais && visita.materiais.length > 0 ? visita.materiais.map(m => `${m.quantidade}x ${m.materialTecnico?.nome || 'Material'}`).join('\n') : 'Sem materiais'}>
                     <Package class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
                     {visita.materiais?.length || 0}
                   </div>
                 </td>
 
                 <!-- Status -->
-                <td class="p-3.5 text-center">
+                <td class="table-cell text-center">
                   <StatusVisitaBadge status={visita.status} />
                 </td>
 
                 <!-- Ações -->
-                <td class="p-3.5">
+                <td class="table-cell">
                   <div class="flex justify-center items-center gap-0.5">
                     <button
                       type="button"
+                      onclick={(e) => abrirGravacaoVisita(e, visita)}
+                      disabled={passada}
+                      class={passada
+                        ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                        : 'row-action hover:text-purple-600'}
+                      title={passada ? 'Visita já ocorrida' : 'Gravar áudio da visita'}
+                    >
+                      <Mic class="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
                       onclick={(e) => handleDuplicarVisita(e, visita)}
-                      class="p-2 rounded-lg transition-all duration-200 cursor-pointer
-                        text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-indigo-600 hover:bg-[rgb(var(--slate-100))]"
+                      class="row-action hover:text-indigo-600"
                       title="Duplicar visita"
                     >
                       <Copy class="w-3.5 h-3.5" />
@@ -375,8 +398,9 @@
                       type="button"
                       onclick={(e) => handleExcluirVisita(e, visita)}
                       disabled={passada}
-                      class="p-2 rounded-lg transition-all duration-200 cursor-pointer
-                        {passada ? 'text-[rgb(var(--slate-300))] cursor-not-allowed' : 'text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))]'}"
+                      class={passada
+                        ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                        : 'row-action hover:text-red-600'}
                       title={passada ? 'Visita já ocorrida' : 'Excluir visita'}
                     >
                       <Trash2 class="w-3.5 h-3.5" />
@@ -392,7 +416,7 @@
       <!-- Paginação -->
       {#if pagination.totalPages > 1}
         <div class="bg-[rgb(var(--slate-50))]/80 border-t border-[rgb(var(--slate-100))] px-5 py-3 flex justify-between items-center">
-          <span class="text-sm text-[rgb(var(--slate-500))] font-medium">
+          <span class="table-cell-secondary">
             Página {pagination.page} de {pagination.totalPages} ({pagination.total} registros)
           </span>
           <div class="flex items-center gap-1">
@@ -419,12 +443,12 @@
   </div>
 </div>
 
-<BotaoGravacao onclick={abrirGravacao} />
 
 {#if visitaParaGravar}
   <ModalGravacao
     bind:open={modalGravacaoAberto}
     visitaId={visitaParaGravar}
+    profissionalEstagio={visitas.find(v => v.id === visitaParaGravar)?.profissional?.estagioPipeline}
     sessionToken={data.sessionToken}
     onclose={() => { modalGravacaoAberto = false; visitaParaGravar = null; }}
     onsave={handleGravacaoSalva}

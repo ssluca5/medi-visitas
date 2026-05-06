@@ -16,14 +16,80 @@ function getEnvVars() {
     : undefined;
   return { CLERK_SECRET_KEY, CLERK_JWT_KEY, authorizedParties };
 }
+function getStringClaim(claims, keys) {
+  for (const key of keys) {
+    const value = claims[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+function getEmailFromClaims(claims) {
+  const directEmail = getStringClaim(claims, [
+    "email",
+    "emailAddress",
+    "email_address",
+    "primaryEmailAddress",
+    "primary_email_address",
+  ]);
+  if (directEmail) return directEmail;
+  const emailAddresses = claims.email_addresses;
+  if (Array.isArray(emailAddresses)) {
+    for (const item of emailAddresses) {
+      if (item && typeof item === "object") {
+        const email = getStringClaim(item, [
+          "email_address",
+          "emailAddress",
+          "email",
+        ]);
+        if (email) return email;
+      }
+    }
+  }
+  return undefined;
+}
+function getNameFromClaims(claims) {
+  const fullName = getStringClaim(claims, ["name", "fullName", "full_name"]);
+  if (fullName) return fullName;
+  const firstName = getStringClaim(claims, [
+    "firstName",
+    "first_name",
+    "given_name",
+  ]);
+  const lastName = getStringClaim(claims, [
+    "lastName",
+    "last_name",
+    "family_name",
+  ]);
+  const name = [firstName, lastName].filter(Boolean).join(" ").trim();
+  return name || undefined;
+}
 export async function verifyClerkToken(request, reply) {
   try {
     const token = request.headers.authorization?.replace("Bearer ", "");
     if (!token) {
+      request.log.warn("No token in Authorization header");
       reply.code(401).send({ error: "Unauthorized" });
       return;
     }
+    const isJwt = token.startsWith("eyJ");
+    request.log.info(
+      {
+        tokenType: isJwt ? "JWT" : "opaque",
+        tokenPrefix: token.substring(0, 20) + "...",
+      },
+      "Verifying Clerk token",
+    );
     const { CLERK_SECRET_KEY, CLERK_JWT_KEY, authorizedParties } = getEnvVars();
+    request.log.info(
+      {
+        hasJwtKey: !!CLERK_JWT_KEY,
+        hasAuthorizedParties: !!authorizedParties,
+        authorizedParties,
+      },
+      "Auth config",
+    );
     const payload = await verifyToken(token, {
       secretKey: CLERK_SECRET_KEY,
       jwtKey: CLERK_JWT_KEY,
@@ -33,17 +99,18 @@ export async function verifyClerkToken(request, reply) {
     request.orgId = payload.org_id ?? undefined;
     // Extrair dados do usuário dos claims do JWT
     const claims = payload;
-    const email = claims.email;
-    const firstName = claims.first_name;
-    const lastName = claims.last_name;
-    const name = claims.name;
-    request.userEmail = email ?? undefined;
-    request.userName =
-      name ||
-      [firstName, lastName].filter(Boolean).join(" ").trim() ||
-      undefined;
+    request.userEmail = getEmailFromClaims(claims);
+    request.userName = getNameFromClaims(claims);
+    request.log.info(
+      { userId: request.userId, email: request.userEmail },
+      "Token verified OK",
+    );
   } catch (err) {
-    request.log.error({ err }, "Clerk token verification failed");
+    const errMsg = err instanceof Error ? err.message : String(err);
+    request.log.error(
+      { err, errMsg, stack: err instanceof Error ? err.stack : undefined },
+      "Clerk token verification failed",
+    );
     reply.code(401).send({ error: "Unauthorized" });
   }
 }

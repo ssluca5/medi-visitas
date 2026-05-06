@@ -1,21 +1,42 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
-  import { Mic, Square, Loader2, X, AlertCircle, Volume2 } from 'lucide-svelte';
+  import { Mic, Square, Loader2, X, AlertCircle, Volume2, CalendarPlus, TrendingUp } from 'lucide-svelte';
   import { useGravacaoAudio } from '$lib/hooks/useGravacaoAudio.svelte';
   import { PUBLIC_API_URL } from '$env/static/public';
+  import type { EstagioPipeline } from '$lib/types';
 
   type Etapa = 'selecionar' | 'gravar' | 'processar' | 'revisar';
+  type ProximaVisitaSugerida = {
+    dataISO: string | null;
+    observacao: string;
+  } | null;
+
+  const ORDEM_ESTAGIOS: EstagioPipeline[] = ['PROSPECTADO', 'VISITADO', 'INTERESSADO', 'PRESCRITOR', 'FIDELIZADO'];
+  const ESTAGIO_LABELS: Record<string, string> = {
+    PROSPECTADO: 'Prospectado',
+    VISITADO: 'Visitado',
+    INTERESSADO: 'Interessado',
+    PRESCRITOR: 'Prescritor',
+    FIDELIZADO: 'Fidelizado'
+  };
 
   interface Props {
     open: boolean;
     visitaId: string;
+    profissionalEstagio?: EstagioPipeline | string;
     sessionToken: string | null;
     onclose: () => void;
-    onsave: (campos: { resumo: string; proximaAcao: string; objetivoVisita: string }) => void;
+    onsave: (campos: {
+      resumo: string;
+      proximaAcao: string;
+      objetivoVisita: string;
+      proximaVisitaSugerida: ProximaVisitaSugerida;
+      sugestaoEstagio: EstagioPipeline | null;
+    }) => void;
   }
 
-  let { open = $bindable(), visitaId, sessionToken, onclose, onsave }: Props = $props();
+  let { open = $bindable(), visitaId, profissionalEstagio, sessionToken, onclose, onsave }: Props = $props();
 
   let etapa = $state<Etapa>('selecionar');
   let salvarAudio = $state<boolean | null>(null);
@@ -25,7 +46,26 @@
   let erro = $state('');
   let erroLimite = $state(false);
   let comprando = $state<number | null>(null);
+  let proximaVisitaSugerida = $state<ProximaVisitaSugerida>(null);
+  let sugestaoEstagio = $state<EstagioPipeline | null>(null);
+  let confirmarAgenda = $state(false);
+  let confirmarEstagio = $state(false);
+  let salvandoExtras = $state(false);
   let gravacao = useGravacaoAudio();
+
+  let podeConfirmarEstagio = $derived.by(() => {
+    if (!sugestaoEstagio) return false;
+    if (!profissionalEstagio) return true;
+
+    const idxAtual = ORDEM_ESTAGIOS.indexOf(profissionalEstagio as EstagioPipeline);
+    const idxNovo = ORDEM_ESTAGIOS.indexOf(sugestaoEstagio);
+
+    return idxAtual === -1 ? true : idxNovo > idxAtual;
+  });
+
+  $effect(() => {
+    if (!podeConfirmarEstagio) confirmarEstagio = false;
+  });
 
   function formatarDuracao(segundos: number): string {
     const m = Math.floor(segundos / 60).toString().padStart(2, '0');
@@ -41,6 +81,12 @@
     objetivoVisita = '';
     erro = '';
     erroLimite = false;
+    comprando = null;
+    proximaVisitaSugerida = null;
+    sugestaoEstagio = null;
+    confirmarAgenda = false;
+    confirmarEstagio = false;
+    salvandoExtras = false;
     gravacao.descartar();
   }
 
@@ -123,6 +169,10 @@
       resumo = campos.resumo || '';
       proximaAcao = campos.proximaAcao || '';
       objetivoVisita = campos.objetivoVisita || '';
+      proximaVisitaSugerida = campos.proximaVisitaSugerida ?? null;
+      sugestaoEstagio = campos.sugestaoEstagio ?? null;
+      confirmarAgenda = false;
+      confirmarEstagio = false;
       etapa = 'revisar';
     } catch (err: any) {
       erro = err.message;
@@ -131,6 +181,7 @@
   }
 
   async function confirmarSalvar() {
+    salvandoExtras = true;
     try {
       const res = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}`, {
         method: 'PUT',
@@ -143,10 +194,47 @@
 
       if (!res.ok) throw new Error('Erro ao salvar campos');
 
-      onsave({ resumo, proximaAcao, objetivoVisita });
+      if (confirmarAgenda && proximaVisitaSugerida) {
+        const agendaRes = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}/confirmar-agenda`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            dataISO: proximaVisitaSugerida.dataISO,
+            observacao: proximaVisitaSugerida.observacao
+          })
+        });
+
+        if (!agendaRes.ok) {
+          const body = await agendaRes.json().catch(() => null);
+          throw new Error(body?.error || 'Erro ao criar próxima visita');
+        }
+      }
+
+      if (confirmarEstagio && sugestaoEstagio) {
+        const estagioRes = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}/confirmar-estagio`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ novoEstagio: sugestaoEstagio })
+        });
+
+        if (!estagioRes.ok) {
+          const body = await estagioRes.json().catch(() => null);
+          throw new Error(body?.error || 'Erro ao avançar estágio');
+        }
+      }
+
+      onsave({ resumo, proximaAcao, objetivoVisita, proximaVisitaSugerida, sugestaoEstagio });
       fechar();
     } catch (err: any) {
       erro = err.message;
+    } finally {
+      salvandoExtras = false;
     }
   }
 
@@ -319,6 +407,68 @@
               />
             </div>
 
+            {#if proximaVisitaSugerida}
+              <div
+                class="border border-gray-200 rounded-lg p-3 space-y-2"
+                style={confirmarAgenda ? 'border-color: var(--brand-primary); background-color: var(--brand-light);' : ''}
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex min-w-0 gap-2">
+                    <CalendarPlus class="w-4 h-4 shrink-0 mt-0.5" style="color: var(--brand-primary);" />
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-gray-900">Próxima visita sugerida</p>
+                      <p class="text-xs text-gray-500 mt-0.5">{proximaVisitaSugerida.observacao}</p>
+                      {#if proximaVisitaSugerida.dataISO}
+                        <p class="text-xs font-medium mt-1" style="color: var(--brand-primary);">
+                          {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(proximaVisitaSugerida.dataISO))}
+                        </p>
+                      {:else}
+                        <p class="text-xs text-gray-400 mt-1">Data não identificada. Será agendada em 30 dias.</p>
+                      {/if}
+                    </div>
+                  </div>
+                  <button
+                    onclick={() => confirmarAgenda = !confirmarAgenda}
+                    class="px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors shrink-0 cursor-pointer"
+                    style={confirmarAgenda
+                      ? 'background-color: var(--brand-primary); color: white; border-color: var(--brand-primary);'
+                      : 'border-color: var(--border-base); color: var(--text-secondary);'}
+                  >
+                    {confirmarAgenda ? 'Confirmado' : 'Confirmar'}
+                  </button>
+                </div>
+              </div>
+            {/if}
+
+            {#if sugestaoEstagio && podeConfirmarEstagio}
+              <div
+                class="border border-gray-200 rounded-lg p-3 space-y-2"
+                style={confirmarEstagio ? 'border-color: var(--pipeline-interessado); background-color: color-mix(in srgb, var(--pipeline-interessado) 10%, white);' : ''}
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex min-w-0 gap-2">
+                    <TrendingUp class="w-4 h-4 shrink-0 mt-0.5" style="color: var(--pipeline-interessado);" />
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-gray-900">Mudança de estágio sugerida</p>
+                      <p class="text-xs text-gray-500 mt-0.5">
+                        A IA identificou que o médico pode avançar para
+                        <strong>{ESTAGIO_LABELS[sugestaoEstagio] ?? sugestaoEstagio}</strong>
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onclick={() => confirmarEstagio = !confirmarEstagio}
+                    class="px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors shrink-0 cursor-pointer"
+                    style={confirmarEstagio
+                      ? 'background-color: var(--pipeline-interessado); color: white; border-color: var(--pipeline-interessado);'
+                      : 'border-color: var(--border-base); color: var(--text-secondary);'}
+                  >
+                    {confirmarEstagio ? 'Confirmado' : 'Confirmar'}
+                  </button>
+                </div>
+              </div>
+            {/if}
+
             <!-- Salvar áudio? -->
             <div class="border-t border-gray-100 pt-4">
               <p class="text-sm font-medium text-gray-700 mb-2">Salvar gravação de áudio?</p>
@@ -400,12 +550,17 @@
         {:else if etapa === 'revisar'}
           <button
             onclick={confirmarSalvar}
-            disabled={salvarAudio === null}
-            style="background-color: #2563eb; border-radius: 8px;"
+            disabled={salvarAudio === null || salvandoExtras}
+            style="background-color: var(--brand-primary); border-radius: 8px;"
             class="flex-1 h-10 text-sm font-medium text-white hover:opacity-90 cursor-pointer
-              disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Confirmar
+            {#if salvandoExtras}
+              <Loader2 class="w-4 h-4 animate-spin" />
+              Salvando...
+            {:else}
+              Confirmar
+            {/if}
           </button>
         {/if}
       </div>

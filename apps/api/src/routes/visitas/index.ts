@@ -12,7 +12,7 @@ import {
 import {
   transcreverAudio,
   extrairCamposVisita,
-} from "../../services/gemini.js";
+} from "../../services/minimax.js";
 import { sanitizeAudioBuffer } from "../../services/sanitize-audio.js";
 import {
   verificarLimiteTranscricao,
@@ -27,6 +27,13 @@ const AUDIO_TYPES = [
   "audio/mpeg",
   "audio/wav",
 ];
+const ORDEM_ESTAGIOS = [
+  "PROSPECTADO",
+  "VISITADO",
+  "INTERESSADO",
+  "PRESCRITOR",
+  "FIDELIZADO",
+] as const;
 
 const visitasRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", async (request, reply) => {
@@ -90,7 +97,11 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
         where,
         include: {
           profissional: {
-            select: { nome: true, especialidade: { select: { nome: true } } },
+            select: {
+              nome: true,
+              estagioPipeline: true,
+              especialidade: { select: { nome: true } },
+            },
           },
           materiais: {
             include: { materialTecnico: true },
@@ -341,6 +352,96 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
     });
 
     return reply.status(204).send();
+  });
+
+  app.post("/:id/confirmar-agenda", async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const { dataISO, observacao } = request.body as {
+      dataISO: string | null;
+      observacao: string;
+    };
+
+    const visita = await prisma.visita.findUnique({
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
+    });
+
+    if (!visita) {
+      return reply.status(404).send({ error: "Visita não encontrada" });
+    }
+
+    const dataHoraInicio = dataISO
+      ? new Date(dataISO)
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    if (Number.isNaN(dataHoraInicio.getTime())) {
+      return reply.status(400).send({ error: "dataISO inválida" });
+    }
+
+    const dataHoraFim = new Date(dataHoraInicio.getTime() + 60 * 60 * 1000);
+
+    const agendaItem = await prisma.agendaItem.create({
+      data: {
+        userId: request.userId!,
+        profissionalId: visita.profissionalId,
+        visitaId: null,
+        dataHoraInicio,
+        dataHoraFim,
+        status: "PLANEJADO",
+        prioridade: "MEDIA",
+        observacoes: observacao || null,
+        organizationId: request.organizationId!,
+      },
+    });
+
+    return reply.status(201).send(agendaItem);
+  });
+
+  app.post("/:id/confirmar-estagio", async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    const { novoEstagio } = request.body as {
+      novoEstagio: (typeof ORDEM_ESTAGIOS)[number];
+    };
+
+    const visita = await prisma.visita.findUnique({
+      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
+      include: { profissional: true },
+    });
+
+    if (!visita) {
+      return reply.status(404).send({ error: "Visita não encontrada" });
+    }
+
+    const estagioAtual = visita.profissional.estagioPipeline;
+    const idxAtual = ORDEM_ESTAGIOS.indexOf(estagioAtual);
+    const idxNovo = ORDEM_ESTAGIOS.indexOf(novoEstagio);
+
+    if (idxNovo <= idxAtual) {
+      return reply.status(400).send({
+        error: "Não é possível regredir o estágio do pipeline.",
+        estagioAtual,
+        novoEstagio,
+      });
+    }
+
+    await prisma.$transaction([
+      prisma.profissional.update({
+        where: { id: visita.profissionalId },
+        data: { estagioPipeline: novoEstagio },
+      }),
+      prisma.estagioLog.create({
+        data: {
+          profissionalId: visita.profissionalId,
+          estagioAnterior: estagioAtual,
+          estagioNovo: novoEstagio,
+          userId: request.userId!,
+          organizationId: request.organizationId!,
+        },
+      }),
+    ]);
+
+    return reply.status(200).send({ estagioAtual, novoEstagio });
   });
 
   app.delete("/:id", async (request, reply) => {

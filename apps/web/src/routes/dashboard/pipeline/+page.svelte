@@ -187,14 +187,14 @@
 </svelte:head>
 
 <!-- Page Header -->
-<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-  <div class="flex items-center gap-3">
-    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+<div class="page-header">
+  <div class="page-header-main">
+    <div class="page-header-icon">
       <BarChart3 class="h-4.5 w-4.5 text-white" />
     </div>
     <div>
-      <h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Pipeline</h1>
-      <p class="text-[11px] text-[rgb(var(--slate-400))]">Funil de conversão e analytics</p>
+      <h1 class="page-title">Pipeline</h1>
+      <p class="page-description">Funil de conversão e analytics</p>
     </div>
   </div>
   <div class="flex items-center gap-2">
@@ -210,26 +210,26 @@
 </div>
 
 <!-- Filtros de período -->
-<div class="bg-white rounded-xl shadow-sm border border-[rgb(var(--slate-200))] p-4 mb-6" role="search" aria-label="Filtros de período do pipeline">
+<div class="card-surface p-4 mb-6" role="search" aria-label="Filtros de período do pipeline">
   <div class="flex flex-wrap items-end gap-3">
     <div class="min-w-[160px]">
-      <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataInicioPipeline">Data início</label>
+      <label class="input-label" for="dataInicioPipeline">Data início</label>
       <input
         id="dataInicioPipeline"
         type="date"
         bind:value={dataInicio}
         onchange={carregarDados}
-        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
+        class="input-base cursor-pointer"
       />
     </div>
     <div class="min-w-[160px]">
-      <label class="block text-xs font-medium text-[rgb(var(--slate-500))] mb-1.5" for="dataFimPipeline">Data fim</label>
+      <label class="input-label" for="dataFimPipeline">Data fim</label>
       <input
         id="dataFimPipeline"
         type="date"
         bind:value={dataFim}
         onchange={carregarDados}
-        class="block w-full rounded-lg border border-[rgb(var(--slate-200))] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 bg-[rgb(var(--slate-50))]/50 cursor-pointer"
+        class="input-base cursor-pointer"
       />
     </div>
     <div>

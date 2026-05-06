@@ -1,30 +1,152 @@
 import { verifyClerkToken } from "../hooks/auth.js";
 import { prisma } from "../lib/prisma.js";
+import { z } from "zod";
+const updateMeSchema = z.object({
+  name: z.string().min(2).max(100).optional(),
+  notifVisitasDia: z.boolean().optional(),
+  notifSemVisitaRecente: z.boolean().optional(),
+  notifAgendaNaoRealizada: z.boolean().optional(),
+  notifLembretesAuto: z.boolean().optional(),
+});
+const userSelect = {
+  id: true,
+  email: true,
+  name: true,
+  tourConcluidoEm: true,
+};
+const defaultNotificationPreferences = {
+  notifVisitasDia: true,
+  notifSemVisitaRecente: true,
+  notifAgendaNaoRealizada: true,
+  notifLembretesAuto: true,
+};
+function fallbackEmail(userId) {
+  return `${userId}@placeholder.local`;
+}
+function isPlaceholderEmail(email, userId) {
+  return (
+    email === fallbackEmail(userId) || email.endsWith("@placeholder.local")
+  );
+}
+async function createUserFromRequest(userId, request) {
+  return prisma.user.create({
+    data: {
+      clerkId: userId,
+      email: request.userEmail ?? fallbackEmail(userId),
+      name: request.userName ?? null,
+    },
+    select: userSelect,
+  });
+}
+async function syncUserIdentityFromRequest(userId, user, request) {
+  const data = {};
+  if (request.userEmail && isPlaceholderEmail(user.email, userId)) {
+    const existingEmailOwner = await prisma.user.findUnique({
+      where: { email: request.userEmail },
+      select: { clerkId: true },
+    });
+    if (!existingEmailOwner || existingEmailOwner.clerkId === userId) {
+      data.email = request.userEmail;
+    }
+  }
+  if (!user.name && request.userName) {
+    data.name = request.userName;
+  }
+  if (Object.keys(data).length === 0) {
+    return user;
+  }
+  const updated = await prisma.user.update({
+    where: { clerkId: userId },
+    data,
+    select: userSelect,
+  });
+  return updated;
+}
+function getNotificationUpdates(data) {
+  return {
+    ...(data.notifVisitasDia !== undefined
+      ? { notifVisitasDia: data.notifVisitasDia }
+      : {}),
+    ...(data.notifSemVisitaRecente !== undefined
+      ? { notifSemVisitaRecente: data.notifSemVisitaRecente }
+      : {}),
+    ...(data.notifAgendaNaoRealizada !== undefined
+      ? { notifAgendaNaoRealizada: data.notifAgendaNaoRealizada }
+      : {}),
+    ...(data.notifLembretesAuto !== undefined
+      ? { notifLembretesAuto: data.notifLembretesAuto }
+      : {}),
+  };
+}
+async function getNotificationPreferences(userId) {
+  const rows = await prisma.$queryRaw`
+    SELECT
+      "notifVisitasDia",
+      "notifSemVisitaRecente",
+      "notifAgendaNaoRealizada",
+      "notifLembretesAuto"
+    FROM "User"
+    WHERE "clerkId" = ${userId}
+    LIMIT 1
+  `;
+  return rows[0] ?? defaultNotificationPreferences;
+}
+async function updateNotificationPreference(userId, field, value) {
+  switch (field) {
+    case "notifVisitasDia":
+      await prisma.$executeRaw`
+        UPDATE "User"
+        SET "notifVisitasDia" = ${value}, "updatedAt" = now()
+        WHERE "clerkId" = ${userId}
+      `;
+      break;
+    case "notifSemVisitaRecente":
+      await prisma.$executeRaw`
+        UPDATE "User"
+        SET "notifSemVisitaRecente" = ${value}, "updatedAt" = now()
+        WHERE "clerkId" = ${userId}
+      `;
+      break;
+    case "notifAgendaNaoRealizada":
+      await prisma.$executeRaw`
+        UPDATE "User"
+        SET "notifAgendaNaoRealizada" = ${value}, "updatedAt" = now()
+        WHERE "clerkId" = ${userId}
+      `;
+      break;
+    case "notifLembretesAuto":
+      await prisma.$executeRaw`
+        UPDATE "User"
+        SET "notifLembretesAuto" = ${value}, "updatedAt" = now()
+        WHERE "clerkId" = ${userId}
+      `;
+      break;
+  }
+}
+async function updateNotificationPreferences(userId, updates) {
+  for (const [field, value] of Object.entries(updates)) {
+    await updateNotificationPreference(userId, field, value);
+  }
+}
 export default async function meRoutes(app) {
   app.get("/me", { preHandler: [verifyClerkToken] }, async (request, reply) => {
     if (!request.userId) {
       return reply.code(401).send({ error: "Unauthorized" });
     }
-    // Upsert: criar User se não existir (dados vêm do JWT)
-    const user = await prisma.user.upsert({
+    // findUnique primeiro (99.9% dos casos) — evita write desnecessário
+    let user = await prisma.user.findUnique({
       where: { clerkId: request.userId },
-      update: {
-        // Atualizar email/nome caso tenham mudado no Clerk
-        ...(request.userEmail ? { email: request.userEmail } : {}),
-        ...(request.userName ? { name: request.userName } : {}),
-      },
-      create: {
-        clerkId: request.userId,
-        email: request.userEmail ?? `${request.userId}@placeholder.local`,
-        name: request.userName ?? null,
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        tourConcluidoEm: true,
-      },
+      select: userSelect,
     });
+    // Fallback: criar User se não existir (primeiro acesso)
+    if (!user) {
+      user = await createUserFromRequest(request.userId, request);
+    } else {
+      user = await syncUserIdentityFromRequest(request.userId, user, request);
+    }
+    const notificationPreferences = await getNotificationPreferences(
+      request.userId,
+    );
     // Buscar membership para organizationId e role
     const membro = await prisma.organizationMembro.findFirst({
       where: { userId: request.userId, deletedAt: null },
@@ -50,8 +172,62 @@ export default async function meRoutes(app) {
       role: membro?.role ?? null,
       tourConcluidoEm: user.tourConcluidoEm,
       organization: membro?.organization ?? null,
+      ...notificationPreferences,
     });
   });
+  // PATCH /me — Atualizar nome e/ou preferências de notificação
+  app.patch(
+    "/me",
+    { preHandler: [verifyClerkToken] },
+    async (request, reply) => {
+      if (!request.userId) {
+        return reply.code(401).send({ error: "Unauthorized" });
+      }
+      const parsed = updateMeSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply
+          .code(400)
+          .send({ error: "Dados inválidos", details: parsed.error.flatten() });
+      }
+      const { name, ...notifPrefs } = parsed.data;
+      const notificationUpdates = getNotificationUpdates(notifPrefs);
+      const hasNameUpdate = name !== undefined;
+      const hasNotificationUpdate = Object.keys(notificationUpdates).length > 0;
+      if (!hasNameUpdate && !hasNotificationUpdate) {
+        return reply.code(400).send({ error: "Nenhum campo para atualizar" });
+      }
+      let user = await prisma.user.findUnique({
+        where: { clerkId: request.userId },
+        select: userSelect,
+      });
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            clerkId: request.userId,
+            email: request.userEmail ?? fallbackEmail(request.userId),
+            name: name ?? request.userName ?? null,
+          },
+          select: userSelect,
+        });
+      } else if (hasNameUpdate) {
+        user = await prisma.user.update({
+          where: { clerkId: request.userId },
+          data: { name },
+          select: userSelect,
+        });
+      }
+      if (hasNotificationUpdate) {
+        await updateNotificationPreferences(
+          request.userId,
+          notificationUpdates,
+        );
+      }
+      const notificationPreferences = await getNotificationPreferences(
+        request.userId,
+      );
+      return reply.code(200).send({ ...user, ...notificationPreferences });
+    },
+  );
   // Marcar tour como concluído
   app.patch(
     "/me/tour",
@@ -60,18 +236,19 @@ export default async function meRoutes(app) {
       if (!request.userId) {
         return reply.code(401).send({ error: "Unauthorized" });
       }
+      const concluidoEm = new Date();
       // Upsert para garantir que User existe antes de atualizar
       await prisma.user.upsert({
         where: { clerkId: request.userId },
-        update: { tourConcluidoEm: new Date() },
+        update: { tourConcluidoEm: concluidoEm },
         create: {
           clerkId: request.userId,
-          email: request.userEmail ?? `${request.userId}@placeholder.local`,
+          email: request.userEmail ?? fallbackEmail(request.userId),
           name: request.userName ?? null,
-          tourConcluidoEm: new Date(),
+          tourConcluidoEm: concluidoEm,
         },
       });
-      return reply.code(200).send({ ok: true });
+      return reply.code(200).send({ ok: true, tourConcluidoEm: concluidoEm });
     },
   );
 }

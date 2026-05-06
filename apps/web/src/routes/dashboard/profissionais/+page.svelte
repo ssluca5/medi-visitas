@@ -59,6 +59,21 @@
 	let filtroEstagio = $state('');
 	let filtroClassificacao = $state('');
 
+	let temFiltrosAtivos = $derived(
+		!!filtroBusca || !!filtroPotencial || !!filtroEstagio || !!filtroClassificacao
+	);
+
+	// Total real de profissionais cadastrados (sem filtros)
+	let totalCadastrados = $state(0);
+
+	function limparFiltros() {
+		filtroBusca = '';
+		filtroPotencial = '';
+		filtroEstagio = '';
+		filtroClassificacao = '';
+		fetchProfissionais(1);
+	}
+
 	// Sheet
 	let sheetOpen = $state(false);
 	let profissionalEmEdicao = $state<ProfissionalFormData | null>(null);
@@ -261,6 +276,10 @@
 			
 			if (json.pagination) {
 				pagination = json.pagination;
+				// Atualiza total cadastrados apenas quando não há filtros
+				if (!temFiltrosAtivos) {
+					totalCadastrados = json.pagination.total;
+				}
 			}
 
 		} catch (err) {
@@ -577,18 +596,18 @@
 </svelte:head>
 
 <!-- Page Header -->
-<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-	<div class="flex items-center gap-3">
-		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+<div class="page-header">
+	<div class="page-header-main">
+		<div class="page-header-icon">
 			<Users class="h-4.5 w-4.5 text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Profissionais</h1>
-			<p class="text-[11px] text-[rgb(var(--slate-400))]">Gerencie o cadastro e a classificação dos médicos</p>
+			<h1 class="page-title">Profissionais</h1>
+			<p class="page-description">Gerencie o cadastro e a classificação dos médicos</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
-		{#if profissionais.length > 0}
+		{#if totalCadastrados > 0 || profissionais.length > 0}
 			<Button onclick={handleNovoProfissional} class="inline-flex gap-2">
 				<Plus class="h-4 w-4" />
 				<span class="hidden sm:inline">Novo Profissional</span>
@@ -654,7 +673,7 @@
 	<div class="card-surface flex items-center justify-center py-20" role="status" aria-live="polite">
 		<div class="flex flex-col items-center gap-3">
 			<div class="h-8 w-8 animate-spin rounded-full border-2 border-[rgb(var(--slate-200))] border-t-blue-600" aria-hidden="true"></div>
-			<span class="text-sm text-[rgb(var(--slate-400))]">Carregando profissionais...</span>
+			<span class="text-muted-standard">Carregando profissionais...</span>
 		</div>
 	</div>
 {:else if error}
@@ -663,18 +682,23 @@
 			<Users class="h-6 w-6 text-red-400" />
 		</div>
 		<div class="text-center">
-			<p class="text-sm font-medium text-[rgb(var(--slate-700))]">Erro ao carregar</p>
-			<p class="text-xs text-[rgb(var(--slate-400))] mt-1">{error}</p>
+			<p class="table-cell-primary">Erro ao carregar</p>
+			<p class="table-cell-secondary mt-1">{error}</p>
 		</div>
 		<Button variant="outline" size="sm" onclick={() => fetchProfissionais(1)}>
 			Tentar novamente
 		</Button>
 	</div>
+{:else if profissionais.length === 0 && temFiltrosAtivos}
+	<div class="card-surface py-12 flex flex-col items-center justify-center text-center">
+		<p class="text-muted-standard">Nenhum profissional encontrado com esses filtros.</p>
+		<Button class="mt-4" variant="outline" onclick={limparFiltros}>Limpar Filtros</Button>
+	</div>
 {:else if profissionais.length === 0}
 	<EmptyState
 		icon={Users}
-		titulo="Nenhum profissional encontrado"
-		descricao="Use os filtros acima ou adicione um novo"
+		titulo="Nenhum profissional cadastrado"
+		descricao="Cadastre seu primeiro profissional para começar."
 	>
 		<Button onclick={handleNovoProfissional} class="inline-flex gap-2">
 			<Plus class="h-4 w-4" />
@@ -683,16 +707,16 @@
 		</Button>
 	</EmptyState>
 {:else}
-	<div class="card-surface overflow-hidden">
-		<table class="table-fixed w-full" aria-label="Lista de profissionais">
+	<div class="table-shell">
+		<table class="data-table" aria-label="Lista de profissionais">
 			<thead>
-				<tr class="border-b border-[rgb(var(--slate-100))]">
-					<th class="p-3.5 text-left text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[24%]">Nome</th>
-					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[18%]">Especialidade</th>
-					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[16%]">Subespecialidade</th>
-					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Potencial</th>
-					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[12%]">Estágio</th>
-					<th class="p-3.5 text-center text-xs font-medium text-[rgb(var(--slate-400))] uppercase tracking-wider w-[18%]">Ações</th>
+				<tr>
+					<th class="table-head-cell text-left w-[24%]">Nome</th>
+					<th class="table-head-cell text-center w-[18%]">Especialidade</th>
+					<th class="table-head-cell text-center w-[16%]">Subespecialidade</th>
+					<th class="table-head-cell text-center w-[12%]">Potencial</th>
+					<th class="table-head-cell text-center w-[12%]">Estágio</th>
+					<th class="table-head-cell text-center w-[18%]">Ações</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -703,7 +727,7 @@
 						class:opacity-50={!isAtivo}
 						onclick={() => handleEditarProfissional(prof)}
 					>
-						<td class="p-3.5">
+						<td class="table-cell">
 							<div class="flex items-center gap-3">
 								<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold shadow-sm"
 									class:bg-blue-600={isAtivo}
@@ -716,40 +740,40 @@
 									{prof.nome.charAt(0).toUpperCase()}
 								</div>
 								<div class="min-w-0">
-									<p class="text-sm font-medium truncate" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
+									<p class="table-cell-primary truncate" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
 										{prof.nome}
 									</p>
-									<p class="text-xs truncate" class:text-[rgb(var(--slate-400))]={isAtivo} class:text-[rgb(var(--slate-300))]={!isAtivo}>
+									<p class="table-cell-secondary truncate" class:text-[rgb(var(--slate-400))]={isAtivo} class:text-[rgb(var(--slate-300))]={!isAtivo}>
 										{prof.crm || 'Sem CRM'}
 									</p>
 								</div>
 							</div>
 						</td>
-						<td class="p-3.5 text-center">
-							<span class="text-sm text-[rgb(var(--slate-700))] truncate block font-medium">{prof.especialidade?.nome || '—'}</span>
+						<td class="table-cell text-center">
+							<span class="table-cell-primary truncate block">{prof.especialidade?.nome || '—'}</span>
 						</td>
-						<td class="p-3.5 text-center">
-							<span class="text-sm text-[rgb(var(--slate-500))] truncate block">
+						<td class="table-cell text-center">
+							<span class="text-muted-standard truncate block">
 								{prof.subEspecialidade?.nome || '-'}
 							</span>
 						</td>
-						<td class="p-3.5 text-center">
+						<td class="table-cell text-center">
 							<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
 								{potencialConfig[prof.potencial]?.label ?? prof.potencial}
 							</span>
 						</td>
-						<td class="p-3.5 text-center">
+						<td class="table-cell text-center">
 							<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {estagioConfig[prof.estagioPipeline].class}">
 								{estagioConfig[prof.estagioPipeline].label}
 							</span>
 						</td>
-						<td class="p-3.5">
+						<td class="table-cell">
 							<div class="flex justify-center items-center gap-0.5">
 								<button
 									onclick={(e) => { e.stopPropagation(); profissionalConsulta = prof; consultaTab = 'dados'; consultaOpen = true; }}
 									aria-label="Ver detalhes de {prof.nome}"
 									title="Ver detalhes"
-									class="p-2 rounded-lg text-[rgb(var(--slate-400))] hover:text-blue-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+									class="row-action hover:text-blue-600"
 								>
 									<Eye class="w-3.5 h-3.5" />
 								</button>
@@ -758,7 +782,7 @@
 									onclick={(e) => e.stopPropagation()}
 									aria-label="Agenda e visitas de {prof.nome}"
 									title="Agenda / Visitas"
-									class="p-2 rounded-lg text-[rgb(var(--slate-400))] hover:text-emerald-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+									class="row-action hover:text-emerald-600"
 								>
 									<Calendar class="w-3.5 h-3.5" />
 								</a>
@@ -767,7 +791,7 @@
 									disabled={prof.estagioPipeline === 'PROSPECTADO' || !isAtivo}
 									aria-label="Retroceder estágio de {prof.nome}"
 									title="Retroceder estágio"
-									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+									class="row-action disabled:opacity-20 disabled:cursor-not-allowed"
 								>
 									<ArrowLeft class="w-3.5 h-3.5" />
 								</button>
@@ -776,7 +800,7 @@
 									disabled={prof.estagioPipeline === 'FIDELIZADO' || !isAtivo}
 									aria-label="Avançar estágio de {prof.nome}"
 									title="Avançar estágio"
-									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+									class="row-action disabled:opacity-20 disabled:cursor-not-allowed"
 								>
 									<ArrowRight class="w-3.5 h-3.5" />
 								</button>
@@ -784,7 +808,7 @@
 									onclick={(e) => { e.stopPropagation(); handleToggleAtivo(prof); }}
 									aria-label={isAtivo ? `Inativar ${prof.nome}` : `Ativar ${prof.nome}`}
 									title={isAtivo ? 'Inativar' : 'Ativar'}
-									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {isAtivo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
+									class="row-action {isAtivo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
 								>
 									{#if isAtivo}
 										<Power class="w-3.5 h-3.5" />
@@ -796,7 +820,7 @@
 									onclick={(e) => { e.stopPropagation(); handleExcluirProfissional(prof); }}
 									aria-label="Excluir {prof.nome}"
 									title="Excluir"
-									class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+									class="row-action hover:text-red-600"
 								>
 									<Trash2 class="w-3.5 h-3.5" />
 								</button>
@@ -811,7 +835,7 @@
 	<!-- Pagination -->
 	{#if pagination.totalPages > 1}
 		<nav aria-label="Paginação de profissionais" class="mt-4 flex items-center justify-between">
-			<p class="text-xs text-[rgb(var(--slate-400))]" aria-live="polite">
+			<p class="table-cell-secondary" aria-live="polite">
 				Página {pagination.page} de {pagination.totalPages} · {pagination.total} total
 			</p>
 			<div class="flex gap-1.5">
@@ -1229,11 +1253,13 @@
 			</section>
 
 			<!-- Ações -->
-			<div class="flex justify-end gap-3 pt-4 border-t border-[rgb(var(--slate-100))]">
-				<Button variant="outline" onclick={() => (sheetOpen = false)}>Cancelar</Button>
-				<Button onclick={handleSalvarProfissional}>
-					{profissionalEmEdicao ? 'Salvar Alterações' : 'Cadastrar Profissional'}
-				</Button>
+			<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
+				<div class="flex flex-col-reverse gap-3">
+					<Button type="submit" form="profissionalForm" onclick={handleSalvarProfissional} class="w-full">
+						{profissionalEmEdicao ? 'Salvar Alterações' : 'Cadastrar Profissional'}
+					</Button>
+					<Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full">Cancelar</Button>
+				</div>
 			</div>
 		</div>
 	{/snippet}

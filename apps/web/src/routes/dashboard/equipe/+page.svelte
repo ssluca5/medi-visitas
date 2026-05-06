@@ -123,14 +123,14 @@
 
 <div class="space-y-6 max-w-5xl mx-auto">
   <!-- Header -->
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <div class="flex items-center gap-3">
+  <div class="page-header">
+    <div class="page-header-main">
       <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 shadow-sm text-white">
         <Users class="h-5 w-5" />
       </div>
       <div>
-        <h1 class="text-xl font-bold text-[rgb(var(--slate-800))]">Gestão de Equipe</h1>
-        <p class="text-sm text-[rgb(var(--slate-500))]">Gerencie os membros da sua organização e convites pendentes.</p>
+        <h1 class="page-title">Gestão de Equipe</h1>
+        <p class="page-description">Gerencie os membros da sua organização e convites pendentes.</p>
       </div>
     </div>
     
@@ -148,7 +148,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Membros Ativos -->
     <div class="lg:col-span-2 space-y-4">
-      <h2 class="text-base font-semibold text-[rgb(var(--slate-700))]">Membros da Equipe</h2>
+      <h2 class="section-title">Membros da Equipe</h2>
       
       <div class="bg-white border border-[rgb(var(--slate-200))] rounded-xl overflow-hidden shadow-sm">
         {#if membros.length === 0}

@@ -2,7 +2,8 @@
   import Sheet from './Sheet.svelte';
   import Button from './Button.svelte';
   import MaterialSelector from './MaterialSelector.svelte';
-  import { Search } from 'lucide-svelte';
+  import ModalGravacao from './ModalGravacao.svelte';
+  import { Search, Volume2 } from 'lucide-svelte';
   import ConfirmDialog from './ConfirmDialog.svelte';
   import type { Visita, MaterialTecnico, StatusVisita, VisitaMaterial, Profissional } from '$lib/types';
   import { apiFetch } from '$lib/api';
@@ -26,6 +27,7 @@
 
   let loading = $state(false);
   let confirmDeleteOpen = $state(false);
+  let modalGravacaoAberto = $state(false);
 
   // Estado local do form
   let status = $state<StatusVisita>('AGENDADA');
@@ -299,7 +301,7 @@
                       <button
                         type="button"
                         onclick={() => { selectedProfissionalForNew = prof; isComboBoxOpen = false; searchQuery = ''; }}
-                        class="w-full text-left px-4 py-2 text-sm hover:bg-[rgb(var(--slate-50))] transition-colors"
+                        class="w-full text-left px-4 py-2 text-sm hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer"
                       >
                         <div class="font-medium text-[rgb(var(--slate-800))]">{prof.nome}</div>
                         {#if prof.especialidade}
@@ -440,35 +442,44 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="mt-auto border-t border-[rgb(var(--slate-100))] pt-4 pb-2">
-      <div class="flex justify-between gap-3">
-        {#if canDelete}
-          <Button variant="destructive" type="button" onclick={handleExcluir} disabled={loading}>
-            Excluir
-          </Button>
-        {:else}
-           <div></div>
-        {/if}
-
-        <div class="flex gap-3 ml-auto">
-          {#if isReadOnly}
-            <Button variant="outline" type="button" onclick={onclose}>
-              Fechar
-            </Button>
-          {:else}
-            <Button variant="outline" type="button" onclick={onclose} disabled={loading}>
-              Cancelar
-            </Button>
-            <Button type="submit" form="visitaForm" disabled={loading || (!profissionalId && !visita?.profissionalId && !selectedProfissionalForNew?.id)}>
-              {#if loading}
-                Salvando...
-              {:else}
-                Salvar Visita
-              {/if}
+    <div class="mt-auto border-t border-[rgb(var(--slate-100))] py-5 bg-[rgb(var(--slate-50))]">
+      {#if isReadOnly}
+        <Button variant="outline" type="button" onclick={onclose} class="w-full">
+          Fechar
+        </Button>
+      {:else}
+        <div class="flex flex-col-reverse gap-3">
+          {#if canDelete}
+            <Button variant="destructive" type="button" onclick={handleExcluir} disabled={loading} class="w-full">
+              Excluir
             </Button>
           {/if}
+
+          <Button type="submit" form="visitaForm" disabled={loading || (!profissionalId && !visita?.profissionalId && !selectedProfissionalForNew?.id)} class="w-full">
+            {#if loading}
+              Salvando...
+            {:else}
+              Salvar Visita
+            {/if}
+          </Button>
+
+          {#if visita?.id && (status === 'AGENDADA' || status === 'REALIZADA')}
+            <button
+              type="button"
+              onclick={() => modalGravacaoAberto = true}
+              class="w-full h-10 px-3 text-sm font-medium border rounded-lg flex items-center justify-center gap-1.5 transition-colors bg-white hover:bg-[rgb(var(--slate-50))] cursor-pointer"
+              style="border-color: var(--pipeline-interessado); color: var(--pipeline-interessado);"
+            >
+              <Volume2 class="w-4 h-4" />
+              Gravar com IA
+            </button>
+          {/if}
+
+          <Button variant="outline" type="button" onclick={onclose} disabled={loading} class="w-full">
+            Cancelar
+          </Button>
         </div>
-      </div>
+      {/if}
     </div>
   </div>
 </Sheet>
@@ -485,3 +496,19 @@
     <p>A exclusão de dados é permanente. Tem certeza que deseja prosseguir?</p>
   {/snippet}
 </ConfirmDialog>
+
+{#if visita?.id && modalGravacaoAberto}
+  <ModalGravacao
+    bind:open={modalGravacaoAberto}
+    visitaId={visita.id}
+    profissionalEstagio={visita.profissional?.estagioPipeline}
+    {sessionToken}
+    onclose={() => modalGravacaoAberto = false}
+    onsave={(campos) => {
+      resumo = campos.resumo;
+      proximaAcao = campos.proximaAcao;
+      objetivoVisita = campos.objetivoVisita;
+      modalGravacaoAberto = false;
+    }}
+  />
+{/if}

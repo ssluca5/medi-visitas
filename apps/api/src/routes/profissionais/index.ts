@@ -120,6 +120,7 @@ export default async function profissionaisRoutes(
         potencial,
         estagioPipeline,
         especialidadeId,
+        classificacao,
       } = query;
 
       const where: Record<string, unknown> = buildTenantWhere(request);
@@ -142,6 +143,9 @@ export default async function profissionaisRoutes(
       }
       if (especialidadeId) {
         where.especialidadeId = especialidadeId;
+      }
+      if (classificacao) {
+        where.classificacao = classificacao;
       }
 
       // Contar total

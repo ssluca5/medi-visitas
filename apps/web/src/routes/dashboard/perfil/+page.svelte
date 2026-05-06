@@ -9,11 +9,12 @@
 		Building2,
 		RotateCcw,
 		Moon,
+		Pencil,
 	} from "lucide-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
 	import { apiFetch } from "$lib/api";
 	import { toast } from "$lib/stores/toast.svelte";
-	import { goto } from "$app/navigation";
+	import { goto, invalidateAll } from "$app/navigation";
 
 	interface Props {
 		data: {
@@ -24,6 +25,10 @@
 				organizationId: string | null;
 				role: string | null;
 				tourConcluidoEm: string | null;
+				notifVisitasDia: boolean;
+				notifSemVisitaRecente: boolean;
+				notifAgendaNaoRealizada: boolean;
+				notifLembretesAuto: boolean;
 			} | null;
 			billing: {
 				plano: string;
@@ -49,6 +54,27 @@
 	let resetingTour = $state(false);
 	let temaEscuro = $state(false);
 	let temaCarregado = $state(false);
+
+	let isEditingName = $state(false);
+	let editedName = $state("");
+
+	let notifVisitasDia = $state(data.me?.notifVisitasDia ?? true);
+	let notifSemVisitaRecente = $state(data.me?.notifSemVisitaRecente ?? true);
+	let notifAgendaNaoRealizada = $state(data.me?.notifAgendaNaoRealizada ?? true);
+	let notifLembretesAuto = $state(data.me?.notifLembretesAuto ?? true);
+
+	type PreferenceField =
+		| "notifVisitasDia"
+		| "notifSemVisitaRecente"
+		| "notifAgendaNaoRealizada"
+		| "notifLembretesAuto";
+
+	const preferenceLabels: Record<PreferenceField, string> = {
+		notifVisitasDia: "Visitas do dia",
+		notifSemVisitaRecente: "Profissionais sem visita recente",
+		notifAgendaNaoRealizada: "Agendamentos não realizados",
+		notifLembretesAuto: "Lembretes automáticos",
+	};
 
 	const tabs = [
 		{ id: "conta", label: "Conta", icon: User },
@@ -129,6 +155,52 @@
 		}
 	}
 
+	async function savePreferences(field: PreferenceField, value: boolean) {
+		try {
+			const res = await apiFetch("/me", data.sessionToken, {
+				method: "PATCH",
+				body: JSON.stringify({
+					[field]: value,
+				}),
+			});
+			if (res.ok) {
+				toast.sucesso(
+					`${preferenceLabels[field]} ${value ? "marcada" : "desmarcada"}.`,
+				);
+			} else {
+				toast.erro("Erro ao salvar preferência.");
+			}
+		} catch {
+			toast.erro("Erro de conexão. Tente novamente.");
+		}
+	}
+
+	async function saveName() {
+		if (!editedName.trim()) {
+			toast.erro("O nome não pode estar vazio.");
+			return;
+		}
+		try {
+			const res = await apiFetch("/me", data.sessionToken, {
+				method: "PATCH",
+				body: JSON.stringify({ name: editedName.trim() }),
+			});
+			if (res.ok) {
+				const updated = await res.json();
+				const nextName = updated.name ?? editedName.trim();
+				toast.sucesso("Nome atualizado com sucesso!");
+				isEditingName = false;
+				editedName = nextName;
+				if (data.me) data.me.name = nextName;
+				await invalidateAll();
+			} else {
+				toast.erro("Erro ao atualizar o nome.");
+			}
+		} catch {
+			toast.erro("Erro de conexão.");
+		}
+	}
+
 	function solicitarRedefinicaoSenha() {
 		toast.info(
 			"Um link de redefinição será enviado para " +
@@ -177,18 +249,18 @@
 </svelte:head>
 
 <!-- Page Header -->
-<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-	<div class="flex items-center gap-3">
+<div class="page-header">
+	<div class="page-header-main">
 		<div
 			class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm"
 		>
 			<User class="h-4.5 w-4.5 text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">
+			<h1 class="page-title">
 				Meu Perfil
 			</h1>
-			<p class="text-[11px] text-[rgb(var(--slate-400))]">
+			<p class="page-description">
 				Gerencie suas informações pessoais e de segurança
 			</p>
 		</div>
@@ -227,22 +299,35 @@
 				class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100"
 			>
 				<!-- Seção Nome -->
-				<div
-					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
-				>
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 					<div>
 						<p class="text-sm font-medium text-slate-900">Nome</p>
 						<p class="text-sm text-slate-500 mt-1">
 							Como você quer ser chamado.
 						</p>
 					</div>
-					<div class="sm:text-right">
-						<p class="text-sm font-medium text-slate-900">
-							{data.me?.name || "Não configurado"}
-						</p>
-						<p class="text-xs text-slate-500 mt-1">
-							Gerenciado pela sua conta de login
-						</p>
+					<div class="sm:text-right flex items-center justify-end gap-3">
+						{#if isEditingName}
+							<input type="text" bind:value={editedName} class="border border-slate-200 rounded-md px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full sm:w-auto" placeholder="Seu nome" onkeydown={(e) => e.key === 'Enter' && saveName()} />
+							<div class="flex gap-1">
+								<Button variant="outline" size="sm" onclick={() => isEditingName = false}>Cancelar</Button>
+								<Button size="sm" onclick={saveName}>Salvar</Button>
+							</div>
+						{:else}
+							<div class="flex flex-col items-end">
+								<p class="text-[14px] text-[rgb(var(--slate-600))]">
+									{data.me?.name || "Não configurado"}
+								</p>
+								{#if !data.me?.name}
+									<p class="text-xs text-slate-500 mt-1">
+										Gerenciado pela sua conta de login
+									</p>
+								{/if}
+							</div>
+							<Button variant="ghost" size="icon" class="h-8 w-8 text-slate-400 hover:text-slate-600" onclick={() => { editedName = data.me?.name || ""; isEditingName = true; }}>
+								<Pencil class="h-4 w-4" />
+							</Button>
+						{/if}
 					</div>
 				</div>
 
@@ -259,7 +344,7 @@
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-[14px] text-[rgb(var(--slate-600))]">
 							{data.me?.email || "E-mail não encontrado"}
 						</p>
 					</div>
@@ -306,7 +391,7 @@
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-base font-semibold text-slate-900">
+						<p class="text-[14px] text-[rgb(var(--slate-600))]">
 							{#if data.billing?.status === "TRIAL_ATIVO"}Trial
 								gratuito
 							{:else}{getPlanoLabel(data.billing?.plano)}{/if}
@@ -367,7 +452,11 @@
 						href="/planos"
 						class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm"
 					>
-						Gerenciar plano
+						{#if data.billing?.status === "TRIAL_ATIVO"}
+							Assinar plano
+						{:else}
+							Gerenciar plano
+						{/if}
 					</a>
 				</div>
 			</div>
@@ -386,7 +475,7 @@
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-[14px] text-[rgb(var(--slate-600))]">
 							{data.org?.nome || "Organização individual"}
 						</p>
 					</div>
@@ -424,7 +513,7 @@
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-[14px] text-[rgb(var(--slate-600))]">
 							{data.org?.limiteUsuarios === 1
 								? "Individual"
 								: "Equipe"}
@@ -444,7 +533,7 @@
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-sm text-slate-900">
+						<p class="text-[14px] text-[rgb(var(--slate-600))]">
 							{data.org?.createdAt
 								? new Intl.DateTimeFormat("pt-BR", {
 										day: "2-digit",
@@ -471,12 +560,13 @@
 						</p>
 					</div>
 					<div>
-						<button
+						<Button
+							variant="outline"
 							onclick={solicitarRedefinicaoSenha}
-							class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm w-full sm:w-auto cursor-pointer"
+							class="w-full sm:w-auto"
 						>
 							Alterar senha
-						</button>
+						</Button>
 					</div>
 				</div>
 
@@ -493,12 +583,13 @@
 						</p>
 					</div>
 					<div>
-						<button
+						<Button
+							variant="outline"
 							onclick={configurar2FA}
-							class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm w-full sm:w-auto cursor-pointer"
+							class="w-full sm:w-auto"
 						>
 							Configurar
-						</button>
+						</Button>
 					</div>
 				</div>
 
@@ -544,7 +635,7 @@
 					<label
 						class="relative inline-flex items-center cursor-pointer shrink-0"
 					>
-						<input type="checkbox" checked class="sr-only peer" />
+						<input type="checkbox" bind:checked={notifVisitasDia} onchange={() => savePreferences("notifVisitasDia", notifVisitasDia)} class="sr-only peer" />
 						<div
 							class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
 								after:content-[''] after:absolute after:top-0.5 after:left-[2px]
@@ -570,7 +661,7 @@
 					<label
 						class="relative inline-flex items-center cursor-pointer shrink-0"
 					>
-						<input type="checkbox" checked class="sr-only peer" />
+						<input type="checkbox" bind:checked={notifSemVisitaRecente} onchange={() => savePreferences("notifSemVisitaRecente", notifSemVisitaRecente)} class="sr-only peer" />
 						<div
 							class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
 								after:content-[''] after:absolute after:top-0.5 after:left-[2px]
@@ -596,7 +687,7 @@
 					<label
 						class="relative inline-flex items-center cursor-pointer shrink-0"
 					>
-						<input type="checkbox" checked class="sr-only peer" />
+						<input type="checkbox" bind:checked={notifAgendaNaoRealizada} onchange={() => savePreferences("notifAgendaNaoRealizada", notifAgendaNaoRealizada)} class="sr-only peer" />
 						<div
 							class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
 								after:content-[''] after:absolute after:top-0.5 after:left-[2px]
@@ -697,11 +788,17 @@
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<span
-							class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20"
+						<label
+							class="relative inline-flex items-center cursor-pointer shrink-0"
 						>
-							Ativos
-						</span>
+							<input type="checkbox" bind:checked={notifLembretesAuto} onchange={() => savePreferences("notifLembretesAuto", notifLembretesAuto)} class="sr-only peer" />
+							<div
+								class="w-11 h-6 rounded-full peer peer-checked:bg-blue-600 bg-slate-200
+									after:content-[''] after:absolute after:top-0.5 after:left-[2px]
+									after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
+									after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white shadow-sm border border-slate-200 peer-checked:border-blue-600"
+							></div>
+						</label>
 					</div>
 				</div>
 			</div>

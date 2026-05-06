@@ -221,14 +221,14 @@
 
 <div class="flex flex-col h-full overflow-hidden">
 	<!-- Top bar -->
-	<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-		<div class="flex items-center gap-3">
-			<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
+	<div class="page-header">
+		<div class="page-header-main">
+			<div class="page-header-icon">
 				<CalendarDays class="h-4.5 w-4.5 text-white" />
 			</div>
 			<div>
-				<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Agenda</h1>
-				<p class="text-[11px] text-[rgb(var(--slate-400))]">Planeje visitas e acompanhe compromissos</p>
+				<h1 class="page-title">Agenda</h1>
+				<p class="page-description">Planeje visitas e acompanhe compromissos</p>
 			</div>
 		</div>
 
@@ -337,4 +337,3 @@
 		ondelete={handleVisitaDelete}
 	/>
 {/await}
-

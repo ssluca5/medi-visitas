@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import { invalidateAll } from '$app/navigation';
 	import { apiFetch } from '$lib/api';
 	import { Users, Calendar, BarChart3, Stethoscope, Package, ArrowRight, X, Check } from 'lucide-svelte';
 
 	interface Props {
 		sessionToken: string | null;
-		onclose?: () => void;
 	}
 
-	let { sessionToken, onclose }: Props = $props();
+	let { sessionToken }: Props = $props();
 
 	let currentStep = $state(0);
 	let visible = $state(true);
+	let saving = $state(false);
+	let erro = $state(false);
 
 	// Retângulo de recorte (spotlight) calculado a partir do elemento alvo
 	let cutout = $state<{ x: number; y: number; w: number; h: number } | null>(null);
@@ -142,14 +144,21 @@
 	}
 
 	async function concluirTour() {
-		visible = false;
-		cutout = null;
+		if (saving) return;
+		saving = true;
+		erro = false;
 		try {
-			await apiFetch('/me/tour', sessionToken, { method: 'PATCH' });
+			const res = await apiFetch('/me/tour', sessionToken, { method: 'PATCH' });
+			if (!res.ok) throw new Error(`Erro ${res.status} ao salvar tour`);
+			await invalidateAll();
+			visible = false;
+			cutout = null;
 		} catch (e) {
 			console.error('Erro ao salvar tour:', e);
+			erro = true;
+		} finally {
+			saving = false;
 		}
-		onclose?.();
 	}
 
 	function pular() {
@@ -263,7 +272,11 @@
 				</div>
 
 				<!-- Footer -->
-				<div class="px-6 pb-5 flex items-center justify-between">
+				<div class="px-6 pb-5">
+					{#if erro}
+						<p class="text-[11px] text-red-500 text-center mb-2">Erro ao salvar. Tente novamente.</p>
+					{/if}
+					<div class="flex items-center justify-between">
 					<!-- Indicadores -->
 					<div class="flex gap-1.5">
 						{#each steps as step, i}
@@ -280,14 +293,16 @@
 						{#if currentStep > 0}
 							<button
 								onclick={prevStep}
-								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] transition-colors cursor-pointer hover:bg-gray-50"
+								disabled={saving}
+								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] transition-colors cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Anterior
 							</button>
 						{:else}
 							<button
 								onclick={pular}
-								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg text-[rgb(var(--slate-400))] transition-colors cursor-pointer hover:bg-gray-50"
+								disabled={saving}
+								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg text-[rgb(var(--slate-400))] transition-colors cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Pular
 							</button>
@@ -295,10 +310,15 @@
 
 						<button
 							onclick={nextStep}
-							class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-medium rounded-lg text-white transition-all duration-200 cursor-pointer hover:-translate-y-[1px] hover:shadow-md"
+							disabled={saving}
+							class="flex items-center gap-1 px-3 py-1.5 text-[11px] font-medium rounded-lg text-white transition-all duration-200 cursor-pointer hover:-translate-y-[1px] hover:shadow-md disabled:opacity-70 disabled:cursor-wait"
 							style="background-color: {steps[currentStep].color};"
 						>
-							{#if currentStep === totalSteps - 1}
+							{#if saving}
+								Salvando...
+							{:else if erro}
+								Tentar novamente
+							{:else if currentStep === totalSteps - 1}
 								<Check class="w-3 h-3" />
 								Começar
 							{:else}
@@ -306,6 +326,7 @@
 								<ArrowRight class="w-3 h-3" />
 							{/if}
 						</button>
+					</div>
 					</div>
 				</div>
 			</div>

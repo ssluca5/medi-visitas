@@ -3,6 +3,7 @@
   import { useClerkContext } from 'svelte-clerk';
   import { Check, LogOut } from 'lucide-svelte';
   import ModalContatoEmpresarial from '$lib/components/planos/ModalContatoEmpresarial.svelte';
+  import { toast } from '$lib/stores/toast.svelte';
 
   type PlanoKey = 'BASICO' | 'PROFISSIONAL' | 'EQUIPE';
 
@@ -81,9 +82,8 @@
   let modalContatoAberto = $state(false);
   const clerkCtx = useClerkContext();
 
-  // Radio Card: plano selecionado — default no plano atual (se encerrado, pré-seleciona para renovação)
   const isEncerrado = $derived(data.status === 'SUSPENSO' || data.status === 'CANCELADO');
-  let selectedPlan = $derived<PlanoKey | null>(data.plano as PlanoKey | null);
+  let selectedPlan = $state<PlanoKey | null>(null);
   const selectedNome = $derived(planos.find((p) => p.key === selectedPlan)?.nome ?? '');
 
   async function sair() {
@@ -154,10 +154,10 @@
   <title>Planos - MediVisitas</title>
 </svelte:head>
 
-<div class="min-h-screen" style="background-color: var(--bg-primary);">
-  <div class="w-full max-w-5xl mx-auto px-6 py-12 flex flex-col min-h-screen">
+<div class="min-h-dvh overflow-x-hidden lg:h-dvh lg:overflow-hidden" style="background-color: var(--bg-primary);">
+  <div class="w-full max-w-5xl mx-auto px-6 py-8 flex flex-col lg:h-full">
     <!-- 1. Barra superior: Voltar (esq) + Sair (dir) -->
-    <header class="flex items-center justify-between w-full mb-12">
+    <header class="flex items-center justify-between w-full mb-10">
       {#if data.status === 'ATIVO' || data.status === 'TRIAL_ATIVO'}
         <a href="/dashboard" class="text-sm font-medium transition-opacity hover:opacity-80" style="color: var(--brand-primary);">
           ← Voltar para o dashboard
@@ -180,7 +180,7 @@
     </header>
 
     <!-- 2. Cabeçalho centralizado (funil visual) -->
-    <div class="text-center mb-12 flex flex-col items-center">
+    <div class="text-center mb-10 flex flex-col items-center">
       <h1 class="text-3xl md:text-4xl font-bold mb-3" style="color: var(--text-primary);">
         {data.status === 'SUSPENSO' || data.status === 'CANCELADO'
           ? 'Sua assinatura foi encerrada'
@@ -199,7 +199,7 @@
 
     {#if error}
       <div
-        class="mb-8 rounded-lg border px-4 py-3 text-sm"
+        class="mb-7 rounded-lg border px-4 py-3 text-sm"
         style="background-color: var(--danger-light); border-color: var(--danger-border); color: var(--danger);"
       >
         {error}
@@ -207,20 +207,20 @@
     {/if}
 
     <!-- 3. Radio Cards: 3 colunas selecionáveis -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 w-full">
       {#each planos as plano}
         {@const isSelected = selectedPlan === plano.key}
         {@const isAtual = data.plano === plano.key}
         <button
           type="button"
           onclick={() => (selectedPlan = plano.key)}
-          class="relative flex flex-col p-8 rounded-2xl border-2 text-left cursor-pointer transition-all duration-200
+          class="relative flex flex-col p-7 rounded-2xl border-2 text-left cursor-pointer transition-all duration-200
             {isSelected
               ? 'border-blue-600 bg-blue-50/30 ring-4 ring-blue-600/10 shadow-md'
               : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50 shadow-sm'}"
         >
           <!-- Radio indicator -->
-          <div class="absolute top-8 right-8">
+          <div class="absolute top-7 right-7">
             <div
               class="flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors
                 {isSelected ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}"
@@ -281,18 +281,21 @@
     </div>
 
     <!-- CTA Global centralizado -->
-    <div class="w-full flex justify-center mt-10 mb-12">
+    <div class="w-full flex justify-center mt-8 mb-8">
       <button
-        disabled={!selectedPlan || loading !== null || (selectedPlan === data.plano && data.status === 'ATIVO' && !data.temStripe)}
+        disabled={loading !== null || (selectedPlan === data.plano && data.status === 'ATIVO' && !data.temStripe)}
         onclick={() => {
-          if (!selectedPlan) return;
+          if (!selectedPlan) {
+            toast.erro('Selecione um plano para continuar.');
+            return;
+          }
           if (selectedPlan === data.plano && data.status === 'ATIVO' && data.temStripe) {
             gerenciarAssinatura();
           } else {
             assinar(selectedPlan);
           }
         }}
-        class="w-full max-w-sm h-14 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-base rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+        class="w-full max-w-sm h-[52px] bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-base rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
       >
         {#if loading === 'PORTAL'}
           Abrindo portal...
@@ -312,7 +315,7 @@
 
     <!-- 4. Card Empresarial (mesma largura da grid) -->
     <div
-      class="w-full rounded-2xl border p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+      class="w-full rounded-2xl border p-6 md:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
       style="background-color: var(--bg-surface); border-color: var(--border-base);"
     >
       <div>

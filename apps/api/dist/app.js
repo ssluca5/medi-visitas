@@ -27,6 +27,7 @@ import gestorRoutes from "./routes/gestor/index.js";
 import relatoriosRoutes from "./routes/relatorios/index.js";
 import healthRoutes from "./routes/health.js";
 import contatoRoutes from "./routes/contato/index.js";
+import suporteRoutes from "./routes/suporte/index.js";
 export async function buildApp() {
   const app = Fastify({
     logger: true,
@@ -201,5 +202,6 @@ export async function buildApp() {
   await app.register(transcricoesRoutes, { prefix: "/transcricoes" });
   await app.register(gestorRoutes, { prefix: "/gestor" });
   await app.register(relatoriosRoutes, { prefix: "/relatorios" });
+  await app.register(suporteRoutes, { prefix: "/suporte" });
   return app;
 }

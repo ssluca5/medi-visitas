@@ -16,14 +16,14 @@
 </svelte:head>
 
 <!-- Page Header -->
-<div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-	<div class="flex items-center gap-3">
+<div class="page-header">
+	<div class="page-header-main">
 		<div class="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 shadow-sm">
 			<FileText class="h-[18px] w-[18px] text-white" />
 		</div>
 		<div>
-			<h1 class="text-lg font-bold text-[rgb(var(--slate-800))]">Gestão / Resumo</h1>
-			<p class="text-[11px] text-[rgb(var(--slate-400))]">Métricas e performance de toda a organização</p>
+			<h1 class="page-title">Gestão / Resumo</h1>
+			<p class="page-description">Métricas e performance de toda a organização</p>
 		</div>
 	</div>
 </div>
@@ -63,11 +63,11 @@
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 		<!-- Pipeline Aggregation -->
 		<div class="card-surface p-5 h-full">
-			<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Evolução do Funil (Agregada)</h3>
+			<h3 class="section-title mb-4">Evolução do Funil (Agregada)</h3>
 			<div class="space-y-4">
 				{#each Object.entries(pipeline || {}) as [estagio, total]}
 					<div class="flex items-center justify-between">
-						<span class="text-sm text-[rgb(var(--slate-700))] font-medium capitalize">{estagio.toLowerCase()}</span>
+						<span class="table-cell-primary capitalize">{estagio.toLowerCase()}</span>
 						<span class="text-sm font-bold text-[rgb(var(--slate-900))] bg-[rgb(var(--slate-100))] px-2.5 py-1 rounded-md">{total}</span>
 					</div>
 					{#if estagio !== 'FIDELIZADO'}
@@ -79,7 +79,7 @@
 
 		<!-- Recent Visits -->
 		<div class="card-surface p-5 h-full">
-			<h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Últimas Visitas Realizadas</h3>
+			<h3 class="section-title mb-4">Últimas Visitas Realizadas</h3>
 			<div class="space-y-2.5">
 				{#each visitasRecentes as visita}
 					<div class="flex items-center gap-3 p-3 rounded-lg bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-100))]">
@@ -89,17 +89,17 @@
 							</span>
 						</div>
 						<div class="min-w-0 flex-1">
-							<p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate">
+							<p class="table-cell-primary truncate">
 								{visita.profissional?.nome ?? 'Profissional'}
 							</p>
-							<p class="text-[11px] text-[rgb(var(--slate-400))] truncate">
+							<p class="table-cell-secondary truncate">
 								Representante: {visita.userName}
 							</p>
 						</div>
 						<StatusVisitaBadge status={visita.status} />
 					</div>
 				{:else}
-					<p class="text-sm text-[rgb(var(--slate-500))]">Nenhuma visita encontrada.</p>
+					<p class="text-muted-standard">Nenhuma visita encontrada.</p>
 				{/each}
 			</div>
 		</div>
