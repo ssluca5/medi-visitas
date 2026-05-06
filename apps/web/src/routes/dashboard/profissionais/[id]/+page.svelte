@@ -191,26 +191,26 @@
           <div class="space-y-3">
             {#if profissional.crm}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">CRM</span>
-                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{profissional.crm}</span>
+                <span class="eyebrow-text">CRM</span>
+                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{profissional.crm}</span>
               </div>
             {/if}
             {#if profissional.cpfCnpj}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">CPF/CNPJ</span>
-                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{profissional.cpfCnpj}</span>
+                <span class="eyebrow-text">CPF/CNPJ</span>
+                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{profissional.cpfCnpj}</span>
               </div>
             {/if}
             {#if profissional.sexo}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">Sexo</span>
-                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{sexoLabels[profissional.sexo] ?? profissional.sexo}</span>
+                <span class="eyebrow-text">Sexo</span>
+                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{sexoLabels[profissional.sexo] ?? profissional.sexo}</span>
               </div>
             {/if}
             {#if profissional.dataNascimento}
               <div class="flex justify-between">
-                <span class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider">Nasc.</span>
-                <span class="text-[13px] font-semibold text-[rgb(var(--slate-900))]">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+                <span class="eyebrow-text">Nasc.</span>
+                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
               </div>
             {/if}
           </div>
@@ -218,7 +218,7 @@
           <!-- Observações -->
           {#if profissional.observacoes}
             <hr class="border-[rgb(var(--slate-100))] my-4">
-            <p class="text-[13px] font-medium text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-3 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
+            <p class="text-sm text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-3 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
           {/if}
 
           <!-- Botão Editar -->
@@ -398,17 +398,17 @@
                 <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                   <Briefcase class="w-4 h-4 text-blue-600" />
                 </div>
-                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Informações Profissionais</h3>
+                <h3 class="eyebrow-text">Informações Profissionais</h3>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                 <div>
-                  <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Nome Completo</p>
-                  <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{getNomeCompleto(profissional)}</p>
+                  <p class="eyebrow-text mb-1">Nome Completo</p>
+                  <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{getNomeCompleto(profissional)}</p>
                 </div>
                 {#if profissional.especialidade}
                   <div>
-                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Especialidade</p>
-                    <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">
+                    <p class="eyebrow-text mb-1">Especialidade</p>
+                    <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">
                       {profissional.especialidade.nome}
                       {#if profissional.subEspecialidade}
                         <span class="text-[rgb(var(--slate-400))] font-normal"> · {profissional.subEspecialidade.nome}</span>
@@ -418,13 +418,13 @@
                 {/if}
                 {#if profissional.crm}
                   <div>
-                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">CRM</p>
-                    <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{profissional.crm}</p>
+                    <p class="eyebrow-text mb-1">CRM</p>
+                    <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{profissional.crm}</p>
                   </div>
                 {/if}
                 {#if profissional.potencial}
                   <div>
-                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Potencial</p>
+                    <p class="eyebrow-text mb-1">Potencial</p>
                     <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold tracking-wider {potencialConfig[profissional.potencial]?.class ?? ''}">
                       {potencialConfig[profissional.potencial]?.label ?? profissional.potencial}
                     </span>
@@ -432,7 +432,7 @@
                 {/if}
                 {#if profissional.estagioPipeline}
                   <div>
-                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Estágio Pipeline</p>
+                    <p class="eyebrow-text mb-1">Estágio Pipeline</p>
                     <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold tracking-wider {estagioConfig[profissional.estagioPipeline]?.class ?? ''}">
                       {estagioConfig[profissional.estagioPipeline]?.label ?? profissional.estagioPipeline}
                     </span>
@@ -440,7 +440,7 @@
                 {/if}
                 {#if profissional.classificacao}
                   <div>
-                    <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Classificação</p>
+                    <p class="eyebrow-text mb-1">Classificação</p>
                     <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold tracking-wider {classificacaoConfig[profissional.classificacao]?.class ?? ''}">
                       {classificacaoConfig[profissional.classificacao]?.label ?? profissional.classificacao}
                     </span>
@@ -456,31 +456,31 @@
                   <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
                     <User class="w-4 h-4 text-violet-600" />
                   </div>
-                  <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Dados Pessoais</h3>
+                  <h3 class="eyebrow-text">Dados Pessoais</h3>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                   {#if profissional.cpfCnpj}
                     <div>
-                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">CPF / CNPJ</p>
-                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{profissional.cpfCnpj}</p>
+                      <p class="eyebrow-text mb-1">CPF / CNPJ</p>
+                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{profissional.cpfCnpj}</p>
                     </div>
                   {/if}
                   {#if profissional.sexo}
                     <div>
-                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Sexo</p>
-                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{sexoLabels[profissional.sexo] ?? profissional.sexo}</p>
+                      <p class="eyebrow-text mb-1">Sexo</p>
+                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{sexoLabels[profissional.sexo] ?? profissional.sexo}</p>
                     </div>
                   {/if}
                   {#if profissional.dataNascimento}
                     <div>
-                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Data de Nascimento</p>
-                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                      <p class="eyebrow-text mb-1">Data de Nascimento</p>
+                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                     </div>
                   {/if}
                   {#if profissional.tratamento}
                     <div>
-                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Tratamento</p>
-                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{tratamentoLabels[profissional.tratamento] ?? profissional.tratamento}</p>
+                      <p class="eyebrow-text mb-1">Tratamento</p>
+                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{tratamentoLabels[profissional.tratamento] ?? profissional.tratamento}</p>
                     </div>
                   {/if}
                 </div>
@@ -494,19 +494,19 @@
                   <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center">
                     <Heart class="w-4 h-4 text-pink-600" />
                   </div>
-                  <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Cônjuge</h3>
+                  <h3 class="eyebrow-text">Cônjuge</h3>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                   {#if profissional.nomeConjuge}
                     <div>
-                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Nome</p>
-                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{profissional.nomeConjuge}</p>
+                      <p class="eyebrow-text mb-1">Nome</p>
+                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{profissional.nomeConjuge}</p>
                     </div>
                   {/if}
                   {#if profissional.dataNascConjuge}
                     <div>
-                      <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Data de Nascimento</p>
-                      <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascConjuge).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                      <p class="eyebrow-text mb-1">Data de Nascimento</p>
+                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascConjuge).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                     </div>
                   {/if}
                 </div>
@@ -520,7 +520,7 @@
                   <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
                     <FileText class="w-4 h-4 text-amber-600" />
                   </div>
-                  <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Observações</h3>
+                  <h3 class="eyebrow-text">Observações</h3>
                 </div>
                 <p class="text-sm text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-4 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
               </div>
@@ -532,7 +532,7 @@
                 <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
                   <MapPin class="w-4 h-4 text-emerald-600" />
                 </div>
-                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Contato e Endereço</h3>
+                <h3 class="eyebrow-text">Contato e Endereço</h3>
               </div>
               <DetalheContatos
                 contatos={profissional.contatos ?? []}
@@ -548,16 +548,16 @@
                 <div class="w-8 h-8 rounded-lg bg-[rgb(var(--slate-100))] flex items-center justify-center">
                   <Hash class="w-4 h-4 text-[rgb(var(--slate-500))]" />
                 </div>
-                <h3 class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-widest">Informações do Sistema</h3>
+                <h3 class="eyebrow-text">Informações do Sistema</h3>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 <div>
-                  <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Criado em</p>
-                  <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  <p class="eyebrow-text mb-1">Criado em</p>
+                  <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div>
-                  <p class="text-[11px] font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-1">Última atualização</p>
-                  <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.updatedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  <p class="eyebrow-text mb-1">Última atualização</p>
+                  <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.updatedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
               </div>
             </div>
