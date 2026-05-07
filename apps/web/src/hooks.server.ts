@@ -267,6 +267,15 @@ export const handle: Handle = async ({ event, resolve }) => {
     return resolve(event);
   }
 
+  // Dev-only E2E test bypass — cookie-based, set by Playwright
+  if (cookies.get("__e2e_test") === "true") {
+    locals.userId = "test_user_001";
+    locals.sessionToken = "e2e_test_token";
+    locals.userName = "Test User";
+    locals.userEmail = "test@example.com";
+    return resolve(event);
+  }
+
   // 1. Capturar token do redirect do Clerk
   const clerkToken =
     url.searchParams.get("__clerk_db_jwt") ??

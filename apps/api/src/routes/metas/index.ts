@@ -198,11 +198,9 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (existente.status === "ATINGIDA" || existente.status === "EXPIRADA") {
-      return reply
-        .code(400)
-        .send({
-          error: "Metas atingidas ou expiradas nao podem ser editadas.",
-        });
+      return reply.code(400).send({
+        error: "Metas atingidas ou expiradas nao podem ser editadas.",
+      });
     }
 
     if (
