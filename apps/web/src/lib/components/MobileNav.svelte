@@ -9,19 +9,20 @@
 		LogOut,
 		LayoutDashboard,
 		Package,
-		Menu
+		Menu,
+		Target
 	} from 'lucide-svelte';
 	import type { NavItem } from '$lib/types';
 	import Sheet from '$lib/components/ui/Sheet.svelte';
 	import SinoNotificacoes from '$lib/components/layout/SinoNotificacoes.svelte';
-	import { PUBLIC_LANDING_URL } from '$env/static/public';
 
 	interface Props {
 		userName: string;
 		sessionToken: string | null;
+		temMetas?: boolean;
 	}
 
-	let { userName, sessionToken }: Props = $props();
+	let { userName, sessionToken, temMetas = false }: Props = $props();
 
 	let drawerOpen = $state(false);
 
@@ -53,10 +54,9 @@
 	const clerkCtx = useClerkContext();
 
 	async function sair() {
-		const redirectUrl = PUBLIC_LANDING_URL ?? 'http://localhost:4321';
-		await clerkCtx.clerk?.signOut({ redirectUrl });
-		// Fallback caso o signOut não redirecione automaticamente
-		window.location.href = redirectUrl;
+		// Informa ao Clerk para redirecionar para a nossa rota de logout
+		// que limpa o cookie httpOnly e redireciona para o login
+		await clerkCtx.clerk?.signOut({ redirectUrl: '/logout' });
 	}
 </script>
 
@@ -120,6 +120,30 @@
 					<span>{item.label}</span>
 				</a>
 			{/each}
+
+			{#if !temMetas}
+				<span
+					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"
+					title="Disponível no Plano Profissional ou Equipe"
+				>
+					<Target class="h-[18px] w-[18px]" />
+					<span>Metas</span>
+					<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Pro</span>
+				</span>
+			{:else}
+				{@const activeMetas = isActive('/dashboard/metas')}
+				<a
+					href="/dashboard/metas"
+					onclick={closeDrawer}
+					aria-current={activeMetas ? 'page' : undefined}
+					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {activeMetas
+						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
+						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+				>
+					<Target class="h-[18px] w-[18px] {activeMetas ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+					<span>Metas</span>
+				</a>
+			{/if}
 
 			<!-- Section divider -->
 			<div class="pt-5 pb-1">

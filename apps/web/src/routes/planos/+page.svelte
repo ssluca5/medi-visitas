@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PUBLIC_API_URL, PUBLIC_LANDING_URL } from '$env/static/public';
+  import { PUBLIC_API_URL } from '$env/static/public';
   import { useClerkContext } from 'svelte-clerk';
   import { Check, LogOut } from 'lucide-svelte';
   import ModalContatoEmpresarial from '$lib/components/planos/ModalContatoEmpresarial.svelte';
@@ -46,13 +46,14 @@
     {
       key: 'PROFISSIONAL',
       nome: 'Profissional',
-      descricao: 'Para representantes que usam IA e relatórios no dia a dia.',
+      descricao: 'Para representantes que usam IA, relatórios e metas no dia a dia.',
       preco: 'R$ 149',
       suporte: '24h',
       tag: 'Mais completo',
       tagClasses: 'bg-emerald-100 text-emerald-700',
       features: [
         'Profissionais ilimitados',
+        'Metas de visitas e pipeline',
         'Tudo do Básico',
         '50 transcrições de IA por mês',
         'Pacotes adicionais de IA',
@@ -62,13 +63,14 @@
     {
       key: 'EQUIPE',
       nome: 'Equipe',
-      descricao: 'Para gestores com até 10 propagandistas na mesma operação.',
+      descricao: 'Para gestores com até 10 propagandistas e distribuição de metas.',
       preco: 'R$ 349',
       suporte: '4h',
       tag: 'Para times',
       tagClasses: 'bg-purple-100 text-purple-700',
       features: [
         'Tudo do Profissional',
+        'Metas distribuídas pelo gestor',
         'Até 10 usuários na equipe',
         '200 transcrições compartilhadas',
         'Dashboard do gestor',
@@ -87,9 +89,10 @@
   const selectedNome = $derived(planos.find((p) => p.key === selectedPlan)?.nome ?? '');
 
   async function sair() {
-    const redirectUrl = PUBLIC_LANDING_URL ?? 'http://localhost:4321';
-    await clerkCtx.clerk?.signOut({ redirectUrl });
-    window.location.href = redirectUrl;
+    // 1. Invalidar sessão no Clerk (sem redirect automático)
+    await clerkCtx.clerk?.signOut();
+    // 2. Rota server-side deleta o cookie httpOnly e redireciona para /login
+    window.location.href = '/logout';
   }
 
   async function assinar(plano: PlanoKey) {

@@ -104,6 +104,7 @@ export default async function profissionaisRoutes(app) {
         potencial,
         estagioPipeline,
         especialidadeId,
+        classificacao,
       } = query;
       const where = buildTenantWhere(request);
       // Filtro de busca textual (nome, crm, email)
@@ -123,6 +124,9 @@ export default async function profissionaisRoutes(app) {
       }
       if (especialidadeId) {
         where.especialidadeId = especialidadeId;
+      }
+      if (classificacao) {
+        where.classificacao = classificacao;
       }
       // Contar total
       const total = await prisma.profissional.count({ where });

@@ -9,6 +9,7 @@
 		LogOut,
 		LayoutDashboard,
 		Package,
+		Target,
 		PanelLeftClose,
 		PanelLeft,
 	} from "lucide-svelte";
@@ -26,6 +27,7 @@
 		statusOrg?: string;
 		temRelatorios?: boolean;
 		temGestaoEquipe?: boolean;
+		temMetas?: boolean;
 	}
 
 	let {
@@ -37,6 +39,7 @@
 		statusOrg,
 		temRelatorios = false,
 		temGestaoEquipe = false,
+		temMetas = false,
 	}: Props = $props();
 
 	let diasRestantes = $derived.by(() => {
@@ -154,10 +157,9 @@
 	const clerkCtx = useClerkContext();
 
 	async function sair() {
-		const redirectUrl = PUBLIC_LANDING_URL ?? "http://localhost:4321";
-		await clerkCtx.clerk?.signOut({ redirectUrl });
-		// Fallback caso o signOut não redirecione automaticamente
-		window.location.href = redirectUrl;
+		// Informa ao Clerk para redirecionar para a nossa rota de logout
+		// que limpa o cookie httpOnly e redireciona para o login
+		await clerkCtx.clerk?.signOut({ redirectUrl: '/logout' });
 	}
 
 	let userMenuOpen = $state(false);
@@ -267,6 +269,45 @@
 				{/if}
 			</a>
 		{/each}
+
+		{#if !temMetas}
+			<span
+				class={collapsed
+					? "flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed"
+					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"}
+				title="Disponível no Plano Profissional ou Equipe"
+			>
+				<Target class="h-[18px] w-[18px]" />
+				{#if !collapsed}
+					<span>Metas</span>
+					<span
+						class="ml-auto text-[10px] font-semibold"
+						style="color: var(--text-muted);">Pro</span
+					>
+				{/if}
+			</span>
+		{:else}
+			{@const activeMetas = isActive("/dashboard/metas")}
+			<a
+				href="/dashboard/metas"
+				aria-current={activeMetas ? "page" : undefined}
+				class={collapsed
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${activeMetas ? "bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]" : "text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]"}`
+					: activeMetas
+						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
+						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
+				title={collapsed ? "Metas" : undefined}
+			>
+				<Target
+					class={activeMetas
+						? "h-[18px] w-[18px] text-blue-600 transition-colors duration-200"
+						: "h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200"}
+				/>
+				{#if !collapsed}
+					<span>Metas</span>
+				{/if}
+			</a>
+		{/if}
 
 		<!-- Section Divider: Cadastros -->
 		{#if !collapsed}

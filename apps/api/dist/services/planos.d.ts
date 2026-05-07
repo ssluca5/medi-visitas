@@ -5,6 +5,7 @@ export declare const LIMITES_POR_PLANO: {
     readonly limiteUsuarios: 1;
     readonly temRelatorios: false;
     readonly temGestaoEquipe: false;
+    readonly temMetas: false;
     readonly temIa: true;
     readonly pacotesIaDisponiveis: false;
     readonly suporte: "48h";
@@ -15,6 +16,7 @@ export declare const LIMITES_POR_PLANO: {
     readonly limiteUsuarios: 1;
     readonly temRelatorios: false;
     readonly temGestaoEquipe: false;
+    readonly temMetas: false;
     readonly temIa: false;
     readonly pacotesIaDisponiveis: false;
     readonly suporte: "48h";
@@ -25,6 +27,7 @@ export declare const LIMITES_POR_PLANO: {
     readonly limiteUsuarios: 1;
     readonly temRelatorios: true;
     readonly temGestaoEquipe: false;
+    readonly temMetas: true;
     readonly temIa: true;
     readonly pacotesIaDisponiveis: true;
     readonly suporte: "24h";
@@ -35,6 +38,7 @@ export declare const LIMITES_POR_PLANO: {
     readonly limiteUsuarios: 10;
     readonly temRelatorios: true;
     readonly temGestaoEquipe: true;
+    readonly temMetas: true;
     readonly temIa: true;
     readonly pacotesIaDisponiveis: true;
     readonly suporte: "4h";
@@ -45,6 +49,7 @@ export declare const LIMITES_POR_PLANO: {
     readonly limiteUsuarios: 999999;
     readonly temRelatorios: true;
     readonly temGestaoEquipe: true;
+    readonly temMetas: true;
     readonly temIa: true;
     readonly pacotesIaDisponiveis: true;
     readonly suporte: "dedicado";
@@ -58,6 +63,7 @@ export declare function getLimitesPlano(plano: string | null | undefined):
       readonly limiteUsuarios: 1;
       readonly temRelatorios: false;
       readonly temGestaoEquipe: false;
+      readonly temMetas: false;
       readonly temIa: true;
       readonly pacotesIaDisponiveis: false;
       readonly suporte: "48h";
@@ -68,6 +74,7 @@ export declare function getLimitesPlano(plano: string | null | undefined):
       readonly limiteUsuarios: 1;
       readonly temRelatorios: false;
       readonly temGestaoEquipe: false;
+      readonly temMetas: false;
       readonly temIa: false;
       readonly pacotesIaDisponiveis: false;
       readonly suporte: "48h";
@@ -78,6 +85,7 @@ export declare function getLimitesPlano(plano: string | null | undefined):
       readonly limiteUsuarios: 1;
       readonly temRelatorios: true;
       readonly temGestaoEquipe: false;
+      readonly temMetas: true;
       readonly temIa: true;
       readonly pacotesIaDisponiveis: true;
       readonly suporte: "24h";
@@ -88,6 +96,7 @@ export declare function getLimitesPlano(plano: string | null | undefined):
       readonly limiteUsuarios: 10;
       readonly temRelatorios: true;
       readonly temGestaoEquipe: true;
+      readonly temMetas: true;
       readonly temIa: true;
       readonly pacotesIaDisponiveis: true;
       readonly suporte: "4h";
@@ -98,6 +107,7 @@ export declare function getLimitesPlano(plano: string | null | undefined):
       readonly limiteUsuarios: 999999;
       readonly temRelatorios: true;
       readonly temGestaoEquipe: true;
+      readonly temMetas: true;
       readonly temIa: true;
       readonly pacotesIaDisponiveis: true;
       readonly suporte: "dedicado";

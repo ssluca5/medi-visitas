@@ -4,8 +4,7 @@ describe("transcreverAudio", () => {
   beforeEach(() => {
     jest.resetModules();
     (globalThis as any).fetch = jest.fn();
-    process.env.MINIMAX_API_KEY = "test_key";
-    process.env.MINIMAX_GROUP_ID = "test_group";
+    process.env.GROQ_API_KEY = "test_key";
   });
 
   it("retorna texto da transcricao", async () => {
@@ -14,18 +13,18 @@ describe("transcreverAudio", () => {
       json: async () => ({ text: "Transcricao de teste" }),
     });
 
-    const { transcreverAudio } = await import("../minimax.js");
+    const { transcreverAudio } = await import("../groq.js");
     const result = await transcreverAudio(Buffer.from("audio"), "audio/webm");
     expect(result).toBe("Transcricao de teste");
   });
 
-  it("envia arquivo multipart com modelo de transcricao do MiniMax", async () => {
+  it("envia arquivo multipart com modelo de transcricao do Groq", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ text: "ok" }),
     });
 
-    const { transcreverAudio } = await import("../minimax.js");
+    const { transcreverAudio } = await import("../groq.js");
     await transcreverAudio(Buffer.from("audio"), "audio/webm");
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
@@ -33,24 +32,24 @@ describe("transcreverAudio", () => {
     const url = callArgs[0] as string;
     const options = callArgs[1] as any;
     expect(url).toContain("/audio/transcriptions");
-    expect(url).toContain("GroupId=test_group");
     expect(options.method).toBe("POST");
     expect(options.headers.Authorization).toBe("Bearer test_key");
-    expect(options.body.get("model")).toBe("speech-01-turbo");
+    expect(options.body.get("model")).toBe("whisper-large-v3-turbo");
+    expect(options.body.get("response_format")).toBe("json");
     expect(options.body.get("file").type).toBe("audio/webm");
   });
 
-  it("lanca erro quando MiniMax retorna status != 200", async () => {
+  it("lanca erro quando Groq retorna status != 200", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 500,
       text: async () => "Internal Server Error",
     });
 
-    const { transcreverAudio } = await import("../minimax.js");
+    const { transcreverAudio } = await import("../groq.js");
     await expect(
       transcreverAudio(Buffer.from("audio"), "audio/webm"),
-    ).rejects.toThrow("MiniMax STT error: 500");
+    ).rejects.toThrow("Groq STT error: 500");
   });
 });
 
@@ -58,8 +57,7 @@ describe("extrairCamposVisita", () => {
   beforeEach(() => {
     jest.resetModules();
     (globalThis as any).fetch = jest.fn();
-    process.env.MINIMAX_API_KEY = "test_key";
-    process.env.MINIMAX_GROUP_ID = "test_group";
+    process.env.GROQ_API_KEY = "test_key";
   });
 
   it("retorna objeto com campos da visita e sugestoes da IA", async () => {
@@ -77,7 +75,7 @@ describe("extrairCamposVisita", () => {
       }),
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../groq.js");
     const result = await extrairCamposVisita("transcricao teste");
     expect(result).toEqual({
       resumo: "Paciente com dor",
@@ -91,7 +89,7 @@ describe("extrairCamposVisita", () => {
     });
   });
 
-  it("envia prompt correto para chatcompletion_v2", async () => {
+  it("envia prompt correto para chat completions", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -105,25 +103,22 @@ describe("extrairCamposVisita", () => {
       }),
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../groq.js");
     await extrairCamposVisita("texto teste");
 
     const callArgs = (globalThis.fetch as any).mock.calls[0];
     const url = callArgs[0] as string;
     const options = callArgs[1] as any;
-    expect(url).toContain("/text/chatcompletion_v2");
-    expect(url).toContain("GroupId=test_group");
+    expect(url).toContain("/chat/completions");
     expect(options.headers.Authorization).toBe("Bearer test_key");
     const body = JSON.parse(options.body);
-    expect(body.model).toBe("MiniMax-Text-01");
+    expect(body.model).toBe("llama-3.3-70b-versatile");
     expect(body.temperature).toBe(0.1);
     expect(body.max_tokens).toBe(500);
+    expect(body.response_format.type).toBe("json_object");
     expect(body.messages[0].role).toBe("user");
     expect(body.messages[0].content).toContain("texto teste");
     expect(body.messages[0].content).toContain("assistente de CRM");
-    expect(body.messages[0].content).toContain("proximaVisitaSugerida");
-    expect(body.messages[0].content).toContain("sugestaoEstagio");
-    expect(body.messages[0].content).toContain("NUNCA sugira regredir");
   });
 
   it("fallback quando JSON invalido usa transcricao.slice(0, 300)", async () => {
@@ -134,7 +129,7 @@ describe("extrairCamposVisita", () => {
       }),
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../groq.js");
     const longText = "x".repeat(500);
     const result = await extrairCamposVisita(longText);
     expect(result.resumo).toBe("x".repeat(300));
@@ -144,16 +139,16 @@ describe("extrairCamposVisita", () => {
     expect(result.sugestaoEstagio).toBeNull();
   });
 
-  it("lanca erro quando MiniMax retorna status != 200", async () => {
+  it("lanca erro quando Groq retorna status != 200", async () => {
     (globalThis.fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 429,
       text: async () => "Rate limited",
     });
 
-    const { extrairCamposVisita } = await import("../minimax.js");
+    const { extrairCamposVisita } = await import("../groq.js");
     await expect(extrairCamposVisita("texto")).rejects.toThrow(
-      "MiniMax Chat error: 429",
+      "Groq Chat error: 429",
     );
   });
 });

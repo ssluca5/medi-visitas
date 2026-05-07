@@ -9,10 +9,7 @@ import {
   PatchVisitaStatusInputSchema,
   ListVisitasQuerySchema,
 } from "./schemas.js";
-import {
-  transcreverAudio,
-  extrairCamposVisita,
-} from "../../services/minimax.js";
+import { transcreverAudio, extrairCamposVisita } from "../../services/groq.js";
 import { sanitizeAudioBuffer } from "../../services/sanitize-audio.js";
 import {
   verificarLimiteTranscricao,
@@ -370,12 +367,13 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(404).send({ error: "Visita não encontrada" });
     }
 
-    const dataHoraInicio = dataISO
+    let dataHoraInicio = dataISO
       ? new Date(dataISO)
       : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
+    // Se a IA mandou uma data inválida, faz fallback para 30 dias em vez de travar o fluxo
     if (Number.isNaN(dataHoraInicio.getTime())) {
-      return reply.status(400).send({ error: "dataISO inválida" });
+      dataHoraInicio = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
 
     const dataHoraFim = new Date(dataHoraInicio.getTime() + 60 * 60 * 1000);

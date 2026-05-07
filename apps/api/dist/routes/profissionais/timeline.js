@@ -43,7 +43,10 @@ export async function timelineRoutes(app) {
         },
       }),
       prisma.agendaItem.findMany({
-        where: { profissionalId: id, ...buildTenantWhere(request) },
+        where: {
+          profissionalId: id,
+          ...buildTenantWhere(request),
+        },
         orderBy: { dataHoraInicio: "desc" },
         select: {
           id: true,
@@ -77,7 +80,6 @@ export async function timelineRoutes(app) {
         tipo: "AGENDAMENTO",
         id: a.id,
         data: a.dataHoraInicio.toISOString(),
-        dataFim: a.dataHoraFim.toISOString(),
         status: a.status,
         prioridade: a.prioridade,
         observacoes: a.observacoes,

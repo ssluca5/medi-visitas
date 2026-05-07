@@ -56,11 +56,11 @@ export default clerkMiddleware((auth, req) => {
 });
 ```
 
-## MiniMax 2.7 — Fase 5 (pendente)
+## Groq (Whisper/LLaMA) — Fase 5 (pendente)
 
 - Transcrição via API REST — **não armazenar áudio** após transcrição (LGPD).
 - Transcrições vinculadas à `Visita` — **imutáveis** após confirmação.
-- Usar skill `claude-api` para integração.
+- Usar serviço `groq.ts` para transcrição e extração de dados estruturados.
 
 ## Multi-tenant (Fase 10 — pendente)
 

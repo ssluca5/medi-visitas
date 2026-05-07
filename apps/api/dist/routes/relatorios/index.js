@@ -390,7 +390,7 @@ export default async function relatoriosRoutes(app) {
     return reply
       .header("Content-Type", "text/csv; charset=utf-8")
       .header("Content-Disposition", 'attachment; filename="profissionais.csv"')
-      .send(csv);
+      .send("\uFEFF" + csv);
   });
   app.get("/visitas", async (request, reply) => {
     if (!requireRelatorios(request, reply)) return;
@@ -420,6 +420,6 @@ export default async function relatoriosRoutes(app) {
     return reply
       .header("Content-Type", "text/csv; charset=utf-8")
       .header("Content-Disposition", 'attachment; filename="visitas.csv"')
-      .send(csv);
+      .send("\uFEFF" + csv);
   });
 }

@@ -23,6 +23,7 @@
 			limites?: {
 				temRelatorios?: boolean;
 				temGestaoEquipe?: boolean;
+				temMetas?: boolean;
 				temIa?: boolean;
 				pacotesIaDisponiveis?: boolean;
 			};
@@ -54,7 +55,11 @@
 <ClerkProvider>
 	{#if isDashboard}
 		<div class="flex flex-col lg:flex-row h-screen w-full overflow-hidden bg-[rgb(var(--slate-50))]">
-			<MobileNav userName={data.userName ?? 'Usuário'} sessionToken={data.sessionToken} />
+			<MobileNav
+				userName={data.userName ?? 'Usuário'}
+				sessionToken={data.sessionToken}
+				temMetas={data.limites?.temMetas ?? false}
+			/>
 			<Sidebar
 				userName={data.userName ?? 'Usuário'}
 				sessionToken={data.sessionToken}
@@ -65,6 +70,7 @@
 				statusOrg={data.status}
 				temRelatorios={data.limites?.temRelatorios ?? false}
 				temGestaoEquipe={data.limites?.temGestaoEquipe ?? false}
+				temMetas={data.limites?.temMetas ?? false}
 			/>
 
 			<main class="flex-1 min-w-0 h-full overflow-y-auto">

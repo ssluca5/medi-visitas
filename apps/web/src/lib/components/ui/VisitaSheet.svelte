@@ -442,7 +442,7 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="mt-auto border-t border-[rgb(var(--slate-100))] py-5 bg-[rgb(var(--slate-50))]">
+    <div class="mt-auto border-t border-[rgb(var(--slate-100))] py-5">
       {#if isReadOnly}
         <Button variant="outline" type="button" onclick={onclose} class="w-full">
           Fechar
@@ -467,7 +467,7 @@
             <button
               type="button"
               onclick={() => modalGravacaoAberto = true}
-              class="w-full h-10 px-3 text-sm font-medium border rounded-lg flex items-center justify-center gap-1.5 transition-colors bg-white hover:bg-[rgb(var(--slate-50))] cursor-pointer"
+              class="w-full h-10 px-3 text-sm font-medium border rounded-lg flex items-center justify-center gap-1.5 will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98] bg-white hover:bg-[rgb(var(--slate-50))] cursor-pointer"
               style="border-color: var(--pipeline-interessado); color: var(--pipeline-interessado);"
             >
               <Volume2 class="w-4 h-4" />

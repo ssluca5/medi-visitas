@@ -19,6 +19,7 @@ function mockAuth() {
 
 function resetMocks() {
   mockPrisma.profissional.count.mockReset();
+  mockPrisma.profissional.groupBy.mockReset();
   mockPrisma.especialidade.count.mockReset();
   mockPrisma.visita.count.mockReset();
   mockPrisma.visita.findMany.mockReset();
@@ -33,6 +34,7 @@ describe("Dashboard Routes", () => {
       profissional: {
         count: jest.fn() as jest.Mock,
         findMany: jest.fn() as jest.Mock,
+        groupBy: jest.fn() as jest.Mock,
       },
       especialidade: {
         count: jest.fn() as jest.Mock,
@@ -125,10 +127,26 @@ describe("Dashboard Routes", () => {
       mockAuth();
 
       mockPrisma.profissional.count.mockResolvedValueOnce(25);
-      mockPrisma.especialidade.count.mockResolvedValueOnce(8);
+      mockPrisma.profissional.groupBy.mockResolvedValueOnce([]);
       mockPrisma.visita.count
         .mockResolvedValueOnce(3) // visitasHoje
-        .mockResolvedValueOnce(12); // visitasSemana
+        .mockResolvedValueOnce(12) // visitasSemana
+        .mockResolvedValueOnce(20); // visitasMes
+
+      mockPrisma.agendaItem.findMany.mockResolvedValueOnce([
+        {
+          id: "a1",
+          dataHoraInicio: new Date("2026-04-07T09:00:00Z"),
+          status: "PLANEJADO",
+          prioridade: "ALTA",
+          profissionalId: "p_1",
+          profissional: {
+            nome: "Dra. Maria",
+            especialidade: { nome: "Pediatria" },
+          },
+        },
+      ]); // proximasVisitasRaw
+
       mockPrisma.visita.findMany.mockResolvedValueOnce([
         {
           id: "v1",
@@ -136,25 +154,17 @@ describe("Dashboard Routes", () => {
           status: "REALIZADA",
           objetivoVisita: "Follow-up",
           resumo: null,
+          profissionalId: "p_2",
           profissional: {
             nome: "Dr. João",
             especialidade: { nome: "Cardiologia" },
           },
         },
-      ]);
-      mockPrisma.agendaItem.findMany.mockResolvedValueOnce([
-        {
-          id: "a1",
-          dataHoraInicio: new Date("2026-04-07T09:00:00Z"),
-          dataHoraFim: new Date("2026-04-07T10:00:00Z"),
-          status: "PLANEJADO",
-          prioridade: "ALTA",
-          profissional: {
-            nome: "Dra. Maria",
-            especialidade: { nome: "Pediatria" },
-          },
-        },
-      ]);
+      ]); // ultimasVisitasRaw
+
+      mockPrisma.profissional.findMany
+        .mockResolvedValueOnce([]) // profissionaisComUltimaVisita
+        .mockResolvedValueOnce([]); // profissionaisComLog
 
       const res = await app.inject({
         method: "GET",
@@ -164,24 +174,29 @@ describe("Dashboard Routes", () => {
 
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.payload);
-      expect(body.totalProfissionais).toBe(25);
-      expect(body.totalEspecialidades).toBe(8);
-      expect(body.visitasHoje).toBe(3);
-      expect(body.visitasSemana).toBe(12);
+      expect(body.kpis.visitasHoje).toBe(3);
+      expect(body.kpis.visitasSemana).toBe(12);
+      expect(body.kpis.visitasMes).toBe(20);
       expect(body.ultimasVisitas).toHaveLength(1);
-      expect(body.ultimasVisitas[0].profissional.nome).toBe("Dr. João");
-      expect(body.proximosAgendamentos).toHaveLength(1);
-      expect(body.proximosAgendamentos[0].profissional.nome).toBe("Dra. Maria");
+      expect(body.ultimasVisitas[0].profissionalNome).toBe("Dr. João");
+      expect(body.proximasVisitas).toHaveLength(1);
+      expect(body.proximasVisitas[0].profissionalNome).toBe("Dra. Maria");
     });
 
     it("retorna arrays vazios quando não há visitas/agendamentos", async () => {
       mockAuth();
 
       mockPrisma.profissional.count.mockResolvedValueOnce(0);
-      mockPrisma.especialidade.count.mockResolvedValueOnce(0);
-      mockPrisma.visita.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
-      mockPrisma.visita.findMany.mockResolvedValueOnce([]);
+      mockPrisma.profissional.groupBy.mockResolvedValueOnce([]);
+      mockPrisma.visita.count
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0); // visitasMes
       mockPrisma.agendaItem.findMany.mockResolvedValueOnce([]);
+      mockPrisma.visita.findMany.mockResolvedValueOnce([]);
+      mockPrisma.profissional.findMany
+        .mockResolvedValueOnce([]) // profissionaisComUltimaVisita
+        .mockResolvedValueOnce([]); // profissionaisComLog
 
       const res = await app.inject({
         method: "GET",
@@ -191,9 +206,9 @@ describe("Dashboard Routes", () => {
 
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.payload);
-      expect(body.totalProfissionais).toBe(0);
+      expect(body.kpis.visitasHoje).toBe(0);
       expect(body.ultimasVisitas).toHaveLength(0);
-      expect(body.proximosAgendamentos).toHaveLength(0);
+      expect(body.proximasVisitas).toHaveLength(0);
     });
   });
 

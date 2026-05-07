@@ -14,17 +14,20 @@ const ComprarPacoteSchema = z.object({
 });
 
 function getPriceIdPacoteIa(quantidade: 20 | 50 | 100): string {
-  const map = {
-    20:
-      process.env.STRIPE_PRICE_IA_20 ??
-      process.env.STRIPE_PRICE_PACOTE_TRANSCRICOES,
-    50: process.env.STRIPE_PRICE_IA_50,
-    100: process.env.STRIPE_PRICE_IA_100,
+  const legacy = process.env.STRIPE_PRICE_PACOTE_TRANSCRICOES;
+
+  const map: Record<number, string | undefined> = {
+    20: process.env.STRIPE_PRICE_IA_20 ?? legacy,
+    50: process.env.STRIPE_PRICE_IA_50 ?? legacy,
+    100: process.env.STRIPE_PRICE_IA_100 ?? legacy,
   };
 
   const priceId = map[quantidade];
   if (!priceId) {
-    throw new Error(`Price ID nao configurado para pacote IA +${quantidade}`);
+    throw new Error(
+      `Price ID nao configurado para pacote IA +${quantidade}. ` +
+        `Defina STRIPE_PRICE_IA_${quantidade} ou STRIPE_PRICE_PACOTE_TRANSCRICOES no .env`,
+    );
   }
   return priceId;
 }

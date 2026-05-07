@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { Search, X } from 'lucide-svelte';
+  import { onMount } from 'svelte';
+  import { Search, Target, X } from 'lucide-svelte';
   import { apiFetch } from '$lib/api';
   import TourPrimeiroAcesso from '$lib/components/ui/TourPrimeiroAcesso.svelte';
   import WidgetTranscricoes from '$lib/components/dashboard/WidgetTranscricoes.svelte';
-  import type { DashboardResumoV2, SugestaoBusca } from '$lib/types';
+  import type { DashboardResumoV2, Meta, SugestaoBusca } from '$lib/types';
 
   interface Props {
     data: {
@@ -29,6 +30,7 @@
   let buscaQuery = $state('');
   let sugestoesBusca = $state<SugestaoBusca[]>([]);
   let buscaOpen = $state(false);
+  let metaAlertas = $state<Meta[]>([]);
   let timer: ReturnType<typeof setTimeout>;
 
   const mostrarTour = $derived(!data.tourConcluidoEm);
@@ -184,6 +186,32 @@
     if (s === 'CANCELADA') return '#991b1b';
     return '#1e40af';
   }
+
+  function diasRestantesMeta(iso: string): number {
+    const diff = Math.ceil((new Date(iso).getTime() - Date.now()) / 86400000);
+    return Math.max(0, diff);
+  }
+
+  function metaAlertaIconClass(meta: Meta): string {
+    return meta.alertas?.prazoCritico
+      ? 'mt-0.5 h-4 w-4 flex-shrink-0 text-red-600'
+      : 'mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600';
+  }
+
+  async function fetchAlertasMetas() {
+    try {
+      const res = await apiFetch('/metas/alertas', data.sessionToken);
+      if (res.ok) {
+        metaAlertas = await res.json();
+      }
+    } catch {
+      metaAlertas = [];
+    }
+  }
+
+  onMount(() => {
+    fetchAlertasMetas();
+  });
 </script>
 
 <svelte:head>
@@ -429,11 +457,27 @@
               <p class="text-xs text-gray-400 mt-0.5">{alerta.profissionalNome}</p>
             </div>
           </div>
-        {:else}
+        {/each}
+        {#each metaAlertas as meta}
+          <div class="px-5 py-3.5 flex items-start gap-3">
+            <Target class={metaAlertaIconClass(meta)} />
+            <div>
+              <p
+                class="text-sm"
+                class:text-red-700={meta.alertas?.prazoCritico}
+                class:text-amber-700={!meta.alertas?.prazoCritico}
+              >
+                Meta "{meta.nome}" esta em risco - {diasRestantesMeta(meta.dataFim)} dias restantes
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">Metas</p>
+            </div>
+          </div>
+        {/each}
+        {#if (resumo?.alertas ?? []).length === 0 && metaAlertas.length === 0}
           <div class="px-5 py-8 text-center">
             <p class="text-sm text-gray-400">Nenhum alerta no momento</p>
           </div>
-        {/each}
+        {/if}
       </div>
     </div>
   </div>

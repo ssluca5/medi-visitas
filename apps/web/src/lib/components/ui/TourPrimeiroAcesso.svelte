@@ -147,14 +147,21 @@
 		if (saving) return;
 		saving = true;
 		erro = false;
+
 		try {
 			const res = await apiFetch('/me/tour', sessionToken, { method: 'PATCH' });
-			if (!res.ok) throw new Error(`Erro ${res.status} ao salvar tour`);
-			await invalidateAll();
-			visible = false;
-			cutout = null;
+			if (!res.ok) {
+				console.warn(`Tour: API retornou ${res.status} ao salvar.`);
+				erro = true;
+			} else {
+				// Fechar na UI apenas se sucesso
+				visible = false;
+				cutout = null;
+				// Recarregar dados em background (não bloqueia)
+				invalidateAll().catch(() => {});
+			}
 		} catch (e) {
-			console.error('Erro ao salvar tour:', e);
+			console.warn('Tour: erro ao persistir no backend:', e);
 			erro = true;
 		} finally {
 			saving = false;

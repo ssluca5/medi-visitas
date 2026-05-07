@@ -35,6 +35,8 @@ export {
 
 // Alias para compatibilidade (frontend usa ContatoTipo, Prisma usa TipoContato)
 export type ContatoTipo = TipoContato;
+export type PlanoMeta = "PROFISSIONAL" | "EQUIPE";
+export type StatusMeta = "ATIVA" | "ATINGIDA" | "EXPIRADA";
 
 export interface SubEspecialidade {
   id: string;
@@ -141,6 +143,39 @@ export interface NavItem {
   href: string;
   label: string;
   icon: any;
+}
+
+export interface MetaProgressoItem {
+  realizado: number;
+  percentual: number;
+}
+
+export interface Meta {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  dataInicio: string;
+  dataFim: string;
+  metaVisitas: number;
+  metaAvancosPipeline: number;
+  metaPrescritores: number;
+  responsavelId: string;
+  criadaPorId: string;
+  plano: PlanoMeta;
+  status: StatusMeta;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  progresso: {
+    visitas: MetaProgressoItem;
+    avancosPipeline: MetaProgressoItem;
+    prescritores: MetaProgressoItem;
+    geral: number;
+  };
+  alertas: {
+    emRisco: boolean;
+    prazoCritico: boolean;
+  };
 }
 
 export interface MaterialTecnico {

@@ -376,7 +376,7 @@ const pipelineRoutes = async (app) => {
         "Content-Disposition",
         `attachment; filename="pipeline-${hoje}.csv"`,
       )
-      .send(linhas.join("\n"));
+      .send("\uFEFF" + linhas.join("\n"));
   });
 };
 export default pipelineRoutes;

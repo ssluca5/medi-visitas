@@ -1,4 +1,4 @@
-# Fase 5 — IA: Transcrição de Visitas com MiniMax 2.7
+# Fase 5 — IA: Transcrição de Visitas com Groq 2.7
 
 > MediVisitas · CRM para propagandistas farmacêuticos
 > Stack frontend: **SvelteKit 2 + Svelte 5 Runes + Tailwind CSS v4**
@@ -12,7 +12,7 @@ Permitir que o propagandista grave um áudio diretamente no browser após uma vi
 e receba os campos preenchidos automaticamente pela IA:
 
 - Gravação de áudio via **MediaRecorder API** (browser nativo — sem dependência)
-- Transcrição via **MiniMax 2.7** (Speech-to-Text)
+- Transcrição via **Groq 2.7** (Speech-to-Text)
 - Extração estruturada de **resumo**, **próxima ação** e **objetivo da visita**
 - Botão de gravação flutuante na página de visitas
 - Usuário escolhe se salva ou descarta o áudio após a transcrição
@@ -27,12 +27,12 @@ e receba os campos preenchidos automaticamente pela IA:
 | 1   | Migration Prisma: campo `audioUrl` em `Visita`                           | `packages/database/prisma/migrations/`                     |
 | 2   | `POST /visitas/:id/transcricao` — recebe áudio, retorna campos extraídos | `apps/api/src/routes/visitas/transcricao.ts`               |
 | 3   | `PATCH /visitas/:id/audio` — salva URL do áudio após decisão do usuário  | `apps/api/src/routes/visitas/audio.ts`                     |
-| 4   | Serviço MiniMax — transcrição + extração estruturada                     | `apps/api/src/services/minimax.ts`                         |
+| 4   | Serviço Groq — transcrição + extração estruturada                        | `apps/api/src/services/groq.ts`                            |
 | 5   | Botão flutuante de gravação                                              | `apps/web/src/lib/components/visitas/BotaoGravacao.svelte` |
 | 6   | Modal de gravação e revisão                                              | `apps/web/src/lib/components/visitas/ModalGravacao.svelte` |
 | 7   | Hook de gravação de áudio                                                | `apps/web/src/lib/hooks/useGravacaoAudio.svelte.ts`        |
 | 8   | Integração na página de visitas                                          | `apps/web/src/routes/dashboard/visitas/+page.svelte`       |
-| 9   | Testes do serviço MiniMax (mock)                                         | `apps/api/src/services/minimax.test.ts`                    |
+| 9   | Testes do serviço Groq (mock)                                            | `apps/api/src/services/groq.test.ts`                       |
 | 10  | Testes da rota de transcrição (TDD)                                      | `apps/api/src/routes/visitas/transcricao.test.ts`          |
 
 ---
@@ -68,9 +68,9 @@ ALTER TABLE "Visita" ADD COLUMN "audioUrl" TEXT;
 6. Fala o resumo da visita (30–120 segundos)
 7. Clica em "Parar"
 8. Frontend envia o áudio para POST /visitas/:id/transcricao
-9. API envia áudio para MiniMax 2.7 (Speech-to-Text)
-10. MiniMax retorna transcrição em texto
-11. API envia texto para MiniMax (Chat/Completion) para extração estruturada
+9. API envia áudio para Groq 2.7 (Speech-to-Text)
+10. Groq retorna transcrição em texto
+11. API envia texto para Groq (Chat/Completion) para extração estruturada
 12. API retorna: { resumo, proximaAcao, objetivoVisita, transcricaoCompleta }
 13. Modal exibe os campos extraídos para revisão do usuário
 14. Usuário edita se necessário
@@ -111,14 +111,14 @@ Response:
 
 ---
 
-## Serviço MiniMax — Implementação
+## Serviço Groq — Implementação
 
 ````typescript
-// apps/api/src/services/minimax.ts
+// apps/api/src/services/groq.ts
 
-const MINIMAX_API_URL = "https://api.minimax.chat/v1";
-const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID!;
-const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY!;
+const GROQ_API_URL = "https://api.groq.chat/v1";
+const GROQ_GROUP_ID = process.env.GROQ_GROUP_ID!;
+const GROQ_API_KEY = process.env.GROQ_API_KEY!;
 
 // PASSO 1: Transcrição de áudio → texto
 export async function transcreverAudio(
@@ -128,20 +128,20 @@ export async function transcreverAudio(
   const formData = new FormData();
   const blob = new Blob([audioBuffer], { type: mimeType });
   formData.append("file", blob, `audio.${mimeType.split("/")[1] ?? "webm"}`);
-  formData.append("model", "speech-01-turbo"); // modelo de STT do MiniMax
+  formData.append("model", "speech-01-turbo"); // modelo de STT do Groq
 
   const response = await fetch(
-    `${MINIMAX_API_URL}/audio/transcriptions?GroupId=${MINIMAX_GROUP_ID}`,
+    `${GROQ_API_URL}/audio/transcriptions?GroupId=${GROQ_GROUP_ID}`,
     {
       method: "POST",
-      headers: { Authorization: `Bearer ${MINIMAX_API_KEY}` },
+      headers: { Authorization: `Bearer ${GROQ_API_KEY}` },
       body: formData,
     },
   );
 
   if (!response.ok) {
     const erro = await response.text();
-    throw new Error(`MiniMax STT falhou: ${response.status} — ${erro}`);
+    throw new Error(`Groq STT falhou: ${response.status} — ${erro}`);
   }
 
   const data = await response.json();
@@ -171,15 +171,15 @@ Se alguma informação não estiver presente na transcrição, use string vazia 
 Responda SOMENTE com o JSON, sem markdown, sem explicações.`;
 
   const response = await fetch(
-    `${MINIMAX_API_URL}/text/chatcompletion_v2?GroupId=${MINIMAX_GROUP_ID}`,
+    `${GROQ_API_URL}/text/chatcompletion_v2?GroupId=${GROQ_GROUP_ID}`,
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${MINIMAX_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "MiniMax-Text-01",
+        model: "Groq-Text-01",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.1, // baixa temperatura para respostas consistentes
         max_tokens: 500,
@@ -189,7 +189,7 @@ Responda SOMENTE com o JSON, sem markdown, sem explicações.`;
 
   if (!response.ok) {
     const erro = await response.text();
-    throw new Error(`MiniMax Chat falhou: ${response.status} — ${erro}`);
+    throw new Error(`Groq Chat falhou: ${response.status} — ${erro}`);
   }
 
   const data = await response.json();
@@ -218,10 +218,7 @@ Responda SOMENTE com o JSON, sem markdown, sem explicações.`;
 import type { FastifyInstance } from "fastify";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { prisma } from "../../lib/prisma.js";
-import {
-  transcreverAudio,
-  extrairCamposVisita,
-} from "../../services/minimax.js";
+import { transcreverAudio, extrairCamposVisita } from "../../services/groq.js";
 
 export async function transcricaoRoutes(app: FastifyInstance) {
   // Registrar ANTES de qualquer rota com :id se necessário
@@ -276,7 +273,7 @@ export async function transcricaoRoutes(app: FastifyInstance) {
           .send({ error: "Arquivo muito grande. Máximo: 25MB" });
       }
 
-      // Transcrever com MiniMax
+      // Transcrever com Groq
       const transcricaoCompleta = await transcreverAudio(
         audioBuffer,
         data.mimetype,
@@ -791,7 +788,7 @@ export function criarGravacaoAudio() {
             Transcrevendo e extraindo informações...
           </p>
           <p class="text-xs text-center" style="color: #9ca3af;">
-            O MiniMax está analisando o áudio e estruturando os campos da visita.
+            O Groq está analisando o áudio e estruturando os campos da visita.
             Isso pode levar alguns segundos.
           </p>
         </div>
@@ -950,14 +947,14 @@ export function criarGravacaoAudio() {
 
 ```env
 # apps/api/.env
-MINIMAX_API_KEY=<sua_chave_minimax>
-MINIMAX_GROUP_ID=<seu_group_id_minimax>
+GROQ_API_KEY=<sua_chave_groq>
+GROQ_GROUP_ID=<seu_group_id_groq>
 
 # apps/web/.env
 PUBLIC_API_URL=http://localhost:3002
 ```
 
-> O `MINIMAX_GROUP_ID` é encontrado no dashboard da MiniMax em **Account → Group ID**.
+> O `GROQ_GROUP_ID` é encontrado no dashboard da Groq em **Account → Group ID**.
 
 ---
 
@@ -995,7 +992,7 @@ await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 ## Sequência de Implementação (TDD)
 
 ```
-1.  [PLAN]    skill brainstorming → formato de áudio, fallback de mime type, timeout MiniMax
+1.  [PLAN]    skill brainstorming → formato de áudio, fallback de mime type, timeout Groq
 2.  [PLAN]    skill write-plan → subtarefas atômicas
 
 3.  [DB]      Migration: adicionar audioUrl em Visita
@@ -1003,8 +1000,8 @@ await app.register(multipart, { limits: { fileSize: 25 * 1024 * 1024 } });
 
 5.  [API]     Instalar @fastify/multipart
 6.  [API]     Registrar multipart em app.ts com limite 25MB
-7.  [API RED] Testes com mock do MiniMax para minimax.ts (sem chamada real)
-8.  [API GRN] Implementar apps/api/src/services/minimax.ts
+7.  [API RED] Testes com mock do Groq para groq.ts (sem chamada real)
+8.  [API GRN] Implementar apps/api/src/services/groq.ts
 9.  [API RED] Testes falhando para POST /visitas/:id/transcricao
 10. [API GRN] Implementar rota de transcrição
 11. [API]     Implementar PATCH /visitas/:id/audio
@@ -1028,10 +1025,10 @@ Banco de Dados
 
 API
 [ ] @fastify/multipart instalado e registrado com limite 25MB
-[ ] MINIMAX_API_KEY e MINIMAX_GROUP_ID no .env
-[ ] minimax.ts: transcreverAudio() funciona com áudio real
-[ ] minimax.ts: extrairCamposVisita() retorna JSON válido
-[ ] minimax.ts: fallback gracioso se parsing do JSON falhar
+[ ] GROQ_API_KEY e GROQ_GROUP_ID no .env
+[ ] groq.ts: transcreverAudio() funciona com áudio real
+[ ] groq.ts: extrairCamposVisita() retorna JSON válido
+[ ] groq.ts: fallback gracioso se parsing do JSON falhar
 [ ] POST /visitas/:id/transcricao → 200 com campos extraídos
 [ ] POST /visitas/:id/transcricao → 400 para tipo de arquivo inválido
 [ ] POST /visitas/:id/transcricao → 400 para arquivo > 25MB

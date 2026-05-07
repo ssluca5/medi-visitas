@@ -38,6 +38,12 @@ export const load: LayoutServerLoad = async ({ locals, parent }) => {
           temGestaoEquipe?: boolean;
         } | null
       )?.temGestaoEquipe ?? false,
+    temMetas:
+      (
+        (parentData as Record<string, unknown>).limites as {
+          temMetas?: boolean;
+        } | null
+      )?.temMetas ?? false,
     temIa:
       (
         (parentData as Record<string, unknown>).limites as {

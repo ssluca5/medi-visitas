@@ -139,7 +139,7 @@ const dashboardRoutes = async (app) => {
         where: {
           ...tenantWhereVisita,
           ...profFilter,
-          status: "REALIZADA",
+          status: { not: "CANCELADA" },
           dataVisita: { gte: hoje, lt: amanha },
         },
       }),
@@ -148,7 +148,7 @@ const dashboardRoutes = async (app) => {
         where: {
           ...tenantWhereVisita,
           ...profFilter,
-          status: "REALIZADA",
+          status: { not: "CANCELADA" },
           dataVisita: { gte: inicioSemana, lt: fimSemana },
         },
       }),
@@ -157,7 +157,7 @@ const dashboardRoutes = async (app) => {
         where: {
           ...tenantWhereVisita,
           ...profFilter,
-          status: "REALIZADA",
+          status: { not: "CANCELADA" },
           dataVisita: { gte: inicioMes, lt: fimMes },
         },
       }),
@@ -186,7 +186,7 @@ const dashboardRoutes = async (app) => {
         where: {
           ...tenantWhereVisita,
           ...profFilter,
-          status: "REALIZADA",
+          status: { not: "CANCELADA" },
         },
         orderBy: { dataVisita: "desc" },
         take: 5,
@@ -448,7 +448,7 @@ const dashboardRoutes = async (app) => {
         prisma.visita.count({
           where: {
             ...tenantWhere,
-            status: "REALIZADA",
+            status: { not: "CANCELADA" },
           },
         }),
         prisma.profissional.groupBy({
@@ -460,7 +460,7 @@ const dashboardRoutes = async (app) => {
           by: ["userId"],
           where: {
             ...tenantWhere,
-            status: "REALIZADA",
+            status: { not: "CANCELADA" },
           },
           _count: { id: true },
         }),

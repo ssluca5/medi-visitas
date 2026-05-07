@@ -104,6 +104,17 @@ enum RoleMembro {
   MEMBER
 }
 
+enum PlanoMeta {
+  PROFISSIONAL
+  EQUIPE
+}
+
+enum StatusMeta {
+  ATIVA
+  ATINGIDA
+  EXPIRADA
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -156,6 +167,7 @@ model Organization {
   materiais         MaterialTecnico[]
   estagioLogs       EstagioLog[]
   convites          OrganizationConvite[]
+  metas             Meta[]
 
   @@index([clerkOrgId])
   @@index([status])
@@ -452,6 +464,33 @@ model Notificacao {
   @@index([userId, lida])
   @@index([tipo])
   @@index([createdAt])
+  @@index([deletedAt])
+  @@index([organizationId])
+}
+
+model Meta {
+  id                    String       @id @default(cuid())
+  nome                  String
+  descricao             String?
+  dataInicio            DateTime
+  dataFim               DateTime
+  metaVisitas           Int          @default(0)
+  metaAvancosPipeline   Int          @default(0)
+  metaPrescritores      Int          @default(0)
+  responsavelId         String       // userId do Clerk (propagandista)
+  criadaPorId           String       // userId do Clerk (gestor ou proprio)
+  plano                 PlanoMeta
+  status                StatusMeta   @default(ATIVA)
+  organizationId        String
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  deletedAt             DateTime?
+
+  @@index([responsavelId])
+  @@index([criadaPorId])
+  @@index([status])
+  @@index([dataInicio, dataFim])
   @@index([deletedAt])
   @@index([organizationId])
 }

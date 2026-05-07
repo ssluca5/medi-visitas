@@ -1,9 +1,8 @@
-const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
-const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID;
-const MINIMAX_BASE =
-  process.env.MINIMAX_API_URL ?? "https://api.minimax.chat/v1";
-const MINIMAX_STT_MODEL = process.env.MINIMAX_STT_MODEL ?? "speech-01-turbo";
-const MINIMAX_TEXT_MODEL = process.env.MINIMAX_TEXT_MODEL ?? "MiniMax-Text-01";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_BASE = process.env.GROQ_API_URL ?? "https://api.groq.com/openai/v1";
+const GROQ_STT_MODEL = process.env.GROQ_STT_MODEL ?? "whisper-large-v3-turbo";
+const GROQ_TEXT_MODEL =
+  process.env.GROQ_TEXT_MODEL ?? "llama-3.3-70b-versatile";
 const TIMEOUT_MS = 30_000;
 
 type ProximaVisitaSugerida = {
@@ -25,35 +24,24 @@ type CamposVisita = {
     | null;
 };
 
-type MiniMaxTranscriptionResponse = {
+type GroqTranscriptionResponse = {
   text?: string;
-  transcription?: string;
-  data?: {
-    text?: string;
-    transcription?: string;
-  };
 };
 
-type MiniMaxChatResponse = {
+type GroqChatResponse = {
   choices?: Array<{
     message?: {
       content?: string;
     };
   }>;
-  reply?: string;
-  text?: string;
 };
 
 function getUrl(path: string) {
-  if (!MINIMAX_API_KEY) {
-    throw new Error("MINIMAX_API_KEY env var required");
-  }
-  if (!MINIMAX_GROUP_ID) {
-    throw new Error("MINIMAX_GROUP_ID env var required");
+  if (!GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY env var required");
   }
 
-  const query = new URLSearchParams({ GroupId: MINIMAX_GROUP_ID });
-  return `${MINIMAX_BASE.replace(/\/$/, "")}${path}?${query.toString()}`;
+  return `${GROQ_BASE.replace(/\/$/, "")}${path}`;
 }
 
 function getAudioFilename(mimeType: string) {
@@ -61,14 +49,8 @@ function getAudioFilename(mimeType: string) {
   return `audio.${extension}`;
 }
 
-function parseTranscricao(data: MiniMaxTranscriptionResponse) {
-  return (
-    data.text ??
-    data.transcription ??
-    data.data?.text ??
-    data.data?.transcription ??
-    ""
-  );
+function parseTranscricao(data: GroqTranscriptionResponse) {
+  return data.text ?? "";
 }
 
 function cleanJsonContent(content: string) {
@@ -76,13 +58,14 @@ function cleanJsonContent(content: string) {
 }
 
 export async function transcreverAudio(
-  buffer: Buffer,
+  buffer: Buffer | Uint8Array,
   mimeType: string,
 ): Promise<string> {
   const formData = new FormData();
   const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
   formData.append("file", blob, getAudioFilename(mimeType));
-  formData.append("model", MINIMAX_STT_MODEL);
+  formData.append("model", GROQ_STT_MODEL);
+  formData.append("response_format", "json");
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -90,17 +73,17 @@ export async function transcreverAudio(
   try {
     const res = await fetch(getUrl("/audio/transcriptions"), {
       method: "POST",
-      headers: { Authorization: `Bearer ${MINIMAX_API_KEY}` },
+      headers: { Authorization: `Bearer ${GROQ_API_KEY}` },
       body: formData,
       signal: controller.signal,
     });
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`MiniMax STT error: ${res.status} - ${text}`);
+      throw new Error(`Groq STT error: ${res.status} - ${text}`);
     }
 
-    const json = (await res.json()) as MiniMaxTranscriptionResponse;
+    const json = (await res.json()) as GroqTranscriptionResponse;
     return parseTranscricao(json);
   } finally {
     clearTimeout(timeout);
@@ -141,29 +124,29 @@ export async function extrairCamposVisita(
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const res = await fetch(getUrl("/text/chatcompletion_v2"), {
+    const res = await fetch(getUrl("/chat/completions"), {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${MINIMAX_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: MINIMAX_TEXT_MODEL,
+        model: GROQ_TEXT_MODEL,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.1,
         max_tokens: 500,
+        response_format: { type: "json_object" },
       }),
       signal: controller.signal,
     });
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`MiniMax Chat error: ${res.status} - ${text}`);
+      throw new Error(`Groq Chat error: ${res.status} - ${text}`);
     }
 
-    const json = (await res.json()) as MiniMaxChatResponse;
-    const content =
-      json.choices?.[0]?.message?.content ?? json.reply ?? json.text ?? "{}";
+    const json = (await res.json()) as GroqChatResponse;
+    const content = json.choices?.[0]?.message?.content ?? "{}";
 
     try {
       const parsed = JSON.parse(

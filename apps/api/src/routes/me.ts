@@ -45,10 +45,32 @@ function isPlaceholderEmail(email: string, userId: string): boolean {
 }
 
 async function createUserFromRequest(userId: string, request: FastifyRequest) {
+  const emailToUse = request.userEmail ?? fallbackEmail(userId);
+
+  if (request.userEmail) {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: request.userEmail },
+    });
+
+    if (existingUser) {
+      // Se o email já existe, significa que o usuário recriou a conta no Clerk
+      // ou fez login via Google. Em vez de falhar com P2002, atualizamos o clerkId
+      // para mesclar a conta e não perder os dados (como a organizationId).
+      return prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          clerkId: userId,
+          name: request.userName ?? existingUser.name,
+        },
+        select: userSelect,
+      });
+    }
+  }
+
   return prisma.user.create({
     data: {
       clerkId: userId,
-      email: request.userEmail ?? fallbackEmail(userId),
+      email: emailToUse,
       name: request.userName ?? null,
     },
     select: userSelect,
@@ -256,14 +278,14 @@ export default async function meRoutes(app: FastifyInstance): Promise<void> {
       });
 
       if (!user) {
-        user = await prisma.user.create({
-          data: {
-            clerkId: request.userId,
-            email: request.userEmail ?? fallbackEmail(request.userId),
-            name: name ?? request.userName ?? null,
-          },
-          select: userSelect,
-        });
+        user = await createUserFromRequest(request.userId, request);
+        if (hasNameUpdate) {
+          user = await prisma.user.update({
+            where: { clerkId: request.userId },
+            data: { name },
+            select: userSelect,
+          });
+        }
       } else if (hasNameUpdate) {
         user = await prisma.user.update({
           where: { clerkId: request.userId },
@@ -298,16 +320,17 @@ export default async function meRoutes(app: FastifyInstance): Promise<void> {
 
       const concluidoEm = new Date();
 
-      // Upsert para garantir que User existe antes de atualizar
-      await prisma.user.upsert({
+      let user = await prisma.user.findUnique({
         where: { clerkId: request.userId },
-        update: { tourConcluidoEm: concluidoEm },
-        create: {
-          clerkId: request.userId,
-          email: request.userEmail ?? fallbackEmail(request.userId),
-          name: request.userName ?? null,
-          tourConcluidoEm: concluidoEm,
-        },
+      });
+
+      if (!user) {
+        user = (await createUserFromRequest(request.userId, request)) as any;
+      }
+
+      await prisma.user.update({
+        where: { id: user!.id },
+        data: { tourConcluidoEm: concluidoEm },
       });
 
       return reply.code(200).send({ ok: true, tourConcluidoEm: concluidoEm });

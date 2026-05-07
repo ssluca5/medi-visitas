@@ -25,6 +25,8 @@ export {
   PlanoOrganizacao,
   StatusOrganizacao,
   RoleMembro,
+  PlanoMeta,
+  StatusMeta,
   TipoNotificacao,
   PrioridadeNotificacao,
 } from "@prisma/client";

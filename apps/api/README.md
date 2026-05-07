@@ -15,7 +15,7 @@
 | Pagamentos    | Stripe SDK v22                        |
 | Email         | Resend                                |
 | Monitoramento | Sentry                                |
-| IA            | MiniMax                               |
+| IA            | Groq                                  |
 | Logger        | Pino (nativo do Fastify)              |
 | Porta dev     | `3002`                                |
 
@@ -74,12 +74,12 @@ apps/api/src/
 ├── schemas/
 │   └── me.ts                 # Schemas Zod compartilhados (/me)
 ├── services/
-│   ├── minimax.ts            # Integração MiniMax (STT + Chat Completion)
+│   ├── groq.ts               # Integração Groq (STT + Chat Completion)
 │   ├── planos.ts             # Lógica de planos/assinaturas
 │   ├── stripe.ts             # Stripe Checkout + Customer Portal
 │   ├── transcricoes.ts       # Controle de cotas de transcrição
 │   └── __tests__/
-│       └── minimax.test.ts   # Testes do serviço MiniMax
+│       └── groq.test.ts      # Testes do serviço Groq
 ├── scripts/
 │   └── fix-categorias.ts     # Script one-off de migração de dados
 └── routes/

@@ -11,7 +11,7 @@ import {
 let mockVerifyTokenFn: any;
 let app: any;
 let mockPrisma: any;
-let mockMiniMax: any;
+let mockGroq: any;
 
 function resetMocks() {
   mockVerifyTokenFn.mockReset();
@@ -24,8 +24,8 @@ function resetMocks() {
   mockPrisma.profissional.update.mockReset();
   mockPrisma.estagioLog.create.mockReset();
   mockPrisma.$transaction.mockReset();
-  mockMiniMax.transcreverAudio.mockReset();
-  mockMiniMax.extrairCamposVisita.mockReset();
+  mockGroq.transcreverAudio.mockReset();
+  mockGroq.extrairCamposVisita.mockReset();
 }
 
 function mockAuth() {
@@ -72,7 +72,7 @@ describe("Transcrição Routes", () => {
       $transaction: jest.fn() as any,
     };
 
-    mockMiniMax = {
+    mockGroq = {
       transcreverAudio: jest.fn() as any,
       extrairCamposVisita: jest.fn() as any,
     };
@@ -85,10 +85,7 @@ describe("Transcrição Routes", () => {
     jestGlobal.unstable_mockModule("@clerk/backend", () => ({
       verifyToken: mockVerifyTokenFn,
     }));
-    jestGlobal.unstable_mockModule(
-      "../../services/minimax.js",
-      () => mockMiniMax,
-    );
+    jestGlobal.unstable_mockModule("../../services/groq.js", () => mockGroq);
 
     const Fastify = (await import("fastify")).default;
     const multipart = (await import("@fastify/multipart")).default;

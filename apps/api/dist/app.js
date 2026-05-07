@@ -17,6 +17,7 @@ import dashboardRoutes from "./routes/dashboard/index.js";
 import buscaRoutes from "./routes/busca/index.js";
 import notificacoesRoutes from "./routes/notificacoes/index.js";
 import { timelineRoutes } from "./routes/profissionais/timeline.js";
+import { visaoGeralRoutes } from "./routes/profissionais/visao-geral.js";
 import clerkWebhookRoutes from "./routes/webhooks/clerk.js";
 import stripeWebhookRoutes from "./routes/webhooks/stripe.js";
 import billingRoutes from "./routes/billing/index.js";
@@ -28,6 +29,7 @@ import relatoriosRoutes from "./routes/relatorios/index.js";
 import healthRoutes from "./routes/health.js";
 import contatoRoutes from "./routes/contato/index.js";
 import suporteRoutes from "./routes/suporte/index.js";
+import metasRoutes from "./routes/metas/index.js";
 export async function buildApp() {
   const app = Fastify({
     logger: true,
@@ -196,6 +198,7 @@ export async function buildApp() {
   await app.register(buscaRoutes, { prefix: "/busca" });
   await app.register(notificacoesRoutes, { prefix: "/notificacoes" });
   await app.register(timelineRoutes);
+  await app.register(visaoGeralRoutes);
   await app.register(onboardingRoutes, { prefix: "/onboarding" });
   await app.register(organizacaoRoutes, { prefix: "/organizacao" });
   await app.register(billingRoutes, { prefix: "/billing" });
@@ -203,5 +206,6 @@ export async function buildApp() {
   await app.register(gestorRoutes, { prefix: "/gestor" });
   await app.register(relatoriosRoutes, { prefix: "/relatorios" });
   await app.register(suporteRoutes, { prefix: "/suporte" });
+  await app.register(metasRoutes, { prefix: "/metas" });
   return app;
 }

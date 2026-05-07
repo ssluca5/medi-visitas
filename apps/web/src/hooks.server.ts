@@ -262,12 +262,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   const { url, cookies, locals } = event;
   const { pathname } = url;
 
-  // Ignorar assets estáticos e API interna
-  if (
-    pathname.startsWith("/_app/") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/api/token")
-  ) {
+  // Ignorar assets estáticos
+  if (pathname.startsWith("/_app/") || pathname.startsWith("/favicon")) {
     return resolve(event);
   }
 

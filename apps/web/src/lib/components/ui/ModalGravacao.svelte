@@ -5,6 +5,7 @@
   import { useGravacaoAudio } from '$lib/hooks/useGravacaoAudio.svelte';
   import { PUBLIC_API_URL } from '$env/static/public';
   import type { EstagioPipeline } from '$lib/types';
+  import { apiFetch } from '$lib/api';
 
   type Etapa = 'selecionar' | 'gravar' | 'processar' | 'revisar';
   type ProximaVisitaSugerida = {
@@ -97,9 +98,7 @@
 
   async function verificarSaldoAntesDeGravar() {
     try {
-      const res = await fetch(`${PUBLIC_API_URL}/transcricoes/status`, {
-        headers: { Authorization: `Bearer ${sessionToken}` }
-      });
+      const res = await apiFetch('/transcricoes/status', sessionToken);
       if (res.ok) {
         const data = await res.json();
         if (!data.permitido) {
@@ -146,9 +145,8 @@
       const formData = new FormData();
       formData.append('audio', gravacao.audioBlob, 'gravacao.webm');
 
-      const res = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}/transcricao`, {
+      const res = await apiFetch(`/visitas/${visitaId}/transcricao`, sessionToken, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionToken}` },
         body: formData
       });
 
@@ -171,8 +169,8 @@
       objetivoVisita = campos.objetivoVisita || '';
       proximaVisitaSugerida = campos.proximaVisitaSugerida ?? null;
       sugestaoEstagio = campos.sugestaoEstagio ?? null;
-      confirmarAgenda = false;
-      confirmarEstagio = false;
+      confirmarAgenda = !!proximaVisitaSugerida;
+      confirmarEstagio = !!sugestaoEstagio;
       etapa = 'revisar';
     } catch (err: any) {
       erro = err.message;
@@ -183,24 +181,16 @@
   async function confirmarSalvar() {
     salvandoExtras = true;
     try {
-      const res = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}`, {
+      const res = await apiFetch(`/visitas/${visitaId}`, sessionToken, {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ resumo, proximaAcao, objetivoVisita })
       });
 
       if (!res.ok) throw new Error('Erro ao salvar campos');
 
       if (confirmarAgenda && proximaVisitaSugerida) {
-        const agendaRes = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}/confirmar-agenda`, {
+        const agendaRes = await apiFetch(`/visitas/${visitaId}/confirmar-agenda`, sessionToken, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({
             dataISO: proximaVisitaSugerida.dataISO,
             observacao: proximaVisitaSugerida.observacao
@@ -214,12 +204,8 @@
       }
 
       if (confirmarEstagio && sugestaoEstagio) {
-        const estagioRes = await fetch(`${PUBLIC_API_URL}/visitas/${visitaId}/confirmar-estagio`, {
+        const estagioRes = await apiFetch(`/visitas/${visitaId}/confirmar-estagio`, sessionToken, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({ novoEstagio: sugestaoEstagio })
         });
 
@@ -241,12 +227,8 @@
   async function comprarPacote(quantidade: 20 | 50 | 100) {
     try {
       comprando = quantidade;
-      const res = await fetch(`${PUBLIC_API_URL}/transcricoes/comprar-pacote`, {
+      const res = await apiFetch('/transcricoes/comprar-pacote', sessionToken, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ quantidade })
       });
       if (res.ok) {
@@ -559,7 +541,7 @@
               <Loader2 class="w-4 h-4 animate-spin" />
               Salvando...
             {:else}
-              Confirmar
+              Salvar Visita
             {/if}
           </button>
         {/if}

@@ -19,18 +19,41 @@ export async function apiFetch(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  if (options.body && typeof options.body === "string") {
+  if (
+    options.body &&
+    typeof options.body === "string" &&
+    !headers["Content-Type"]
+  ) {
     headers["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(`${PUBLIC_API_URL}${path}`, {
+  let res = await fetch(`${PUBLIC_API_URL}${path}`, {
     ...options,
     headers,
   });
 
-  // Token expirado — redirecionar para login (apenas no browser, nunca SSR)
+  // Token expirado — tentar renovar o token via API interna do SvelteKit
   if (res.status === 401 && browser) {
-    window.location.href = "/login";
+    try {
+      const tokenRes = await fetch("/api/token");
+      if (tokenRes.ok) {
+        const { token: newToken } = await tokenRes.json();
+        if (newToken) {
+          headers["Authorization"] = `Bearer ${newToken}`;
+          // Retentar a requisição com o novo token
+          res = await fetch(`${PUBLIC_API_URL}${path}`, {
+            ...options,
+            headers,
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao renovar token client-side:", e);
+    }
+
+    if (res.status === 401) {
+      window.location.href = "/login";
+    }
   }
 
   // Organização não encontrada — redirecionar para onboarding (apenas no browser)
