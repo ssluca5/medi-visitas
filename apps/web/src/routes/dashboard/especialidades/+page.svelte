@@ -433,7 +433,7 @@
 		</div>
 		<div>
 			<h1 class="page-title">Especialidades</h1>
-			<p class="page-description">Gerencie as especialidades e subespecialidades médicas</p>
+			<p class="page-description">Gerencie as especialidades e subespecialidades médicas.</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">

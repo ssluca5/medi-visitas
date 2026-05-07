@@ -23,7 +23,7 @@
 		</div>
 		<div>
 			<h1 class="page-title">Gestão / Resumo</h1>
-			<p class="page-description">Métricas e performance de toda a organização</p>
+			<p class="page-description">Métricas e performance de toda a organização.</p>
 		</div>
 	</div>
 </div>

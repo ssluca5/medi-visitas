@@ -228,7 +228,7 @@
 			</div>
 			<div>
 				<h1 class="page-title">Agenda</h1>
-				<p class="page-description">Planeje visitas e acompanhe compromissos</p>
+				<p class="page-description">Planeje visitas e acompanhe compromissos.</p>
 			</div>
 		</div>
 

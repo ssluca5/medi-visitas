@@ -710,7 +710,7 @@
       </div>
       <div class="min-w-0">
         <h1 class="page-title">Relatórios</h1>
-        <p class="page-description">Crie, filtre e exporte relatórios personalizados</p>
+        <p class="page-description">Crie, filtre e exporte relatórios personalizados.</p>
       </div>
     </div>
 

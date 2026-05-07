@@ -591,7 +591,7 @@
     </div>
     <div>
       <h1 class="page-title">Metas</h1>
-      <p class="page-description">Defina, acompanhe e analise os objetivos comerciais da equipe</p>
+      <p class="page-description">Defina, acompanhe e analise os objetivos comerciais da equipe.</p>
     </div>
   </div>
 

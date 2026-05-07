@@ -261,7 +261,7 @@
 				Meu Perfil
 			</h1>
 			<p class="page-description">
-				Gerencie suas informações pessoais e de segurança
+				Gerencie suas informações pessoais e de segurança.
 			</p>
 		</div>
 	</div>

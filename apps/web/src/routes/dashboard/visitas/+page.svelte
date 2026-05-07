@@ -199,7 +199,7 @@
       </div>
       <div>
         <h1 class="page-title">Histórico de Visitas</h1>
-        <p class="page-description">Gerencie seu cronograma global de visitas a profissionais</p>
+        <p class="page-description">Gerencie seu cronograma global de visitas a profissionais.</p>
       </div>
     </div>
     {#if totalCadastrados > 0 || visitas.length > 0}

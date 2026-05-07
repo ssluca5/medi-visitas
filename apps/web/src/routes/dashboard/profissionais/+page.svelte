@@ -603,7 +603,7 @@
 		</div>
 		<div>
 			<h1 class="page-title">Profissionais</h1>
-			<p class="page-description">Gerencie o cadastro e a classificação dos médicos</p>
+			<p class="page-description">Gerencie o cadastro e a classificação dos médicos.</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">

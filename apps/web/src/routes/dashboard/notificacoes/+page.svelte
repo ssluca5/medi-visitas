@@ -93,7 +93,7 @@
 				<p class="page-description">
 					{total} notificação{total !== 1 ? 'ões' : ''} · {naoLidas} não lida{naoLidas !== 1
 						? 's'
-						: ''}
+						: ''}.
 				</p>
 			</div>
 		</div>

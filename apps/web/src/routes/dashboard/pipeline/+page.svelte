@@ -194,7 +194,7 @@
     </div>
     <div>
       <h1 class="page-title">Pipeline</h1>
-      <p class="page-description">Funil de conversão e analytics</p>
+      <p class="page-description">Funil de conversão e analytics.</p>
     </div>
   </div>
   <div class="flex items-center gap-2">

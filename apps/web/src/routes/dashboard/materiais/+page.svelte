@@ -191,7 +191,7 @@
 		</div>
 		<div>
 			<h1 class="page-title">Materiais & Amostras</h1>
-			<p class="page-description">Cadastre as amostras grátis, folders e apresentações</p>
+			<p class="page-description">Cadastre as amostras grátis, folders e apresentações.</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
