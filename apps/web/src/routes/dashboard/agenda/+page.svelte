@@ -10,21 +10,21 @@
 	import CalendarioMensal from '$lib/components/ui/CalendarioMensal.svelte';
 	import PainelSugestoes from '$lib/components/ui/PainelSugestoes.svelte';
 	import type { Visita, MaterialTecnico } from '$lib/types';
-	import { CalendarDays, CalendarRange, Sparkles } from 'lucide-svelte';
+	import { Calendar, CalendarDays, CalendarRange, Sparkles } from 'lucide-svelte';
 
 	// Lazy-loaded: only needed when user opens the sheet
 	const VisitaSheetPromise = import('$lib/components/ui/VisitaSheet.svelte').then(m => m.default);
 
 	interface Props {
-		data: { sessionToken: string | null };
+		data: { sessionToken: string | null; agendaItems?: AgendaItem[] };
 	}
 
 	let { data }: Props = $props();
 
 	// ── State ──
-	let items = $state<AgendaItem[]>([]);
+	let items = $state<AgendaItem[]>(data.agendaItems ?? []);
 	let sugestoes = $state<SugestaoProfissional[]>([]);
-	let loading = $state(true);
+	let loading = $state(false);
 	let loadingSugestoes = $state(false);
 	
 	let materiaisOptions = $state<MaterialTecnico[]>([]);
@@ -153,7 +153,6 @@
 	}
 
 	onMount(() => {
-		loadItems();
 		// Defer non-critical loads so calendar renders first
 		setTimeout(() => { loadSugestoes(); loadMateriais(); }, 0);
 	});
@@ -224,7 +223,7 @@
 	<div class="page-header">
 		<div class="page-header-main">
 			<div class="page-header-icon">
-				<CalendarDays class="h-4.5 w-4.5 text-white" />
+				<Calendar class="h-4.5 w-4.5 text-white" />
 			</div>
 			<div>
 				<h1 class="page-title">Agenda</h1>

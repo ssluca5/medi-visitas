@@ -3,6 +3,7 @@ import { verifyClerkToken } from "../../hooks/auth";
 import { resolveTenant } from "../../hooks/tenant";
 import { buildTenantWhere } from "../../lib/tenant";
 import { prisma } from "../../lib/prisma";
+import { getStaticCache, setStaticCache, invalidateCache } from "../../lib/cache";
 import { z } from "zod";
 
 // ============================================
@@ -36,6 +37,13 @@ const ToggleAtivoSchema = z.object({
 export default async function especialidadesRoutes(
   app: FastifyInstance,
 ): Promise<void> {
+  // Invalidar cache de especialidades em qualquer mutação
+  app.addHook("onResponse", (request, _reply, done) => {
+    if (request.method !== "GET" && request.method !== "OPTIONS") {
+      invalidateCache(`esp:${request.organizationId}`);
+    }
+    done();
+  });
   // ============================================
   // GET /especialidades - Listar especialidades
   // ============================================
@@ -47,6 +55,11 @@ export default async function especialidadesRoutes(
     async (request, reply) => {
       const query = ListEspecialidadesQuerySchema.parse(request.query);
       const { ativo, categoria, incluirInativos } = query;
+
+      // Cache para listagem padrão (sem filtros especiais)
+      const cacheKey = `esp:${request.organizationId}:${ativo ?? ""}:${categoria ?? ""}:${incluirInativos ?? ""}`;
+      const cached = getStaticCache<unknown>(cacheKey);
+      if (cached) return reply.send(cached);
 
       const where: Record<string, unknown> = {
         organizationId: request.organizationId,
@@ -72,7 +85,7 @@ export default async function especialidadesRoutes(
         orderBy: { nome: "asc" },
       });
 
-      return reply.send({
+      const result = {
         data: especialidades.map(
           (e: {
             id: string;
@@ -90,7 +103,9 @@ export default async function especialidadesRoutes(
             updatedAt: e.updatedAt,
           }),
         ),
-      });
+      };
+      setStaticCache(cacheKey, result);
+      return reply.send(result);
     },
   );
 

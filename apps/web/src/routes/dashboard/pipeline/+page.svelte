@@ -21,17 +21,17 @@
   } from '$lib/types';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; pipeline?: PipelineResponse | null };
   }
 
   let { data }: Props = $props();
 
   // Estado
-  let pipeline = $state<PipelineResponse | null>(null);
+  let pipeline = $state<PipelineResponse | null>(data.pipeline ?? null);
   let metricas = $state<MetricasPipeline | null>(null);
   let evolucao = $state<EvolucaoPeriodo[]>([]);
   let visitasPeriodo = $state<VisitasPeriodo[]>([]);
-  let loading = $state(true);
+  let loading = $state(false);
   let erro = $state<string | null>(null);
   let busca = $state('');
   let granularidade = $state<'semana' | 'mes'>('semana');
@@ -139,8 +139,23 @@
   }
 
   onMount(() => {
-    carregarDados();
+    // Pipeline data já vem do server; carregar métricas e charts client-side
+    carregarMetricas();
   });
+
+  async function carregarMetricas() {
+    const qs = `dataInicio=${dataInicio}&dataFim=${dataFim}`;
+    try {
+      const [metricasRes, evolucaoRes, visitasRes] = await Promise.all([
+        apiFetch(`/pipeline/metricas?${qs}`, data.sessionToken),
+        apiFetch(`/pipeline/evolucao?${qs}&granularidade=${granularidade}`, data.sessionToken),
+        apiFetch(`/pipeline/visitas-por-periodo?${qs}&granularidade=${granularidade}`, data.sessionToken),
+      ]);
+      if (metricasRes.ok) metricas = await metricasRes.json();
+      if (evolucaoRes.ok) { const json = await evolucaoRes.json(); evolucao = json.data ?? []; }
+      if (visitasRes.ok) { const json = await visitasRes.json(); visitasPeriodo = json.data ?? []; }
+    } catch (e) { console.error(e); }
+  }
 
   async function moverProfissional(profId: string, origem: EstagioPipeline, destino: EstagioPipeline) {
     if (!pipeline) return;

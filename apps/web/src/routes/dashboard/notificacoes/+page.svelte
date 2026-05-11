@@ -91,9 +91,7 @@
 			<div>
 				<h1 class="page-title">Notificações</h1>
 				<p class="page-description">
-					{total} notificação{total !== 1 ? 'ões' : ''} · {naoLidas} não lida{naoLidas !== 1
-						? 's'
-						: ''}.
+					{total} {total === 1 ? 'notificação' : 'notificações'} · {naoLidas} não lida{naoLidas !== 1 ? 's' : ''}.
 				</p>
 			</div>
 		</div>

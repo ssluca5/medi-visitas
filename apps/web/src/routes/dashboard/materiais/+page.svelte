@@ -10,13 +10,13 @@
   import { onMount } from 'svelte';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; materiais: MaterialTecnico[] };
   }
 
   let { data }: Props = $props();
 
-  let materiais = $state<MaterialTecnico[]>([]);
-  let loading = $state(true);
+  let materiais = $state<MaterialTecnico[]>(data.materiais ?? []);
+  let loading = $state(false);
   let error = $state<string | null>(null);
 
   // Filters
@@ -59,7 +59,7 @@
     }
   }
 
-  onMount(() => loadMateriais());
+  onMount(() => {});
 
   function handleNovo() {
     materialEmEdicao = null;
@@ -126,8 +126,12 @@
     try {
       const res = await apiFetch(`/materiais/${itemToDelete.id}`, data.sessionToken, { method: 'DELETE' });
       if (res.ok) {
-        toasts.show('success', 'Material excluído');
+        toasts.show('error', 'Material excluído');
         materiais = materiais.filter(m => m.id !== itemToDelete!.id);
+        if (materialEmEdicao?.id === itemToDelete.id) {
+          sheetOpen = false;
+          materialEmEdicao = null;
+        }
       } else {
         toasts.show('error', 'Erro ao excluir material');
       }
@@ -399,8 +403,13 @@
       <!-- Ações -->
       <div class="pt-4 border-t border-[rgb(var(--slate-100))]">
         <div class="flex flex-col-reverse gap-3">
+          {#if materialEmEdicao}
+            <Button variant="destructive" type="button" onclick={() => handleExcluir(materialEmEdicao!)} class="w-full">
+              Excluir
+            </Button>
+          {/if}
           <Button onclick={handleSalvar} disabled={isSaving || !formNome.trim()} class="w-full">
-            {isSaving ? 'Salvando...' : 'Salvar Material'}
+            {isSaving ? 'Salvando...' : materialEmEdicao ? 'Salvar Alterações' : 'Cadastrar Material'}
           </Button>
           <Button variant="outline" onclick={() => sheetOpen = false} class="w-full">Cancelar</Button>
         </div>

@@ -192,6 +192,7 @@
       });
 
       if (res.ok) {
+        toasts.show('success', visita?.id ? 'Visita salva.' : 'Visita cadastrada.');
         if (onsave) onsave();
         onclose();
       } else {
@@ -218,6 +219,7 @@
     try {
       const res = await apiFetch(`/visitas/${visita.id}`, sessionToken, { method: 'DELETE' });
       if (res.ok) {
+        toasts.show('error', 'Visita excluída.');
         ondelete(visita.id);
         confirmDeleteOpen = false;
         onclose();
@@ -245,7 +247,7 @@
     </div>
 
     <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto pr-2 pb-6">
+    <div class="overflow-y-auto pr-2 pb-4">
       <form
         onsubmit={handleSalvar}
         class="space-y-5"
@@ -272,7 +274,7 @@
             </div>
           {:else if !profissionalId && !visita?.profissionalId}
             <div class="relative">
-              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="profissionalBusca">Selecione o Profissional</label>
+              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="profissionalBusca">Selecione o Profissional <span class="text-[rgb(var(--slate-400))]">*</span></label>
               {#if selectedProfissionalForNew}
                 <div class="flex items-center justify-between border border-[rgb(var(--slate-200))] rounded-lg py-2 px-3 bg-indigo-50">
                   <span class="text-sm font-medium text-[rgb(var(--slate-800))]">{selectedProfissionalForNew.nome}</span>
@@ -442,7 +444,7 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="mt-auto border-t border-[rgb(var(--slate-100))] py-5">
+    <div class="mt-2 border-t border-[rgb(var(--slate-100))] pt-4">
       {#if isReadOnly}
         <Button variant="outline" type="button" onclick={onclose} class="w-full">
           Fechar
@@ -459,7 +461,7 @@
             {#if loading}
               Salvando...
             {:else}
-              Salvar Visita
+              {visita?.id ? 'Salvar Alterações' : 'Cadastrar Visita'}
             {/if}
           </Button>
 

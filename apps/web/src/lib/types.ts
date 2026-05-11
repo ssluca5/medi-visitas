@@ -2,36 +2,113 @@
 // Tipos compartilhados — MediVisitas Frontend
 // ──────────────────────────────────────────────
 
-// Enums do Prisma — fonte única de verdade (evita duplicação de string literals)
-import {
-  StatusVisita,
-  TipoMaterial,
-  PotencialPrescricao,
-  EstagioPipeline,
-  ClassificacaoRelacionamento,
-  Sexo,
-  StatusAgenda,
-  PrioridadeAgenda,
-  Tratamento,
-  TipoNotificacao,
-  PrioridadeNotificacao,
-  TipoContato,
-} from "@prisma/client";
+// Literais espelhados do Prisma para evitar @prisma/client no frontend.
+export const StatusVisita = {
+  AGENDADA: "AGENDADA",
+  REALIZADA: "REALIZADA",
+  CANCELADA: "CANCELADA",
+  NAO_REALIZADA: "NAO_REALIZADA",
+} as const;
 
-export {
-  StatusVisita,
-  TipoMaterial,
-  PotencialPrescricao,
-  EstagioPipeline,
-  ClassificacaoRelacionamento,
-  Sexo,
-  StatusAgenda,
-  PrioridadeAgenda,
-  Tratamento,
-  TipoNotificacao,
-  PrioridadeNotificacao,
-  TipoContato,
-};
+export const TipoMaterial = {
+  BULA: "BULA",
+  FOLDER: "FOLDER",
+  APRESENTACAO: "APRESENTACAO",
+  AMOSTRA: "AMOSTRA",
+  OUTRO: "OUTRO",
+} as const;
+
+export const PotencialPrescricao = {
+  BAIXO: "BAIXO",
+  MEDIO: "MEDIO",
+  ALTO: "ALTO",
+  ESTRATEGICO: "ESTRATEGICO",
+} as const;
+
+export const EstagioPipeline = {
+  PROSPECTADO: "PROSPECTADO",
+  VISITADO: "VISITADO",
+  INTERESSADO: "INTERESSADO",
+  PRESCRITOR: "PRESCRITOR",
+  FIDELIZADO: "FIDELIZADO",
+} as const;
+
+export const ClassificacaoRelacionamento = {
+  FORTE: "FORTE",
+  INTERMEDIARIO: "INTERMEDIARIO",
+  FRACO: "FRACO",
+} as const;
+
+export const Sexo = {
+  MASCULINO: "MASCULINO",
+  FEMININO: "FEMININO",
+  NAO_INFORMADO: "NAO_INFORMADO",
+} as const;
+
+export const StatusAgenda = {
+  PLANEJADO: "PLANEJADO",
+  CONFIRMADO: "CONFIRMADO",
+  REALIZADO: "REALIZADO",
+  CANCELADO: "CANCELADO",
+} as const;
+
+export const PrioridadeAgenda = {
+  BAIXA: "BAIXA",
+  MEDIA: "MEDIA",
+  ALTA: "ALTA",
+  URGENTE: "URGENTE",
+} as const;
+
+export const Tratamento = {
+  DR: "DR",
+  DRA: "DRA",
+  PROF: "PROF",
+  PROFA: "PROFA",
+  SR: "SR",
+  SRA: "SRA",
+} as const;
+
+export const TipoNotificacao = {
+  VISITA_HOJE: "VISITA_HOJE",
+  VISITA_ATRASADA: "VISITA_ATRASADA",
+  SEM_VISITA_30_DIAS: "SEM_VISITA_30_DIAS",
+  SEM_VISITA_60_DIAS: "SEM_VISITA_60_DIAS",
+  PROSPECTADO_PENDENTE: "PROSPECTADO_PENDENTE",
+  SISTEMA: "SISTEMA",
+} as const;
+
+export const PrioridadeNotificacao = {
+  INFO: "INFO",
+  NORMAL: "NORMAL",
+  ALTA: "ALTA",
+  URGENTE: "URGENTE",
+} as const;
+
+export const TipoContato = {
+  TELEFONE: "TELEFONE",
+  EMAIL: "EMAIL",
+  WHATSAPP: "WHATSAPP",
+  OUTRO: "OUTRO",
+} as const;
+
+export type StatusVisita = (typeof StatusVisita)[keyof typeof StatusVisita];
+export type TipoMaterial = (typeof TipoMaterial)[keyof typeof TipoMaterial];
+export type PotencialPrescricao =
+  (typeof PotencialPrescricao)[keyof typeof PotencialPrescricao];
+export type EstagioPipeline =
+  (typeof EstagioPipeline)[keyof typeof EstagioPipeline];
+export type ClassificacaoRelacionamento =
+  (typeof ClassificacaoRelacionamento)[keyof typeof ClassificacaoRelacionamento];
+export type Sexo = (typeof Sexo)[keyof typeof Sexo];
+export type StatusAgenda = (typeof StatusAgenda)[keyof typeof StatusAgenda];
+export type PrioridadeAgenda =
+  (typeof PrioridadeAgenda)[keyof typeof PrioridadeAgenda];
+export type Tratamento = (typeof Tratamento)[keyof typeof Tratamento];
+export type TipoNotificacao =
+  (typeof TipoNotificacao)[keyof typeof TipoNotificacao];
+export type PrioridadeNotificacao =
+  (typeof PrioridadeNotificacao)[keyof typeof PrioridadeNotificacao];
+export type TipoContato = (typeof TipoContato)[keyof typeof TipoContato];
 
 // Alias para compatibilidade (frontend usa ContatoTipo, Prisma usa TipoContato)
 export type ContatoTipo = TipoContato;

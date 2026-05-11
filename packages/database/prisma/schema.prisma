@@ -221,6 +221,7 @@ model Especialidade {
   @@index([categoria])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
 model Endereco {
@@ -294,6 +295,8 @@ model Profissional {
   @@index([classificacao])
   @@index([subEspecialidadeId])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, estagioPipeline, deletedAt])
 }
 
 model ContatoProfissional {
@@ -376,6 +379,7 @@ model MaterialTecnico {
   @@index([tipo])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
 model VisitaMaterial {
@@ -418,6 +422,7 @@ model AgendaItem {
   @@index([deletedAt])
   @@index([organizationId])
   @@index([organizationId, dataHoraInicio])
+  @@index([organizationId, userId, deletedAt])
 }
 
 // ============================================
@@ -462,10 +467,12 @@ model Notificacao {
 
   @@index([userId])
   @@index([userId, lida])
+  @@index([userId, deletedAt, lida])
   @@index([tipo])
   @@index([createdAt])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, userId, deletedAt])
 }
 
 model Meta {

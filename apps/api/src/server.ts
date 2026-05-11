@@ -33,10 +33,19 @@ async function start() {
 
   try {
     await app.listen({ port, host });
-    console.log(`API running at http://${host}:${port}`);
+    app.log.info(`API running at http://${host}:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
+  }
+
+  // Graceful shutdown — fecha conexões antes de encerrar
+  for (const signal of ["SIGTERM", "SIGINT"] as const) {
+    process.on(signal, async () => {
+      app.log.info(`Received ${signal}, shutting down...`);
+      await app.close();
+      process.exit(0);
+    });
   }
 }
 

@@ -25,7 +25,13 @@
   </h1>
 
   <p class="text-sm mb-6 text-[rgb(var(--slate-400))]">
-    {page.error?.message ?? 'Ocorreu um erro inesperado.'}
+    {#if page.status === 404}
+      A página que você procura não existe ou foi movida.
+    {:else if page.status === 403}
+      Você não tem permissão para acessar este recurso.
+    {:else}
+      Ocorreu um erro inesperado. Tente novamente.
+    {/if}
   </p>
 
   <div class="flex gap-3">

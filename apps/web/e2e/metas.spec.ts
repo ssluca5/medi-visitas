@@ -37,7 +37,13 @@ function mockMeta(overrides: Record<string, unknown> = {}) {
  * Setup all API mocks AND the E2E auth bypass cookie.
  * Call before navigating to any dashboard route.
  */
-async function setupE2E(page: import("@playwright/test").Page) {
+async function setupE2E(
+  page: import("@playwright/test").Page,
+  options: { plano?: "PROFISSIONAL" | "EQUIPE"; temGestaoEquipe?: boolean } = {},
+) {
+  const plano = options.plano ?? "PROFISSIONAL";
+  const temGestaoEquipe = options.temGestaoEquipe ?? plano === "EQUIPE";
+
   // Auth bypass cookie — hooks.server.ts checks for this
   await page.context().addCookies([
     {
@@ -56,12 +62,12 @@ async function setupE2E(page: import("@playwright/test").Page) {
         concluido: true,
         status: "ATIVO",
         role: "OWNER",
-        plano: "PROFISSIONAL",
+        plano,
         organizationId: "org_123",
         trialExpiraEm: null,
         limites: {
           temMetas: true,
-          temGestaoEquipe: true,
+          temGestaoEquipe,
           temRelatorios: true,
           temIa: true,
           pacotesIaDisponiveis: false,
@@ -90,6 +96,26 @@ async function setupE2E(page: import("@playwright/test").Page) {
   await page.route(`${API}/metas/alertas`, (route) =>
     route.fulfill({ status: 200, json: [] }),
   );
+
+  await page.route(`${API}/organizacao/membros`, (route) =>
+    route.fulfill({
+      status: 200,
+      json: {
+        data: [
+          {
+            userId: "test_user_001",
+            role: "OWNER",
+            user: { name: "Test User", email: "test@example.com" },
+          },
+          {
+            userId: "test_user_002",
+            role: "MEMBER",
+            user: { name: "Ana Equipe", email: "ana@example.com" },
+          },
+        ],
+      },
+    }),
+  );
 }
 
 // ── Tests ──
@@ -104,16 +130,19 @@ test.describe("Tela de Metas", () => {
     await page.waitForLoadState("networkidle");
 
     // Page heading
-    await expect(page.getByRole("heading", { name: "Metas" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Metas", exact: true }),
+    ).toBeVisible();
 
     // Empty state
-    await expect(page.getByText("Nenhuma meta criada")).toBeVisible();
+    await expect(page.getByText("Nenhuma meta encontrada")).toBeVisible();
 
-    // Templates
-    await expect(page.locator(".tmpl")).toHaveCount(6);
+    await expect(
+      page.getByText("Crie uma meta com pelo menos um indicador"),
+    ).toBeVisible();
   });
 
-  test("Filled state: renderiza lista de metas com KPIs", async ({ page }) => {
+  test("Filled state: renderiza lista de metas com resumo real", async ({ page }) => {
     await setupE2E(page);
 
     // Override GET metas with data
@@ -133,42 +162,10 @@ test.describe("Tela de Metas", () => {
       "Meta de Visitas Q2",
     );
 
-    // KPI cards
-    await expect(page.locator(".kpi-card")).toHaveCount(4);
-
-    // Cascade
-    await expect(page.locator(".cascade-cell")).toHaveCount(3);
-
-    // Sidebar
-    await expect(page.getByText("Insights Inteligentes")).toBeVisible();
-  });
-
-  test("Toggle persona: alterna entre Propagandista e Gestor", async ({
-    page,
-  }) => {
-    await setupE2E(page);
-
-    await page.route(`${API}/metas`, (route) => {
-      if (route.request().method() === "GET") {
-        return route.fulfill({ status: 200, json: [mockMeta()] });
-      }
-      return route.continue();
-    });
-
-    await page.goto(METAS_PATH);
-    await page.waitForLoadState("networkidle");
-
-    // Go to Gestor
-    await page.getByRole("button", { name: "Equipe" }).click();
-    await page.waitForTimeout(400);
-
-    await expect(page.getByText("Atingimento medio da equipe")).toBeVisible();
-
-    // Back to Propagandista
-    await page.getByRole("button", { name: "Eu", exact: true }).click();
-    await page.waitForTimeout(400);
-
-    await expect(page.locator(".kpi-card")).toHaveCount(4);
+    await expect(page.getByText("Progresso medio")).toBeVisible();
+    await expect(page.getByText("50/100")).toBeVisible();
+    await expect(page.getByText("30/50")).toBeVisible();
+    await expect(page.getByText("5/10")).toBeVisible();
   });
 
   test("CRUD: cria meta via Sheet", async ({ page }) => {
@@ -194,13 +191,14 @@ test.describe("Tela de Metas", () => {
     await page.waitForLoadState("networkidle");
 
     // Open sheet
-    await page.getByRole("button", { name: "Nova Meta" }).click();
+    await page.getByRole("button", { name: "Nova Meta" }).first().click();
     await page.waitForTimeout(400);
 
-    await expect(page.getByText("Defina o período")).toBeVisible();
+    await expect(page.getByText("Defina o periodo")).toBeVisible();
 
     await page.fill("#meta-nome", "Meta de Teste E2E");
-    await page.getByRole("button", { name: "Criar Meta" }).click();
+    await page.fill("#meta-visitas", "25");
+    await page.getByRole("button", { name: "Cadastrar Meta" }).click();
     await page.waitForTimeout(600);
 
     // Meta should appear
@@ -244,42 +242,36 @@ test.describe("Tela de Metas", () => {
     await expect(page.locator(".goal")).toHaveCount(0);
   });
 
-  test("Validação: erro quando nome está vazio", async ({ page }) => {
+  test("Validação: mantém Cadastrar Meta desabilitado quando nome está vazio", async ({ page }) => {
     await setupE2E(page);
 
     await page.goto(METAS_PATH);
     await page.waitForLoadState("networkidle");
 
-    await page.getByRole("button", { name: "Nova Meta" }).click();
+    await page.getByRole("button", { name: "Nova Meta" }).first().click();
     await page.waitForTimeout(400);
 
-    // Clear name and submit
+    // O botão só habilita quando todos os obrigatórios estiverem preenchidos.
     await page.fill("#meta-nome", "");
-    await page.getByRole("button", { name: "Criar Meta" }).click();
-    await page.waitForTimeout(400);
+    await page.fill("#meta-visitas", "10");
 
-    await expect(page.getByText("O nome da meta e obrigatorio")).toBeVisible({
-      timeout: 5000,
-    });
+    await expect(page.getByRole("button", { name: "Cadastrar Meta" })).toBeDisabled();
   });
 
-  test("Validação: erro quando data fim <= data inicio", async ({ page }) => {
+  test("Validação: mantém Cadastrar Meta desabilitado quando data fim <= data inicio", async ({ page }) => {
     await setupE2E(page);
 
     await page.goto(METAS_PATH);
     await page.waitForLoadState("networkidle");
 
-    await page.getByRole("button", { name: "Nova Meta" }).click();
+    await page.getByRole("button", { name: "Nova Meta" }).first().click();
     await page.waitForTimeout(400);
 
     await page.fill("#meta-nome", "Meta Inválida");
     await page.fill("#meta-data-inicio", "2026-12-01");
     await page.fill("#meta-data-fim", "2026-01-01");
-    await page.getByRole("button", { name: "Criar Meta" }).click();
-    await page.waitForTimeout(400);
+    await page.fill("#meta-visitas", "10");
 
-    await expect(
-      page.getByText("A data final deve ser maior que a data inicial"),
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole("button", { name: "Cadastrar Meta" })).toBeDisabled();
   });
 });

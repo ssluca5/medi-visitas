@@ -311,7 +311,7 @@
 							<input type="text" bind:value={editedName} class="border border-slate-200 rounded-md px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full sm:w-auto" placeholder="Seu nome" onkeydown={(e) => e.key === 'Enter' && saveName()} />
 							<div class="flex gap-1">
 								<Button variant="outline" size="sm" onclick={() => isEditingName = false}>Cancelar</Button>
-								<Button size="sm" onclick={saveName}>Salvar</Button>
+								<Button size="sm" onclick={saveName}>Salvar Alterações</Button>
 							</div>
 						{:else}
 							<div class="flex flex-col items-end">

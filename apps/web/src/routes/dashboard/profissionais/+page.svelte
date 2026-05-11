@@ -42,15 +42,23 @@
 	} from '$lib/types';
 
 	interface Props {
-		data: { sessionToken: string | null };
+		data: { sessionToken: string | null; profissionais?: any; especialidades?: any[] };
 	}
 
 	let { data }: Props = $props();
 
+	function normalizeList<T>(value: unknown): T[] {
+		if (Array.isArray(value)) return value;
+		if (value && typeof value === 'object' && Array.isArray((value as { data?: unknown }).data)) {
+			return (value as { data: T[] }).data;
+		}
+		return [];
+	}
+
 	// ── Estado ──
-	let profissionais = $state<Profissional[]>([]);
-	let pagination = $state<PaginationInfo>({ page: 1, pageSize: 20, total: 0, totalPages: 0 });
-	let loading = $state(true);
+	let profissionais = $state<Profissional[]>(data.profissionais?.data ?? []);
+	let pagination = $state<PaginationInfo>(data.profissionais ? { page: data.profissionais.page ?? 1, pageSize: data.profissionais.pageSize ?? 20, total: data.profissionais.total ?? 0, totalPages: data.profissionais.totalPages ?? 0 } : { page: 1, pageSize: 20, total: 0, totalPages: 0 });
+	let loading = $state(false);
 	let error = $state<string | null>(null);
 
 	// Filtros
@@ -64,7 +72,7 @@
 	);
 
 	// Total real de profissionais cadastrados (sem filtros)
-	let totalCadastrados = $state(0);
+	let totalCadastrados = $state(data.profissionais?.total ?? 0);
 
 	function limparFiltros() {
 		filtroBusca = '';
@@ -77,7 +85,10 @@
 	// Sheet
 	let sheetOpen = $state(false);
 	let profissionalEmEdicao = $state<ProfissionalFormData | null>(null);
-	let especialidades = $state<Array<{ id: string; nome: string; categoria: string }>>([]);
+	let profissionalAtual = $state<Profissional | null>(null);
+	let especialidades = $state<Array<{ id: string; nome: string; categoria: string }>>(
+		normalizeList(data.especialidades)
+	);
 	let subEspecialidades = $state<SubEspecialidade[]>([]);
 
 	// Delete dialog
@@ -117,6 +128,7 @@
 	let formObservacoes = $state('');
 	let formNomeConjuge = $state('');
 	let formDataNascConjuge = $state('');
+	let formProfissionalValido = $derived(!!formNome.trim());
 
 	// Modal de consulta rápida
 	let profissionalConsulta = $state<Profissional | null>(null);
@@ -200,7 +212,7 @@
 
 	// ── Especialidades agrupadas por categoria ──
 	let especialidadesAgrupadas = $derived(
-		especialidades.reduce(
+		normalizeList<{ id: string; nome: string; categoria: string }>(especialidades).reduce(
 			(acc, esp) => {
 				const cat = esp.categoria;
 				if (!acc[cat]) acc[cat] = [];
@@ -295,17 +307,14 @@
 			const response = await apiFetch('/especialidades', data.sessionToken);
 			if (response.ok) {
 				const json = await response.json();
-				especialidades = json.data;
+				especialidades = normalizeList(json);
 			}
 		} catch {
 			especialidades = [];
 		}
 	}
 
-	onMount(() => {
-		fetchProfissionais(1);
-		fetchEspecialidades();
-	});
+	onMount(() => {});
 
 	// ── Auto-open edit Sheet when navigated from profile "Editar Cadastro" ──
 	let editIdFromUrl = $derived($page.url.searchParams.get('editId'));
@@ -326,6 +335,7 @@
 	// ── Ações ──
 	function handleNovoProfissional() {
 		profissionalEmEdicao = null;
+		profissionalAtual = null;
 		formNome = '';
 		formCrm = '';
 		formEmail = '';
@@ -354,6 +364,7 @@
 	}
 
 	function handleEditarProfissional(prof: Profissional) {
+		profissionalAtual = prof;
 		profissionalEmEdicao = {
 			id: prof.id,
 			nome: prof.nome,
@@ -571,6 +582,11 @@
 		deleteConfirmOpen = true;
 	}
 
+	function handleExcluirProfissionalEditando() {
+		if (!profissionalAtual) return;
+		handleExcluirProfissional(profissionalAtual);
+	}
+
 	async function confirmDeleteProfissional() {
 		if (!profToDelete) return;
 
@@ -585,7 +601,12 @@
 		}
 		profissionais = profissionais.filter((p) => p.id !== profToDelete!.id);
 		pagination.total = pagination.total - 1;
-		toasts.show('success', `"${profToDelete.nome}" excluído.`);
+		toasts.show('error', `"${profToDelete.nome}" excluído.`);
+		if (profissionalEmEdicao?.id === profToDelete.id) {
+			sheetOpen = false;
+			profissionalEmEdicao = null;
+			profissionalAtual = null;
+		}
 		deleteConfirmOpen = false;
 		profToDelete = null;
 	}
@@ -707,7 +728,102 @@
 		</Button>
 	</EmptyState>
 {:else}
-	<div class="table-shell">
+	<div class="space-y-3 md:hidden">
+		{#each profissionais as prof (prof.id)}
+			{@const isAtivo = !prof.deletedAt}
+			<article
+				class="rounded-xl border border-[rgb(var(--slate-200))] bg-white p-4 shadow-sm transition-colors active:bg-[rgb(var(--slate-50))]"
+				class:opacity-60={!isAtivo}
+			>
+				<button
+					type="button"
+					class="w-full text-left"
+					onclick={() => handleEditarProfissional(prof)}
+				>
+					<div class="flex items-start gap-3">
+						<div
+							class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold shadow-sm"
+							class:bg-blue-600={isAtivo}
+							class:text-white={isAtivo}
+							class:bg-[rgb(var(--slate-200))]={!isAtivo}
+							class:text-[rgb(var(--slate-400))]={!isAtivo}
+						>
+							{prof.nome.charAt(0).toUpperCase()}
+						</div>
+						<div class="min-w-0 flex-1">
+							<p class="table-cell-primary truncate">{prof.nome}</p>
+							<p class="table-cell-secondary truncate">{prof.crm || 'Sem CRM'}</p>
+							<p class="mt-1 text-xs text-[rgb(var(--slate-500))] truncate">
+								{prof.especialidade?.nome || 'Sem especialidade'}
+								{#if prof.subEspecialidade?.nome}
+									<span> · {prof.subEspecialidade.nome}</span>
+								{/if}
+							</p>
+						</div>
+					</div>
+
+					<div class="mt-3 flex flex-wrap gap-2">
+						<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
+							{potencialConfig[prof.potencial]?.label ?? prof.potencial}
+						</span>
+						<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {estagioConfig[prof.estagioPipeline].class}">
+							{estagioConfig[prof.estagioPipeline].label}
+						</span>
+					</div>
+				</button>
+
+				<div class="mt-3 flex items-center justify-end gap-1 border-t border-[rgb(var(--slate-100))] pt-3">
+					<button
+						onclick={() => { profissionalConsulta = prof; consultaTab = 'dados'; consultaOpen = true; }}
+						aria-label="Ver detalhes de {prof.nome}"
+						title="Ver detalhes"
+						class="row-action hover:text-blue-600"
+					>
+						<Eye class="w-3.5 h-3.5" />
+					</button>
+					<a
+						href={`/dashboard/profissionais/${prof.id}`}
+						aria-label="Agenda e visitas de {prof.nome}"
+						title="Agenda / Visitas"
+						class="row-action hover:text-emerald-600"
+					>
+						<Calendar class="w-3.5 h-3.5" />
+					</a>
+					<button
+						onclick={() => handleAvancarEstagio(prof)}
+						disabled={prof.estagioPipeline === 'FIDELIZADO' || !isAtivo}
+						aria-label="Avançar estágio de {prof.nome}"
+						title="Avançar estágio"
+						class="row-action disabled:opacity-20 disabled:cursor-not-allowed"
+					>
+						<ArrowRight class="w-3.5 h-3.5" />
+					</button>
+					<button
+						onclick={() => handleToggleAtivo(prof)}
+						aria-label={isAtivo ? `Inativar ${prof.nome}` : `Ativar ${prof.nome}`}
+						title={isAtivo ? 'Inativar' : 'Ativar'}
+						class="row-action {isAtivo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
+					>
+						{#if isAtivo}
+							<Power class="w-3.5 h-3.5" />
+						{:else}
+							<Play class="w-3.5 h-3.5" />
+						{/if}
+					</button>
+					<button
+						onclick={() => handleExcluirProfissional(prof)}
+						aria-label="Excluir {prof.nome}"
+						title="Excluir"
+						class="row-action hover:text-red-600"
+					>
+						<Trash2 class="w-3.5 h-3.5" />
+					</button>
+				</div>
+			</article>
+		{/each}
+	</div>
+
+	<div class="table-shell hidden md:block">
 		<table class="data-table" aria-label="Lista de profissionais">
 			<thead>
 				<tr>
@@ -1255,7 +1371,12 @@
 			<!-- Ações -->
 			<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
 				<div class="flex flex-col-reverse gap-3">
-					<Button type="submit" form="profissionalForm" onclick={handleSalvarProfissional} class="w-full">
+					{#if profissionalAtual}
+						<Button variant="destructive" type="button" onclick={handleExcluirProfissionalEditando} class="w-full">
+							Excluir
+						</Button>
+					{/if}
+					<Button type="submit" form="profissionalForm" onclick={handleSalvarProfissional} class="w-full" disabled={!formProfissionalValido}>
 						{profissionalEmEdicao ? 'Salvar Alterações' : 'Cadastrar Profissional'}
 					</Button>
 					<Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full">Cancelar</Button>

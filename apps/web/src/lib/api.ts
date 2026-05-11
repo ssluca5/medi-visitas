@@ -1,6 +1,34 @@
 import { PUBLIC_API_URL } from "$env/static/public";
 import { browser } from "$app/environment";
 
+// Cache em memória para GETs com TTL de 30s
+const cache = new Map<string, { data: Response; expiry: number }>();
+const CACHE_TTL = 30_000;
+const MAX_CACHE_SIZE = 100;
+
+// Paths que NUNCA devem ser cacheados (dados de sessão/tempo-real)
+const NO_CACHE_PATHS = ["/me", "/onboarding", "/notificacoes", "/billing"];
+
+function getCacheKey(path: string, token: string | null): string {
+  return `${token?.slice(-8) ?? "anon"}:${path}`;
+}
+
+function shouldCache(path: string, method: string): boolean {
+  if (method !== "GET") return false;
+  return !NO_CACHE_PATHS.some((p) => path.startsWith(p));
+}
+
+/** Invalida cache de um path específico ou todos de um prefixo */
+export function invalidateCache(pathPrefix?: string): void {
+  if (!pathPrefix) {
+    cache.clear();
+    return;
+  }
+  for (const key of cache.keys()) {
+    if (key.includes(pathPrefix)) cache.delete(key);
+  }
+}
+
 /**
  * Fetch autenticado para a API backend.
  * O token JWT é passado pelo layout via data prop.
@@ -11,6 +39,22 @@ export async function apiFetch(
   token: string | null,
   options: RequestInit = {},
 ): Promise<Response> {
+  const method = (options.method ?? "GET").toUpperCase();
+
+  // Invalidar cache em mutações
+  if (method !== "GET" && browser) {
+    invalidateCache(path.split("/").slice(0, 2).join("/"));
+  }
+
+  // Verificar cache para GETs (apenas client-side)
+  if (browser && shouldCache(path, method)) {
+    const key = getCacheKey(path, token);
+    const cached = cache.get(key);
+    if (cached && cached.expiry > Date.now()) {
+      return cached.data.clone();
+    }
+  }
+
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
   };
@@ -82,6 +126,17 @@ export async function apiFetch(
     } catch {
       // Não é JSON — seguir normalmente
     }
+  }
+
+  // Cachear resposta bem-sucedida de GETs
+  if (browser && res.ok && shouldCache(path, method)) {
+    const key = getCacheKey(path, token);
+    if (cache.size >= MAX_CACHE_SIZE) {
+      // Evict oldest entry
+      const firstKey = cache.keys().next().value;
+      if (firstKey) cache.delete(firstKey);
+    }
+    cache.set(key, { data: res.clone(), expiry: Date.now() + CACHE_TTL });
   }
 
   return res;

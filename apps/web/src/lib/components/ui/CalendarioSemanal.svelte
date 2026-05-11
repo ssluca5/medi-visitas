@@ -140,8 +140,66 @@
 		</button>
 	</div>
 
+	<!-- Lista mobile -->
+	<div class="flex-1 space-y-3 overflow-y-auto md:hidden">
+		{#each diasSemana as dia}
+			{@const diaItems = itemsPorDia.get(getLocalISODate(dia)) ?? []}
+			<section class="rounded-xl border border-[rgb(var(--slate-200))] bg-white p-3 shadow-sm">
+				<div class="mb-3 flex items-center justify-between">
+					<div>
+						<p class="text-[11px] font-semibold uppercase text-[rgb(var(--slate-400))]">
+							{dayFormatter.format(dia)}
+						</p>
+						<p class="text-sm font-semibold text-[rgb(var(--slate-800))]">
+							{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(dia)}
+						</p>
+					</div>
+					{#if isHoje(dia)}
+						<span class="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">Hoje</span>
+					{/if}
+				</div>
+
+				{#if diaItems.length > 0}
+					<div class="space-y-2">
+						{#each diaItems as item}
+							<button
+								type="button"
+								class="w-full rounded-lg border border-[rgb(var(--slate-200))] bg-[rgb(var(--slate-50))]/40 p-3 text-left transition-colors active:bg-[rgb(var(--slate-100))]"
+								onclick={() => onItemClick(item)}
+							>
+								<div class="flex items-start justify-between gap-3">
+									<div class="min-w-0">
+										<p class="truncate text-sm font-semibold text-[rgb(var(--slate-800))]">
+											{item.profissional?.nome ?? 'Profissional'}
+										</p>
+										{#if item.profissional?.especialidade}
+											<p class="truncate text-xs text-[rgb(var(--slate-500))]">
+												{item.profissional.especialidade.nome}
+											</p>
+										{/if}
+									</div>
+									<span class="shrink-0 text-xs font-medium text-[rgb(var(--slate-500))]">
+										{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(item.dataHoraInicio))}
+									</span>
+								</div>
+							</button>
+						{/each}
+					</div>
+				{:else}
+					<button
+						type="button"
+						class="w-full rounded-lg border border-dashed border-[rgb(var(--slate-200))] px-3 py-3 text-center text-xs font-medium text-[rgb(var(--slate-400))] transition-colors active:bg-[rgb(var(--slate-50))]"
+						onclick={() => onSlotClick?.(dia, 9)}
+					>
+						Nenhum agendamento
+					</button>
+				{/if}
+			</section>
+		{/each}
+	</div>
+
 	<!-- Grade semanal -->
-	<div class="flex-1 overflow-auto">
+	<div class="hidden flex-1 overflow-auto md:block">
 		<div class="grid grid-cols-[60px_repeat(7,minmax(0,1fr))] min-w-[720px]">
 			<!-- Cabeçalho dos dias -->
 			<div class="sticky top-0 z-10 bg-white border-b border-[rgb(var(--slate-100))]"></div>

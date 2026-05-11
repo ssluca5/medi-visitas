@@ -38,8 +38,20 @@ export type MetaComProgresso = MetaRecord & {
 };
 
 function percentual(realizado: number, meta: number): number {
-  if (meta <= 0) return 100;
+  if (meta <= 0) return 0;
   return Math.round((realizado / meta) * 100);
+}
+
+function calcularGeral(
+  itens: Array<{ meta: number; percentual: number }>,
+): number {
+  const configurados = itens.filter((item) => item.meta > 0);
+  if (configurados.length === 0) return 0;
+
+  return Math.round(
+    configurados.reduce((total, item) => total + item.percentual, 0) /
+      configurados.length,
+  );
 }
 
 function calcularAlertas(meta: MetaRecord, progressoGeral: number) {
@@ -127,10 +139,11 @@ export async function calcularProgressoMeta(
     percentual: percentual(prescritores, meta.metaPrescritores),
   };
 
-  const geral = Math.round(
-    (visitas.percentual + avancos.percentual + novosPrescritores.percentual) /
-      3,
-  );
+  const geral = calcularGeral([
+    { meta: meta.metaVisitas, percentual: visitas.percentual },
+    { meta: meta.metaAvancosPipeline, percentual: avancos.percentual },
+    { meta: meta.metaPrescritores, percentual: novosPrescritores.percentual },
+  ]);
 
   return {
     ...meta,

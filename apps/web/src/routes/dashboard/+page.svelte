@@ -292,7 +292,7 @@
 <!-- ═══ ZONA 2 — KPIs (5 cards) ═══ -->
 <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
   <!-- Visitas Hoje -->
-  <div class="bg-white rounded-xl border border-gray-200 p-4">
+  <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
     <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
       Visitas Hoje
     </p>
@@ -314,7 +314,7 @@
   </div>
 
   <!-- Visitas Semana -->
-  <div class="bg-white rounded-xl border border-gray-200 p-4">
+  <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
     <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
       Visitas Semana
     </p>
@@ -336,7 +336,7 @@
   </div>
 
   <!-- Visitas Mês -->
-  <div class="bg-white rounded-xl border border-gray-200 p-4">
+  <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
     <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
       Visitas Mês
     </p>
@@ -359,7 +359,7 @@
 
   <!-- Sem Visita +30d -->
   <div
-    class="bg-white rounded-xl border p-4"
+    class="dashboard-kpi-card bg-white rounded-xl border p-4"
     class:border-red-200={(resumo?.kpis.medicosSemVisita30d ?? 0) > 10}
     class:border-gray-200={(resumo?.kpis.medicosSemVisita30d ?? 0) <= 10}
   >
@@ -377,7 +377,7 @@
   </div>
 
   <!-- Taxa de Conversão -->
-  <div class="bg-white rounded-xl border border-gray-200 p-4">
+  <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
     <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
       Conversão
     </p>
@@ -608,15 +608,27 @@
   </div>
 </div>
 
-<!-- Widget Transcrições (sticky canto inferior direito) -->
-<div class="fixed bottom-6 right-6 z-40">
-  <WidgetTranscricoes
-    sessionToken={data.sessionToken!}
-    plano={data.plano ?? 'TRIAL'}
-    pacotesIaDisponiveis={data.pacotesIaDisponiveis ?? false}
-  />
-</div>
+<!-- Widget Transcrições (sticky canto inferior direito — o próprio componente gerencia fixed + minimize/hide) -->
+<WidgetTranscricoes
+  sessionToken={data.sessionToken!}
+  plano={data.plano ?? 'TRIAL'}
+  pacotesIaDisponiveis={data.pacotesIaDisponiveis ?? false}
+/>
 
 {#if mostrarTour}
   <TourPrimeiroAcesso sessionToken={data.sessionToken} />
 {/if}
+
+<style>
+  .dashboard-kpi-card {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .dashboard-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgb(15 23 42 / 0.08);
+  }
+</style>

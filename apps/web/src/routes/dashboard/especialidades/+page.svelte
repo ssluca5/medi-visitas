@@ -24,6 +24,7 @@
 	let error = $state<string | null>(null);
 	let sheetOpen = $state(false);
 	let especialidadeEmEdicao = $state<EspecialidadeFormData | null>(null);
+	let especialidadeAtual = $state<Especialidade | null>(null);
 
 	// Expansão de subespecialidades
 	let expandedIds = $state<Set<string>>(new Set());
@@ -32,6 +33,7 @@
 	let formNome = $state('');
 	let formNomeError = $state(false);
 	let formCategoria = $state('');
+	let formEspecialidadeValido = $derived(!!formNome.trim());
 
 	// Delete dialogs
 	let deleteConfirmOpen = $state(false);
@@ -137,12 +139,14 @@
 	// ── Ações ──
 	function handleNovaEspecialidade() {
 		especialidadeEmEdicao = null;
+		especialidadeAtual = null;
 		formNome = '';
 		formCategoria = '';
 		sheetOpen = true;
 	}
 
 	function handleEditarEspecialidade(esp: Especialidade) {
+		especialidadeAtual = esp;
 		especialidadeEmEdicao = { id: esp.id, nome: esp.nome, categoria: esp.categoria };
 		formNome = esp.nome;
 		formCategoria = esp.categoria;
@@ -151,16 +155,17 @@
 
 	async function handleSalvarEspecialidade() {
 		formNomeError = false;
-		if (!formNome.trim() || !formCategoria.trim()) {
-			if (!formNome.trim()) formNomeError = true;
-			toasts.show('error', 'Nome e categoria são obrigatórios.');
+		if (!formNome.trim()) {
+			formNomeError = true;
+			toasts.show('error', 'Nome é obrigatório.');
 			return;
 		}
 
+		const categoriaNormalizada = formCategoria.trim() || 'Geral';
 		const formData: EspecialidadeFormData = {
 			id: especialidadeEmEdicao?.id,
 			nome: formNome,
-			categoria: formCategoria.charAt(0).toUpperCase() + formCategoria.slice(1).toLowerCase()
+			categoria: categoriaNormalizada.charAt(0).toUpperCase() + categoriaNormalizada.slice(1).toLowerCase()
 		};
 
 		const url = formData.id ? `/especialidades/${formData.id}` : '/especialidades';
@@ -279,6 +284,11 @@
 		deleteConfirmOpen = true;
 	}
 
+	function handleExcluirEspecialidadeEditando() {
+		if (!especialidadeAtual) return;
+		handleExcluirEspecialidade(especialidadeAtual);
+	}
+
 	async function confirmDeleteEspecialidade() {
 		if (!itemToDelete) return;
 
@@ -294,7 +304,12 @@
 		}
 
 		especialidades = especialidades.filter((e) => e.id !== itemToDelete!.id);
-		toasts.show('success', `"${itemToDelete.nome}" excluída.`);
+		toasts.show('error', `"${itemToDelete.nome}" excluída.`);
+		if (especialidadeEmEdicao?.id === itemToDelete.id) {
+			sheetOpen = false;
+			especialidadeEmEdicao = null;
+			especialidadeAtual = null;
+		}
 		deleteConfirmOpen = false;
 		itemToDelete = null;
 	}
@@ -317,7 +332,7 @@
 
 		const result = await response.json();
 		especialidades = especialidades.filter((e) => e.categoria !== categoryToDelete);
-		toasts.show('success', `Categoria "${categoryToDelete}" excluída (${result.excluidas} itens).`);
+		toasts.show('error', `Categoria "${categoryToDelete}" excluída (${result.excluidas} itens).`);
 		categoryDeleteConfirmOpen = false;
 		categoryToDelete = null;
 	}
@@ -341,7 +356,7 @@
 					...e,
 					subEspecialidades: (e.subEspecialidades || []).filter((s) => s.id !== sub.id)
 				}));
-				toasts.show('success', `"${sub.nome}" excluída.`);
+				toasts.show('error', `"${sub.nome}" excluída.`);
 			} else if (response.status === 409) {
 				toasts.show(
 					'error',
@@ -663,7 +678,7 @@
 												<div class="flex justify-center items-center gap-1">
 													<button
 														onclick={(e) => { e.stopPropagation(); handleSalvarSub(esp.id); }}
-														disabled={savingNewSub}
+														disabled={savingNewSub || !formNomeSub.trim()}
 														class="px-2.5 py-1 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50"
 													>
 														{savingNewSub ? 'Salvando...' : 'Salvar'}
@@ -717,7 +732,7 @@
 
 			<div class="space-y-5">
 				<div>
-					<label for="esp-nome" class="input-label">Nome</label>
+					<label for="esp-nome" class="input-label">Nome <span class="text-[rgb(var(--slate-400))]">*</span></label>
 					<input
 						id="esp-nome"
 						type="text"
@@ -798,8 +813,13 @@
 
 			<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
 				<div class="flex flex-col-reverse gap-3">
-					<Button onclick={handleSalvarEspecialidade} class="w-full">
-						{especialidadeEmEdicao ? 'Salvar' : 'Criar'}
+					{#if especialidadeAtual}
+						<Button variant="destructive" type="button" onclick={handleExcluirEspecialidadeEditando} class="w-full">
+							Excluir
+						</Button>
+					{/if}
+					<Button onclick={handleSalvarEspecialidade} class="w-full" disabled={!formEspecialidadeValido}>
+						{especialidadeEmEdicao ? 'Salvar Alterações' : 'Cadastrar Especialidade'}
 					</Button>
 					<Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full">Cancelar</Button>
 				</div>

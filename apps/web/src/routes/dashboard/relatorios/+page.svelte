@@ -706,7 +706,7 @@
   <header class="reports-header">
     <div class="flex min-w-0 items-center gap-4">
       <div class="page-header-icon h-12 w-12 rounded-xl">
-        <BarChart2 class="h-5 w-5 text-white" />
+        <FileText class="h-5 w-5 text-white" />
       </div>
       <div class="min-w-0">
         <h1 class="page-title">Relatórios</h1>
@@ -1185,6 +1185,8 @@
 <style>
   .reports-shell {
     min-height: calc(100vh - 4rem);
+    max-width: 100%;
+    overflow-x: clip;
     color: var(--text-primary);
   }
 
@@ -1228,8 +1230,9 @@
   }
 
   .reports-workspace {
-    display: grid;
-    grid-template-columns: minmax(23rem, 0.42fr) minmax(0, 1fr);
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
     min-height: calc(100vh - 10.5rem);
     overflow: hidden;
     border: 1px solid var(--border-base);
@@ -1237,19 +1240,19 @@
     background: var(--bg-surface);
   }
 
-  .workspace-collapsed {
-    grid-template-columns: 4.5rem minmax(0, 1fr);
-  }
-
   .reports-builder {
     display: flex;
-    min-width: 0;
     flex-direction: column;
+    flex-shrink: 0;
+    width: 24rem;
     border-right: 1px solid var(--border-base);
     background: color-mix(in srgb, var(--bg-primary) 72%, var(--bg-surface));
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: hidden;
   }
 
   .builder-collapsed {
+    width: 4.5rem;
     background: var(--bg-surface);
   }
 
@@ -1655,6 +1658,9 @@
   }
 
   .reports-preview {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     min-width: 0;
     background: color-mix(in srgb, var(--bg-primary) 58%, var(--bg-surface));
   }
@@ -1934,6 +1940,7 @@
 
   .table-wrap {
     overflow: auto;
+    max-width: 100%;
   }
 
   table {
@@ -2017,7 +2024,7 @@
   @media (max-width: 720px) {
     .reports-workspace {
       border-radius: 0;
-      margin-inline: -1rem;
+      margin-inline: 0;
     }
 
     .builder-scroll,
@@ -2038,6 +2045,10 @@
     .bar-chart {
       grid-template-columns: repeat(6, minmax(0, 1fr));
       height: 12rem;
+    }
+
+    table {
+      min-width: 34rem;
     }
   }
 </style>

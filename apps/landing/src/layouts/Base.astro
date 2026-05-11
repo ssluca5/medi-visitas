@@ -129,17 +129,22 @@ const {
       var firstFocusable = navToggle;
       var lastFocusable = focusableElements.length > 0 ? focusableElements[focusableElements.length - 1] : navToggle;
 
-      // FIX: Force correct offset on Anchor Links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      // FIX: Force correct offset on same-page anchor links
+      document.querySelectorAll('a[href*="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-          const targetId = this.getAttribute('href');
-          if (targetId === '#') return;
+          const href = this.getAttribute('href');
+          if (!href || href === '#') return;
+
+          const url = new URL(href, window.location.href);
+          const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+          const targetPath = url.pathname.replace(/\/$/, '') || '/';
+          if (url.origin !== window.location.origin || targetPath !== currentPath || !url.hash) return;
           
-          const targetElement = document.querySelector(targetId);
+          const targetElement = document.querySelector(url.hash);
           if (targetElement) {
             e.preventDefault();
-            // Calcula a posição do elemento menos 90px (altura exata do menu)
-            const headerOffset = 90;
+            // Desktop keeps the section title below the fixed header. Mobile starts at the section boundary.
+            const headerOffset = window.innerWidth < 768 ? 0 : 90;
             const elementPosition = targetElement.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
       
@@ -149,7 +154,7 @@ const {
             });
             
             // Atualiza a URL sem pular a página bruscamente
-            history.pushState(null, null, targetId);
+            history.pushState(null, null, url.hash);
           }
         });
       });

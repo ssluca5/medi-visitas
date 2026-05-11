@@ -53,9 +53,20 @@ async function createUserFromRequest(userId: string, request: FastifyRequest) {
     });
 
     if (existingUser) {
-      // Se o email já existe, significa que o usuário recriou a conta no Clerk
-      // ou fez login via Google. Em vez de falhar com P2002, atualizamos o clerkId
-      // para mesclar a conta e não perder os dados (como a organizationId).
+      // Prevent account takeover: only merge if the incoming email is verified
+      if (!request.userEmailVerified) {
+        request.log.warn(
+          { email: request.userEmail, targetUserId: existingUser.id },
+          "Blocked clerkId reassignment: email not verified",
+        );
+        throw Object.assign(new Error("Email não verificado. Confirme seu email antes de continuar."), { statusCode: 403 });
+      }
+
+      request.log.info(
+        { email: request.userEmail, oldClerkId: existingUser.clerkId, newClerkId: userId },
+        "Reassigning clerkId (verified email merge)",
+      );
+
       return prisma.user.update({
         where: { id: existingUser.id },
         data: {

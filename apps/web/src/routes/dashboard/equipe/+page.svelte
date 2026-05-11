@@ -1,8 +1,10 @@
 <script lang="ts">
   import { apiFetch } from '$lib/api';
   import { toast } from '$lib/stores/toast.svelte';
-  import { Users, Mail, UserPlus, Shield, Loader2, Trash2, Link, X } from 'lucide-svelte';
+  import { Users, Mail, UserPlus, Shield, Loader2, Trash2, Link, X, Plus } from 'lucide-svelte';
+  import Button from '$lib/components/ui/Button.svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+  import Sheet from '$lib/components/ui/Sheet.svelte';
   
   let { data } = $props<{ data: any }>();
   let membros = $state<any[]>([]);
@@ -14,12 +16,14 @@
   });
   
   let isOwner = $derived(data.me?.role === 'OWNER');
+  let currentUserEmail = $derived(data.me?.email || '');
   
   // Invite State
   let showInviteModal = $state(false);
   let inviteEmail = $state('');
   let inviteRole = $state('MEMBER');
   let sendingInvite = $state(false);
+  let isValidEmail = $derived(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inviteEmail.trim()));
   
   // Delete State
   let showDeleteConfirm = $state(false);
@@ -121,12 +125,12 @@
   <title>Gestão de Equipe — MediVisitas</title>
 </svelte:head>
 
-<div class="space-y-6 max-w-5xl mx-auto">
+<div class="space-y-6">
   <!-- Header -->
   <div class="page-header">
     <div class="page-header-main">
-      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 shadow-sm text-white">
-        <Users class="h-5 w-5" />
+      <div class="page-header-icon">
+        <Users class="h-5 w-5 text-white" />
       </div>
       <div>
         <h1 class="page-title">Gestão de Equipe</h1>
@@ -135,13 +139,10 @@
     </div>
     
     {#if isOwner}
-      <button 
-        onclick={() => showInviteModal = true}
-        class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-      >
-        <UserPlus class="w-4 h-4" />
+      <Button onclick={() => showInviteModal = true} class="gap-2">
+        <Plus class="h-4 w-4" />
         Convidar Membro
-      </button>
+      </Button>
     {/if}
   </div>
 
@@ -160,7 +161,7 @@
             {#each membros as membro}
               <div class="p-4 flex items-center justify-between hover:bg-[rgb(var(--slate-50))] transition-colors">
                 <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-bold uppercase">
+                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold uppercase">
                     {(membro.user?.name || membro.user?.email || '?').charAt(0)}
                   </div>
                   <div>
@@ -178,11 +179,13 @@
                     {/if}
                   </span>
                   
-                  {#if isOwner && membro.userId !== data.me?.id}
+                  {#if isOwner}
+                    {@const isSelf = membro.user?.email === currentUserEmail}
                     <button 
-                      onclick={() => confirmDelete('membro', membro.userId)}
-                      class="p-1.5 text-[rgb(var(--slate-400))] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Remover membro"
+                      onclick={() => { if (!isSelf) confirmDelete('membro', membro.userId); }}
+                      disabled={isSelf}
+                      class="p-1.5 rounded-lg transition-colors {isSelf ? 'text-[rgb(var(--slate-300))] cursor-not-allowed opacity-50' : 'text-[rgb(var(--slate-400))] hover:text-red-600 hover:bg-red-50 cursor-pointer'}"
+                      title={isSelf ? 'Você não pode remover a si mesmo' : 'Remover membro'}
                     >
                       <Trash2 class="w-4 h-4" />
                     </button>
@@ -218,7 +221,7 @@
                   {#if isOwner}
                     <button 
                       onclick={() => confirmDelete('convite', convite.id)}
-                      class="text-[rgb(var(--slate-400))] hover:text-red-600 transition-colors"
+                      class="text-[rgb(var(--slate-400))] hover:text-red-600 transition-colors cursor-pointer"
                       title="Cancelar convite"
                     >
                       <X class="w-4 h-4" />
@@ -232,7 +235,7 @@
                   </span>
                   <button 
                     onclick={() => copyInviteLink(convite.token)}
-                    class="flex items-center gap-1 text-xs font-medium text-violet-600 hover:text-violet-700"
+                    class="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 cursor-pointer"
                   >
                     <Link class="w-3 h-3" />
                     Copiar Link
@@ -247,18 +250,16 @@
   </div>
 </div>
 
-<!-- Modal Convite -->
-{#if showInviteModal}
-  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-      <div class="p-5 border-b border-[rgb(var(--slate-100))] flex justify-between items-center">
-        <h3 class="font-semibold text-[rgb(var(--slate-800))]">Convidar novo membro</h3>
-        <button onclick={() => showInviteModal = false} class="text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))]">
-          <X class="w-5 h-5" />
-        </button>
-      </div>
-      
-      <form onsubmit={enviarConvite} class="p-5 space-y-4">
+<!-- Sheet Convite -->
+<Sheet bind:open={showInviteModal} onclose={() => showInviteModal = false}>
+  {#snippet children()}
+      <div class="space-y-5">
+        <div>
+          <h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">Convidar novo membro</h3>
+          <p class="mt-1 text-sm text-[rgb(var(--slate-500))]">Envie um convite para adicionar um colaborador à organização.</p>
+        </div>
+
+      <form onsubmit={enviarConvite} class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1" for="inviteEmail">Email do colaborador</label>
           <input 
@@ -266,7 +267,7 @@
             id="inviteEmail"
             bind:value={inviteEmail} 
             required
-            class="w-full px-3 py-2 border border-[rgb(var(--slate-200))] rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
+            class="w-full px-3 py-2 border border-[rgb(var(--slate-200))] rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             placeholder="colaborador@exemplo.com"
           />
         </div>
@@ -276,7 +277,7 @@
           <select 
             id="inviteRole"
             bind:value={inviteRole}
-            class="w-full px-3 py-2 border border-[rgb(var(--slate-200))] rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 bg-white"
+            class="w-full px-3 py-2 border border-[rgb(var(--slate-200))] rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
           >
             <option value="MEMBER">Representante (Acesso Padrão)</option>
             <option value="OWNER">Gestor (Acesso Total)</option>
@@ -286,18 +287,18 @@
           </p>
         </div>
         
-        <div class="pt-2 flex justify-end gap-3">
+        <div class="pt-4 flex flex-col-reverse gap-3 border-t border-[rgb(var(--slate-100))]">
           <button 
             type="button" 
             onclick={() => showInviteModal = false}
-            class="px-4 py-2 text-sm font-medium text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-50))] rounded-lg transition-colors"
+            class="h-10 rounded-lg border border-[rgb(var(--slate-200))] px-4 text-sm font-medium text-[rgb(var(--slate-600))] transition-colors hover:bg-[rgb(var(--slate-50))] cursor-pointer"
           >
             Cancelar
           </button>
           <button 
             type="submit" 
-            disabled={sendingInvite || !inviteEmail}
-            class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors disabled:opacity-70"
+            disabled={sendingInvite || !isValidEmail}
+            class="flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {#if sendingInvite}
               <Loader2 class="w-4 h-4 animate-spin" /> Processando...
@@ -308,8 +309,8 @@
         </div>
       </form>
     </div>
-  </div>
-{/if}
+  {/snippet}
+</Sheet>
 
 <ConfirmDialog 
   open={showDeleteConfirm}

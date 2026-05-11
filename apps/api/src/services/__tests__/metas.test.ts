@@ -133,15 +133,26 @@ describe("calcularProgressoMeta", () => {
     expect(result.progresso.geral).toBe(0);
   });
 
-  it("retorna 100% quando meta = 0 (divisão por zero)", async () => {
+  it("retorna 0% quando todos os indicadores estao sem meta", async () => {
     setCounts(0, 0, 0);
     const result = await calcularProgressoMeta(
       makeMeta({ metaVisitas: 0, metaAvancosPipeline: 0, metaPrescritores: 0 }),
     );
-    expect(result.progresso.visitas.percentual).toBe(100);
-    expect(result.progresso.avancosPipeline.percentual).toBe(100);
-    expect(result.progresso.prescritores.percentual).toBe(100);
-    expect(result.progresso.geral).toBe(100);
+    expect(result.progresso.visitas.percentual).toBe(0);
+    expect(result.progresso.avancosPipeline.percentual).toBe(0);
+    expect(result.progresso.prescritores.percentual).toBe(0);
+    expect(result.progresso.geral).toBe(0);
+  });
+
+  it("ignora indicadores sem meta configurada no progresso geral", async () => {
+    setCounts(50, 30, 5);
+    const result = await calcularProgressoMeta(
+      makeMeta({ metaVisitas: 100, metaAvancosPipeline: 0, metaPrescritores: 0 }),
+    );
+    expect(result.progresso.visitas.percentual).toBe(50);
+    expect(result.progresso.avancosPipeline.percentual).toBe(0);
+    expect(result.progresso.prescritores.percentual).toBe(0);
+    expect(result.progresso.geral).toBe(50);
   });
 
   it("arredonda percentuais para inteiros", async () => {

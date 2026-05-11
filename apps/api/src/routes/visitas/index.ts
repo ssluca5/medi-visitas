@@ -250,7 +250,7 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // POST /visitas/:id/transcricao — gravação de áudio → STT → Chat
-  app.post("/:id/transcricao", async (request, reply) => {
+  app.post("/:id/transcricao", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (request, reply) => {
     const limite = await verificarLimiteTranscricao(request.organizationId!);
 
     if (!limite.permitido) {

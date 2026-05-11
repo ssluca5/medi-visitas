@@ -24,18 +24,18 @@
   } from '$lib/types';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; profissional?: any; visitas?: any[]; materiais?: any[]; visaoGeral?: any };
   }
 
   let { data }: Props = $props();
 
   let id = $derived($page.params.id);
-  let profissional = $state<Profissional | null>(null);
-  let visitas = $state<Visita[]>([]);
-  let materiaisOptions = $state<MaterialTecnico[]>([]);
+  let profissional = $state<Profissional | null>(data.profissional ?? null);
+  let visitas = $state<Visita[]>(data.visitas ?? []);
+  let materiaisOptions = $state<MaterialTecnico[]>(data.materiais ?? []);
   let timelineItens = $state<TimelineItem[]>([]);
-  let visaoGeralData = $state<VisaoGeralData | null>(null);
-  let loading = $state(true);
+  let visaoGeralData = $state<VisaoGeralData | null>(data.visaoGeral ?? null);
+  let loading = $state(false);
   let abaAtiva = $state<'visao-geral' | 'visitas' | 'materiais' | 'dados'>('visao-geral');
 
   let visitaSheetOpen = $state(false);
@@ -95,9 +95,7 @@
     }
   }
 
-  onMount(() => {
-    loadData();
-  });
+  onMount(() => {});
 
   function handleNovaVisita() {
     visitaEmEdicao = null;
@@ -237,15 +235,15 @@
       <!-- ═══ COLUNA DIREITA: Tabs ═══ -->
       <div class="col-span-1 lg:col-span-2 xl:col-span-3">
         <!-- Tab bar -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex gap-1 bg-white rounded-lg border border-[rgb(var(--slate-200))] p-1 shadow-sm">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="grid w-full grid-cols-2 gap-1 rounded-lg border border-[rgb(var(--slate-200))] bg-white p-1 shadow-sm sm:flex sm:w-auto">
             {#each tabs as tab}
               {@const Icon = tab.icon}
               {@const active = abaAtiva === tab.id}
               <button
                 type="button"
                 onclick={() => { abaAtiva = tab.id; }}
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all duration-200 cursor-pointer
+                class="flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] font-medium transition-all duration-200 cursor-pointer sm:justify-start sm:px-3 sm:text-[13px]
                   {active ? 'bg-blue-600 text-white shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}
                 "
               >
@@ -257,7 +255,7 @@
           <button
             type="button"
             onclick={handleNovaVisita}
-            class="flex items-center gap-2 bg-blue-600 text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-blue-700 will-change-transform shadow-sm transition-all hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:-translate-y-[1px] hover:bg-blue-700 active:scale-[0.98] cursor-pointer sm:w-auto"
           >
             <CalendarPlus class="w-4 h-4" />
             Registrar Visita

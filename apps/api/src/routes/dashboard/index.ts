@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../../lib/prisma.js";
+import { getDashboardCache, setDashboardCache } from "../../lib/cache.js";
 import { verifyClerkToken } from "../../hooks/auth.js";
 import { resolveTenant } from "../../hooks/tenant.js";
 import { buildTenantWhere } from "../../lib/tenant.js";
@@ -163,6 +164,11 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
     const { profissionalId } = request.query as {
       profissionalId?: string;
     };
+
+    // Cache por org+user (60s TTL)
+    const cacheKey = `resumo:${request.organizationId}:${request.userId}:${profissionalId ?? ""}`;
+    const cached = getDashboardCache<unknown>(cacheKey);
+    if (cached) return cached;
 
     const agora = new Date();
     const hoje = startOfDay(agora);
@@ -346,7 +352,7 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
         : 0;
 
     // Médicos sem visita há 30+ dias
-    const medicosSemVisitaList = profissionaisComUltimaVisita
+    const medicosSemVisitaTodos = profissionaisComUltimaVisita
       .map((p) => {
         const ultima = p.visitas[0]?.dataVisita;
         const diasSemVisita = ultima
@@ -363,10 +369,10 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
         };
       })
       .filter((m) => m.diasSemVisita > 30)
-      .sort((a, b) => b.diasSemVisita - a.diasSemVisita)
-      .slice(0, 10);
+      .sort((a, b) => b.diasSemVisita - a.diasSemVisita);
 
-    const medicosSemVisita30d = medicosSemVisitaList.length;
+    const medicosSemVisita30d = medicosSemVisitaTodos.length;
+    const medicosSemVisitaList = medicosSemVisitaTodos.slice(0, 10);
 
     const kpis = {
       visitasHoje: visitasHojeCount,
@@ -457,7 +463,7 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
-    return {
+    const result = {
       kpis,
       proximasVisitas,
       ultimasVisitas,
@@ -465,6 +471,8 @@ const dashboardRoutes: FastifyPluginAsync = async (app) => {
       alertas,
       medicosSemVisita: medicosSemVisitaList,
     };
+    setDashboardCache(cacheKey, result);
+    return result;
   });
 
   // ── GET /dashboard/alertas ──────────────────────────

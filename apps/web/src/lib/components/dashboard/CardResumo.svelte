@@ -10,12 +10,12 @@
   let { titulo, valor, icone: Icon, corIcone, corFundo }: Props = $props();
 </script>
 
-<div class="card-surface flex flex-col items-center justify-center text-center p-6 h-full min-h-[120px]">
-  <div class="flex items-center gap-2">
-    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg {corFundo}">
-      <Icon class="h-4 w-4 {corIcone}" />
-    </div>
-    <p class="text-sm font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider">{titulo}</p>
+<div class="card-surface flex items-center gap-4 p-6 h-full">
+  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {corFundo}">
+    <Icon class="h-5 w-5 {corIcone}" />
   </div>
-  <p class="text-3xl font-bold text-[rgb(var(--slate-800))] mt-2">{valor}</p>
+  <div class="flex flex-col">
+    <span class="text-sm font-medium text-[rgb(var(--slate-500))] mb-1">{titulo}</span>
+    <span class="text-3xl font-bold text-[rgb(var(--slate-900))]">{valor}</span>
+  </div>
 </div>

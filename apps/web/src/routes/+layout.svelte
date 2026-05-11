@@ -58,6 +58,9 @@
 			<MobileNav
 				userName={data.userName ?? 'Usuário'}
 				sessionToken={data.sessionToken}
+				role={data.role}
+				temRelatorios={data.limites?.temRelatorios ?? false}
+				temGestaoEquipe={data.limites?.temGestaoEquipe ?? false}
 				temMetas={data.limites?.temMetas ?? false}
 			/>
 			<Sidebar

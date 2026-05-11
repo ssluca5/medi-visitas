@@ -15,6 +15,9 @@ node_modules/
 .svelte-kit/
 apps/landing/.astro/
 apps/landing/dist/
+apps/web/.next/
+apps/api/dist/
+**/package-lock.json
 
 # Generated output
 graphify-out/
@@ -23,3 +26,6 @@ svelte-check-output.txt
 __pycache__/
 *.pyc
 .mcp.json
+
+# Binários
+stripe.exe

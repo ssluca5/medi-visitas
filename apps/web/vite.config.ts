@@ -5,9 +5,13 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
   build: {
-    rolldownOptions: {
-      checks: {
-        pluginTimings: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("@sentry")) return "vendor-sentry";
+          if (id.includes("@clerk") || id.includes("svelte-clerk")) return "vendor-clerk";
+          if (id.includes("lucide-svelte")) return "vendor-icons";
+        },
       },
     },
   },

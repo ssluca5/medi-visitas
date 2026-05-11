@@ -11,6 +11,7 @@ import {
 let mockQueryRaw: any;
 let mockExecuteRaw: any;
 let mockVerifyTokenFn: any;
+let mockOrganizationMembroFindFirst: any;
 let app: any;
 
 // Mutable impl holders — tests swap these to override behavior without
@@ -67,6 +68,7 @@ describe("Metas Routes", () => {
     mockQueryRaw = jest.fn() as jest.Mock;
     mockExecuteRaw = jest.fn() as jest.Mock;
     mockVerifyTokenFn = jest.fn() as jest.Mock;
+    mockOrganizationMembroFindFirst = jest.fn() as jest.Mock;
 
     const jestGlobal = jest as any;
 
@@ -74,6 +76,9 @@ describe("Metas Routes", () => {
       prisma: {
         $queryRaw: mockQueryRaw,
         $executeRaw: mockExecuteRaw,
+        organizationMembro: {
+          findFirst: mockOrganizationMembroFindFirst,
+        },
       },
     }));
 
@@ -99,9 +104,12 @@ describe("Metas Routes", () => {
     jestGlobal.unstable_mockModule("../../services/planos.js", () => ({
       getLimitesPlano: (plano: string) => {
         if (plano === "TRIAL" || plano === "BASICO") {
-          return { temMetas: false };
+          return { temMetas: false, temGestaoEquipe: false };
         }
-        return { temMetas: true };
+        return {
+          temMetas: true,
+          temGestaoEquipe: plano === "EQUIPE" || plano === "EMPRESARIAL",
+        };
       },
     }));
 
@@ -157,6 +165,8 @@ describe("Metas Routes", () => {
     mockQueryRaw.mockReset();
     mockExecuteRaw.mockReset();
     mockVerifyTokenFn.mockReset();
+    mockOrganizationMembroFindFirst.mockReset();
+    mockOrganizationMembroFindFirst.mockResolvedValue({ id: "membro_001" });
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -361,6 +371,13 @@ describe("Metas Routes", () => {
 
     it("retorna 201 ao criar meta de equipe", async () => {
       mockAuth();
+      const originalResolve = tenantImpl.resolveTenant;
+      tenantImpl.resolveTenant = async (req: any) => {
+        req.organizationId = "org_123";
+        req.role = "OWNER";
+        req.plano = "EQUIPE";
+      };
+
       mockQueryRaw.mockResolvedValueOnce([
         mockMetaRow({ plano: "EQUIPE", responsavelId: "user_456" }),
       ]);
@@ -373,6 +390,62 @@ describe("Metas Routes", () => {
       });
 
       expect(res.statusCode).toBe(201);
+      tenantImpl.resolveTenant = originalResolve;
+    });
+
+    it("retorna 400 quando nenhum indicador e informado", async () => {
+      mockAuth();
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/metas",
+        headers: { authorization: "Bearer valid_token" },
+        payload: {
+          ...payloadBase,
+          metaVisitas: 0,
+          metaAvancosPipeline: 0,
+          metaPrescritores: 0,
+        },
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(JSON.parse(res.payload).error).toContain("indicador");
+    });
+
+    it("retorna 402 ao criar meta de equipe no plano profissional", async () => {
+      mockAuth();
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/metas",
+        headers: { authorization: "Bearer valid_token" },
+        payload: { ...payloadBase, plano: "EQUIPE", responsavelId: "user_456" },
+      });
+
+      expect(res.statusCode).toBe(402);
+      expect(JSON.parse(res.payload).code).toBe("FEATURE_NOT_AVAILABLE");
+    });
+
+    it("retorna 400 quando responsavel de equipe nao pertence a organizacao", async () => {
+      mockAuth();
+      const originalResolve = tenantImpl.resolveTenant;
+      tenantImpl.resolveTenant = async (req: any) => {
+        req.organizationId = "org_123";
+        req.role = "OWNER";
+        req.plano = "EQUIPE";
+      };
+      mockOrganizationMembroFindFirst.mockResolvedValueOnce(null);
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/metas",
+        headers: { authorization: "Bearer valid_token" },
+        payload: { ...payloadBase, plano: "EQUIPE", responsavelId: "user_456" },
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(JSON.parse(res.payload).error).toContain("Responsavel");
+      tenantImpl.resolveTenant = originalResolve;
     });
 
     it("retorna 400 quando data fim <= data inicio", async () => {

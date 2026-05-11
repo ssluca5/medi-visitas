@@ -47,7 +47,7 @@
 
 		<!-- Descrição -->
 		<p class="text-sm mb-8" style="color: #9ca3af;">
-			{page.error?.message || config.desc}
+			{config.desc}
 		</p>
 
 		<!-- Ações -->

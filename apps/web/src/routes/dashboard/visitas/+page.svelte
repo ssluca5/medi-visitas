@@ -5,14 +5,14 @@
   import Button from '$lib/components/ui/Button.svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   import type { Visita, PaginationInfo, StatusVisita, MaterialTecnico } from '$lib/types';
-  import { Calendar, Clock, Package, Plus, Trash2, Search, CalendarDays, ChevronLeft, ChevronRight, Copy, Mic } from 'lucide-svelte';
+  import { Calendar, Clock, Package, Plus, Trash2, Search, FileText, ChevronLeft, ChevronRight, Copy, Mic } from 'lucide-svelte';
   import VisitaSheet from '$lib/components/ui/VisitaSheet.svelte';
   import ModalGravacao from '$lib/components/ui/ModalGravacao.svelte';
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import { toasts } from '$lib/stores/toast.svelte';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; visitas?: any; materiais?: any[] };
   }
 
   let { data }: Props = $props();
@@ -31,9 +31,9 @@
     loadVisitas(pagination.page);
   }
 
-  let visitas = $state<Visita[]>([]);
-  let pagination = $state<PaginationInfo>({ page: 1, pageSize: 20, total: 0, totalPages: 0 });
-  let loading = $state(true);
+  let visitas = $state<Visita[]>(data.visitas?.data ?? []);
+  let pagination = $state<PaginationInfo>(data.visitas ? { page: data.visitas.page ?? 1, pageSize: data.visitas.pageSize ?? 20, total: data.visitas.total ?? 0, totalPages: data.visitas.totalPages ?? 0 } : { page: 1, pageSize: 20, total: 0, totalPages: 0 });
+  let loading = $state(false);
   let filtroStatus = $state<StatusVisita | ''>('');
   let filtroBusca = $state('');
   let filtroDataInicio = $state('');
@@ -44,9 +44,9 @@
   );
 
   // Total real de visitas cadastradas (sem filtros)
-  let totalCadastrados = $state(0);
+  let totalCadastrados = $state(data.visitas?.total ?? 0);
 
-  let materiaisOptions = $state<MaterialTecnico[]>([]);
+  let materiaisOptions = $state<MaterialTecnico[]>(data.materiais ?? []);
   let sheetOpen = $state(false);
   let selectedVisita = $state<Visita | null>(null);
   let duplicateSource = $state<Visita | null>(null);
@@ -137,6 +137,7 @@
     try {
       const res = await apiFetch(`/visitas/${visitaToDelete.id}`, data.sessionToken, { method: 'DELETE' });
       if (res.ok) {
+        toasts.show('error', 'Visita excluída.');
         loadVisitas(pagination.page);
       } else {
         toasts.show('error', 'Erro ao excluir visita');
@@ -180,10 +181,7 @@
     filterTimeout = setTimeout(() => loadVisitas(1, filters), 300);
   });
 
-  onMount(() => {
-    loadVisitas();
-    loadMateriais();
-  });
+  onMount(() => {});
 </script>
 
 <svelte:head>
@@ -195,7 +193,7 @@
   <div class="page-header">
     <div class="page-header-main">
       <div class="page-header-icon">
-        <CalendarDays class="h-4.5 w-4.5 text-white" />
+        <FileText class="h-4.5 w-4.5 text-white" />
       </div>
       <div>
         <h1 class="page-title">Histórico de Visitas</h1>
@@ -295,7 +293,89 @@
         </Button>
       </EmptyState>
     {:else}
-      <div class="overflow-x-auto">
+      <div class="space-y-3 md:hidden">
+        {#each visitas as visita}
+          {@const passada = isVisitaPassada(visita)}
+          <article class="rounded-xl border border-[rgb(var(--slate-200))] bg-white p-4 shadow-sm">
+            <button
+              type="button"
+              class="w-full text-left"
+              onclick={(e) => handleEditarVisita(e, visita)}
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white shadow-sm">
+                  {(visita.profissional?.nome || 'P').charAt(0).toUpperCase()}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="table-cell-primary truncate">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
+                  {#if visita.profissional?.especialidade}
+                    <p class="table-cell-secondary truncate">{visita.profissional.especialidade.nome}</p>
+                  {/if}
+                </div>
+                <StatusVisitaBadge status={visita.status} />
+              </div>
+
+              <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-[rgb(var(--slate-600))]">
+                <div class="flex items-center gap-1.5">
+                  <Calendar class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <span>
+                    {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <span>
+                    {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <Package class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <span>{visita.materiais?.length || 0} materiais</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <span>{visita.duracaoMinutos ? `${visita.duracaoMinutos} min` : 'Sem duração'}</span>
+                </div>
+              </div>
+            </button>
+
+            <div class="mt-3 flex items-center justify-end gap-1 border-t border-[rgb(var(--slate-100))] pt-3">
+              <button
+                type="button"
+                onclick={(e) => abrirGravacaoVisita(e, visita)}
+                disabled={passada}
+                class={passada
+                  ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                  : 'row-action hover:text-purple-600'}
+                title={passada ? 'Visita já ocorrida' : 'Gravar áudio da visita'}
+              >
+                <Mic class="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onclick={(e) => handleDuplicarVisita(e, visita)}
+                class="row-action hover:text-indigo-600"
+                title="Duplicar visita"
+              >
+                <Copy class="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onclick={(e) => handleExcluirVisita(e, visita)}
+                disabled={passada}
+                class={passada
+                  ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                  : 'row-action hover:text-red-600'}
+                title={passada ? 'Visita já ocorrida' : 'Excluir visita'}
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </article>
+        {/each}
+      </div>
+
+      <div class="hidden overflow-x-auto md:block">
         <table class="data-table">
           <thead>
             <tr>

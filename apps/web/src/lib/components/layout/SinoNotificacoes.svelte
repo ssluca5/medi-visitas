@@ -63,7 +63,7 @@
 			transition:fade={{ duration: 150 }}
 		></div>
 		<div
-			class="absolute bottom-0 left-full ml-4 z-[100] w-80 rounded-xl border border-[rgb(var(--slate-100))] shadow-2xl overflow-hidden bg-white"
+			class="fixed right-4 top-16 z-[100] w-[calc(100vw-2rem)] max-w-sm rounded-xl border border-[rgb(var(--slate-100))] bg-white shadow-2xl overflow-hidden lg:absolute lg:bottom-0 lg:left-full lg:right-auto lg:top-auto lg:ml-4 lg:w-80"
 			transition:fly={{ x: -8, duration: 200, easing: cubicOut }}
 		>
 			<PainelNotificacoes

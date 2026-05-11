@@ -65,7 +65,7 @@ const billingRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
-  app.post("/portal", async (request, reply) => {
+  app.post("/portal", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (request, reply) => {
     if (request.role !== "OWNER") {
       return reply
         .status(403)

@@ -27,6 +27,7 @@ declare module "fastify" {
     userId?: string;
     orgId?: string;
     userEmail?: string;
+    userEmailVerified?: boolean;
     userName?: string;
   }
 }
@@ -95,11 +96,40 @@ function getNameFromClaims(
   return name || undefined;
 }
 
+function getEmailVerifiedFromClaims(
+  claims: Record<string, unknown>,
+): boolean {
+  const emailAddresses = claims.email_addresses;
+  if (Array.isArray(emailAddresses)) {
+    for (const item of emailAddresses) {
+      if (item && typeof item === "object") {
+        const obj = item as Record<string, unknown>;
+        const verification = obj.verification as Record<string, unknown> | undefined;
+        if (verification && verification.status === "verified") return true;
+      }
+    }
+  }
+  // Fallback: some JWT templates expose email_verified directly
+  if (claims.email_verified === true) return true;
+  return false;
+}
+
 export async function verifyClerkToken(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
   try {
+    // Origin check on state-changing methods (CSRF protection)
+    const method = request.method;
+    if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+      const origin = request.headers.origin;
+      const allowedOrigins = process.env.CLERK_AUTHORIZED_PARTIES?.split(",").map((s) => s.trim());
+      if (origin && allowedOrigins?.length && !allowedOrigins.includes(origin)) {
+        reply.code(403).send({ error: "Forbidden" });
+        return;
+      }
+    }
+
     const token = request.headers.authorization?.replace("Bearer ", "");
 
     if (!token) {
@@ -108,25 +138,7 @@ export async function verifyClerkToken(
       return;
     }
 
-    const isJwt = token.startsWith("eyJ");
-    request.log.info(
-      {
-        tokenType: isJwt ? "JWT" : "opaque",
-        tokenPrefix: token.substring(0, 20) + "...",
-      },
-      "Verifying Clerk token",
-    );
-
     const { CLERK_SECRET_KEY, CLERK_JWT_KEY, authorizedParties } = getEnvVars();
-
-    request.log.info(
-      {
-        hasJwtKey: !!CLERK_JWT_KEY,
-        hasAuthorizedParties: !!authorizedParties,
-        authorizedParties,
-      },
-      "Auth config",
-    );
 
     const payload = await verifyToken(token, {
       secretKey: CLERK_SECRET_KEY,
@@ -140,6 +152,7 @@ export async function verifyClerkToken(
     // Extrair dados do usuário dos claims do JWT
     const claims = payload as Record<string, unknown>;
     request.userEmail = getEmailFromClaims(claims);
+    request.userEmailVerified = getEmailVerifiedFromClaims(claims);
     request.userName = getNameFromClaims(claims);
 
     request.log.info(
