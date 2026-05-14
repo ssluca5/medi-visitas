@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import type { Handle } from "@sveltejs/kit";
+import { dev } from "$app/environment";
 import { CLERK_SECRET_KEY, CLERK_JWT_KEY } from "$env/static/private";
 import { createClerkClient, verifyToken } from "@clerk/backend";
 
@@ -146,7 +147,6 @@ async function getUserFromToken(token: string): Promise<{
         secretKey: CLERK_SECRET_KEY,
         jwtKey: CLERK_JWT_KEY || undefined,
       });
-      console.log("[AUTH] JWT verificado OK, sub:", payload.sub);
       // Extrair userName dos claims customizados do template 'medivisitas'
       const claims = payload as Record<string, unknown>;
       const email = getEmailFromClaims(claims);
@@ -159,10 +159,11 @@ async function getUserFromToken(token: string): Promise<{
         userEmail: email,
       };
     } catch (verifyErr) {
-      console.log(
-        "[AUTH] JWT verificação falhou:",
-        verifyErr instanceof Error ? verifyErr.message : verifyErr,
-      );
+      if (dev)
+        console.warn(
+          "[AUTH] JWT verificação falhou:",
+          verifyErr instanceof Error ? verifyErr.message : verifyErr,
+        );
       // Verificação remota falhou (ex: JWT expirado).
       // Tentar extrair o sid e renovar o token.
       try {
@@ -181,10 +182,6 @@ async function getUserFromToken(token: string): Promise<{
                 secretKey: CLERK_SECRET_KEY,
                 jwtKey: CLERK_JWT_KEY || undefined,
               });
-              console.log(
-                "[AUTH] Token renovado verificado OK, sub:",
-                newPayload.sub,
-              );
               const claims = newPayload as Record<string, unknown>;
               const email = getEmailFromClaims(claims);
               const name = getNameFromClaims(claims);
@@ -200,10 +197,11 @@ async function getUserFromToken(token: string): Promise<{
           }
         }
       } catch (refreshErr) {
-        console.log(
-          "[AUTH] Falha ao renovar token:",
-          refreshErr instanceof Error ? refreshErr.message : refreshErr,
-        );
+        if (dev)
+          console.warn(
+            "[AUTH] Falha ao renovar token:",
+            refreshErr instanceof Error ? refreshErr.message : refreshErr,
+          );
       }
     }
   }

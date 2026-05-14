@@ -22,6 +22,12 @@ export const load: LayoutServerLoad = async ({ locals, parent }) => {
     sessionToken: locals.sessionToken,
     userName: locals.userName,
     userEmail: locals.userEmail,
+    avatarUrl:
+      (
+        (parentData as Record<string, unknown>).avatarUrl as
+          | string
+          | null
+      ) ?? null,
     role: (parentData as Record<string, unknown>).role ?? null,
     plano: (parentData as Record<string, unknown>).plano ?? null,
     statusOrg: (parentData as Record<string, unknown>).status ?? null,

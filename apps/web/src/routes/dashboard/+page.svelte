@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { Search, Target, X } from 'lucide-svelte';
   import { apiFetch } from '$lib/api';
   import TourPrimeiroAcesso from '$lib/components/ui/TourPrimeiroAcesso.svelte';
@@ -13,6 +13,7 @@
       tourConcluidoEm: string | null;
       plano?: string;
       pacotesIaDisponiveis?: boolean;
+      role?: string | null;
     };
   }
 
@@ -25,8 +26,7 @@
     estagioPipeline: string;
   } | null>(null);
 
-  let resumo = $state<DashboardResumoV2 | null>(data.resumo);
-  let loading = $state(false);
+  let resumo = $state<DashboardResumoV2 | null>(untrack(() => data.resumo));
   let buscaQuery = $state('');
   let sugestoesBusca = $state<SugestaoBusca[]>([]);
   let buscaOpen = $state(false);
@@ -36,19 +36,19 @@
   const mostrarTour = $derived(!data.tourConcluidoEm);
 
   const estagiosPipeline = [
-    { key: 'PROSPECTADO', label: 'Prospectado', color: '#f59e0b' },
-    { key: 'VISITADO', label: 'Visitado', color: '#3b82f6' },
-    { key: 'INTERESSADO', label: 'Interessado', color: '#8b5cf6' },
-    { key: 'PRESCRITOR', label: 'Prescritor', color: '#10b981' },
-    { key: 'FIDELIZADO', label: 'Fidelizado', color: '#059669' },
+    { key: 'PROSPECTADO', label: 'Prospectado', color: 'var(--pipeline-prospectado)' },
+    { key: 'VISITADO', label: 'Visitado', color: 'var(--pipeline-visitado)' },
+    { key: 'INTERESSADO', label: 'Interessado', color: 'var(--pipeline-interessado)' },
+    { key: 'PRESCRITOR', label: 'Prescritor', color: 'var(--pipeline-prescritor)' },
+    { key: 'FIDELIZADO', label: 'Fidelizado', color: 'var(--status-ativo)' },
   ];
 
   const estagioColors: Record<string, { bg: string; color: string }> = {
-    PROSPECTADO: { bg: '#fef3c7', color: '#92400e' },
-    VISITADO: { bg: '#dbeafe', color: '#1e40af' },
-    INTERESSADO: { bg: '#ede9fe', color: '#5b21b6' },
-    PRESCRITOR: { bg: '#d1fae5', color: '#065f46' },
-    FIDELIZADO: { bg: '#d1fae5', color: '#064e3b' },
+    PROSPECTADO: { bg: 'var(--warning-light)', color: 'var(--warning-text)' },
+    VISITADO: { bg: 'var(--info-light)', color: 'var(--info-text)' },
+    INTERESSADO: { bg: 'rgb(237 233 254)', color: 'rgb(91 33 182)' },
+    PRESCRITOR: { bg: 'var(--success-bg)', color: 'var(--success-text)' },
+    FIDELIZADO: { bg: 'var(--success-bg)', color: 'rgb(6 78 59)' },
   };
 
   // ── Busca com debounce ────────────────────────────────
@@ -96,7 +96,6 @@
       especialidade: prof.especialidade,
       estagioPipeline: '',
     };
-    loading = true;
     try {
       const res = await apiFetch(
         `/dashboard/resumo?profissionalId=${prof.id}`,
@@ -116,19 +115,16 @@
     } catch {
       // mantém estado atual
     }
-    loading = false;
   }
 
   async function limparSelecao() {
     profissionalSelecionado = null;
-    loading = true;
     try {
       const res = await apiFetch('/dashboard/resumo', data.sessionToken);
       if (res.ok) resumo = await res.json();
     } catch {
       // mantém estado atual
     }
-    loading = false;
   }
 
   // ── Formatação de datas ───────────────────────────────
@@ -154,37 +150,37 @@
   }
 
   function barColor(atual: number, meta: number): string {
-    return atual >= meta ? '#059669' : '#2563eb';
+    return atual >= meta ? 'var(--status-ativo)' : 'var(--brand-primary)';
   }
 
   function prioridadeColor(p: string): string {
-    if (p === 'ALTA' || p === 'URGENTE') return '#dc2626';
-    if (p === 'MEDIA') return '#f59e0b';
-    return '#9ca3af';
+    if (p === 'ALTA' || p === 'URGENTE') return 'var(--danger)';
+    if (p === 'MEDIA') return 'var(--pipeline-prospectado)';
+    return 'var(--text-muted)';
   }
 
   function prioridadeBg(p: string): string {
-    if (p === 'ALTA' || p === 'URGENTE') return '#fee2e2';
-    if (p === 'MEDIA') return '#fef3c7';
-    return '#f3f4f6';
+    if (p === 'ALTA' || p === 'URGENTE') return 'var(--danger-soft)';
+    if (p === 'MEDIA') return 'var(--warning-light)';
+    return 'var(--neutral-light)';
   }
 
   function prioridadeTextColor(p: string): string {
-    if (p === 'ALTA' || p === 'URGENTE') return '#dc2626';
-    if (p === 'MEDIA') return '#92400e';
-    return '#6b7280';
+    if (p === 'ALTA' || p === 'URGENTE') return 'var(--danger)';
+    if (p === 'MEDIA') return 'var(--warning-text)';
+    return 'var(--text-secondary)';
   }
 
   function statusBg(s: string): string {
-    if (s === 'REALIZADA') return '#d1fae5';
-    if (s === 'CANCELADA') return '#fee2e2';
-    return '#dbeafe';
+    if (s === 'REALIZADA') return 'var(--success-bg)';
+    if (s === 'CANCELADA') return 'var(--danger-soft)';
+    return 'var(--info-light)';
   }
 
   function statusColor(s: string): string {
-    if (s === 'REALIZADA') return '#065f46';
-    if (s === 'CANCELADA') return '#991b1b';
-    return '#1e40af';
+    if (s === 'REALIZADA') return 'var(--success-text)';
+    if (s === 'CANCELADA') return 'var(--danger-text)';
+    return 'var(--info-text)';
   }
 
   function diasRestantesMeta(iso: string): number {
@@ -221,7 +217,7 @@
 <!-- ═══ ZONA 1 — Barra de contexto ═══ -->
 <div class="mb-6">
   <div class="relative max-w-md">
-    <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ui-muted" />
     <input
       type="text"
       bind:value={buscaQuery}
@@ -241,13 +237,13 @@
           >
             <div
               class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0"
-              style="background-color: #2563eb"
+              style="background-color: var(--brand-primary)"
             >
               {prof.nome.charAt(0)}
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-900">{prof.nome}</p>
-              <p class="text-xs text-gray-400">{prof.especialidade}</p>
+              <p class="text-sm font-medium text-ui-primary">{prof.nome}</p>
+              <p class="text-xs text-ui-muted">{prof.especialidade}</p>
             </div>
           </button>
         {/each}
@@ -261,7 +257,7 @@
     >
       <div
         class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0"
-        style="background-color: #2563eb"
+        style="background-color: var(--brand-primary)"
       >
         {profissionalSelecionado.nome.charAt(0)}
       </div>
@@ -293,14 +289,14 @@
 <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
   <!-- Visitas Hoje -->
   <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
-    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+    <p class="text-xs font-semibold uppercase tracking-wider text-ui-muted mb-3">
       Visitas Hoje
     </p>
     <div class="flex items-end justify-between mb-2">
-      <p class="text-2xl font-bold text-gray-900">
+      <p class="text-2xl font-bold text-ui-primary">
         {resumo?.kpis.visitasHoje ?? 0}
       </p>
-      <p class="text-xs text-gray-400 mb-1">
+      <p class="text-xs text-ui-muted mb-1">
         / {resumo?.kpis.metaDiaria ?? 0}
       </p>
     </div>
@@ -315,14 +311,14 @@
 
   <!-- Visitas Semana -->
   <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
-    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+    <p class="text-xs font-semibold uppercase tracking-wider text-ui-muted mb-3">
       Visitas Semana
     </p>
     <div class="flex items-end justify-between mb-2">
-      <p class="text-2xl font-bold text-gray-900">
+      <p class="text-2xl font-bold text-ui-primary">
         {resumo?.kpis.visitasSemana ?? 0}
       </p>
-      <p class="text-xs text-gray-400 mb-1">
+      <p class="text-xs text-ui-muted mb-1">
         / {resumo?.kpis.metaSemanal ?? 0}
       </p>
     </div>
@@ -337,14 +333,14 @@
 
   <!-- Visitas Mês -->
   <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
-    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+    <p class="text-xs font-semibold uppercase tracking-wider text-ui-muted mb-3">
       Visitas Mês
     </p>
     <div class="flex items-end justify-between mb-2">
-      <p class="text-2xl font-bold text-gray-900">
+      <p class="text-2xl font-bold text-ui-primary">
         {resumo?.kpis.visitasMes ?? 0}
       </p>
-      <p class="text-xs text-gray-400 mb-1">
+      <p class="text-xs text-ui-muted mb-1">
         / {resumo?.kpis.metaMensal ?? 0}
       </p>
     </div>
@@ -363,28 +359,28 @@
     class:border-red-200={(resumo?.kpis.medicosSemVisita30d ?? 0) > 10}
     class:border-gray-200={(resumo?.kpis.medicosSemVisita30d ?? 0) <= 10}
   >
-    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+    <p class="text-xs font-semibold uppercase tracking-wider text-ui-muted mb-3">
       Sem Visita +30d
     </p>
     <p
       class="text-2xl font-bold"
       class:text-red-600={(resumo?.kpis.medicosSemVisita30d ?? 0) > 10}
-      class:text-gray-900={(resumo?.kpis.medicosSemVisita30d ?? 0) <= 10}
+      class:text-ui-primary={(resumo?.kpis.medicosSemVisita30d ?? 0) <= 10}
     >
       {resumo?.kpis.medicosSemVisita30d ?? 0}
     </p>
-    <p class="text-xs text-gray-400 mt-1">profissionais</p>
+    <p class="text-xs text-ui-muted mt-1">profissionais</p>
   </div>
 
   <!-- Taxa de Conversão -->
   <div class="dashboard-kpi-card bg-white rounded-xl border border-gray-200 p-4">
-    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+    <p class="text-xs font-semibold uppercase tracking-wider text-ui-muted mb-3">
       Conversão
     </p>
-    <p class="text-2xl font-bold text-gray-900">
+    <p class="text-2xl font-bold text-ui-primary">
       {resumo?.kpis.taxaConversao ?? 0}%
     </p>
-    <p class="text-xs text-gray-400 mt-1">Prosp. → Prescritor</p>
+    <p class="text-xs text-ui-muted mt-1">Prosp. → Prescritor</p>
   </div>
 </div>
 
@@ -395,8 +391,8 @@
     <!-- Próximas Visitas -->
     <div class="bg-white rounded-xl border border-gray-200">
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-900">Próximas Visitas</h2>
-        <a href="/dashboard/agenda" class="text-xs font-medium" style="color: #2563eb">
+        <h2 class="text-sm font-semibold text-ui-primary">Próximas Visitas</h2>
+        <a href="/dashboard/agenda" class="text-xs font-medium" style="color: var(--brand-primary)">
           Ver agenda →
         </a>
       </div>
@@ -406,10 +402,10 @@
             class="px-5 py-3.5 flex items-center gap-4 hover:bg-gray-50 transition-colors"
           >
             <div class="text-center w-12 flex-shrink-0">
-              <p class="text-xs font-semibold text-gray-900">
+              <p class="text-xs font-semibold text-ui-primary">
                 {formatarHora(visita.dataHora)}
               </p>
-              <p class="text-[10px] text-gray-400">
+              <p class="text-[10px] text-ui-muted">
                 {formatarDataCurta(visita.dataHora)}
               </p>
             </div>
@@ -419,10 +415,10 @@
             >
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">
+              <p class="text-sm font-medium text-ui-primary truncate">
                 {visita.profissionalNome}
               </p>
-              <p class="text-xs text-gray-400 truncate">{visita.especialidade}</p>
+              <p class="text-xs text-ui-muted truncate">{visita.especialidade}</p>
             </div>
             <span
               class="text-[10px] font-semibold px-2 py-0.5 rounded flex-shrink-0"
@@ -433,7 +429,7 @@
           </div>
         {:else}
           <div class="px-5 py-8 text-center">
-            <p class="text-sm text-gray-400">Nenhuma visita agendada</p>
+            <p class="text-sm text-ui-muted">Nenhuma visita agendada</p>
           </div>
         {/each}
       </div>
@@ -442,19 +438,19 @@
     <!-- Alertas Inteligentes -->
     <div class="bg-white rounded-xl border border-gray-200">
       <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-900">Alertas</h2>
+        <h2 class="text-sm font-semibold text-ui-primary">Alertas</h2>
       </div>
       <div class="divide-y divide-gray-50">
         {#each resumo?.alertas ?? [] as alerta}
           <div class="px-5 py-3.5 flex items-start gap-3">
             <div
               class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-              style="background-color: {alerta.urgencia === 'alta' ? '#dc2626' : '#f59e0b'}"
+              style="background-color: {alerta.urgencia === 'alta' ? 'var(--danger)' : 'var(--pipeline-prospectado)'}"
             >
             </div>
             <div>
-              <p class="text-sm text-gray-700">{alerta.descricao}</p>
-              <p class="text-xs text-gray-400 mt-0.5">{alerta.profissionalNome}</p>
+              <p class="text-sm text-ui-body">{alerta.descricao}</p>
+              <p class="text-xs text-ui-muted mt-0.5">{alerta.profissionalNome}</p>
             </div>
           </div>
         {/each}
@@ -469,13 +465,13 @@
               >
                 Meta "{meta.nome}" esta em risco - {diasRestantesMeta(meta.dataFim)} dias restantes
               </p>
-              <p class="text-xs text-gray-400 mt-0.5">Metas</p>
+              <p class="text-xs text-ui-muted mt-0.5">Metas</p>
             </div>
           </div>
         {/each}
         {#if (resumo?.alertas ?? []).length === 0 && metaAlertas.length === 0}
           <div class="px-5 py-8 text-center">
-            <p class="text-sm text-gray-400">Nenhum alerta no momento</p>
+            <p class="text-sm text-ui-muted">Nenhum alerta no momento</p>
           </div>
         {/if}
       </div>
@@ -487,8 +483,8 @@
     <!-- Últimas Visitas -->
     <div class="bg-white rounded-xl border border-gray-200">
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-900">Últimas Visitas</h2>
-        <a href="/dashboard/visitas" class="text-xs font-medium" style="color: #2563eb">
+        <h2 class="text-sm font-semibold text-ui-primary">Últimas Visitas</h2>
+        <a href="/dashboard/visitas" class="text-xs font-medium" style="color: var(--brand-primary)">
           Ver todas →
         </a>
       </div>
@@ -498,18 +494,18 @@
             class="px-5 py-3.5 flex items-center gap-4 hover:bg-gray-50 transition-colors"
           >
             <div class="text-center w-12 flex-shrink-0">
-              <p class="text-xs font-semibold text-gray-900">
+              <p class="text-xs font-semibold text-ui-primary">
                 {formatarDataCurta(visita.dataHora)}
               </p>
-              <p class="text-[10px] text-gray-400">
+              <p class="text-[10px] text-ui-muted">
                 {formatarHora(visita.dataHora)}
               </p>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">
+              <p class="text-sm font-medium text-ui-primary truncate">
                 {visita.profissionalNome}
               </p>
-              <p class="text-xs text-gray-400 truncate">
+              <p class="text-xs text-ui-muted truncate">
                 {visita.resumo ?? visita.especialidade}
               </p>
             </div>
@@ -522,7 +518,7 @@
           </div>
         {:else}
           <div class="px-5 py-8 text-center">
-            <p class="text-sm text-gray-400">Nenhuma visita registrada</p>
+            <p class="text-sm text-ui-muted">Nenhuma visita registrada</p>
           </div>
         {/each}
       </div>
@@ -531,8 +527,8 @@
     <!-- Mini Pipeline -->
     <div class="bg-white rounded-xl border border-gray-200">
       <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-semibold text-gray-900">Pipeline</h2>
-        <a href="/dashboard/pipeline" class="text-xs font-medium" style="color: #2563eb">
+        <h2 class="text-sm font-semibold text-ui-primary">Pipeline</h2>
+        <a href="/dashboard/pipeline" class="text-xs font-medium" style="color: var(--brand-primary)">
           Ver completo →
         </a>
       </div>
@@ -541,7 +537,7 @@
           {@const count = resumo?.pipeline[estagio.key as keyof typeof resumo.pipeline] ?? 0}
           {@const total = Object.values(resumo?.pipeline ?? {}).reduce((a, b) => a + b, 0) || 1}
           <div class="flex items-center gap-3">
-            <p class="text-xs text-gray-600 w-24 flex-shrink-0">{estagio.label}</p>
+            <p class="text-xs text-ui-secondary w-24 flex-shrink-0">{estagio.label}</p>
             <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 class="h-full rounded-full transition-all duration-700"
@@ -549,7 +545,7 @@
               >
               </div>
             </div>
-            <p class="text-xs font-semibold text-gray-700 w-6 text-right flex-shrink-0">
+            <p class="text-xs font-semibold text-ui-body w-6 text-right flex-shrink-0">
               {count}
             </p>
           </div>
@@ -563,7 +559,7 @@
 <div class="bg-white rounded-xl border border-gray-200">
   <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
     <div class="flex items-center gap-2">
-      <h2 class="text-sm font-semibold text-gray-900">
+      <h2 class="text-sm font-semibold text-ui-primary">
         Profissionais sem visita recente
       </h2>
       {#if (resumo?.medicosSemVisita ?? []).length > 0}
@@ -580,27 +576,27 @@
       >
         <div
           class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white flex-shrink-0"
-          style="background-color: #2563eb"
+          style="background-color: var(--brand-primary)"
         >
           {medico.nome.charAt(0)}
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 truncate">{medico.nome}</p>
-          <p class="text-xs text-gray-400">{medico.especialidade}</p>
+          <p class="text-sm font-medium text-ui-primary truncate">{medico.nome}</p>
+          <p class="text-xs text-ui-muted">{medico.especialidade}</p>
         </div>
         <span class="text-xs text-red-500 font-medium flex-shrink-0">
           {medico.diasSemVisita}d sem visita
         </span>
         <span
           class="text-[10px] font-medium px-2 py-0.5 rounded flex-shrink-0"
-          style="background-color: {estagioColors[medico.estagioPipeline]?.bg ?? '#f3f4f6'}; color: {estagioColors[medico.estagioPipeline]?.color ?? '#6b7280'}"
+          style="background-color: {estagioColors[medico.estagioPipeline]?.bg ?? 'var(--neutral-light)'}; color: {estagioColors[medico.estagioPipeline]?.color ?? 'var(--text-secondary)'}"
         >
           {medico.estagioPipeline}
         </span>
       </div>
     {:else}
       <div class="px-5 py-8 text-center">
-        <p class="text-sm text-gray-400">
+        <p class="text-sm text-ui-muted">
           Todos os profissionais foram visitados recentemente
         </p>
       </div>
@@ -613,6 +609,7 @@
   sessionToken={data.sessionToken!}
   plano={data.plano ?? 'TRIAL'}
   pacotesIaDisponiveis={data.pacotesIaDisponiveis ?? false}
+  role={data.role}
 />
 
 {#if mostrarTour}

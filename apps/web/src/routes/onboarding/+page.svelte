@@ -1,6 +1,7 @@
 <script lang="ts">
   import { PUBLIC_API_URL, PUBLIC_LANDING_URL } from '$env/static/public'
   import { page } from '$app/state'
+  import { untrack } from 'svelte'
   import { ArrowLeft, Check } from 'lucide-svelte'
 
   type PlanoKey = 'GRATUITO' | 'BASICO' | 'PROFISSIONAL' | 'EQUIPE';
@@ -38,7 +39,7 @@
       preco: 'R$ 79',
       suporte: '48h',
       tag: 'Essencial',
-      tagClasses: 'bg-slate-100 text-slate-700',
+      tagClasses: 'bg-slate-100 text-ui-body',
       features: [
         'Até 100 profissionais cadastrados',
         'Agenda inteligente',
@@ -174,7 +175,7 @@
 
 	// Estados
 	let etapa = $state<'escolha' | 'nome-empresa' | 'processando'>('escolha')
-	let opcaoSelecionada = $state<PlanoKey>(planoFiltrado ?? 'GRATUITO')
+	let opcaoSelecionada = $state<PlanoKey>(untrack(() => planoFiltrado ?? 'GRATUITO'))
 	let nomeEmpresa = $state('')
 	let loading = $state(false)
 	let erro = $state('')
@@ -315,17 +316,17 @@
 				<p class="text-2xl font-bold tracking-tight text-white">MediVisitas</p>
 				<span class="w-2 h-2 rounded-full bg-brand-500"></span>
 			</div>
-			<p class="text-sm mt-1.5 text-slate-400">CRM para Propagandistas Farmacêuticos</p>
+			<p class="text-sm mt-1.5 text-ui-muted">CRM para Propagandistas Farmacêuticos</p>
 		</div>
 
 		<!-- MEIO — Cabeçalho e Depoimento -->
 		<div class="flex flex-col gap-8 relative z-10">
 			<!-- Título e Badge -->
 			<div class="mb-2">
-				<h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 whitespace-pre-line">{planoDados.nome}</h1>
+				<h1 class="page-title-marker text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 whitespace-pre-line">{planoDados.nome}</h1>
 				<div class="flex items-center gap-3">
 					{#if planoDados.preco}
-						<span class="text-xl font-medium text-slate-300">{planoDados.preco}</span>
+						<span class="text-xl font-medium text-ui-disabled">{planoDados.preco}</span>
 					{/if}
 					{#if planoDados.badge}
 						<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-brand-500/20 text-brand-50 border border-brand-500/30 uppercase tracking-widest">
@@ -338,7 +339,7 @@
 			<!-- Depoimento Premium -->
 			{#if planoDados.depoimento}
 				<div class="flex flex-col gap-4 relative z-10 mt-4">
-					<p class="text-2xl md:text-3xl font-medium leading-snug text-slate-50">
+					<p class="text-2xl md:text-3xl font-medium leading-snug text-ui-inverse-soft">
 						"{planoDados.depoimento}"
 					</p>
 					
@@ -348,8 +349,8 @@
 						</div>
 						
 						<div class="flex flex-col">
-							<span class="text-sm font-medium text-slate-50">{planoDados.autorNome}</span>
-							<span class="text-xs text-slate-400 mt-0.5">{planoDados.autorCargo}</span>
+							<span class="text-sm font-medium text-ui-inverse-soft">{planoDados.autorNome}</span>
+							<span class="text-xs text-ui-muted mt-0.5">{planoDados.autorCargo}</span>
 						</div>
 					</div>
 				</div>
@@ -360,7 +361,7 @@
 		<div class="grid grid-cols-4 gap-6 pt-8 border-t relative z-10" style="border-color: rgba(255,255,255,0.1);">
 			{#each planoDados.metricas as m}
 				<div>
-					<p class="text-2xl font-bold text-slate-50">{m.valor}</p>
+					<p class="text-2xl font-bold text-ui-inverse-soft">{m.valor}</p>
 					<p class="text-xs mt-1" style="color: rgba(255,255,255,0.4);">{m.rotulo}</p>
 				</div>
 			{/each}
@@ -373,16 +374,16 @@
     <!-- Logo mobile -->
     <div class="lg:hidden text-center mb-10">
       <div class="flex items-center justify-center gap-2">
-        <span class="text-2xl font-bold" style="color: #111827;">MediVisitas</span>
+        <span class="text-2xl font-bold" style="color: var(--text-primary);">MediVisitas</span>
         <span class="w-2 h-2 rounded-full" style="background-color: rgb(var(--accent));"></span>
       </div>
-      <p class="text-sm mt-1" style="color: #6b7280;">CRM para Propagandistas Farmacêuticos</p>
+      <p class="text-sm mt-1" style="color: var(--text-secondary);">CRM para Propagandistas Farmacêuticos</p>
     </div>
 
     <!-- Cabeçalho -->
     <div class="mb-10 text-center lg:text-left w-full max-w-md mx-auto lg:mx-0">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2">Tudo pronto para começar</h1>
-      <p class="text-sm text-slate-500">
+      <h1 class="page-title-marker text-3xl font-bold text-ui-primary mb-2">Tudo pronto para começar</h1>
+      <p class="text-sm text-ui-secondary">
         {#if opcaoSelecionada === 'GRATUITO'}
           Aproveite seu período de teste. Você pode cancelar quando quiser.
         {:else}
@@ -394,8 +395,8 @@
     <!-- Summary Card -->
     <div class="w-full max-w-md mx-auto lg:mx-0 p-8 rounded-2xl border border-slate-200 bg-slate-50/50 shadow-sm flex flex-col mb-8">
       <div class="pb-6 border-b border-slate-200/80 mb-6">
-        <h2 class="text-2xl font-bold text-slate-900">{planoUnico.nome}</h2>
-        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+        <h2 class="text-2xl font-bold text-ui-primary">{planoUnico.nome}</h2>
+        <p class="text-sm text-ui-secondary mt-2 leading-relaxed">
           {#if opcaoSelecionada === 'GRATUITO'}
             Acesso total a todas as ferramentas premium do MediVisitas. Sem cobranças automáticas.
           {:else}
@@ -406,21 +407,21 @@
 
       <ul class="space-y-4 mb-8">
         {#if opcaoSelecionada === 'GRATUITO'}
-          <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+          <li class="flex items-start gap-3 text-sm font-medium text-ui-body">
             <Check class="size-5 text-emerald-500 shrink-0"/>
             <span>Gestão completa da sua carteira de profissionais</span>
           </li>
-          <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+          <li class="flex items-start gap-3 text-sm font-medium text-ui-body">
             <Check class="size-5 text-emerald-500 shrink-0"/>
             <span>Agenda inteligente com histórico de visitas</span>
           </li>
-          <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+          <li class="flex items-start gap-3 text-sm font-medium text-ui-body">
             <Check class="size-5 text-emerald-500 shrink-0"/>
             <span>Relatórios e pipeline comercial integrados</span>
           </li>
         {:else}
           {#each planoUnico.features.slice(0, 3) as feature}
-            <li class="flex items-start gap-3 text-sm font-medium text-slate-700">
+            <li class="flex items-start gap-3 text-sm font-medium text-ui-body">
               <Check class="size-5 text-emerald-500 shrink-0"/>
               <span>{feature}</span>
             </li>
@@ -446,10 +447,10 @@
       </button>
 
       {#if erro}
-        <p class="mt-4 text-sm text-center" style="color: #dc2626;">{erro}</p>
+        <p class="mt-4 text-sm text-center" style="color: var(--danger);">{erro}</p>
       {/if}
 
-      <p class="mt-5 text-xs text-slate-400 text-center">
+      <p class="mt-5 text-xs text-ui-muted text-center">
         {#if opcaoSelecionada === 'GRATUITO'}
           Não exigimos cartão de crédito neste momento.
         {:else}
@@ -462,9 +463,9 @@
     <a
       href={PUBLIC_LANDING_URL ?? 'http://localhost:4321'}
       class="mt-6 text-sm transition-colors flex items-center gap-1"
-      style="color: #9ca3af;"
-      onmouseenter={(e) => (e.currentTarget.style.color = '#6b7280')}
-      onmouseleave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+      style="color: var(--text-muted);"
+      onmouseenter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+      onmouseleave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
     >
       <ArrowLeft class="w-3.5 h-3.5" />
       Voltar para o site
@@ -475,12 +476,12 @@
 <!-- ETAPA 2: Nome da empresa -->
 {:else if etapa === 'nome-empresa'}
 <div class="min-h-screen flex flex-col items-center justify-center p-6"
-  style="background-color: #f8f9fa;">
+  style="background-color: var(--bg-primary);">
 
   <!-- Logo -->
   <div class="flex items-center gap-2 mb-8">
-    <span class="text-xl font-bold" style="color: #111827;">MediVisitas</span>
-    <span class="w-2 h-2 rounded-full" style="background-color: #2563eb;"></span>
+    <span class="text-xl font-bold" style="color: var(--text-primary);">MediVisitas</span>
+    <span class="w-2 h-2 rounded-full" style="background-color: var(--brand-primary);"></span>
   </div>
 
   <div class="w-full max-w-sm">
@@ -489,24 +490,24 @@
     <button
       onclick={() => { etapa = 'escolha'; erro = ''; }}
       class="flex items-center gap-1.5 text-sm mb-6 transition-colors cursor-pointer"
-      style="color: #9ca3af;">
+      style="color: var(--text-muted);">
       ← Voltar
     </button>
 
     <!-- Título -->
-    <h1 class="text-2xl font-bold mb-2" style="color: #111827;">
+    <h1 class="page-title-marker text-2xl font-bold mb-2" style="color: var(--text-primary);">
       Configurar plano Empresa
     </h1>
-    <p class="text-sm mb-6" style="color: #6b7280;">
+    <p class="text-sm mb-6" style="color: var(--text-secondary);">
       Informe o nome da sua representação comercial.
     </p>
 
     <!-- Card com resumo da escolha -->
     <div class="rounded-xl p-4 mb-6 border"
-      style="background-color: #f5f3ff; border-color: #e9d5ff;">
+      style="background-color: rgb(245 243 255); border-color: rgb(233 213 255);">
       <p class="text-xs font-semibold uppercase tracking-wider mb-1"
-        style="color: #7c3aed;">VOCÊ ESCOLHEU</p>
-      <p class="text-sm font-medium" style="color: #111827;">
+        style="color: var(--ai-primary);">VOCÊ ESCOLHEU</p>
+      <p class="text-sm font-medium" style="color: var(--text-primary);">
         {opcaoSelecionada === 'EQUIPE'
           ? 'Plano Equipe — R$ 349/mês'
           : `Plano ${opcaoSelecionada} — Assinatura Empresa`}
@@ -515,8 +516,8 @@
 
     <!-- Campo nome -->
     <div class="space-y-1.5 mb-6">
-      <label for="nome-empresa" class="text-sm font-medium" style="color: #374151;">
-        Nome da empresa <span style="color: #dc2626;">*</span>
+      <label for="nome-empresa" class="text-sm font-medium" style="color: var(--text-body);">
+        Nome da empresa <span style="color: var(--danger);">*</span>
       </label>
       <input
         id="nome-empresa"
@@ -525,11 +526,11 @@
         placeholder="Ex: Representações Silva Ltda"
         class="w-full h-10 px-3 text-sm rounded-xl border transition-colors
                focus:outline-none focus:ring-2"
-        style="border-color: #e5e7eb; color: #111827;
+        style="border-color: var(--border-base); color: var(--text-primary);
                --tw-ring-color: rgba(37,99,235,0.2);"
         onkeydown={(e) => e.key === 'Enter' && nomeEmpresa.trim() && confirmar()}
       />
-      <p class="text-xs" style="color: #9ca3af;">
+      <p class="text-xs" style="color: var(--text-muted);">
         Pode ser alterado depois nas configurações.
       </p>
     </div>
@@ -541,7 +542,7 @@
       class="w-full h-11 rounded-xl text-sm font-semibold text-white
              transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed
              hover:opacity-90 cursor-pointer"
-      style="background-color: #2563eb; border-radius: 12px;">
+      style="background-color: var(--brand-primary); border-radius: 12px;">
       {#if loading}
         <span class="flex items-center justify-center gap-2">
           <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -559,7 +560,7 @@
 
     <!-- Erro -->
     {#if erro}
-      <p class="mt-3 text-sm text-center" style="color: #dc2626;">{erro}</p>
+      <p class="mt-3 text-sm text-center" style="color: var(--danger);">{erro}</p>
     {/if}
 
   </div>
@@ -568,14 +569,14 @@
 <!-- ETAPA 3: Processando (loading) -->
 {:else if etapa === 'processando'}
 <div class="min-h-screen flex flex-col items-center justify-center p-6"
-  style="background-color: #f8f9fa;">
+  style="background-color: var(--bg-primary);">
   <svg class="animate-spin w-8 h-8 mb-4" viewBox="0 0 24 24" fill="none">
     <circle class="opacity-25" cx="12" cy="12" r="10"
-      stroke="#2563eb" stroke-width="4"/>
-    <path class="opacity-75" fill="#2563eb"
+      stroke="var(--brand-primary)" stroke-width="4"/>
+    <path class="opacity-75" fill="var(--brand-primary)"
       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
   </svg>
-  <p class="text-sm font-medium" style="color: #111827;">Configurando sua conta...</p>
-  <p class="text-xs mt-1" style="color: #9ca3af;">Isso leva apenas alguns segundos.</p>
+  <p class="text-sm font-medium" style="color: var(--text-primary);">Configurando sua conta...</p>
+  <p class="text-xs mt-1" style="color: var(--text-muted);">Isso leva apenas alguns segundos.</p>
 </div>
 {/if}

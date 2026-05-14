@@ -96,15 +96,15 @@ function getNameFromClaims(
   return name || undefined;
 }
 
-function getEmailVerifiedFromClaims(
-  claims: Record<string, unknown>,
-): boolean {
+function getEmailVerifiedFromClaims(claims: Record<string, unknown>): boolean {
   const emailAddresses = claims.email_addresses;
   if (Array.isArray(emailAddresses)) {
     for (const item of emailAddresses) {
       if (item && typeof item === "object") {
         const obj = item as Record<string, unknown>;
-        const verification = obj.verification as Record<string, unknown> | undefined;
+        const verification = obj.verification as
+          | Record<string, unknown>
+          | undefined;
         if (verification && verification.status === "verified") return true;
       }
     }
@@ -123,8 +123,14 @@ export async function verifyClerkToken(
     const method = request.method;
     if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
       const origin = request.headers.origin;
-      const allowedOrigins = process.env.CLERK_AUTHORIZED_PARTIES?.split(",").map((s) => s.trim());
-      if (origin && allowedOrigins?.length && !allowedOrigins.includes(origin)) {
+      const allowedOrigins = process.env.CLERK_AUTHORIZED_PARTIES?.split(
+        ",",
+      ).map((s) => s.trim());
+      if (
+        origin &&
+        allowedOrigins?.length &&
+        !allowedOrigins.includes(origin)
+      ) {
         reply.code(403).send({ error: "Forbidden" });
         return;
       }
@@ -155,10 +161,7 @@ export async function verifyClerkToken(
     request.userEmailVerified = getEmailVerifiedFromClaims(claims);
     request.userName = getNameFromClaims(claims);
 
-    request.log.info(
-      { userId: request.userId, email: request.userEmail },
-      "Token verified OK",
-    );
+    request.log.debug({ userId: request.userId }, "Token verified OK");
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : String(err);
     request.log.error(
