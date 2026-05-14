@@ -11,12 +11,14 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
   }
 
   try {
-    const [meRes, membrosRes, convitesRes, infoRes] = await Promise.all([
-      apiFetch("/me", token),
-      apiFetch("/organizacao/membros", token),
-      apiFetch("/organizacao/convites", token),
-      apiFetch("/organizacao/info", token),
-    ]);
+    const [meRes, membrosRes, convitesRes, infoRes, transcricoesRes] =
+      await Promise.all([
+        apiFetch("/me", token),
+        apiFetch("/organizacao/membros", token),
+        apiFetch("/organizacao/convites", token),
+        apiFetch("/organizacao/info", token),
+        apiFetch("/transcricoes/equipe", token),
+      ]);
 
     const me = meRes.ok ? await meRes.json() : null;
     const membrosData = membrosRes.ok ? await membrosRes.json() : { data: [] };
@@ -24,6 +26,13 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
       ? await convitesRes.json()
       : { data: [] };
     const info = infoRes.ok ? await infoRes.json() : null;
+    const transcricoes = transcricoesRes.ok
+      ? await transcricoesRes.json()
+      : null;
+    const transcricoesError = transcricoesRes.ok
+      ? null
+      : ((await transcricoesRes.json().catch(() => null))?.error ??
+        "Nao foi possivel carregar as cotas de IA.");
 
     return {
       sessionToken: token,
@@ -32,13 +41,21 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
         membros: membrosData.data || [],
         convites: convitesData.data || [],
         info,
+        transcricoes,
+        transcricoesError,
       },
     };
   } catch {
     return {
       sessionToken: token,
       me: null,
-      equipe: { membros: [], convites: [], info: null },
+      equipe: {
+        membros: [],
+        convites: [],
+        info: null,
+        transcricoes: null,
+        transcricoesError: "Nao foi possivel carregar os dados da equipe.",
+      },
     };
   }
 };

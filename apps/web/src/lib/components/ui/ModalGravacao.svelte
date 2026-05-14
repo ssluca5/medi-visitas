@@ -3,7 +3,6 @@
   import { cubicOut } from 'svelte/easing';
   import { Mic, Square, Loader2, X, AlertCircle, Volume2, CalendarPlus, TrendingUp } from 'lucide-svelte';
   import { useGravacaoAudio } from '$lib/hooks/useGravacaoAudio.svelte';
-  import { PUBLIC_API_URL } from '$env/static/public';
   import type { EstagioPipeline } from '$lib/types';
   import { apiFetch } from '$lib/api';
 
@@ -27,6 +26,7 @@
     visitaId: string;
     profissionalEstagio?: EstagioPipeline | string;
     sessionToken: string | null;
+    podeComprarPacote?: boolean;
     onclose: () => void;
     onsave: (campos: {
       resumo: string;
@@ -37,7 +37,7 @@
     }) => void;
   }
 
-  let { open = $bindable(), visitaId, profissionalEstagio, sessionToken, onclose, onsave }: Props = $props();
+  let { open = $bindable(), visitaId, profissionalEstagio, sessionToken, podeComprarPacote = false, onclose, onsave }: Props = $props();
 
   let etapa = $state<Etapa>('selecionar');
   let salvarAudio = $state<boolean | null>(null);
@@ -104,7 +104,7 @@
         if (!data.permitido) {
           erro = data.limite === 0
             ? 'Transcricoes por IA estao disponiveis a partir do Plano Profissional.'
-            : 'Limite de transcricoes atingido. Compre um pacote adicional para continuar.';
+            : 'Limite de transcricoes atingido. Verifique sua cota disponivel com o gestor.';
           erroLimite = true;
           return false;
         }
@@ -151,7 +151,7 @@
       });
 
       if (res.status === 402) {
-        erro = 'Limite de transcricoes atingido. Compre um pacote adicional para continuar.';
+        erro = 'Limite de transcricoes atingido. Verifique sua cota disponivel com o gestor.';
         erroLimite = true;
         etapa = 'selecionar';
         gravacao.descartar();
@@ -271,18 +271,18 @@
         <div class="flex items-center gap-3">
           <div
             class="w-9 h-9 rounded-lg flex items-center justify-center"
-            style="background-color: #f3e8ff;"
+            style="background-color: var(--purple-light);"
           >
-            <Volume2 class="w-5 h-5" style="color: #7c3aed;" />
+            <Volume2 class="w-5 h-5" style="color: var(--ai-primary);" />
           </div>
           <div>
-            <h2 class="text-base font-semibold text-gray-900">
+            <h2 class="text-base font-semibold text-ui-primary">
               {#if etapa === 'selecionar'}Gravar visita
               {:else if etapa === 'gravar'}Gravando...
               {:else if etapa === 'processar'}Processando
               {:else}Revisar campos{/if}
             </h2>
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-ui-secondary">
               {#if etapa === 'selecionar'}Clique para iniciar a gravação
               {:else if etapa === 'gravar'}Fale sobre a visita realizada
               {:else if etapa === 'processar'}A IA está transcrevendo e extraindo campos
@@ -290,7 +290,7 @@
             </p>
           </div>
         </div>
-        <button onclick={fechar} class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 cursor-pointer">
+        <button onclick={fechar} class="p-1.5 rounded-lg hover:bg-gray-100 text-ui-muted cursor-pointer">
           <X class="w-4 h-4" />
         </button>
       </div>
@@ -304,19 +304,19 @@
               onclick={iniciarGravacao}
               class="w-20 h-20 rounded-full flex items-center justify-center mx-auto
                 hover:scale-105 transition-transform cursor-pointer shadow-lg"
-              style="background-color: #7c3aed;"
+              style="background-color: var(--ai-primary);"
             >
               <Mic class="w-8 h-8 text-white" />
             </button>
-            <p class="text-sm text-gray-500 mt-4">Toque para iniciar gravação</p>
-            <p class="text-xs text-gray-400 mt-1">Máximo 3 minutos</p>
+            <p class="text-sm text-ui-secondary mt-4">Toque para iniciar gravação</p>
+            <p class="text-xs text-ui-muted mt-1">Máximo 3 minutos</p>
           </div>
         {/if}
 
         <!-- Gravar -->
         {#if etapa === 'gravar'}
           <div class="text-center py-4" transition:fade={{ duration: 200 }}>
-            <p class="text-3xl font-mono font-bold text-gray-900 mb-4">
+            <p class="text-3xl font-mono font-bold text-ui-primary mb-4">
               {formatarDuracao(gravacao.duracaoSegundos)}
             </p>
 
@@ -325,7 +325,7 @@
                 {#each [0, 1, 2, 3, 4] as i}
                   <div
                     class="w-1 rounded-full animate-pulse"
-                    style="height: {20 + Math.random() * 20}px; background-color: #7c3aed; animation-delay: {i * 100}ms;"
+                    style="height: {20 + Math.random() * 20}px; background-color: var(--ai-primary); animation-delay: {i * 100}ms;"
                   ></div>
                 {/each}
               </div>
@@ -335,20 +335,20 @@
               onclick={() => gravacao.parar()}
               class="w-16 h-16 rounded-full flex items-center justify-center mx-auto
                 hover:scale-105 transition-transform cursor-pointer"
-              style="background-color: #dc2626;"
+              style="background-color: var(--danger);"
             >
               <Square class="w-6 h-6 text-white fill-white" />
             </button>
-            <p class="text-xs text-gray-400 mt-3">Toque para parar</p>
+            <p class="text-xs text-ui-muted mt-3">Toque para parar</p>
           </div>
         {/if}
 
         <!-- Processar -->
         {#if etapa === 'processar'}
           <div class="text-center py-8" transition:fade={{ duration: 200 }}>
-            <Loader2 class="w-10 h-10 mx-auto animate-spin" style="color: #7c3aed;" />
-            <p class="text-sm text-gray-600 mt-4">Transcrevendo áudio...</p>
-            <p class="text-xs text-gray-400 mt-1">Isso pode levar até 30 segundos</p>
+            <Loader2 class="w-10 h-10 mx-auto animate-spin" style="color: var(--ai-primary);" />
+            <p class="text-sm text-ui-secondary mt-4">Transcrevendo áudio...</p>
+            <p class="text-xs text-ui-muted mt-1">Isso pode levar até 30 segundos</p>
           </div>
         {/if}
 
@@ -356,7 +356,7 @@
         {#if etapa === 'revisar'}
           <div class="space-y-4" transition:fade={{ duration: 200 }}>
             <div class="space-y-1.5">
-              <label class="text-sm font-medium text-gray-700" for="resumo">Resumo</label>
+              <label class="text-sm font-medium text-ui-body" for="resumo">Resumo</label>
               <textarea
                 id="resumo"
                 bind:value={resumo}
@@ -367,7 +367,7 @@
               ></textarea>
             </div>
             <div class="space-y-1.5">
-              <label class="text-sm font-medium text-gray-700" for="objetivoVisita">Objetivo da Visita</label>
+              <label class="text-sm font-medium text-ui-body" for="objetivoVisita">Objetivo da Visita</label>
               <input
                 id="objetivoVisita"
                 type="text"
@@ -378,7 +378,7 @@
               />
             </div>
             <div class="space-y-1.5">
-              <label class="text-sm font-medium text-gray-700" for="proximaAcao">Próxima Ação</label>
+              <label class="text-sm font-medium text-ui-body" for="proximaAcao">Próxima Ação</label>
               <input
                 id="proximaAcao"
                 type="text"
@@ -398,14 +398,14 @@
                   <div class="flex min-w-0 gap-2">
                     <CalendarPlus class="w-4 h-4 shrink-0 mt-0.5" style="color: var(--brand-primary);" />
                     <div class="min-w-0">
-                      <p class="text-sm font-medium text-gray-900">Próxima visita sugerida</p>
-                      <p class="text-xs text-gray-500 mt-0.5">{proximaVisitaSugerida.observacao}</p>
+                      <p class="text-sm font-medium text-ui-primary">Próxima visita sugerida</p>
+                      <p class="text-xs text-ui-secondary mt-0.5">{proximaVisitaSugerida.observacao}</p>
                       {#if proximaVisitaSugerida.dataISO}
                         <p class="text-xs font-medium mt-1" style="color: var(--brand-primary);">
                           {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(proximaVisitaSugerida.dataISO))}
                         </p>
                       {:else}
-                        <p class="text-xs text-gray-400 mt-1">Data não identificada. Será agendada em 30 dias.</p>
+                        <p class="text-xs text-ui-muted mt-1">Data não identificada. Será agendada em 30 dias.</p>
                       {/if}
                     </div>
                   </div>
@@ -431,8 +431,8 @@
                   <div class="flex min-w-0 gap-2">
                     <TrendingUp class="w-4 h-4 shrink-0 mt-0.5" style="color: var(--pipeline-interessado);" />
                     <div class="min-w-0">
-                      <p class="text-sm font-medium text-gray-900">Mudança de estágio sugerida</p>
-                      <p class="text-xs text-gray-500 mt-0.5">
+                      <p class="text-sm font-medium text-ui-primary">Mudança de estágio sugerida</p>
+                      <p class="text-xs text-ui-secondary mt-0.5">
                         A IA identificou que o médico pode avançar para
                         <strong>{ESTAGIO_LABELS[sugestaoEstagio] ?? sugestaoEstagio}</strong>
                       </p>
@@ -453,14 +453,14 @@
 
             <!-- Salvar áudio? -->
             <div class="border-t border-gray-100 pt-4">
-              <p class="text-sm font-medium text-gray-700 mb-2">Salvar gravação de áudio?</p>
+              <p class="text-sm font-medium text-ui-body mb-2">Salvar gravação de áudio?</p>
               <div class="flex gap-2">
                 <button
                   onclick={() => salvarAudio = true}
                   class="px-3 py-1.5 text-sm rounded-lg border transition-colors cursor-pointer"
                   style={salvarAudio === true
-                    ? 'background-color: #2563eb; color: white; border-color: #2563eb;'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'}
+                    ? 'background-color: var(--brand-primary); color: white; border-color: var(--brand-primary);'
+                    : 'border-gray-200 text-ui-secondary hover:border-gray-300'}
                 >
                   Sim
                 </button>
@@ -468,8 +468,8 @@
                   onclick={() => salvarAudio = false}
                   class="px-3 py-1.5 text-sm rounded-lg border transition-colors cursor-pointer"
                   style={salvarAudio === false
-                    ? 'background-color: #2563eb; color: white; border-color: #2563eb;'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'}
+                    ? 'background-color: var(--brand-primary); color: white; border-color: var(--brand-primary);'
+                    : 'border-gray-200 text-ui-secondary hover:border-gray-300'}
                 >
                   Não
                 </button>
@@ -485,7 +485,7 @@
               <AlertCircle class="w-4 h-4 shrink-0" />
               {erro}
             </div>
-            {#if erroLimite}
+            {#if erroLimite && podeComprarPacote}
               <div class="mt-1 grid grid-cols-3 gap-2">
                 {#each [
                   { quantidade: 20, label: '+20', preco: 'R$ 19' },
@@ -495,7 +495,7 @@
                   <button
                     onclick={() => comprarPacote(pacote.quantidade as 20 | 50 | 100)}
                     disabled={comprando !== null}
-                    class="flex min-h-14 flex-col items-center justify-center rounded-md bg-red-100 px-2 py-2 text-xs font-medium text-red-800 transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-70"
+                    class="flex min-h-14 flex-col items-center justify-center rounded-md bg-red-100 px-2 py-2 text-xs font-medium text-ui-danger-strong transition-colors hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {#if comprando === pacote.quantidade}
                       <Loader2 class="h-4 w-4 animate-spin" />
@@ -516,7 +516,7 @@
         <button
           onclick={fechar}
           class="flex-1 h-10 text-sm font-medium border border-gray-200 rounded-lg
-            bg-white text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+            bg-white text-ui-body hover:bg-gray-50 transition-colors cursor-pointer"
         >
           Cancelar
         </button>
@@ -524,7 +524,7 @@
         {#if etapa === 'gravar' && !gravacao.gravando && gravacao.audioBlob}
           <button
             onclick={processarAudio}
-            style="background-color: #7c3aed; border-radius: 8px;"
+            style="background-color: var(--ai-primary); border-radius: 8px;"
             class="flex-1 h-10 text-sm font-medium text-white hover:opacity-90 cursor-pointer"
           >
             Processar com IA

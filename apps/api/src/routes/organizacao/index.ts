@@ -14,6 +14,10 @@ const AlterarRoleSchema = z.object({
   role: z.enum(["MEMBER", "OWNER"]),
 });
 
+const AtualizarOrganizacaoSchema = z.object({
+  nome: z.string().trim().min(2).max(100),
+});
+
 function requireOwner(
   request: { role?: string },
   reply: { status: (code: number) => { send: (body: unknown) => unknown } },
@@ -144,6 +148,34 @@ export default async function organizacaoRoutes(
       return reply.send(org);
     });
 
+    // PATCH /info — Atualizar informações da organização (OWNER only)
+    protectedApp.patch("/info", async (request, reply) => {
+      if (!requireOwner(request, reply)) return;
+
+      const parsed = AtualizarOrganizacaoSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply
+          .code(400)
+          .send({ error: "Dados inválidos", details: parsed.error.flatten() });
+      }
+
+      const org = await prisma.organization.update({
+        where: { id: request.organizationId! },
+        data: { nome: parsed.data.nome },
+        select: {
+          id: true,
+          nome: true,
+          plano: true,
+          status: true,
+          trialExpiraEm: true,
+          createdAt: true,
+          limiteUsuarios: true,
+        },
+      });
+
+      return reply.send(org);
+    });
+
     // GET /membros — Listar membros (OWNER only)
     protectedApp.get("/membros", async (request, reply) => {
       if (!requireGestaoEquipe(request, reply)) return;
@@ -193,7 +225,12 @@ export default async function organizacaoRoutes(
         orderBy: { createdAt: "desc" },
       });
 
-      return reply.send({ data: convites });
+      return reply.send({
+        data: convites.map((convite) => ({
+          ...convite,
+          token: convite.id,
+        })),
+      });
     });
 
     // POST /membros/convidar — Convidar membro (OWNER only)
@@ -280,7 +317,12 @@ export default async function organizacaoRoutes(
           },
         });
 
-        return reply.status(201).send({ data: convite });
+        return reply.status(201).send({
+          data: {
+            ...convite,
+            token: convite.id,
+          },
+        });
       },
     );
 

@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import { Users, Stethoscope, CalendarCheck, BarChart3, ChevronDown } from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
 	import CardResumo from '$lib/components/dashboard/CardResumo.svelte';
@@ -19,6 +17,7 @@
 
 	const kpis = $derived(resumoData?.kpis);
 	const pipeline = $derived(resumoData?.pipeline);
+	const pipelineTotal = $derived(Object.values(pipeline || {}).reduce((total: number, value: any) => total + Number(value || 0), 0));
 	const visitasRecentes = $derived(resumoData?.visitasRecentes || []);
 	const membros = $derived(data.membros || []);
 
@@ -40,7 +39,7 @@
 
 	// Cores dos estágios para os badges
 	const estagioCores: Record<string, string> = {
-		PROSPECTADO: 'bg-slate-100 text-slate-700',
+		PROSPECTADO: 'bg-slate-100 text-ui-body',
 		VISITADO: 'bg-blue-100 text-blue-700',
 		INTERESSADO: 'bg-amber-100 text-amber-700',
 		PRESCRITOR: 'bg-emerald-100 text-emerald-700',
@@ -96,7 +95,7 @@
 			<BarChart3 class="h-5 w-5 text-white" />
 		</div>
 		<div>
-			<h1 class="page-title">Gestão / Resumo</h1>
+			<h1 class="page-title">Gestão/Resumo</h1>
 			<p class="page-description">Métricas e performance da organização.</p>
 		</div>
 	</div>
@@ -107,7 +106,7 @@
 			<select
 				value={membroSelecionado}
 				onchange={handleFilterChange}
-				class="w-full h-10 px-3 pr-10 rounded-lg border border-[rgb(var(--slate-200))] bg-white text-sm text-[rgb(var(--slate-700))] outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-500 shadow-sm transition-all appearance-none cursor-pointer"
+				class="w-full h-10 px-3 pr-10 rounded-lg border border-[rgb(var(--slate-200))] bg-white text-sm text-ui-body outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-500 shadow-sm transition-all appearance-none cursor-pointer"
 			>
 				<option value="">Toda a equipe</option>
 				{#each membros as membro}
@@ -116,7 +115,7 @@
 					</option>
 				{/each}
 			</select>
-			<ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
+			<ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ui-muted pointer-events-none" />
 		</div>
 	{/if}
 </div>
@@ -155,7 +154,7 @@
 
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 		<!-- Pipeline Aggregation -->
-		<div class="card-surface p-5 h-full">
+		<div class="card-surface p-5 lg:self-start">
 			<h3 class="section-title mb-4">
 				{#if membroSelecionado}
 					Evolução do Funil ({nomeMembro()})
@@ -163,15 +162,24 @@
 					Evolução do Funil (Agregada)
 				{/if}
 			</h3>
-			<div class="space-y-0">
+			<div class="space-y-3">
 				{#each Object.entries(pipeline || {}) as [estagio, total]}
-					<div class="flex items-center justify-between py-3 border-b border-[rgb(var(--slate-100))] last:border-0">
-						<span class="text-sm font-medium text-[rgb(var(--slate-700))]">
-							{estagioLabels[estagio] || estagio.toLowerCase()}
-						</span>
-						<span class="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-md text-xs font-bold {estagioCores[estagio] || 'bg-slate-100 text-slate-700'}">
-							{total}
-						</span>
+					{@const percentual = pipelineTotal > 0 ? Math.round((Number(total) / pipelineTotal) * 100) : 0}
+					<div class="space-y-1.5">
+						<div class="flex items-center justify-between gap-3">
+							<span class="text-sm font-medium text-ui-body">
+								{estagioLabels[estagio] || estagio.toLowerCase()}
+							</span>
+							<span class="inline-flex items-center justify-center min-w-[2rem] px-2 py-1 rounded-md text-xs font-bold {estagioCores[estagio] || 'bg-slate-100 text-ui-body'}">
+								{total}
+							</span>
+						</div>
+						<div class="h-1.5 overflow-hidden rounded-full bg-[rgb(var(--slate-100))]">
+							<div
+								class="h-full rounded-full bg-blue-600 transition-[width]"
+								style="width: {percentual}%"
+							></div>
+						</div>
 					</div>
 				{/each}
 			</div>
@@ -192,14 +200,14 @@
 					<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-[rgb(var(--slate-100))] rounded-xl bg-[rgb(var(--slate-50))]/50 hover:bg-[rgb(var(--slate-50))] transition-colors">
 						<div class="flex items-center gap-4">
 							<div class="flex flex-col items-center justify-center px-3 border-r border-[rgb(var(--slate-200))] pr-4">
-								<span class="text-sm font-bold text-[rgb(var(--slate-700))]">{dateParts.dia}</span>
-								<span class="text-xs text-[rgb(var(--slate-500))] uppercase">{dateParts.mes}</span>
+								<span class="text-sm font-bold text-ui-body">{dateParts.dia}</span>
+								<span class="text-xs text-ui-secondary uppercase">{dateParts.mes}</span>
 							</div>
 							<div class="min-w-0">
-								<p class="text-sm font-bold text-[rgb(var(--slate-900))] truncate">
+								<p class="text-sm font-bold text-ui-primary truncate">
 									{visita.profissional?.nome ?? 'Profissional'}
 								</p>
-								<p class="text-xs text-[rgb(var(--slate-500))] mt-0.5 truncate">
+								<p class="text-xs text-ui-secondary mt-0.5 truncate">
 									Rep: {visita.userName}
 								</p>
 							</div>
@@ -215,7 +223,7 @@
 		</div>
 	</div>
 {:else}
-	<div class="card-surface p-8 text-center text-[rgb(var(--slate-500))]">
+	<div class="card-surface p-8 text-center text-ui-secondary">
 		Falha ao carregar o resumo do gestor. Tente novamente mais tarde.
 	</div>
 {/if}
