@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { apiFetch } from '$lib/api';
   import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
   import Button from '$lib/components/ui/Button.svelte';
@@ -31,8 +31,23 @@
     loadVisitas(pagination.page);
   }
 
-  let visitas = $state<Visita[]>(data.visitas?.data ?? []);
-  let pagination = $state<PaginationInfo>(data.visitas ? { page: data.visitas.page ?? 1, pageSize: data.visitas.pageSize ?? 20, total: data.visitas.total ?? 0, totalPages: data.visitas.totalPages ?? 0 } : { page: 1, pageSize: 20, total: 0, totalPages: 0 });
+  function abrirGravacaoRapida() {
+    if (!visitaGravacaoRapida) {
+      toasts.show('info', 'Nenhuma visita disponível para gravar nesta página.');
+      return;
+    }
+    visitaParaGravar = visitaGravacaoRapida.id;
+    modalGravacaoAberto = true;
+  }
+
+  let visitas = $state<Visita[]>(untrack(() => data.visitas?.data ?? []));
+  let pagination = $state<PaginationInfo>(
+    untrack(() =>
+      data.visitas
+        ? { page: data.visitas.page ?? 1, pageSize: data.visitas.pageSize ?? 20, total: data.visitas.total ?? 0, totalPages: data.visitas.totalPages ?? 0 }
+        : { page: 1, pageSize: 20, total: 0, totalPages: 0 },
+    ),
+  );
   let loading = $state(false);
   let filtroStatus = $state<StatusVisita | ''>('');
   let filtroBusca = $state('');
@@ -43,10 +58,33 @@
     !!filtroBusca || !!filtroStatus || !!filtroDataInicio || !!filtroDataFim
   );
 
-  // Total real de visitas cadastradas (sem filtros)
-  let totalCadastrados = $state(data.visitas?.total ?? 0);
+  let visitaGravacaoRapida = $derived(
+    visitas.find((visita) => !isVisitaPassada(visita) && (visita.status === 'AGENDADA' || visita.status === 'REALIZADA')) ?? null
+  );
 
-  let materiaisOptions = $state<MaterialTecnico[]>(data.materiais ?? []);
+  // Total real de visitas cadastradas (sem filtros)
+  let totalCadastrados = $state(untrack(() => data.visitas?.total ?? 0));
+
+  let materiaisOptions = $state<MaterialTecnico[]>(untrack(() => data.materiais ?? []));
+
+  const potencialLabel: Record<string, string> = {
+    ALTO: 'Alto',
+    MEDIO: 'Médio',
+    BAIXO: 'Baixo',
+    ESTRATEGICO: 'Estratégico'
+  };
+  const estagioLabel: Record<string, string> = {
+    PROSPECTADO: 'Prospectado',
+    VISITADO: 'Visitado',
+    INTERESSADO: 'Interessado',
+    PRESCRITOR: 'Prescritor',
+    FIDELIZADO: 'Fidelizado'
+  };
+  const classificacaoLabel: Record<string, string> = {
+    FORTE: 'Forte',
+    INTERMEDIARIO: 'Intermediário',
+    FRACO: 'Fraco'
+  };
   let sheetOpen = $state(false);
   let selectedVisita = $state<Visita | null>(null);
   let duplicateSource = $state<Visita | null>(null);
@@ -181,14 +219,16 @@
     filterTimeout = setTimeout(() => loadVisitas(1, filters), 300);
   });
 
-  onMount(() => {});
+  onMount(() => {
+    if (materiaisOptions.length === 0) void loadMateriais();
+  });
 </script>
 
 <svelte:head>
 	<title>Histórico de Visitas — MediVisitas</title>
 </svelte:head>
 
-<div class="space-y-6">
+<div class="space-y-6 pb-24">
   <!-- Header -->
   <div class="page-header">
     <div class="page-header-main">
@@ -213,7 +253,7 @@
       <!-- Busca por nome -->
       <div class="relative">
         <div class="relative">
-          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
+          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ui-muted pointer-events-none" />
           <input
             id="buscaVisita"
             type="text"
@@ -307,33 +347,50 @@
                   {(visita.profissional?.nome || 'P').charAt(0).toUpperCase()}
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="table-cell-primary truncate">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
-                  {#if visita.profissional?.especialidade}
-                    <p class="table-cell-secondary truncate">{visita.profissional.especialidade.nome}</p>
-                  {/if}
+                  <!-- Linha 1: Nome -->
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {visita.profissional?.nome || 'Profissional Desconhecido'}
+                  </p>
+
+                  <!-- Linha 2: Especialidade · Potencial · Estágio · Classificação -->
+                  <p class="text-xs truncate">
+                    <span class="text-gray-500">
+                      {visita.profissional?.especialidade?.nome ?? '—'}
+                    </span>
+                    {#if visita.profissional?.potencial || visita.profissional?.estagioPipeline || visita.profissional?.classificacao}
+                      <span class="text-gray-300"> · </span>
+                      <span class="text-gray-400">
+                        {[
+                          potencialLabel[visita.profissional?.potencial ?? ''],
+                          estagioLabel[visita.profissional?.estagioPipeline ?? ''],
+                          classificacaoLabel[visita.profissional?.classificacao ?? '']
+                        ].filter(Boolean).join(' · ')}
+                      </span>
+                    {/if}
+                  </p>
                 </div>
                 <StatusVisitaBadge status={visita.status} />
               </div>
 
-              <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-[rgb(var(--slate-600))]">
+              <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-ui-secondary">
                 <div class="flex items-center gap-1.5">
-                  <Calendar class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <Calendar class="h-3.5 w-3.5 text-ui-muted" />
                   <span>
                     {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
                   </span>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <Clock class="h-3.5 w-3.5 text-ui-muted" />
                   <span>
                     {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
                   </span>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <Package class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <Package class="h-3.5 w-3.5 text-ui-muted" />
                   <span>{visita.materiais?.length || 0} materiais</span>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-400))]" />
+                  <Clock class="h-3.5 w-3.5 text-ui-muted" />
                   <span>{visita.duracaoMinutos ? `${visita.duracaoMinutos} min` : 'Sem duração'}</span>
                 </div>
               </div>
@@ -345,7 +402,7 @@
                 onclick={(e) => abrirGravacaoVisita(e, visita)}
                 disabled={passada}
                 class={passada
-                  ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                  ? 'rounded-lg p-2 text-ui-disabled cursor-not-allowed'
                   : 'row-action hover:text-purple-600'}
                 title={passada ? 'Visita já ocorrida' : 'Gravar áudio da visita'}
               >
@@ -364,7 +421,7 @@
                 onclick={(e) => handleExcluirVisita(e, visita)}
                 disabled={passada}
                 class={passada
-                  ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                  ? 'rounded-lg p-2 text-ui-disabled cursor-not-allowed'
                   : 'row-action hover:text-red-600'}
                 title={passada ? 'Visita já ocorrida' : 'Excluir visita'}
               >
@@ -403,12 +460,27 @@
                       {(visita.profissional?.nome || 'P').charAt(0).toUpperCase()}
                     </div>
                     <div class="min-w-0">
-                      <p class="table-cell-primary truncate">{visita.profissional?.nome || 'Profissional Desconhecido'}</p>
-                      {#if visita.profissional?.especialidade}
-                        <p class="table-cell-secondary truncate">
-                          {visita.profissional.especialidade.nome}
-                        </p>
-                      {/if}
+                      <!-- Linha 1: Nome -->
+                      <p class="text-sm font-medium text-gray-900 truncate">
+                        {visita.profissional?.nome || 'Profissional Desconhecido'}
+                      </p>
+
+                      <!-- Linha 2: Especialidade · Potencial · Estágio · Classificação -->
+                      <p class="text-xs truncate">
+                        <span class="text-gray-500">
+                          {visita.profissional?.especialidade?.nome ?? '—'}
+                        </span>
+                        {#if visita.profissional?.potencial || visita.profissional?.estagioPipeline || visita.profissional?.classificacao}
+                          <span class="text-gray-300"> · </span>
+                          <span class="text-gray-400">
+                            {[
+                              potencialLabel[visita.profissional?.potencial ?? ''],
+                              estagioLabel[visita.profissional?.estagioPipeline ?? ''],
+                              classificacaoLabel[visita.profissional?.classificacao ?? '']
+                            ].filter(Boolean).join(' · ')}
+                          </span>
+                        {/if}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -416,7 +488,7 @@
                 <!-- Data/Hora -->
                 <td class="table-cell text-center">
                   <div class="inline-flex items-center gap-1.5 table-cell-primary">
-                    <Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] shrink-0" />
+                    <Calendar class="w-3.5 h-3.5 text-ui-muted shrink-0" />
                     <span>
                       {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
                     </span>
@@ -431,7 +503,7 @@
                 <td class="table-cell text-center">
                   {#if visita.duracaoMinutos}
                     <div class="inline-flex items-center gap-1 table-cell-primary">
-                      <Clock class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+                      <Clock class="w-3.5 h-3.5 text-ui-muted" />
                       {visita.duracaoMinutos} min
                     </div>
                   {:else}
@@ -442,7 +514,7 @@
                 <!-- Materiais -->
                 <td class="table-cell text-center">
                   <div class="inline-flex items-center gap-1 table-cell-primary" title={visita.materiais && visita.materiais.length > 0 ? visita.materiais.map(m => `${m.quantidade}x ${m.materialTecnico?.nome || 'Material'}`).join('\n') : 'Sem materiais'}>
-                    <Package class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+                    <Package class="w-3.5 h-3.5 text-ui-muted" />
                     {visita.materiais?.length || 0}
                   </div>
                 </td>
@@ -460,7 +532,7 @@
                       onclick={(e) => abrirGravacaoVisita(e, visita)}
                       disabled={passada}
                       class={passada
-                        ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                        ? 'rounded-lg p-2 text-ui-disabled cursor-not-allowed'
                         : 'row-action hover:text-purple-600'}
                       title={passada ? 'Visita já ocorrida' : 'Gravar áudio da visita'}
                     >
@@ -479,7 +551,7 @@
                       onclick={(e) => handleExcluirVisita(e, visita)}
                       disabled={passada}
                       class={passada
-                        ? 'rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed'
+                        ? 'rounded-lg p-2 text-ui-disabled cursor-not-allowed'
                         : 'row-action hover:text-red-600'}
                       title={passada ? 'Visita já ocorrida' : 'Excluir visita'}
                     >
@@ -504,7 +576,7 @@
               type="button"
               disabled={pagination.page <= 1}
               onclick={() => loadVisitas(pagination.page - 1)}
-              class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              class="p-1.5 rounded-lg text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft class="w-4 h-4" />
             </button>
@@ -512,7 +584,7 @@
               type="button"
               disabled={pagination.page >= pagination.totalPages}
               onclick={() => loadVisitas(pagination.page + 1)}
-              class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              class="p-1.5 rounded-lg text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight class="w-4 h-4" />
             </button>
@@ -522,6 +594,20 @@
     {/if}
   </div>
 </div>
+
+{#if !sheetOpen}
+<button
+  type="button"
+  onclick={abrirGravacaoRapida}
+  disabled={!visitaGravacaoRapida}
+  class="fixed bottom-8 right-8 z-[9999] flex h-12 min-w-[14.5rem] cursor-pointer items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+  style="background-color: var(--brand-primary); box-shadow: 0 14px 28px color-mix(in srgb, var(--brand-primary) 24%, transparent);"
+  title={visitaGravacaoRapida ? `Gravar transcrição para ${visitaGravacaoRapida.profissional?.nome || 'visita'}` : 'Nenhuma visita disponível para gravar'}
+>
+  <Mic class="h-4 w-4" />
+  Gravar transcrição com IA
+</button>
+{/if}
 
 
 {#if visitaParaGravar}
