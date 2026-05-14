@@ -27,42 +27,42 @@
 			icon: null,
 			title: 'Bem-vindo ao MediVisitas!',
 			desc: 'Vamos conhecer as principais funcionalidades em alguns passos rápidos.',
-			color: '#2563eb',
+			color: 'var(--brand-primary)',
 			destaque: 'data-tour-dashboard',
 		},
 		{
 			icon: Users,
 			title: 'Gerencie Profissionais',
 			desc: 'Cadastre médicos e profissionais de saúde. Acompanhe potencial de prescrição.',
-			color: '#059669',
+			color: 'var(--status-ativo)',
 			destaque: 'data-tour-profissionais',
 		},
 		{
 			icon: Calendar,
 			title: 'Agenda Inteligente',
 			desc: 'Planeje visitas com calendário interativo. Arraste e solte para reagendar.',
-			color: '#7c3aed',
+			color: 'var(--ai-primary)',
 			destaque: 'data-tour-agenda',
 		},
 		{
 			icon: BarChart3,
 			title: 'Pipeline Comercial',
 			desc: 'Visualize o funil de vendas e acompanhe a evolução no pipeline.',
-			color: '#ea580c',
+			color: 'rgb(234 88 12)',
 			destaque: 'data-tour-pipeline',
 		},
 		{
 			icon: Stethoscope,
 			title: 'Especialidades',
 			desc: 'Cadastre e organize as especialidades médicas dos profissionais da sua carteira.',
-			color: '#0891b2',
+			color: 'rgb(8 145 178)',
 			destaque: 'data-tour-especialidades',
 		},
 		{
 			icon: Package,
 			title: 'Materiais e Amostras',
 			desc: 'Gerencie materiais promocionais e amostras grátis para cada visita.',
-			color: '#8b5cf6',
+			color: 'var(--pipeline-interessado)',
 			destaque: 'data-tour-materiais',
 		},
 	];
@@ -273,7 +273,7 @@
 
 				<!-- Corpo -->
 				<div class="px-6 py-4">
-					<p class="text-xs text-center leading-relaxed text-[rgb(var(--slate-500))]">
+					<p class="text-xs text-center leading-relaxed text-ui-secondary">
 						{steps[currentStep].desc}
 					</p>
 				</div>
@@ -290,7 +290,7 @@
 							<div
 								class="h-1.5 rounded-full transition-all duration-300"
 								title={step.title}
-								style="width: {i === currentStep ? '16px' : '6px'}; background-color: {i === currentStep ? steps[currentStep].color : '#e5e7eb'};"
+								style="width: {i === currentStep ? '16px' : '6px'}; background-color: {i === currentStep ? steps[currentStep].color : 'var(--border-base)'};"
 							></div>
 						{/each}
 					</div>
@@ -301,7 +301,7 @@
 							<button
 								onclick={prevStep}
 								disabled={saving}
-								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] transition-colors cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-[rgb(var(--slate-200))] text-ui-secondary transition-colors cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Anterior
 							</button>
@@ -309,7 +309,7 @@
 							<button
 								onclick={pular}
 								disabled={saving}
-								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg text-[rgb(var(--slate-400))] transition-colors cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+								class="px-2.5 py-1.5 text-[11px] font-medium rounded-lg text-ui-muted transition-colors cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								Pular
 							</button>

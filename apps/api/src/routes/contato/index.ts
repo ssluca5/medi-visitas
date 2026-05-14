@@ -16,31 +16,35 @@ const ContatoEmpresarialSchema = z.object({
 });
 
 const contatoRoutes: FastifyPluginAsync = async (app) => {
+  const esc = (s: string) =>
+    s.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]!,
+    );
+
   app.post(
     "/empresarial",
     { config: { rateLimit: { max: 10, timeWindow: "1 hour" } } },
     async (request, reply) => {
-      console.log("[Env] CWD:", process.cwd());
-      console.log(
-        "[Contato] RESEND_API_KEY:",
-        process.env.RESEND_API_KEY?.slice(0, 10) ?? "AUSENTE",
-      );
-      console.log(
-        "[Contato] EMAIL_COMERCIAL:",
-        process.env.EMAIL_COMERCIAL ?? "AUSENTE",
-      );
       const data = ContatoEmpresarialSchema.parse(request.body);
       const emailComercial = process.env.EMAIL_COMERCIAL;
 
       const emailHtml = `
 <h2>Novo Contato Empresarial — MediVisitas</h2>
 <table style="border-collapse:collapse;">
-  <tr><td><strong>Nome:</strong></td><td>${data.nome}</td></tr>
-  <tr><td><strong>Email:</strong></td><td>${data.email}</td></tr>
-  <tr><td><strong>Telefone:</strong></td><td>${data.telefone}</td></tr>
-  <tr><td><strong>Empresa:</strong></td><td>${data.empresa}</td></tr>
+  <tr><td><strong>Nome:</strong></td><td>${esc(data.nome)}</td></tr>
+  <tr><td><strong>Email:</strong></td><td>${esc(data.email)}</td></tr>
+  <tr><td><strong>Telefone:</strong></td><td>${esc(data.telefone)}</td></tr>
+  <tr><td><strong>Empresa:</strong></td><td>${esc(data.empresa)}</td></tr>
   <tr><td><strong>Usuários estimados:</strong></td><td>${data.usuariosEstimados}</td></tr>
-  <tr><td><strong>Mensagem:</strong></td><td>${data.mensagem ?? "Não informada"}</td></tr>
+  <tr><td><strong>Mensagem:</strong></td><td>${esc(data.mensagem ?? "Não informada")}</td></tr>
 </table>
 <p style="color:#6b7280;margin-top:16px;">Responda em até 1 dia útil.</p>`;
 
@@ -62,17 +66,17 @@ const contatoRoutes: FastifyPluginAsync = async (app) => {
           });
 
           if (result.error) {
-            console.error("[Resend] Erro da API:", result.error);
-            console.warn("[Resend] Email não enviado, verificar configuração");
             request.log.error(
               { err: result.error },
               "Falha ao enviar email via Resend (Erro da API)",
             );
           } else {
-            console.log("[Resend] Email enviado com sucesso:", result.data?.id);
+            request.log.info(
+              { emailId: result.data?.id },
+              "Email de contato empresarial enviado via Resend",
+            );
           }
         } catch (emailError) {
-          console.error("[Resend] Erro detalhado:", JSON.stringify(emailError));
           request.log.error(
             { err: emailError },
             "Falha na requisição ao enviar email via Resend",

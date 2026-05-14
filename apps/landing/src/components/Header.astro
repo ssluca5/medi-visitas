@@ -4,14 +4,14 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <header class="navbar fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-transparent bg-transparent" id="navbar">
-  <div style="width: 100%; padding: 0 clamp(32px, 6vw, 80px);">
-    <div style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; padding-top: 24px; padding-bottom: 24px;">
+  <div class="navbar-shell">
+    <div class="navbar-inner">
       <a href="/" class="flex items-center gap-2 text-[17px] font-bold text-ink tracking-tight" style="flex-shrink: 0;">
         <svg width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-          <rect width="32" height="32" rx="6" fill="#2563eb"/>
+          <rect width="32" height="32" rx="6" fill="var(--color-blue)"/>
           <text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
         </svg>
-        MediVisitas
+        <span class="brand-text">MediVisitas</span>
       </a>
 
       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-secondary" id="navLinks" style="flex: 1; justify-content: center; font-size: 15px;">
@@ -20,9 +20,12 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
         <a href="/contato" class="nav-link">Contato</a>
       </div>
 
-      <div class="flex items-center gap-4">
-        <a href={`${appUrl}/login`} class="hidden sm:inline-flex text-sm font-medium text-ink-secondary hover:text-blue hover:bg-off-white px-4 py-2.5 rounded-xl transition-colors">Fazer login</a>
-        <a href={`${appUrl}/signup`} class="btn btn-primary" style="height: 44px; padding: 0 20px; font-size: 14px;">Começar grátis</a>
+      <div class="navbar-actions flex items-center gap-4">
+        <a href={`${appUrl}/login`} class="navbar-login" aria-label="Fazer login">
+          <span class="login-desktop">Fazer login</span>
+          <span class="login-mobile" aria-hidden="true">Login</span>
+        </a>
+        <a href={`${appUrl}/signup`} class="btn btn-primary navbar-cta">Começar grátis</a>
         
         <button class="nav-toggle md:hidden flex flex-col justify-center items-center w-11 h-11 gap-1.5 cursor-pointer" id="navToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
           <span class="nav-toggle-bar block w-5 h-0.5 bg-ink rounded-full transition-all duration-200"></span>
@@ -35,6 +38,60 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 </header>
 
 <style>
+  .navbar-shell {
+    width: 100%;
+    padding: 0 clamp(32px, 6vw, 80px);
+  }
+
+  .navbar-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .navbar-actions {
+    flex-shrink: 0;
+  }
+
+  .navbar-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    color: var(--color-ink-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color 200ms,
+      color 200ms;
+  }
+
+  .navbar-login:hover {
+    background-color: var(--color-off-white);
+    color: var(--color-blue);
+  }
+
+  .login-mobile {
+    display: none;
+  }
+
+  .navbar-actions .navbar-cta {
+    height: 44px;
+    padding: 0 20px;
+    font-size: 14px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
   .navbar:global(.scrolled) {
     background-color: color-mix(in srgb, var(--color-surface) 92%, transparent);
     backdrop-filter: blur(16px);
@@ -81,6 +138,44 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
   }
 
   @media (max-width: 768px) {
+    .navbar-shell {
+      padding: 0 16px;
+    }
+
+    .navbar-inner {
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .navbar-actions {
+      gap: 8px;
+    }
+
+    .navbar-login {
+      height: 40px;
+      padding: 0 8px;
+      border-radius: 10px;
+      color: var(--color-ink);
+      font-size: 13px;
+    }
+
+    .login-desktop {
+      display: none;
+    }
+
+    .login-mobile {
+      display: inline;
+    }
+
+    .navbar-actions .navbar-cta {
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
     #navLinks {
       display: none;
       position: absolute;
@@ -108,6 +203,36 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
     
     #navLinks a:last-child {
       border-bottom: none;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .navbar-shell {
+      padding: 0 12px;
+    }
+
+    .navbar-inner > a:first-child {
+      font-size: 15px;
+    }
+
+    .navbar-actions {
+      gap: 6px;
+    }
+
+    .navbar-login {
+      padding: 0 6px;
+      font-size: 12px;
+    }
+
+    .navbar-actions .navbar-cta {
+      padding: 0 10px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 340px) {
+    .brand-text {
+      display: none;
     }
   }
 </style>

@@ -14,7 +14,7 @@
 | Frontend        | SvelteKit 2 (Svelte 5 Runes)  |
 | Styling         | Tailwind CSS v4 (CSS-first)   |
 | Backend         | Fastify 5.8                   |
-| ORM             | Prisma 5.22                   |
+| ORM             | Prisma 6.19                   |
 | Banco           | PostgreSQL via Supabase       |
 | Auth            | Clerk (`@clerk/backend` v3.4) |
 | IA / Áudio      | Groq (Fase 5)                 |
@@ -175,6 +175,17 @@ Stop-Process -Id (Get-NetTCPConnection -LocalPort <porta>).OwningProcess  # Mata
 - [2026-04-30] Rate limit sem `keyGenerator` → `x-forwarded-for` para funcionar atrás de proxy (Railway/Render)
 - [2026-04-30] Dashboard sem auth guard centralizado → criado `+layout.server.ts` com redirect para landing page
 - [2026-04-30] Falta rota `/health` → criada com check de banco para monitoramento de infra
+- [2026-05-11] Prisma 5.22 vs 6.19 conflito → alinhado para 6.19.3 em todo o monorepo (web, api, database)
+- [2026-05-11] `@fastify/multipart@8` documentado no AGENTS.md → projeto usa v10 (compatível com Fastify 5)
+- [2026-05-11] Sem compressão de resposta → `@fastify/compress` com threshold 1KB
+- [2026-05-11] Sem graceful shutdown → handlers SIGTERM/SIGINT com `app.close()`
+- [2026-05-11] 10 páginas com fetch em `onMount` → migradas para `+page.server.ts` (SSR)
+- [2026-05-11] `adapter-auto` genérico → `adapter-node` para deploy otimizado
+- [2026-05-11] Sem PWA → manifest.json + service-worker.ts + meta tags
+- [2026-05-11] Sem cache backend → `lru-cache` (dashboard 60s, especialidades 5min)
+- [2026-05-11] Sem cache frontend → `apiFetch` com Map + TTL 30s + invalidação em mutações
+- [2026-05-11] Sentry carregado incondicionalmente → dynamic import condicional
+- [2026-05-11] Sem `manualChunks` → vendor-sentry, vendor-clerk, vendor-icons separados
 
 ### Fase 5 — IA: Transcrição com Groq
 

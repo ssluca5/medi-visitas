@@ -7,6 +7,9 @@
   
   let aceitando = $state(false);
   let errorMsg = $derived<string | null>(data.error ?? null);
+  let loginUrl = $derived(
+    `/login?redirect_url=${encodeURIComponent(`/aceitar-convite/${data.token}`)}&email=${encodeURIComponent(data.convite?.email ?? '')}`
+  );
 
   async function aceitarConvite() {
     if (!data.sessionToken) {
@@ -44,7 +47,7 @@
         <MailCheck class="h-8 w-8" />
       </div>
     </div>
-    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-ui-primary">
       Convite para Equipe
     </h2>
   </div>
@@ -58,7 +61,7 @@
               <AlertCircle class="h-5 w-5 text-red-400" />
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">Convite inválido</h3>
+              <h3 class="text-sm font-medium text-ui-danger-strong">Convite inválido</h3>
               <div class="mt-2 text-sm text-red-700">
                 <p>{errorMsg}</p>
               </div>
@@ -72,9 +75,9 @@
         </div>
       {:else if data.convite}
         <div class="text-center mb-6">
-          <p class="text-gray-600">Você foi convidado para participar da organização:</p>
-          <p class="text-xl font-bold text-gray-900 mt-2">{data.convite.organizationName}</p>
-          <p class="text-sm text-gray-500 mt-1">Como: {data.convite.role === 'OWNER' ? 'Gestor' : 'Representante'}</p>
+          <p class="text-ui-secondary">Você foi convidado para participar da organização:</p>
+          <p class="text-xl font-bold text-ui-primary mt-2">{data.convite.organizationName}</p>
+          <p class="text-sm text-ui-secondary mt-1">Como: {data.convite.role === 'OWNER' ? 'Gestor' : 'Propagandista'}</p>
         </div>
         
         {#if !data.sessionToken}
@@ -83,19 +86,19 @@
               <div class="flex-shrink-0">
                 <ShieldCheck class="h-5 w-5 text-amber-400" />
               </div>
-              <div class="ml-3 text-sm text-amber-800">
+              <div class="ml-3 text-sm text-ui-warning-strong">
                 <p>Você precisa estar logado com a conta <strong>{data.convite.email}</strong> para aceitar o convite.</p>
               </div>
             </div>
           </div>
-          <a href="/sign-in?redirect_url=/aceitar-convite/{data.token}" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700">
+          <a href={loginUrl} class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700">
             Fazer Login
           </a>
         {:else}
           <button 
             onclick={aceitarConvite}
             disabled={aceitando}
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-70"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-70 cursor-pointer"
           >
             {#if aceitando}
               <Loader2 class="w-5 h-5 animate-spin mr-2" />

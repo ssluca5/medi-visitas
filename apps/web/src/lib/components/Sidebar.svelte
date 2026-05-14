@@ -15,10 +15,10 @@
 	} from "lucide-svelte";
 	import type { NavItem } from "$lib/types";
 	import SinoNotificacoes from "$lib/components/layout/SinoNotificacoes.svelte";
-	import { PUBLIC_LANDING_URL } from "$env/static/public";
 
-	interface Props {
+interface Props {
 		userName: string;
+		avatarUrl?: string | null;
 		sessionToken: string | null;
 		plano?: string;
 		organizationId?: string;
@@ -32,6 +32,7 @@
 
 	let {
 		userName,
+		avatarUrl,
 		sessionToken,
 		plano,
 		trialExpiraEm,
@@ -97,7 +98,7 @@
 	let adminItems = $derived.by((): NavItem[] =>
 		role === "OWNER" && temGestaoEquipe
 			? [
-					{ href: "/dashboard/equipe", label: "Equipe", icon: Users },
+					{ href: "/dashboard/equipe", label: "Gestão de Equipe", icon: Users },
 					{
 						href: "/dashboard/gestor",
 						label: "Gestão/Resumo",
@@ -150,7 +151,7 @@
 	}
 
 	import { useClerkContext } from "svelte-clerk";
-	import { fly, fade } from "svelte/transition";
+	import { fly } from "svelte/transition";
 	import { cubicOut } from "svelte/easing";
 	import { User, Settings, Bell, HelpCircle, CreditCard, Building2, Shield } from "lucide-svelte";
 
@@ -193,7 +194,7 @@
 					xmlns="http://www.w3.org/2000/svg"
 					class="flex-shrink-0"
 				>
-					<rect width="32" height="32" rx="6" fill="#2563eb" />
+					<rect width="32" height="32" rx="6" fill="var(--brand-primary)" />
 					<text
 						x="16"
 						y="23"
@@ -205,13 +206,12 @@
 					>
 				</svg>
 				<div>
-					<h1
-						class="text-lg font-semibold tracking-tight text-[rgb(var(--slate-900))] leading-tight"
+					<h1 class="page-title-marker text-lg font-semibold tracking-tight text-ui-primary leading-tight"
 					>
 						MediVisitas
 					</h1>
 					<p
-						class="text-[10px] text-[rgb(var(--slate-400))] leading-tight"
+						class="text-[10px] text-ui-muted leading-tight"
 					>
 						CRM para Propagandistas
 					</p>
@@ -221,7 +221,7 @@
 				onclick={toggleCollapse}
 				aria-label="Recolher sidebar"
 				aria-expanded="true"
-				class="ml-2 shrink-0 p-1.5 rounded-md text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+				class="ml-2 shrink-0 p-1.5 rounded-md text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 				title="Recolher sidebar"
 			>
 				<PanelLeftClose class="h-4 w-4" />
@@ -231,7 +231,7 @@
 				onclick={toggleCollapse}
 				aria-label="Expandir sidebar"
 				aria-expanded="false"
-				class="mx-auto p-1.5 rounded-md text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+				class="mx-auto p-1.5 rounded-md text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 				title="Expandir sidebar"
 			>
 				<PanelLeft class="h-4 w-4" />
@@ -242,7 +242,7 @@
 	<!-- Navigation (scrollable middle section) -->
 	<nav
 		aria-label="Principal"
-		class="flex-1 overflow-y-auto overflow-x-visible px-3 space-y-0.5"
+		class="flex-1 overflow-y-auto overflow-x-hidden px-3 space-y-0.5"
 	>
 		{#each navItems as item}
 			{@const active = isActive(item.href)}
@@ -252,17 +252,17 @@
 				href={item.href}
 				aria-current={active ? "page" : undefined}
 				class={collapsed
-					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? "bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]" : "text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]"}`
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? "bg-[rgb(var(--slate-100))]/80 text-ui-primary" : "text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]"}`
 					: active
-						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
-						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
+						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
+						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
 				title={collapsed ? item.label : undefined}
 				{...tourSpread}
 			>
 				<Icon
 					class={active
 						? "h-[18px] w-[18px] text-blue-600 transition-colors duration-200"
-						: "h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200"}
+						: "h-[18px] w-[18px] text-ui-muted group-hover-text-ui-secondary transition-colors duration-200"}
 				/>
 				{#if !collapsed}
 					<span>{item.label}</span>
@@ -273,8 +273,8 @@
 		{#if !temMetas}
 			<span
 				class={collapsed
-					? "flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed"
-					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"}
+					? "flex items-center justify-center rounded-lg p-2 text-ui-disabled cursor-not-allowed"
+					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-disabled cursor-not-allowed"}
 				title="Disponível no Plano Profissional ou Equipe"
 			>
 				<Target class="h-[18px] w-[18px]" />
@@ -292,16 +292,16 @@
 				href="/dashboard/metas"
 				aria-current={activeMetas ? "page" : undefined}
 				class={collapsed
-					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${activeMetas ? "bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]" : "text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]"}`
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${activeMetas ? "bg-[rgb(var(--slate-100))]/80 text-ui-primary" : "text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]"}`
 					: activeMetas
-						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
-						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
+						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
+						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
 				title={collapsed ? "Metas" : undefined}
 			>
 				<Target
 					class={activeMetas
 						? "h-[18px] w-[18px] text-blue-600 transition-colors duration-200"
-						: "h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200"}
+						: "h-[18px] w-[18px] text-ui-muted group-hover-text-ui-secondary transition-colors duration-200"}
 				/>
 				{#if !collapsed}
 					<span>Metas</span>
@@ -312,7 +312,7 @@
 		<!-- Section Divider: Cadastros -->
 		{#if !collapsed}
 			<p
-				class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]"
+				class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-ui-muted"
 				style="letter-spacing: 0.07em;"
 			>
 				Cadastros
@@ -331,17 +331,17 @@
 				href={item.href}
 				aria-current={active ? "page" : undefined}
 				class={collapsed
-					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? "bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]" : "text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]"}`
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? "bg-[rgb(var(--slate-100))]/80 text-ui-primary" : "text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]"}`
 					: active
-						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
-						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
+						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
+						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
 				title={collapsed ? item.label : undefined}
 				{...tourSpread}
 			>
 				<Icon
 					class={active
 						? "h-[18px] w-[18px] text-blue-600 transition-colors duration-200"
-						: "h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200"}
+						: "h-[18px] w-[18px] text-ui-muted group-hover-text-ui-secondary transition-colors duration-200"}
 				/>
 				{#if !collapsed}
 					<span>{item.label}</span>
@@ -352,7 +352,7 @@
 		<!-- Section Divider: Configurações -->
 		{#if !collapsed}
 			<p
-				class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]"
+				class="px-2.5 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-ui-muted"
 				style="letter-spacing: 0.07em;"
 			>
 				Configurações
@@ -370,16 +370,16 @@
 				href={item.href}
 				aria-current={active ? "page" : undefined}
 				class={collapsed
-					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? "bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]" : "text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]"}`
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${active ? "bg-[rgb(var(--slate-100))]/80 text-ui-primary" : "text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]"}`
 					: active
-						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
-						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
+						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
+						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
 				title={collapsed ? item.label : undefined}
 			>
 				<Icon
 					class={active
 						? "h-[18px] w-[18px] text-blue-600 transition-colors duration-200"
-						: "h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200"}
+						: "h-[18px] w-[18px] text-ui-muted group-hover-text-ui-secondary transition-colors duration-200"}
 				/>
 				{#if !collapsed}
 					<span>{item.label}</span>
@@ -390,8 +390,8 @@
 		{#if role === "OWNER" && !temGestaoEquipe}
 			<span
 				class={collapsed
-					? "flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed"
-					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"}
+					? "flex items-center justify-center rounded-lg p-2 text-ui-disabled cursor-not-allowed"
+					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-disabled cursor-not-allowed"}
 				title="Disponivel no Plano Equipe"
 			>
 				<Users class="h-[18px] w-[18px]" />
@@ -405,8 +405,8 @@
 			</span>
 			<span
 				class={collapsed
-					? "flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed"
-					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"}
+					? "flex items-center justify-center rounded-lg p-2 text-ui-disabled cursor-not-allowed"
+					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-disabled cursor-not-allowed"}
 				title="Disponivel no Plano Equipe"
 			>
 				<BarChart3 class="h-[18px] w-[18px]" />
@@ -423,13 +423,13 @@
 		{#if !temRelatorios}
 			<span
 				class={collapsed
-					? "flex items-center justify-center rounded-lg p-2 text-[rgb(var(--slate-300))] cursor-not-allowed"
-					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"}
+					? "flex items-center justify-center rounded-lg p-2 text-ui-disabled cursor-not-allowed"
+					: "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-disabled cursor-not-allowed"}
 				title="Disponivel no Plano Profissional"
 			>
 				<FileText class="h-[18px] w-[18px]" />
 				{#if !collapsed}
-					<span>Relatorios</span>
+					<span>Relatórios</span>
 					<span
 						class="ml-auto text-[10px] font-semibold"
 						style="color: var(--text-muted);">Pro</span
@@ -443,19 +443,19 @@
 					? "page"
 					: undefined}
 				class={collapsed
-					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${isActive("/dashboard/relatorios") ? "bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]" : "text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]"}`
+					? `group flex items-center justify-center rounded-lg p-2 transition-all duration-200 ease-out cursor-pointer ${isActive("/dashboard/relatorios") ? "bg-[rgb(var(--slate-100))]/80 text-ui-primary" : "text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]"}`
 					: isActive("/dashboard/relatorios")
-						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))] transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
-						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
-				title={collapsed ? "Relatorios" : undefined}
+						? "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary transition-[background-color,color,transform] duration-200 ease-out active:scale-[0.98]"
+						: "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))] will-change-transform transition-[background-color,color,transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] hover:shadow-sm active:scale-[0.98]"}
+				title={collapsed ? "Relatórios" : undefined}
 			>
 				<FileText
 					class={isActive("/dashboard/relatorios")
 						? "h-[18px] w-[18px] text-blue-600 transition-colors duration-200"
-						: "h-[18px] w-[18px] text-[rgb(var(--slate-400))] group-hover:text-[rgb(var(--slate-600))] transition-colors duration-200"}
+						: "h-[18px] w-[18px] text-ui-muted group-hover-text-ui-secondary transition-colors duration-200"}
 				/>
 				{#if !collapsed}
-					<span>Relatorios</span>
+					<span>Relatórios</span>
 				{/if}
 			</a>
 		{/if}
@@ -466,7 +466,7 @@
 		<div
 			class="mx-3 mb-3 p-3 rounded-lg bg-amber-50 border border-amber-200"
 		>
-			<p class="text-xs font-medium text-amber-800">
+			<p class="text-xs font-medium text-ui-warning-strong">
 				{#if diasRestantes === 0}
 					Trial expira hoje
 				{:else if diasRestantes === 1}
@@ -501,18 +501,26 @@
 				title="Opções do usuário"
 			>
 				<!-- Avatar -->
-				<div
-					class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white shadow-sm"
-					style="background-color: #2563eb;"
-				>
-					{userName.charAt(0).toUpperCase()}
-				</div>
+				{#if avatarUrl}
+					<img
+						src={avatarUrl}
+						alt={userName}
+						class="flex h-7 w-7 flex-shrink-0 rounded-full object-cover shadow-sm"
+					/>
+				{:else}
+					<div
+						class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white shadow-sm"
+						style="background-color: var(--brand-primary);"
+					>
+						{userName.charAt(0).toUpperCase()}
+					</div>
+				{/if}
 
 				<!-- Nome + plano embaixo -->
 				{#if !collapsed}
 					<div class="min-w-0 flex-1">
 						<p
-							class="truncate text-sm font-medium text-[rgb(var(--slate-900))]"
+							class="truncate text-sm font-medium text-ui-primary"
 						>
 							{userName}
 						</p>
@@ -545,55 +553,55 @@
 			>
 				<a
 					href="/dashboard/perfil#conta"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<User class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Conta
+					<User class="w-4 h-4 text-ui-muted" /> Conta
 				</a>
 				<a
 					href="/dashboard/perfil#plano"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<CreditCard class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Plano
+					<CreditCard class="w-4 h-4 text-ui-muted" /> Plano
 				</a>
 				<a
 					href="/dashboard/perfil#organizacao"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<Building2 class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Organização
+					<Building2 class="w-4 h-4 text-ui-muted" /> Organização
 				</a>
 				<a
 					href="/dashboard/perfil#seguranca"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<Shield class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Segurança
+					<Shield class="w-4 h-4 text-ui-muted" /> Segurança
 				</a>
 				<a
 					href="/dashboard/perfil#notificacoes"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<Bell class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Notificações
+					<Bell class="w-4 h-4 text-ui-muted" /> Notificações
 				</a>
 				<a
 					href="/dashboard/perfil#preferencias"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<Settings class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Preferências
+					<Settings class="w-4 h-4 text-ui-muted" /> Preferências
 				</a>
 
 				<div class="my-1.5 border-t border-[rgb(var(--slate-100))]"></div>
 
 				<a
 					href="/dashboard/suporte"
-					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))] transition-colors"
+					class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary transition-colors"
 					onclick={closeUserMenu}
 				>
-					<HelpCircle class="w-4 h-4 text-[rgb(var(--slate-400))]" /> Ajuda
+					<HelpCircle class="w-4 h-4 text-ui-muted" /> Ajuda
 					/ Suporte
 				</a>
 

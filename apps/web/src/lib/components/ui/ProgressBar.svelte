@@ -38,7 +38,7 @@
 	<div class="fixed top-0 left-0 right-0 z-[9999] h-[3px]" style="background-color: rgba(37, 99, 235, 0.1);">
 		<div
 			class="h-full transition-all duration-200 ease-out"
-			style="width: {Math.min(progress, 100)}%; background-color: #2563eb;"
+			style="width: {Math.min(progress, 100)}%; background-color: var(--brand-primary);"
 		></div>
 	</div>
 {/if}

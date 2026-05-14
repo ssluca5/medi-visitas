@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import compress from "@fastify/compress";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
@@ -32,7 +33,15 @@ import suporteRoutes from "./routes/suporte/index.js";
 import metasRoutes from "./routes/metas/index.js";
 export async function buildApp() {
   const app = Fastify({
-    logger: true,
+    logger: {
+      redact: [
+        "contato.email",
+        "contato.telefone",
+        "contato.mensagem",
+        "suporte.email",
+        "suporte.mensagem",
+      ],
+    },
   });
 
   // Helmet — security headers
@@ -59,6 +68,9 @@ export async function buildApp() {
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     hidePoweredBy: true,
   });
+
+  // Compressão de resposta — gzip/deflate para payloads > 1KB
+  await app.register(compress, { threshold: 1024 });
 
   // Rate limiting — mais generoso em dev (SvelteKit SSR faz ~5 requests por page load)
   const isDevMode = process.env.NODE_ENV !== "production";
@@ -183,10 +195,7 @@ export async function buildApp() {
       }
 
       return reply.status(statusCode).send({
-        error:
-          process.env.NODE_ENV === "production"
-            ? "Ocorreu um erro interno. Tente novamente."
-            : error.message,
+        error: "Ocorreu um erro interno. Tente novamente.",
         code: "INTERNAL_ERROR",
       });
     },

@@ -26,7 +26,7 @@
 	const statusColors: Record<StatusAgenda, string> = {
 		PLANEJADO: 'bg-blue-50 text-blue-700',
 		CONFIRMADO: 'bg-emerald-50 text-emerald-700',
-		REALIZADO: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]',
+		REALIZADO: 'bg-[rgb(var(--slate-100))] text-ui-secondary',
 		CANCELADO: 'bg-red-50 text-red-600'
 	};
 
@@ -60,11 +60,11 @@
 >
 	<div class="flex items-start justify-between gap-2">
 		<div class="min-w-0 flex-1">
-			<p class="text-[13px] font-semibold text-[rgb(var(--slate-800))] truncate">
+			<p class="text-[13px] font-semibold text-ui-strong truncate">
 				{item.profissional?.nome ?? 'Profissional'}
 			</p>
 			{#if item.profissional?.especialidade}
-				<p class="text-[10px] uppercase tracking-wider text-[rgb(var(--slate-400))] font-medium mt-0.5">
+				<p class="text-[10px] uppercase tracking-wider text-ui-muted font-medium mt-0.5">
 					{item.profissional.especialidade.nome}
 				</p>
 			{/if}
@@ -76,12 +76,12 @@
 		</span>
 	</div>
 
-	<div class="mt-2 flex items-center gap-1.5 text-[11px] text-[rgb(var(--slate-500))]">
-		<Clock class="h-3 w-3 text-[rgb(var(--slate-400))]" />
+	<div class="mt-2 flex items-center gap-1.5 text-[11px] text-ui-secondary">
+		<Clock class="h-3 w-3 text-ui-muted" />
 		<span class="font-medium">{horaInicio} – {horaFim}</span>
 	</div>
 
 	{#if item.observacoes}
-		<p class="mt-1.5 text-[11px] text-[rgb(var(--slate-400))] truncate">{item.observacoes}</p>
+		<p class="mt-1.5 text-[11px] text-ui-muted truncate">{item.observacoes}</p>
 	{/if}
 </div>

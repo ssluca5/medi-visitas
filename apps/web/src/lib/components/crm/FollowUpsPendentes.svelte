@@ -34,13 +34,13 @@
         >
           <FileText class="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
           <div class="min-w-0">
-            <p class="text-sm text-[rgb(var(--slate-700))]">{fup.acao}</p>
-            <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Visita de {formatData(fup.dataVisitaOrigem)}</p>
+            <p class="text-sm text-ui-body">{fup.acao}</p>
+            <p class="text-xs text-ui-muted mt-1">Visita de {formatData(fup.dataVisitaOrigem)}</p>
           </div>
         </button>
       {/each}
     </div>
   {:else}
-    <p class="text-sm text-[rgb(var(--slate-400))] text-center py-4">Nenhum follow-up pendente</p>
+    <p class="text-sm text-ui-muted text-center py-4">Nenhum follow-up pendente</p>
   {/if}
 </div>

@@ -32,8 +32,29 @@
   --border-base: #e5e7eb;
   --status-ativo: #059669;
   --danger: #dc2626;
+  --status-inativo: #9ca3af;
+  --pipeline-prospectado: #f59e0b;
+  --pipeline-visitado: #3b82f6;
+  --pipeline-interessado: #8b5cf6;
+  --pipeline-prescritor: #10b981;
+  --pipeline-fidelizado: #059669;
+  --potencial-alto: #dc2626;
+  --potencial-medio: #f59e0b;
+  --potencial-baixo: #6b7280;
+  --potencial-estrategico: #7c3aed;
   --danger-light: #fef2f2;
   --danger-border: #fecaca;
+  --danger-soft: #fee2e2;
+  --danger-text: #991b1b;
+  --warning-light: #fef3c7;
+  --warning-soft: #fde68a;
+  --warning-text: #92400e;
+  --info-light: #dbeafe;
+  --info-border: #bfdbfe;
+  --info-text: #1e40af;
+  --success-border: #6ee7b7;
+  --neutral-light: #f3f4f6;
+  --purple-light: #f3e8ff;
   --brand-dark: #1e40af;
   --ai-primary: #7c3aed;
   --trial-bg: #fef3c7;
@@ -340,6 +361,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
+input[type="date"]:disabled,
+input[type="date"]:disabled::-webkit-calendar-picker-indicator,
+select:disabled {
+  cursor: not-allowed;
+}
+
+select:not(:disabled) {
+  cursor: pointer;
+}
+
 /* ──────────────────────────────────────────────
    Global Premium Micro-interaction Utilities
    ────────────────────────────────────────────── */
@@ -359,10 +390,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 select.input-base {
   appearance: none;
   padding-right: 2.5rem;
+  cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1rem;
+}
+
+select.input-base:disabled {
+  cursor: not-allowed;
 }
 
 /* Input com estado de erro — borda + anel vermelhos */
@@ -437,6 +473,131 @@ select.input-base {
   line-height: var(--line-height-small);
   font-weight: 400;
   color: var(--text-secondary);
+  letter-spacing: 0;
+}
+
+.text-ui-primary,
+.text-ui-heading {
+  color: var(--text-primary);
+}
+
+.text-ui-strong {
+  color: rgb(var(--slate-800));
+}
+
+.text-ui-body {
+  color: var(--text-body);
+}
+
+.text-ui-secondary {
+  color: var(--text-secondary);
+}
+
+.text-ui-muted {
+  color: var(--text-muted);
+}
+
+.text-ui-disabled {
+  color: rgb(var(--slate-300));
+}
+
+.text-ui-faint {
+  color: rgb(var(--slate-200));
+}
+
+.text-ui-inverse {
+  color: #ffffff;
+}
+
+.text-ui-inverse-soft {
+  color: #f8fafc;
+}
+
+.text-ui-inverse-muted {
+  color: #cbd5e1;
+}
+
+.text-ui-brand-strong {
+  color: var(--brand-dark);
+}
+
+.text-ui-success-strong {
+  color: var(--success-text);
+}
+
+.text-ui-warning-strong {
+  color: var(--trial-text);
+}
+
+.text-ui-danger-strong {
+  color: #991b1b;
+}
+
+.hover-text-ui-primary:hover {
+  color: var(--text-primary);
+}
+
+.hover-text-ui-strong:hover {
+  color: rgb(var(--slate-800));
+}
+
+.hover-text-ui-body:hover {
+  color: var(--text-body);
+}
+
+.hover-text-ui-secondary:hover {
+  color: var(--text-secondary);
+}
+
+.hover-text-ui-muted:hover {
+  color: var(--text-muted);
+}
+
+.hover-text-ui-brand-strong:hover {
+  color: var(--brand-dark);
+}
+
+.hover-text-ui-success-strong:hover {
+  color: var(--success-text);
+}
+
+.hover-text-ui-warning-strong:hover {
+  color: var(--trial-text);
+}
+
+.hover-text-ui-danger-strong:hover {
+  color: #991b1b;
+}
+
+.group:hover .group-hover-text-ui-primary {
+  color: var(--text-primary);
+}
+
+.group:hover .group-hover-text-ui-strong {
+  color: rgb(var(--slate-800));
+}
+
+.group:hover .group-hover-text-ui-secondary {
+  color: var(--text-secondary);
+}
+
+.group:hover .group-hover-text-ui-muted {
+  color: var(--text-muted);
+}
+
+.placeholder-ui-muted::placeholder {
+  color: var(--text-muted);
+}
+
+.disabled-text-ui-muted:disabled {
+  color: var(--text-muted);
+}
+
+.disabled-text-ui-secondary:disabled {
+  color: var(--text-secondary);
+}
+
+.page-title-marker {
   letter-spacing: 0;
 }
 
@@ -656,6 +817,22 @@ select.input-base {
 /* ──────────────────────────────────────────────
    Motion sensitivity — respect user preference
    ────────────────────────────────────────────── */
+
+/* Expand/collapse animation */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.25s ease-out;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

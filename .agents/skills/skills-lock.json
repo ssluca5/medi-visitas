@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "skills": {
+    "auto-pr-pipeline": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/auto-pr-pipeline/SKILL.md",
+      "computedHash": "0e3b999e745e3034898c199faa11922233fddd7d5bc3e6548a0bd5f7bdefe4f7"
+    },
+    "cc-prompt-builder": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/cc-prompt-builder/SKILL.md",
+      "computedHash": "554faf45cf2b91bbcaca9c8fa73bbca12815c906043fcd3def50fdb18bf24ca3"
+    },
+    "changelog-generator": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/changelog-generator/SKILL.md",
+      "computedHash": "fdd68caadec582e7f9c1a5b1dbd4e379c70c3be9f3c62e50dba278c0c7dea1db"
+    },
+    "clarify-spec": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "clarify-spec/SKILL.md",
+      "computedHash": "56685b479fdde8dd93bc1ca03be8610d885c9839ea48f0b5f27426553966f86d"
+    },
+    "code-quality-gate": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-quality-gate/SKILL.md",
+      "computedHash": "ccdd41a5eb2a3d839eeb44a84486731fa5da3ed99f03de9c62e6de66b1ece143"
+    },
+    "human-writing-style": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/human-writing/SKILL.md",
+      "computedHash": "7d4d3063eaa32b8ee4a9cc9f64d73498a6be5de2ebe7fce4c30026a4b3814d5b"
+    },
+    "kaizen": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kaizen/SKILL.md",
+      "computedHash": "08b52019b7767ff56e30322f2761c3849f2fd1f23e5f51f7e4461b9e6ea354ee"
+    },
+    "linkedin-engagement": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/linkedin-engagement/SKILL.md",
+      "computedHash": "1d8968952d4d020fd768b0c3bf2d1e8f528d5dbf75e015ae4bce9f1038f53397"
+    },
+    "multi-agent-patterns": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/multi-agent-patterns/SKILL.md",
+      "computedHash": "7ad70ec9557b8f675b69593960c71a78068ac0d7e27ce60f31b11386e685ecbf"
+    },
+    "multi-llm-advisor": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/multi-llm-advisor/SKILL.md",
+      "computedHash": "b774b9adfc9934c74607c6aa2154b49172d2550c9ed2965bee719edacd2ef2aa"
+    },
+    "preview-testing": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/preview-testing/SKILL.md",
+      "computedHash": "28c7c255bb4ad51634027fa704dcc5a952478d15de68ce6b0b606af53ac519c9"
+    },
+    "project-development": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/project-development/SKILL.md",
+      "computedHash": "60df48a599d07d826f7f5453d34d62793d0b1b80d42dac39800b0181652cdcd5"
+    },
+    "prompt-architect": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "prompt-architect/SKILL.md",
+      "computedHash": "acd011bb8da9a5bee757a3d7c6d7689fa5df6710e77106e93b0250b5fc54e09b"
+    },
+    "qa-checklist": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/qa-checklist/SKILL.md",
+      "computedHash": "d6c3c626c59d81ad8d904901f365feeff3ce2f4a8e1b9f6247f61d71b5fc8768"
+    },
+    "reddit-research": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/reddit-research/SKILL.md",
+      "computedHash": "8e71a7206c9aac12b34991c54b641712296117f46eeed8e34470e55decdbc962"
+    },
+    "safe-git-guard": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/safe-git-guard/SKILL.md",
+      "computedHash": "7d5ff2ed195727ea9e9e2c8dea52cded8a11b89e170fb02a0008b56fc9319459"
+    },
+    "social-media-content": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social-media-content/SKILL.md",
+      "computedHash": "777f10432b48e90e4bcfe5551ef026589bb55882f98aaf55ab3bf02b0ef25d17"
+    },
+    "spec-engineer": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/spec-engineer/SKILL.md",
+      "computedHash": "418c89f010133ef2708e11237157936345097ead10c76f3b1db0ba800b82d6c5"
+    },
+    "strict-typescript-mode": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/strict-typescript-mode/SKILL.md",
+      "computedHash": "8e1db7ac5e6ac85ff9f07e8de2ccc3a9ee1f2164190c01d56a80ddceeca6ae63"
+    },
+    "tdd-strict": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tdd-strict/SKILL.md",
+      "computedHash": "946c0302786b5ecee0e9a8b1ec77df441b89dac6d91e60c2e07a8e5c6fc27421"
+    },
+    "ui-freeze": {
+      "source": "Svenja-dev/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-freeze/SKILL.md",
+      "computedHash": "0739e4c0767806532297851f909aaaf80fca3a6591c8502633a24070cd0c91bc"
+    }
+  }
+}

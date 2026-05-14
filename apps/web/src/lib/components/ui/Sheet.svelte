@@ -42,11 +42,12 @@
 
 	<!-- Panel -->
 	<div
-		class="fixed inset-y-0 z-50 flex h-full w-[90%] max-w-md flex-col bg-white shadow-2xl overflow-x-hidden sm:max-w-sm"
+		class="fixed inset-y-0 z-50 flex h-full w-[90%] max-w-md flex-col overflow-x-hidden shadow-sm sm:max-w-sm"
 		class:right-0={side === 'right'}
 		class:left-0={side === 'left'}
 		class:border-l={side === 'right'}
 		class:border-r={side === 'left'}
+		style="background-color: var(--bg-surface); border-color: var(--border-base);"
 		transition:fly={{ x: side === 'right' ? 400 : -400, duration: 300, easing: cubicOut }}
 		role="dialog"
 		aria-modal="true"
@@ -54,7 +55,7 @@
 		<!-- Close button -->
 		<button
 			type="button"
-			class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-[rgb(var(--slate-400))] transition-all duration-200 hover:bg-[rgb(var(--slate-100))] hover:text-[rgb(var(--slate-600))] focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
+			class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-all duration-200 hover:bg-[var(--brand-light)]/40 hover:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]/30 cursor-pointer"
 			onclick={onclose}
 		>
 			<X class="h-4 w-4" />

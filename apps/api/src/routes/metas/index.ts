@@ -63,7 +63,27 @@ function validarPeriodo(dataInicio: Date, dataFim: Date): boolean {
   return dataFim.getTime() > dataInicio.getTime();
 }
 
-function buildAccessSql(request: { organizationId?: string; userId?: string }) {
+function temIndicadorConfigurado(data: {
+  metaVisitas?: number;
+  metaAvancosPipeline?: number;
+  metaPrescritores?: number;
+}): boolean {
+  return (
+    (data.metaVisitas ?? 0) > 0 ||
+    (data.metaAvancosPipeline ?? 0) > 0 ||
+    (data.metaPrescritores ?? 0) > 0
+  );
+}
+
+function buildAccessSql(request: {
+  organizationId?: string;
+  userId?: string;
+  role?: string;
+}) {
+  // OWNER vê todas as metas da organização; MEMBER vê apenas as suas
+  if (request.role === "OWNER") {
+    return Prisma.sql`"organizationId" = ${request.organizationId} AND "deletedAt" IS NULL`;
+  }
   return Prisma.sql`"organizationId" = ${request.organizationId} AND "deletedAt" IS NULL AND ("responsavelId" = ${request.userId} OR "criadaPorId" = ${request.userId})`;
 }
 
@@ -85,6 +105,22 @@ async function findMetaByCreator(
     Prisma.sql`SELECT * FROM "Meta" WHERE "id" = ${id} AND "organizationId" = ${request.organizationId} AND "deletedAt" IS NULL AND "criadaPorId" = ${request.userId} LIMIT 1`,
   );
   return rows[0] ?? null;
+}
+
+async function responsavelPertenceAOrganizacao(
+  responsavelId: string,
+  organizationId: string,
+): Promise<boolean> {
+  const membro = await prisma.organizationMembro.findFirst({
+    where: {
+      organizationId,
+      userId: responsavelId,
+      deletedAt: null,
+    },
+    select: { id: true },
+  });
+
+  return Boolean(membro);
 }
 
 const metasRoutes: FastifyPluginAsync = async (app) => {
@@ -137,11 +173,37 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
     const data = CreateMetaSchema.parse(request.body);
     const dataInicio = new Date(data.dataInicio);
     const dataFim = new Date(data.dataFim);
+    const limitesPlano = getLimitesPlano(request.plano);
 
     if (!validarPeriodo(dataInicio, dataFim)) {
       return reply
         .code(400)
         .send({ error: "A data final deve ser maior que a data inicial." });
+    }
+
+    if (!temIndicadorConfigurado(data)) {
+      return reply.code(400).send({
+        error: "Informe pelo menos um indicador da meta para acompanhamento.",
+      });
+    }
+
+    if (data.plano === "EQUIPE" && !limitesPlano.temGestaoEquipe) {
+      return reply.code(402).send({
+        error: "Metas de equipe estao disponiveis no Plano Equipe.",
+        code: "FEATURE_NOT_AVAILABLE",
+      });
+    }
+
+    if (
+      data.plano === "EQUIPE" &&
+      !(await responsavelPertenceAOrganizacao(
+        data.responsavelId,
+        request.organizationId!,
+      ))
+    ) {
+      return reply.code(400).send({
+        error: "Responsavel nao pertence a esta organizacao.",
+      });
     }
 
     if (
@@ -198,20 +260,8 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (existente.status === "ATINGIDA" || existente.status === "EXPIRADA") {
-      return reply
-        .code(400)
-        .send({
-          error: "Metas atingidas ou expiradas nao podem ser editadas.",
-        });
-    }
-
-    if (
-      data.plano === "PROFISSIONAL" &&
-      data.responsavelId !== request.userId
-    ) {
       return reply.code(400).send({
-        error:
-          "Metas profissionais devem ter o proprio usuario como responsavel.",
+        error: "Metas atingidas ou expiradas nao podem ser editadas.",
       });
     }
 
@@ -219,11 +269,56 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
       ? new Date(data.dataInicio)
       : existente.dataInicio;
     const dataFim = data.dataFim ? new Date(data.dataFim) : existente.dataFim;
+    const plano = data.plano ?? existente.plano;
+    const responsavelId = data.responsavelId ?? existente.responsavelId;
+    const metaVisitas = data.metaVisitas ?? existente.metaVisitas;
+    const metaAvancosPipeline =
+      data.metaAvancosPipeline ?? existente.metaAvancosPipeline;
+    const metaPrescritores =
+      data.metaPrescritores ?? existente.metaPrescritores;
 
     if (!validarPeriodo(dataInicio, dataFim)) {
       return reply
         .code(400)
         .send({ error: "A data final deve ser maior que a data inicial." });
+    }
+
+    if (
+      !temIndicadorConfigurado({
+        metaVisitas,
+        metaAvancosPipeline,
+        metaPrescritores,
+      })
+    ) {
+      return reply.code(400).send({
+        error: "Informe pelo menos um indicador da meta para acompanhamento.",
+      });
+    }
+
+    if (plano === "PROFISSIONAL" && responsavelId !== request.userId) {
+      return reply.code(400).send({
+        error:
+          "Metas profissionais devem ter o proprio usuario como responsavel.",
+      });
+    }
+
+    if (plano === "EQUIPE" && !getLimitesPlano(request.plano).temGestaoEquipe) {
+      return reply.code(402).send({
+        error: "Metas de equipe estao disponiveis no Plano Equipe.",
+        code: "FEATURE_NOT_AVAILABLE",
+      });
+    }
+
+    if (
+      plano === "EQUIPE" &&
+      !(await responsavelPertenceAOrganizacao(
+        responsavelId,
+        request.organizationId!,
+      ))
+    ) {
+      return reply.code(400).send({
+        error: "Responsavel nao pertence a esta organizacao.",
+      });
     }
 
     const rows = await prisma.$queryRaw<MetaRecord[]>(
@@ -234,11 +329,11 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
           "descricao" = ${data.descricao !== undefined ? data.descricao : existente.descricao},
           "dataInicio" = ${dataInicio},
           "dataFim" = ${dataFim},
-          "metaVisitas" = ${data.metaVisitas ?? existente.metaVisitas},
-          "metaAvancosPipeline" = ${data.metaAvancosPipeline ?? existente.metaAvancosPipeline},
-          "metaPrescritores" = ${data.metaPrescritores ?? existente.metaPrescritores},
-          "responsavelId" = ${data.responsavelId ?? existente.responsavelId},
-          "plano" = ${data.plano ?? existente.plano}::"PlanoMeta",
+          "metaVisitas" = ${metaVisitas},
+          "metaAvancosPipeline" = ${metaAvancosPipeline},
+          "metaPrescritores" = ${metaPrescritores},
+          "responsavelId" = ${responsavelId},
+          "plano" = ${plano}::"PlanoMeta",
           "updatedAt" = now()
         WHERE "id" = ${id}
         RETURNING *

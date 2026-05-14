@@ -96,7 +96,9 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
           profissional: {
             select: {
               nome: true,
+              potencial: true,
               estagioPipeline: true,
+              classificacao: true,
               especialidade: { select: { nome: true } },
             },
           },
@@ -250,80 +252,88 @@ const visitasRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // POST /visitas/:id/transcricao — gravação de áudio → STT → Chat
-  app.post("/:id/transcricao", async (request, reply) => {
-    const limite = await verificarLimiteTranscricao(request.organizationId!);
-
-    if (!limite.permitido) {
-      return reply.status(402).send({
-        error: "Limite de transcrições atingido.",
-        code: "TRANSCRIPTION_LIMIT_REACHED",
-        usadas: limite.usadas,
-        limite: limite.limite,
-        extras: limite.extras,
-      });
-    }
-
-    const { id } = request.params as { id: string };
-
-    const visita = await prisma.visita.findUnique({
-      where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
-    });
-
-    if (!visita) {
-      return reply.status(404).send({ error: "Visita não encontrada" });
-    }
-
-    const file = await (request as any).file();
-    if (!file) {
-      return reply
-        .status(400)
-        .send({ error: "Arquivo de áudio é obrigatório" });
-    }
-
-    const mimeType = file.mimetype;
-    if (!AUDIO_TYPES.includes(mimeType)) {
-      return reply.status(400).send({
-        error: `Tipo de arquivo inválido: ${mimeType}. Aceitos: ${AUDIO_TYPES.join(", ")}`,
-      });
-    }
-
-    const buffer = await file.toBuffer();
-    if (buffer.length > 10 * 1024 * 1024) {
-      return reply.status(400).send({ error: "Arquivo excede 10MB" });
-    }
-
-    // Sanitizar metadados do áudio antes de enviar para API externa
-    const { buffer: cleanBuffer, sanitized } = sanitizeAudioBuffer(
-      buffer,
-      mimeType,
-    );
-    if (sanitized) {
-      request.log.info(
-        { visitaId: id, mimeType },
-        "Metadados de áudio removidos",
+  app.post(
+    "/:id/transcricao",
+    { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      const limite = await verificarLimiteTranscricao(
+        request.organizationId!,
+        request.userId,
+        request.role,
       );
-    }
 
-    // Passo 1: STT (Speech-to-Text)
-    const transcricao = await transcreverAudio(cleanBuffer, mimeType);
+      if (!limite.permitido) {
+        return reply.status(402).send({
+          error: "Limite de transcrições atingido.",
+          code: "TRANSCRIPTION_LIMIT_REACHED",
+          usadas: limite.usadas,
+          limite: limite.limite,
+          extras: limite.extras,
+        });
+      }
 
-    // Passo 2: Chat Completion (extração estruturada)
-    const campos = await extrairCamposVisita(transcricao);
+      const { id } = request.params as { id: string };
 
-    // Atualizar visita com campos extraídos
-    await prisma.visita.update({
-      where: { id },
-      data: {
-        resumo: campos.resumo,
-        proximaAcao: campos.proximaAcao,
-        objetivoVisita: campos.objetivoVisita,
-      },
-    });
+      const visita = await prisma.visita.findUnique({
+        where: { id, ...buildResourceWhere(request, { hasDeletedAt: false }) },
+      });
 
-    await incrementarTranscricao(request.organizationId!);
+      if (!visita) {
+        return reply.status(404).send({ error: "Visita não encontrada" });
+      }
 
-    return reply.send(campos);
-  });
+      const file = await (request as any).file();
+      if (!file) {
+        return reply
+          .status(400)
+          .send({ error: "Arquivo de áudio é obrigatório" });
+      }
+
+      const mimeType = file.mimetype;
+      if (!AUDIO_TYPES.includes(mimeType)) {
+        return reply.status(400).send({
+          error: `Tipo de arquivo inválido: ${mimeType}. Aceitos: ${AUDIO_TYPES.join(", ")}`,
+        });
+      }
+
+      const buffer = await file.toBuffer();
+      if (buffer.length > 10 * 1024 * 1024) {
+        return reply.status(400).send({ error: "Arquivo excede 10MB" });
+      }
+
+      // Sanitizar metadados do áudio antes de enviar para API externa
+      const { buffer: cleanBuffer, sanitized } = sanitizeAudioBuffer(
+        buffer,
+        mimeType,
+      );
+      if (sanitized) {
+        request.log.info(
+          { visitaId: id, mimeType },
+          "Metadados de áudio removidos",
+        );
+      }
+
+      // Passo 1: STT (Speech-to-Text)
+      const transcricao = await transcreverAudio(cleanBuffer, mimeType);
+
+      // Passo 2: Chat Completion (extração estruturada)
+      const campos = await extrairCamposVisita(transcricao);
+
+      // Atualizar visita com campos extraídos
+      await prisma.visita.update({
+        where: { id },
+        data: {
+          resumo: campos.resumo,
+          proximaAcao: campos.proximaAcao,
+          objetivoVisita: campos.objetivoVisita,
+        },
+      });
+
+      await incrementarTranscricao(request.organizationId!, request.userId, id);
+
+      return reply.send(campos);
+    },
+  );
 
   // PATCH /visitas/:id/audio — salvar URL do áudio
   app.patch("/:id/audio", async (request, reply) => {

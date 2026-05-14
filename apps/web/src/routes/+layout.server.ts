@@ -49,11 +49,13 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
 
     // Processar /me (já estava paralelo com /onboarding/status)
     let userName = locals.userName ?? "Usuário";
+    let avatarUrl: string | null = null;
     let tourConcluidoEm: string | null = null;
     if (meRes.status === "fulfilled" && meRes.value.ok) {
       try {
         const me = await meRes.value.json();
         if (me?.name) userName = me.name;
+        avatarUrl = me?.avatarUrl ?? null;
         tourConcluidoEm = me?.tourConcluidoEm ?? null;
       } catch {
         // JSON parse falhou — usar userName do JWT
@@ -64,6 +66,7 @@ export const load: LayoutServerLoad = async ({ locals, url, fetch }) => {
       userId: locals.userId,
       sessionToken: locals.sessionToken,
       userName,
+      avatarUrl,
       role: data.role,
       plano: data.plano,
       status: data.status,

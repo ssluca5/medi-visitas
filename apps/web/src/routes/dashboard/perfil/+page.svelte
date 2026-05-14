@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount, untrack } from "svelte";
 	import {
 		User,
 		Shield,
@@ -10,6 +10,8 @@
 		RotateCcw,
 		Moon,
 		Pencil,
+		Camera,
+		Trash2,
 	} from "lucide-svelte";
 	import Button from "$lib/components/ui/Button.svelte";
 	import { apiFetch } from "$lib/api";
@@ -22,6 +24,7 @@
 				id: string;
 				email: string;
 				name: string | null;
+				avatarUrl: string | null;
 				organizationId: string | null;
 				role: string | null;
 				tourConcluidoEm: string | null;
@@ -57,11 +60,77 @@
 
 	let isEditingName = $state(false);
 	let editedName = $state("");
+	let isEditingOrgName = $state(false);
+	let editedOrgName = $state("");
+	let isOwner = $derived(data.me?.role === "OWNER");
 
-	let notifVisitasDia = $state(data.me?.notifVisitasDia ?? true);
-	let notifSemVisitaRecente = $state(data.me?.notifSemVisitaRecente ?? true);
-	let notifAgendaNaoRealizada = $state(data.me?.notifAgendaNaoRealizada ?? true);
-	let notifLembretesAuto = $state(data.me?.notifLembretesAuto ?? true);
+let notifVisitasDia = $state(untrack(() => data.me?.notifVisitasDia ?? true));
+	let notifSemVisitaRecente = $state(untrack(() => data.me?.notifSemVisitaRecente ?? true));
+	let notifAgendaNaoRealizada = $state(untrack(() => data.me?.notifAgendaNaoRealizada ?? true));
+	let notifLembretesAuto = $state(untrack(() => data.me?.notifLembretesAuto ?? true));
+
+	let avatarUrl = $state(data.me?.avatarUrl ?? null);
+	let isUploadingAvatar = $state(false);
+	let fileInput: HTMLInputElement | null = $state(null);
+
+	async function handleAvatarChange(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		const maxSize = 5 * 1024 * 1024;
+		if (file.size > maxSize) {
+			toast.erro("A imagem deve ter no máximo 5MB.");
+			return;
+		}
+
+		const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+		if (!allowedTypes.includes(file.type)) {
+			toast.erro("Formato inválido. Use JPG, PNG, WebP ou GIF.");
+			return;
+		}
+
+		isUploadingAvatar = true;
+		try {
+			const reader = new FileReader();
+			reader.onload = async (e) => {
+				const dataUrl = e.target?.result as string;
+				const res = await apiFetch("/me", data.sessionToken, {
+					method: "PATCH",
+					body: JSON.stringify({ avatarUrl: dataUrl }),
+				});
+				if (res.ok) {
+					const updated = await res.json();
+					avatarUrl = updated.avatarUrl;
+					toast.sucesso("Foto de perfil atualizada!");
+				} else {
+					toast.erro("Erro ao salvar foto de perfil.");
+				}
+				isUploadingAvatar = false;
+			};
+			reader.readAsDataURL(file);
+		} catch {
+			toast.erro("Erro de conexão.");
+			isUploadingAvatar = false;
+		}
+	}
+
+	async function removeAvatar() {
+		try {
+			const res = await apiFetch("/me", data.sessionToken, {
+				method: "PATCH",
+				body: JSON.stringify({ avatarUrl: null }),
+			});
+			if (res.ok) {
+				avatarUrl = null;
+				toast.sucesso("Foto removida.");
+			} else {
+				toast.erro("Erro ao remover foto.");
+			}
+		} catch {
+			toast.erro("Erro de conexão.");
+		}
+	}
 
 	type PreferenceField =
 		| "notifVisitasDia"
@@ -128,9 +197,9 @@
 			case "TRIAL_EXPIRADO":
 				return "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20";
 			case "CANCELADO":
-				return "bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/20";
+				return "bg-slate-50 text-ui-secondary ring-1 ring-inset ring-slate-500/20";
 			default:
-				return "bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/20";
+				return "bg-slate-50 text-ui-secondary ring-1 ring-inset ring-slate-500/20";
 		}
 	}
 
@@ -201,6 +270,36 @@
 		}
 	}
 
+	async function saveOrganizationName() {
+		const nome = editedOrgName.trim();
+		if (!nome) {
+			toast.erro("O nome da organização não pode estar vazio.");
+			return;
+		}
+
+		try {
+			const res = await apiFetch("/organizacao/info", data.sessionToken, {
+				method: "PATCH",
+				body: JSON.stringify({ nome }),
+			});
+
+			if (res.ok) {
+				const updated = await res.json();
+				const nextName = updated.nome ?? nome;
+				toast.sucesso("Nome da organização atualizado com sucesso!");
+				isEditingOrgName = false;
+				editedOrgName = nextName;
+				if (data.org) data.org.nome = nextName;
+				await invalidateAll();
+			} else {
+				const json = await res.json().catch(() => ({}));
+				toast.erro(json.error || "Erro ao atualizar a organização.");
+			}
+		} catch {
+			toast.erro("Erro de conexão.");
+		}
+	}
+
 	function solicitarRedefinicaoSenha() {
 		toast.info(
 			"Um link de redefinição será enviado para " +
@@ -261,7 +360,7 @@
 				Meu Perfil
 			</h1>
 			<p class="page-description">
-				Gerencie suas informações pessoais e de segurança
+				Gerencie suas informações pessoais e de segurança.
 			</p>
 		</div>
 	</div>
@@ -277,14 +376,14 @@
 					onclick={() => (activeTab = tab.id)}
 					class="group flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer
 							{activeTab === tab.id
-						? 'bg-slate-100 text-slate-900'
-						: 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}"
+						? 'bg-slate-100 text-ui-primary'
+						: 'text-ui-secondary hover-text-ui-primary hover:bg-slate-50'}"
 				>
 					<Icon
 						class="w-4 h-4 shrink-0 transition-colors {activeTab ===
 						tab.id
 							? 'text-blue-600'
-							: 'text-slate-400 group-hover:text-slate-600'}"
+							: 'text-ui-muted group-hover-text-ui-secondary'}"
 					/>
 					{tab.label}
 				</button>
@@ -298,33 +397,97 @@
 			<div
 				class="w-full bg-white rounded-xl shadow-sm ring-1 ring-slate-200 divide-y divide-slate-100"
 			>
+				<!-- Seção Foto de Perfil -->
+				<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
+					<div>
+						<p class="text-sm font-medium text-ui-primary">Foto de perfil</p>
+						<p class="text-sm text-ui-secondary mt-1">
+							 Sua foto aparecerá ao lado do seu nome.
+						</p>
+					</div>
+					<div class="sm:text-right flex items-center justify-end gap-3">
+						<input
+							type="file"
+							accept="image/jpeg,image/png,image/webp,image/gif"
+							class="hidden"
+							bind:this={fileInput}
+							onchange={handleAvatarChange}
+						/>
+						{#if avatarUrl}
+							<div class="flex items-center gap-3">
+								<img
+									src={avatarUrl}
+									alt="Foto de perfil"
+									class="h-12 w-12 rounded-full object-cover ring-2 ring-slate-100"
+								/>
+								<div class="flex gap-1">
+									<Button
+										variant="ghost"
+										size="icon"
+										class="h-8 w-8 text-ui-muted hover-text-ui-secondary"
+										onclick={() => fileInput?.click()}
+										disabled={isUploadingAvatar}
+										title="Alterar foto"
+									>
+										<Camera class="h-4 w-4" />
+									</Button>
+									<Button
+										variant="ghost"
+										size="icon"
+										class="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+										onclick={removeAvatar}
+										disabled={isUploadingAvatar}
+										title="Remover foto"
+									>
+										<Trash2 class="h-4 w-4" />
+									</Button>
+								</div>
+							</div>
+						{:else}
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={() => fileInput?.click()}
+								disabled={isUploadingAvatar}
+							>
+								{#if isUploadingAvatar}
+									Carregando...
+								{:else}
+									<Camera class="h-4 w-4 mr-1.5" />
+									Adicionar foto
+								{/if}
+							</Button>
+						{/if}
+					</div>
+				</div>
+
 				<!-- Seção Nome -->
 				<div class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4">
 					<div>
-						<p class="text-sm font-medium text-slate-900">Nome</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm font-medium text-ui-primary">Nome</p>
+						<p class="text-sm text-ui-secondary mt-1">
 							Como você quer ser chamado.
 						</p>
 					</div>
 					<div class="sm:text-right flex items-center justify-end gap-3">
 						{#if isEditingName}
-							<input type="text" bind:value={editedName} class="border border-slate-200 rounded-md px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full sm:w-auto" placeholder="Seu nome" onkeydown={(e) => e.key === 'Enter' && saveName()} />
+							<input type="text" bind:value={editedName} class="border border-slate-200 rounded-md px-3 py-1.5 text-sm text-ui-primary focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full sm:w-auto" placeholder="Seu nome" onkeydown={(e) => e.key === 'Enter' && saveName()} />
 							<div class="flex gap-1">
 								<Button variant="outline" size="sm" onclick={() => isEditingName = false}>Cancelar</Button>
-								<Button size="sm" onclick={saveName}>Salvar</Button>
+								<Button size="sm" onclick={saveName}>Salvar Alterações</Button>
 							</div>
 						{:else}
 							<div class="flex flex-col items-end">
-								<p class="text-[14px] text-[rgb(var(--slate-600))]">
+								<p class="text-[14px] text-ui-secondary">
 									{data.me?.name || "Não configurado"}
 								</p>
 								{#if !data.me?.name}
-									<p class="text-xs text-slate-500 mt-1">
+									<p class="text-xs text-ui-secondary mt-1">
 										Gerenciado pela sua conta de login
 									</p>
 								{/if}
 							</div>
-							<Button variant="ghost" size="icon" class="h-8 w-8 text-slate-400 hover:text-slate-600" onclick={() => { editedName = data.me?.name || ""; isEditingName = true; }}>
+							<Button variant="ghost" size="icon" class="h-8 w-8 text-ui-muted hover-text-ui-secondary" onclick={() => { editedName = data.me?.name || ""; isEditingName = true; }}>
 								<Pencil class="h-4 w-4" />
 							</Button>
 						{/if}
@@ -336,15 +499,15 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Endereço de e-mail
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							E-mail vinculado à sua conta.
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-[14px] text-[rgb(var(--slate-600))]">
+						<p class="text-[14px] text-ui-secondary">
 							{data.me?.email || "E-mail não encontrado"}
 						</p>
 					</div>
@@ -355,8 +518,8 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">Função</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm font-medium text-ui-primary">Função</p>
+						<p class="text-sm text-ui-secondary mt-1">
 							Seu nível de acesso na organização.
 						</p>
 					</div>
@@ -365,7 +528,7 @@
 							class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
 								{data.me?.role === 'OWNER'
 								? 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20'
-								: 'bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/20'}"
+								: 'bg-slate-50 text-ui-secondary ring-1 ring-inset ring-slate-500/20'}"
 						>
 							{data.me?.role === "OWNER"
 								? "Gestor"
@@ -383,15 +546,15 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Plano Atual
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Plano vigente da sua assinatura.
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-[14px] text-[rgb(var(--slate-600))]">
+						<p class="text-[14px] text-ui-secondary">
 							{#if data.billing?.status === "TRIAL_ATIVO"}Trial
 								gratuito
 							{:else}{getPlanoLabel(data.billing?.plano)}{/if}
@@ -403,8 +566,8 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">Status</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm font-medium text-ui-primary">Status</p>
+						<p class="text-sm text-ui-secondary mt-1">
 							Situação atual da sua conta.
 						</p>
 					</div>
@@ -447,10 +610,11 @@
 					</div>
 				</div>
 				<!-- Ação -->
+				{#if isOwner}
 				<div class="p-6 bg-slate-50/50 rounded-b-xl flex justify-end">
 					<a
 						href="/planos"
-						class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 hover:text-slate-900 shadow-sm"
+						class="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors h-9 px-4 bg-white border border-slate-200 text-ui-primary hover:bg-slate-50 hover-text-ui-primary shadow-sm"
 					>
 						{#if data.billing?.status === "TRIAL_ATIVO"}
 							Assinar plano
@@ -459,6 +623,7 @@
 						{/if}
 					</a>
 				</div>
+				{/if}
 			</div>
 		{:else if activeTab === "organizacao"}
 			<div
@@ -469,15 +634,28 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">Nome</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm font-medium text-ui-primary">Nome</p>
+						<p class="text-sm text-ui-secondary mt-1">
 							Nome da sua organização.
 						</p>
 					</div>
-					<div class="sm:text-right">
-						<p class="text-[14px] text-[rgb(var(--slate-600))]">
-							{data.org?.nome || "Organização individual"}
-						</p>
+					<div class="sm:text-right flex items-center justify-end gap-3">
+						{#if isEditingOrgName}
+							<input type="text" bind:value={editedOrgName} class="border border-slate-200 rounded-md px-3 py-1.5 text-sm text-ui-primary focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent w-full sm:w-auto" placeholder="Nome da organização" onkeydown={(e) => e.key === 'Enter' && saveOrganizationName()} />
+							<div class="flex gap-1">
+								<Button variant="outline" size="sm" onclick={() => isEditingOrgName = false}>Cancelar</Button>
+								<Button size="sm" onclick={saveOrganizationName}>Salvar Alterações</Button>
+							</div>
+						{:else}
+							<p class="text-[14px] text-ui-secondary">
+								{data.org?.nome || "Organização individual"}
+							</p>
+							{#if isOwner}
+								<Button variant="ghost" size="icon" class="h-8 w-8 text-ui-muted hover-text-ui-secondary" onclick={() => { editedOrgName = data.org?.nome || ""; isEditingOrgName = true; }}>
+									<Pencil class="h-4 w-4" />
+								</Button>
+							{/if}
+						{/if}
 					</div>
 				</div>
 				<!-- ID -->
@@ -485,16 +663,16 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							ID da Organização
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Identificador único interno.
 						</p>
 					</div>
 					<div class="sm:text-right">
 						<p
-							class="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-1 rounded"
+							class="text-xs font-mono text-ui-secondary bg-slate-100 px-2 py-1 rounded"
 						>
 							{data.org?.id ||
 								data.me?.organizationId ||
@@ -507,13 +685,13 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">Tipo</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm font-medium text-ui-primary">Tipo</p>
+						<p class="text-sm text-ui-secondary mt-1">
 							Modelo de organização.
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-[14px] text-[rgb(var(--slate-600))]">
+						<p class="text-[14px] text-ui-secondary">
 							{data.org?.limiteUsuarios === 1
 								? "Individual"
 								: "Equipe"}
@@ -525,15 +703,15 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Membro desde
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Data de ingresso na organização.
 						</p>
 					</div>
 					<div class="sm:text-right">
-						<p class="text-[14px] text-[rgb(var(--slate-600))]">
+						<p class="text-[14px] text-ui-secondary">
 							{data.org?.createdAt
 								? new Intl.DateTimeFormat("pt-BR", {
 										day: "2-digit",
@@ -554,8 +732,8 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">Senha</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm font-medium text-ui-primary">Senha</p>
+						<p class="text-sm text-ui-secondary mt-1">
 							Altere sua senha de acesso ao MediVisitas.
 						</p>
 					</div>
@@ -575,10 +753,10 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Autenticação em dois fatores
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Adicione uma camada extra de segurança à sua conta.
 						</p>
 					</div>
@@ -598,10 +776,10 @@
 					class="p-6 bg-slate-50/50 rounded-b-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Sessões ativas
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Navegador atual · {new Intl.DateTimeFormat(
 								"pt-BR",
 								{
@@ -625,10 +803,10 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Visitas do dia
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Lembrete diário das visitas agendadas para hoje.
 						</p>
 					</div>
@@ -650,10 +828,10 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Profissionais sem visita recente
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Alertas de profissionais sem visita há mais de 30
 							dias.
 						</p>
@@ -676,10 +854,10 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Agendamentos não realizados
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Alertas de agendamentos vencidos sem registro de
 							visita.
 						</p>
@@ -717,15 +895,15 @@
 				>
 					<div class="flex items-start gap-3">
 						<div
-							class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500"
+							class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-ui-secondary"
 						>
 							<Moon class="h-4 w-4" />
 						</div>
 						<div>
-							<p class="text-sm font-medium text-slate-900">
+							<p class="text-sm font-medium text-ui-primary">
 								Tema escuro
 							</p>
-							<p class="text-sm text-slate-500 mt-1">
+							<p class="text-sm text-ui-secondary mt-1">
 								Alterna a aparência da ferramenta neste
 								navegador.
 							</p>
@@ -754,10 +932,10 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Tutorial de boas-vindas
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Rever o guia passo a passo do primeiro acesso ao
 							dashboard.
 						</p>
@@ -780,10 +958,10 @@
 					class="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4"
 				>
 					<div>
-						<p class="text-sm font-medium text-slate-900">
+						<p class="text-sm font-medium text-ui-primary">
 							Lembretes automáticos
 						</p>
-						<p class="text-sm text-slate-500 mt-1">
+						<p class="text-sm text-ui-secondary mt-1">
 							Gerados diariamente às 06h com base na sua agenda.
 						</p>
 					</div>

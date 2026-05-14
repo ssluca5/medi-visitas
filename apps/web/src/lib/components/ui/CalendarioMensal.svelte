@@ -78,18 +78,18 @@
 	<div class="flex items-center justify-between mb-4">
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navMes(-1)}
 			aria-label="Mês anterior"
 		>
 			<ChevronLeft class="h-5 w-5" />
 		</button>
-		<h3 class="text-lg font-bold text-[rgb(var(--slate-800))]">
+		<h3 class="text-lg font-bold text-ui-strong">
 			{formatMonth(currentDate)}
 		</h3>
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navMes(1)}
 			aria-label="Próximo mês"
 		>
@@ -100,7 +100,7 @@
 	<!-- Cabeçalho dias -->
 	<div class="grid grid-cols-7 gap-px mb-1">
 		{#each diasHeader as d}
-			<div class="text-center text-[10px] uppercase tracking-wider font-semibold text-[rgb(var(--slate-400))] py-1">
+			<div class="text-center text-[10px] uppercase tracking-wider font-semibold text-ui-muted py-1">
 				{d}
 			</div>
 		{/each}
@@ -121,7 +121,7 @@
 					onclick={() => onDayClick(dia)}
 				>
 					<span
-						class="text-xs font-semibold {isHoje(dia) ? 'text-blue-700' : 'text-[rgb(var(--slate-700))]'}"
+						class="text-xs font-semibold {isHoje(dia) ? 'text-blue-700' : 'text-ui-body'}"
 					>
 						{dia.getDate()}
 					</span>

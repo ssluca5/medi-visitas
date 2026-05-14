@@ -1,10 +1,17 @@
 import { redirect } from "@sveltejs/kit";
 import type { Handle } from "@sveltejs/kit";
+import { dev } from "$app/environment";
 import { CLERK_SECRET_KEY, CLERK_JWT_KEY } from "$env/static/private";
 import { createClerkClient, verifyToken } from "@clerk/backend";
 
 const clerk = createClerkClient({ secretKey: CLERK_SECRET_KEY });
 const COOKIE_NAME = "__med_session";
+
+/** Validates JWT structure: 3 base64url segments separated by dots */
+function isJwtFormat(token: string): boolean {
+  const parts = token.split(".");
+  return parts.length === 3 && parts.every((p) => /^[A-Za-z0-9_-]+$/.test(p));
+}
 
 // Cache por JWT — TTL de 5 minutos, balance entre performance e detecção de revogações
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -134,17 +141,12 @@ async function getUserFromToken(token: string): Promise<{
   } | null = null;
 
   // Fluxo 1: JWT (eyJ...) — verificar com Clerk
-  if (token.startsWith("eyJ")) {
+  if (isJwtFormat(token)) {
     try {
-      console.log(
-        "[AUTH] Fluxo 1: Verificando JWT...",
-        token.substring(0, 30) + "...",
-      );
       const payload = await verifyToken(token, {
         secretKey: CLERK_SECRET_KEY,
         jwtKey: CLERK_JWT_KEY || undefined,
       });
-      console.log("[AUTH] JWT verificado OK, sub:", payload.sub);
       // Extrair userName dos claims customizados do template 'medivisitas'
       const claims = payload as Record<string, unknown>;
       const email = getEmailFromClaims(claims);
@@ -157,10 +159,11 @@ async function getUserFromToken(token: string): Promise<{
         userEmail: email,
       };
     } catch (verifyErr) {
-      console.log(
-        "[AUTH] JWT verificação falhou:",
-        verifyErr instanceof Error ? verifyErr.message : verifyErr,
-      );
+      if (dev)
+        console.warn(
+          "[AUTH] JWT verificação falhou:",
+          verifyErr instanceof Error ? verifyErr.message : verifyErr,
+        );
       // Verificação remota falhou (ex: JWT expirado).
       // Tentar extrair o sid e renovar o token.
       try {
@@ -174,19 +177,11 @@ async function getUserFromToken(token: string): Promise<{
               "medivisitas",
             );
             if (tokenObj && tokenObj.jwt) {
-              console.log(
-                "[AUTH] Token renovado via getToken('medivisitas')",
-                tokenObj.jwt.substring(0, 30) + "...",
-              );
               // Validar o novo token
               const newPayload = await verifyToken(tokenObj.jwt, {
                 secretKey: CLERK_SECRET_KEY,
                 jwtKey: CLERK_JWT_KEY || undefined,
               });
-              console.log(
-                "[AUTH] Token renovado verificado OK, sub:",
-                newPayload.sub,
-              );
               const claims = newPayload as Record<string, unknown>;
               const email = getEmailFromClaims(claims);
               const name = getNameFromClaims(claims);
@@ -202,20 +197,17 @@ async function getUserFromToken(token: string): Promise<{
           }
         }
       } catch (refreshErr) {
-        console.log(
-          "[AUTH] Falha ao renovar token:",
-          refreshErr instanceof Error ? refreshErr.message : refreshErr,
-        );
+        if (dev)
+          console.warn(
+            "[AUTH] Falha ao renovar token:",
+            refreshErr instanceof Error ? refreshErr.message : refreshErr,
+          );
       }
     }
   }
 
   // Fluxo 2: Token opaco (dvb_...) — converter para JWT via Clerk
-  if (!result && !token.startsWith("eyJ")) {
-    console.log(
-      "[AUTH] Fluxo 2: Token opaco, convertendo...",
-      token.substring(0, 20) + "...",
-    );
+  if (!result && !isJwtFormat(token)) {
     try {
       const client = await clerk.clients.verifyClient(token);
       const session = client.sessions?.find(
@@ -267,42 +259,40 @@ export const handle: Handle = async ({ event, resolve }) => {
     return resolve(event);
   }
 
+  // Dev-only E2E test bypass — cookie-based, set by Playwright
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.ENABLE_E2E_BYPASS === "1" &&
+    cookies.get("__e2e_test") === "true"
+  ) {
+    locals.userId = "test_user_001";
+    locals.sessionToken = "e2e_test_token";
+    locals.userName = "Test User";
+    locals.userEmail = "test@example.com";
+    return resolve(event);
+  }
+
   // 1. Capturar token do redirect do Clerk
   const clerkToken =
     url.searchParams.get("__clerk_db_jwt") ??
     url.searchParams.get("__session_token");
 
   if (clerkToken) {
-    console.log(
-      "[AUTH] Token do redirect Clerk:",
-      clerkToken.substring(0, 30) + "...",
-      "isJWT:",
-      clerkToken.startsWith("eyJ"),
-    );
     const user = await getUserFromToken(clerkToken);
 
     if (user) {
-      console.log("[AUTH] Usuário extraído:", {
-        userId: user.userId,
-        sessionTokenIsJwt: user.sessionToken.startsWith("eyJ"),
-        sessionTokenPrefix: user.sessionToken.substring(0, 30) + "...",
-      });
       // Armazenar o JWT real no cookie (não o token opaco)
       // Isso evita chamadas repetidas ao Clerk para converter token opaco → JWT
-      const jwtToStore = user.sessionToken.startsWith("eyJ")
+      const jwtToStore = isJwtFormat(user.sessionToken)
         ? user.sessionToken
         : clerkToken;
-      console.log("[AUTH] Cookie stored:", {
-        isJwt: jwtToStore.startsWith("eyJ"),
-        prefix: jwtToStore.substring(0, 30) + "...",
-      });
 
       cookies.set(COOKIE_NAME, jwtToStore, {
         path: "/",
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60 * 8, // 8 horas
+        maxAge: 60 * 60 * 2, // 2 horas
       });
 
       // Cache usa o JWT armazenado como chave
@@ -343,7 +333,7 @@ export const handle: Handle = async ({ event, resolve }) => {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
-          maxAge: 60 * 60 * 8, // 8 horas
+          maxAge: 60 * 60 * 2, // 2 horas
         });
       }
       locals.userId = user.userId;

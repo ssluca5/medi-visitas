@@ -12,10 +12,10 @@
 	};
 
 	const styleMap = {
-		success: { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
-		error:   { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
-		info:    { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af' },
-		warning: { bg: '#fef3c7', border: '#fde68a', text: '#92400e' }
+		success: { bg: 'var(--success-bg)', border: 'var(--success-border)', text: 'var(--success-text)' },
+		error:   { bg: 'var(--danger-soft)', border: 'rgb(252 165 165)', text: 'var(--danger-text)' },
+		info:    { bg: 'var(--brand-light)', border: 'var(--info-border)', text: 'var(--info-text)' },
+		warning: { bg: 'var(--warning-light)', border: 'var(--warning-soft)', text: 'var(--warning-text)' }
 	};
 </script>
 

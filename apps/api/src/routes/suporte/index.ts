@@ -15,6 +15,19 @@ const SuporteSchema = z.object({
 });
 
 const suporteRoutes: FastifyPluginAsync = async (app) => {
+  const esc = (s: string) =>
+    s.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]!,
+    );
+
   app.post(
     "/",
     {
@@ -32,11 +45,11 @@ const suporteRoutes: FastifyPluginAsync = async (app) => {
       const emailHtml = `
 <h2>Novo Ticket de Suporte — MediVisitas</h2>
 <table style="border-collapse:collapse;">
-  <tr><td><strong>Usuário (ID):</strong></td><td>${request.userId}</td></tr>
-  <tr><td><strong>Nome:</strong></td><td>${data.nome}</td></tr>
-  <tr><td><strong>Email:</strong></td><td>${data.email}</td></tr>
-  <tr><td><strong>Assunto:</strong></td><td>${data.assunto}</td></tr>
-  <tr><td colspan="2"><br/><strong>Mensagem:</strong><br/><p style="white-space: pre-wrap;">${data.mensagem}</p></td></tr>
+  <tr><td><strong>Usuário (ID):</strong></td><td>${esc(request.userId ?? "unknown")}</td></tr>
+  <tr><td><strong>Nome:</strong></td><td>${esc(data.nome)}</td></tr>
+  <tr><td><strong>Email:</strong></td><td>${esc(data.email)}</td></tr>
+  <tr><td><strong>Assunto:</strong></td><td>${esc(data.assunto)}</td></tr>
+  <tr><td colspan="2"><br/><strong>Mensagem:</strong><br/><p style="white-space: pre-wrap;">${esc(data.mensagem)}</p></td></tr>
 </table>
 <p style="color:#6b7280;margin-top:16px;">Ticket gerado a partir do Dashboard.</p>`;
 
@@ -61,22 +74,17 @@ const suporteRoutes: FastifyPluginAsync = async (app) => {
           });
 
           if (result.error) {
-            console.error("[Resend Suporte] Erro da API:", result.error);
             request.log.error(
               { err: result.error },
               "Falha ao enviar email de suporte via Resend",
             );
           } else {
-            console.log(
-              "[Resend Suporte] Email enviado com sucesso:",
-              result.data?.id,
+            request.log.info(
+              { emailId: result.data?.id },
+              "Email de suporte enviado via Resend",
             );
           }
         } catch (emailError) {
-          console.error(
-            "[Resend Suporte] Erro detalhado:",
-            JSON.stringify(emailError),
-          );
           request.log.error(
             { err: emailError },
             "Falha na requisição ao enviar email de suporte via Resend",

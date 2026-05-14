@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { apiFetch } from '$lib/api';
   import { BarChart3, Users, CalendarCheck, TrendingUp, Download, RefreshCw } from 'lucide-svelte';
   import Button from '$lib/components/ui/Button.svelte';
@@ -21,17 +21,17 @@
   } from '$lib/types';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; pipeline?: PipelineResponse | null };
   }
 
   let { data }: Props = $props();
 
   // Estado
-  let pipeline = $state<PipelineResponse | null>(null);
+  let pipeline = $state<PipelineResponse | null>(untrack(() => data.pipeline ?? null));
   let metricas = $state<MetricasPipeline | null>(null);
   let evolucao = $state<EvolucaoPeriodo[]>([]);
   let visitasPeriodo = $state<VisitasPeriodo[]>([]);
-  let loading = $state(true);
+  let loading = $state(false);
   let erro = $state<string | null>(null);
   let busca = $state('');
   let granularidade = $state<'semana' | 'mes'>('semana');
@@ -139,8 +139,23 @@
   }
 
   onMount(() => {
-    carregarDados();
+    // Pipeline data já vem do server; carregar métricas e charts client-side
+    carregarMetricas();
   });
+
+  async function carregarMetricas() {
+    const qs = `dataInicio=${dataInicio}&dataFim=${dataFim}`;
+    try {
+      const [metricasRes, evolucaoRes, visitasRes] = await Promise.all([
+        apiFetch(`/pipeline/metricas?${qs}`, data.sessionToken),
+        apiFetch(`/pipeline/evolucao?${qs}&granularidade=${granularidade}`, data.sessionToken),
+        apiFetch(`/pipeline/visitas-por-periodo?${qs}&granularidade=${granularidade}`, data.sessionToken),
+      ]);
+      if (metricasRes.ok) metricas = await metricasRes.json();
+      if (evolucaoRes.ok) { const json = await evolucaoRes.json(); evolucao = json.data ?? []; }
+      if (visitasRes.ok) { const json = await visitasRes.json(); visitasPeriodo = json.data ?? []; }
+    } catch (e) { console.error(e); }
+  }
 
   async function moverProfissional(profId: string, origem: EstagioPipeline, destino: EstagioPipeline) {
     if (!pipeline) return;
@@ -194,7 +209,7 @@
     </div>
     <div>
       <h1 class="page-title">Pipeline</h1>
-      <p class="page-description">Funil de conversão e analytics</p>
+      <p class="page-description">Funil de conversão e analytics.</p>
     </div>
   </div>
   <div class="flex items-center gap-2">
@@ -239,7 +254,7 @@
           onclick={() => { granularidade = 'semana'; carregarDados(); }}
           aria-pressed={granularidade === 'semana'}
           aria-label="Visualizar por semana"
-          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'semana' ? 'bg-white text-[rgb(var(--slate-800))] shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'semana' ? 'bg-white text-ui-strong shadow-sm' : 'text-ui-secondary hover-text-ui-body'}"
         >
           Semana
         </button>
@@ -247,7 +262,7 @@
           onclick={() => { granularidade = 'mes'; carregarDados(); }}
           aria-pressed={granularidade === 'mes'}
           aria-label="Visualizar por mês"
-          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'mes' ? 'bg-white text-[rgb(var(--slate-800))] shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'mes' ? 'bg-white text-ui-strong shadow-sm' : 'text-ui-secondary hover-text-ui-body'}"
         >
           Mês
         </button>
@@ -258,7 +273,7 @@
 
 {#if loading}
   <div class="flex items-center justify-center h-64" role="status" aria-live="polite">
-    <RefreshCw class="h-6 w-6 text-[rgb(var(--slate-400))] animate-spin" aria-hidden="true" />
+    <RefreshCw class="h-6 w-6 text-ui-muted animate-spin" aria-hidden="true" />
     <span class="sr-only">Carregando dados do pipeline...</span>
   </div>
 {:else if erro}

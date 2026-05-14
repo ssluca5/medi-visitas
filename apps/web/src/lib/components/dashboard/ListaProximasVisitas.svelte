@@ -30,16 +30,16 @@
     URGENTE: 'bg-red-50 text-red-700 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
     ALTA: 'bg-orange-50 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
     MEDIA: 'bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold ml-2',
-    BAIXA: 'bg-[rgb(var(--slate-50))] text-[rgb(var(--slate-400))] px-2 py-0.5 rounded text-[10px] font-bold ml-2'
+    BAIXA: 'bg-[rgb(var(--slate-50))] text-ui-muted px-2 py-0.5 rounded text-[10px] font-bold ml-2'
   };
 </script>
 
 <div class="card-surface p-5 h-full">
-  <h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Próximos Agendamentos</h3>
+  <h3 class="text-sm font-semibold text-ui-body mb-4">Próximos Agendamentos</h3>
 
   {#if agendamentos.length === 0}
     <div class="text-center py-8">
-      <p class="text-sm text-[rgb(var(--slate-400))]">Nenhum agendamento futuro</p>
+      <p class="text-sm text-ui-muted">Nenhum agendamento futuro</p>
     </div>
   {:else}
     <div class="space-y-2.5">
@@ -49,20 +49,20 @@
         >
           <div class="flex-shrink-0 w-12 text-center">
             <span class="text-[13px] font-bold text-violet-600">{formatHora(ag.dataHoraInicio)}</span>
-            <span class="block text-[10px] text-[rgb(var(--slate-400))] mt-0.5">{formatData(ag.dataHoraInicio)}</span>
+            <span class="block text-[10px] text-ui-muted mt-0.5">{formatData(ag.dataHoraInicio)}</span>
           </div>
           <div class="min-w-0 border-l border-[rgb(var(--slate-100))] pl-3 flex-1">
-            <p class="text-[13px] font-medium text-[rgb(var(--slate-700))] truncate group-hover:text-blue-600 transition-colors">
+            <p class="text-[13px] font-medium text-ui-body truncate group-hover:text-blue-600 transition-colors">
               {ag.profissional?.nome ?? 'Sem profissional'}
             </p>
-            <p class="text-[11px] text-[rgb(var(--slate-400))] truncate">
+            <p class="text-[11px] text-ui-muted truncate">
               {ag.profissional?.especialidade?.nome ?? ''}
               {#if ag.prioridade}
                 <span class="{prioridadeBadge[ag.prioridade] ?? prioridadeBadge.BAIXA}">{ag.prioridade}</span>
               {/if}
             </p>
           </div>
-          <Clock class="h-3.5 w-3.5 text-[rgb(var(--slate-300))] shrink-0" />
+          <Clock class="h-3.5 w-3.5 text-ui-disabled shrink-0" />
         </div>
       {/each}
     </div>

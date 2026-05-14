@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { apiFetch } from '$lib/api';
 	import type {
 		AgendaItem,
@@ -10,21 +10,21 @@
 	import CalendarioMensal from '$lib/components/ui/CalendarioMensal.svelte';
 	import PainelSugestoes from '$lib/components/ui/PainelSugestoes.svelte';
 	import type { Visita, MaterialTecnico } from '$lib/types';
-	import { CalendarDays, CalendarRange, Sparkles } from 'lucide-svelte';
+	import { Calendar, CalendarDays, CalendarRange, Sparkles } from 'lucide-svelte';
 
 	// Lazy-loaded: only needed when user opens the sheet
 	const VisitaSheetPromise = import('$lib/components/ui/VisitaSheet.svelte').then(m => m.default);
 
 	interface Props {
-		data: { sessionToken: string | null };
+		data: { sessionToken: string | null; agendaItems?: AgendaItem[] };
 	}
 
 	let { data }: Props = $props();
 
 	// ── State ──
-	let items = $state<AgendaItem[]>([]);
+	let items = $state<AgendaItem[]>(untrack(() => data.agendaItems ?? []));
 	let sugestoes = $state<SugestaoProfissional[]>([]);
-	let loading = $state(true);
+	let loading = $state(false);
 	let loadingSugestoes = $state(false);
 	
 	let materiaisOptions = $state<MaterialTecnico[]>([]);
@@ -153,7 +153,6 @@
 	}
 
 	onMount(() => {
-		loadItems();
 		// Defer non-critical loads so calendar renders first
 		setTimeout(() => { loadSugestoes(); loadMateriais(); }, 0);
 	});
@@ -224,11 +223,11 @@
 	<div class="page-header">
 		<div class="page-header-main">
 			<div class="page-header-icon">
-				<CalendarDays class="h-4.5 w-4.5 text-white" />
+				<Calendar class="h-4.5 w-4.5 text-white" />
 			</div>
 			<div>
 				<h1 class="page-title">Agenda</h1>
-				<p class="page-description">Planeje visitas e acompanhe compromissos</p>
+				<p class="page-description">Planeje visitas e acompanhe compromissos.</p>
 			</div>
 		</div>
 
@@ -239,8 +238,8 @@
 					type="button"
 					class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 						{viewMode === 'semanal'
-						? 'bg-white text-[rgb(var(--slate-800))] shadow-sm'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+						? 'bg-white text-ui-strong shadow-sm'
+						: 'text-ui-secondary hover-text-ui-body'}"
 					onclick={() => (viewMode = 'semanal')}
 					aria-pressed={viewMode === 'semanal'}
 					aria-label="Visualizar por semana"
@@ -252,8 +251,8 @@
 					type="button"
 					class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 						{viewMode === 'mensal'
-						? 'bg-white text-[rgb(var(--slate-800))] shadow-sm'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+						? 'bg-white text-ui-strong shadow-sm'
+						: 'text-ui-secondary hover-text-ui-body'}"
 					onclick={() => (viewMode = 'mensal')}
 					aria-pressed={viewMode === 'mensal'}
 					aria-label="Visualizar por mês"
@@ -269,7 +268,7 @@
 				class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 					{showSugestoes
 					? 'border-blue-200 bg-blue-50 text-blue-700'
-					: 'border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+					: 'border-[rgb(var(--slate-200))] text-ui-secondary hover-text-ui-body'}"
 				onclick={() => (showSugestoes = !showSugestoes)}
 				aria-pressed={showSugestoes}
 				aria-label="Mostrar sugestões de visitas"

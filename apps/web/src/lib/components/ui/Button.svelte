@@ -18,7 +18,7 @@
 		default: 'bg-[rgb(var(--accent))] text-white shadow-sm hover:bg-[rgb(var(--accent))]/90',
 		destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-700',
 		outline: 'border bg-white shadow-sm hover:bg-[rgb(var(--slate-50))]',
-		secondary: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-700))] shadow-sm hover:bg-[rgb(var(--slate-200))]/70',
+		secondary: 'bg-[rgb(var(--slate-100))] text-ui-body shadow-sm hover:bg-[rgb(var(--slate-200))]/70',
 		ghost: 'hover:bg-[rgb(var(--slate-100))]',
 		link: 'text-[rgb(var(--accent))] underline-offset-4 hover:underline'
 	};

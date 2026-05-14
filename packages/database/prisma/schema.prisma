@@ -124,6 +124,7 @@ model User {
   clerkId                 String    @unique
   email                   String    @unique
   name                    String?
+  avatarUrl               String?
   tourConcluidoEm         DateTime?
   // Preferências de notificação
   notifVisitasDia         Boolean   @default(true)
@@ -168,6 +169,9 @@ model Organization {
   estagioLogs       EstagioLog[]
   convites          OrganizationConvite[]
   metas             Meta[]
+  transcricaoCotas  OrganizationTranscricaoCota[]
+  transcricaoUsos   OrganizationTranscricaoUso[]
+  relatoriosSalvos  RelatorioSalvo[]
 
   @@index([clerkOrgId])
   @@index([status])
@@ -205,6 +209,33 @@ model OrganizationConvite {
   @@index([deletedAt])
 }
 
+model OrganizationTranscricaoCota {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  userId         String       // Clerk userId
+  limite         Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model OrganizationTranscricaoUso {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  userId         String       // Clerk userId
+  visitaId       String?
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([organizationId, userId, createdAt])
+  @@index([userId])
+}
+
 model Especialidade {
   id             String         @id @default(cuid())
   nome           String
@@ -221,6 +252,7 @@ model Especialidade {
   @@index([categoria])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
 model Endereco {
@@ -294,6 +326,8 @@ model Profissional {
   @@index([classificacao])
   @@index([subEspecialidadeId])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, estagioPipeline, deletedAt])
 }
 
 model ContatoProfissional {
@@ -376,6 +410,7 @@ model MaterialTecnico {
   @@index([tipo])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
 model VisitaMaterial {
@@ -418,6 +453,7 @@ model AgendaItem {
   @@index([deletedAt])
   @@index([organizationId])
   @@index([organizationId, dataHoraInicio])
+  @@index([organizationId, userId, deletedAt])
 }
 
 // ============================================
@@ -462,10 +498,12 @@ model Notificacao {
 
   @@index([userId])
   @@index([userId, lida])
+  @@index([userId, deletedAt, lida])
   @@index([tipo])
   @@index([createdAt])
   @@index([deletedAt])
   @@index([organizationId])
+  @@index([organizationId, userId, deletedAt])
 }
 
 model Meta {
@@ -492,5 +530,26 @@ model Meta {
   @@index([status])
   @@index([dataInicio, dataFim])
   @@index([deletedAt])
+  @@index([organizationId])
+}
+
+// ============================================
+// RELATÓRIOS SALVOS (Fase Enterprise)
+// ============================================
+// Modelo acessado via $queryRaw em apps/api/src/routes/relatorios/index.ts.
+// Mantido aqui para sincronia entre schema.prisma e o banco real.
+
+model RelatorioSalvo {
+  id             String       @id @default(cuid())
+  userId         String       // Clerk userId — sem FK
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  nome           String
+  tipo           String
+  config         Json
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([userId, organizationId])
   @@index([organizationId])
 }

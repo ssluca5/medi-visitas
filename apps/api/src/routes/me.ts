@@ -1,10 +1,15 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { verifyClerkToken } from "../hooks/auth.js";
+import { resolveTenant } from "../hooks/tenant.js";
 import { prisma } from "../lib/prisma.js";
 import { z } from "zod";
 
 const updateMeSchema = z.object({
   name: z.string().min(2).max(100).optional(),
+  avatarUrl: z.union([
+    z.string().url(),
+    z.string().startsWith("data:"),
+  ]).optional().nullable(),
   notifVisitasDia: z.boolean().optional(),
   notifSemVisitaRecente: z.boolean().optional(),
   notifAgendaNaoRealizada: z.boolean().optional(),
@@ -15,6 +20,7 @@ const userSelect = {
   id: true,
   email: true,
   name: true,
+  avatarUrl: true,
   tourConcluidoEm: true,
 } as const;
 
@@ -53,9 +59,29 @@ async function createUserFromRequest(userId: string, request: FastifyRequest) {
     });
 
     if (existingUser) {
-      // Se o email já existe, significa que o usuário recriou a conta no Clerk
-      // ou fez login via Google. Em vez de falhar com P2002, atualizamos o clerkId
-      // para mesclar a conta e não perder os dados (como a organizationId).
+      // Prevent account takeover: only merge if the incoming email is verified
+      if (!request.userEmailVerified) {
+        request.log.warn(
+          { email: request.userEmail, targetUserId: existingUser.id },
+          "Blocked clerkId reassignment: email not verified",
+        );
+        throw Object.assign(
+          new Error(
+            "Email não verificado. Confirme seu email antes de continuar.",
+          ),
+          { statusCode: 403 },
+        );
+      }
+
+      request.log.info(
+        {
+          email: request.userEmail,
+          oldClerkId: existingUser.clerkId,
+          newClerkId: userId,
+        },
+        "Reassigning clerkId (verified email merge)",
+      );
+
       return prisma.user.update({
         where: { id: existingUser.id },
         data: {
@@ -195,10 +221,13 @@ async function updateNotificationPreferences(
 }
 
 export default async function meRoutes(app: FastifyInstance): Promise<void> {
-  app.get("/me", { preHandler: [verifyClerkToken] }, async (request, reply) => {
+  app.get("/me", { preHandler: [verifyClerkToken, resolveTenant] }, async (request, reply) => {
     if (!request.userId) {
       return reply.code(401).send({ error: "Unauthorized" });
     }
+
+    // Use role from resolveTenant (populated via membership query)
+    const role = request.role ?? null;
 
     // findUnique primeiro (99.9% dos casos) — evita write desnecessário
     let user = await prisma.user.findUnique({
@@ -217,32 +246,14 @@ export default async function meRoutes(app: FastifyInstance): Promise<void> {
       request.userId,
     );
 
-    // Buscar membership para organizationId e role
-    const membro = await prisma.organizationMembro.findFirst({
-      where: { userId: request.userId, deletedAt: null },
-      select: {
-        organizationId: true,
-        role: true,
-        organization: {
-          select: {
-            plano: true,
-            transcricoesUsadas: true,
-            transcricoesMes: true,
-            transcricoesExtras: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
     return reply.code(200).send({
       id: user.id,
       email: user.email,
       name: user.name,
-      organizationId: membro?.organizationId ?? null,
-      role: membro?.role ?? null,
+      avatarUrl: user.avatarUrl,
+      organizationId: request.organizationId ?? null,
+      role: role,
       tourConcluidoEm: user.tourConcluidoEm,
-      organization: membro?.organization ?? null,
       ...notificationPreferences,
     });
   });
@@ -263,12 +274,13 @@ export default async function meRoutes(app: FastifyInstance): Promise<void> {
           .send({ error: "Dados inválidos", details: parsed.error.flatten() });
       }
 
-      const { name, ...notifPrefs } = parsed.data;
+      const { name, avatarUrl, ...notifPrefs } = parsed.data;
       const notificationUpdates = getNotificationUpdates(notifPrefs);
       const hasNameUpdate = name !== undefined;
+      const hasAvatarUpdate = avatarUrl !== undefined;
       const hasNotificationUpdate = Object.keys(notificationUpdates).length > 0;
 
-      if (!hasNameUpdate && !hasNotificationUpdate) {
+      if (!hasNameUpdate && !hasNotificationUpdate && !hasAvatarUpdate) {
         return reply.code(400).send({ error: "Nenhum campo para atualizar" });
       }
 
@@ -279,17 +291,23 @@ export default async function meRoutes(app: FastifyInstance): Promise<void> {
 
       if (!user) {
         user = await createUserFromRequest(request.userId, request);
-        if (hasNameUpdate) {
+        if (hasNameUpdate || hasAvatarUpdate) {
+          const updateData: { name?: string; avatarUrl?: string | null } = {};
+          if (hasNameUpdate) updateData.name = name;
+          if (hasAvatarUpdate) updateData.avatarUrl = avatarUrl;
           user = await prisma.user.update({
             where: { clerkId: request.userId },
-            data: { name },
+            data: updateData,
             select: userSelect,
           });
         }
-      } else if (hasNameUpdate) {
+      } else if (hasNameUpdate || hasAvatarUpdate) {
+        const updateData: { name?: string; avatarUrl?: string | null } = {};
+        if (hasNameUpdate) updateData.name = name;
+        if (hasAvatarUpdate) updateData.avatarUrl = avatarUrl;
         user = await prisma.user.update({
           where: { clerkId: request.userId },
-          data: { name },
+          data: updateData,
           select: userSelect,
         });
       }

@@ -36,16 +36,16 @@
   {#if resumo}
     <div class="grid grid-cols-4 gap-4">
       <div class="text-center">
-        <div class="text-2xl font-bold text-[rgb(var(--slate-900))]">{resumo.totalVisitas}</div>
-        <div class="text-[11px] text-[rgb(var(--slate-400))] mt-0.5">total de visitas</div>
+        <div class="text-2xl font-bold text-ui-primary">{resumo.totalVisitas}</div>
+        <div class="text-[11px] text-ui-muted mt-0.5">total de visitas</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-[rgb(var(--slate-900))]">{resumo.frequenciaMensal}</div>
-        <div class="text-[11px] text-[rgb(var(--slate-400))] mt-0.5">visitas/mês</div>
+        <div class="text-2xl font-bold text-ui-primary">{resumo.frequenciaMensal}</div>
+        <div class="text-[11px] text-ui-muted mt-0.5">visitas/mês</div>
       </div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-[rgb(var(--slate-900))]">{resumo.diasSemVisita}</div>
-        <div class="text-[11px] text-[rgb(var(--slate-400))] mt-0.5">dias sem visita</div>
+        <div class="text-2xl font-bold text-ui-primary">{resumo.diasSemVisita}</div>
+        <div class="text-[11px] text-ui-muted mt-0.5">dias sem visita</div>
       </div>
       <div class="text-center">
         {#if resumo.tendencia}
@@ -57,12 +57,12 @@
             </span>
           </div>
         {:else}
-          <div class="text-sm text-[rgb(var(--slate-300))]">--</div>
+          <div class="text-sm text-ui-disabled">--</div>
         {/if}
-        <div class="text-[11px] text-[rgb(var(--slate-400))] mt-0.5">tendência</div>
+        <div class="text-[11px] text-ui-muted mt-0.5">tendência</div>
       </div>
     </div>
   {:else}
-    <p class="text-sm text-[rgb(var(--slate-400))] text-center py-4">Nenhuma visita registrada ainda</p>
+    <p class="text-sm text-ui-muted text-center py-4">Nenhuma visita registrada ainda</p>
   {/if}
 </div>

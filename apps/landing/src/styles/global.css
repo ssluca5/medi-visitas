@@ -71,6 +71,12 @@ html {
   scroll-margin-top: 92px;
 }
 
+@media (max-width: 768px) {
+  [id] {
+    scroll-margin-top: 0;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   font-size: 16px;

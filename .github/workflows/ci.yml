@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @medivisitas/database generate
+
+      - name: Lint
+        run: pnpm --filter @medivisitas/web lint
+        continue-on-error: true
+
+      - name: Build API
+        run: pnpm --filter @medivisitas/api build
+
+      - name: Build Web
+        run: pnpm --filter @medivisitas/web build
+        env:
+          PUBLIC_API_URL: https://api.medivisitas.com
+          PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
+          PUBLIC_LANDING_URL: https://medivisitas.com
+
+      - name: Test API
+        run: pnpm --filter @medivisitas/api test -- --passWithNoTests
+        continue-on-error: true

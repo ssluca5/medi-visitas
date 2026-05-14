@@ -192,6 +192,7 @@
       });
 
       if (res.ok) {
+        toasts.show('success', visita?.id ? 'Visita salva.' : 'Visita cadastrada.');
         if (onsave) onsave();
         onclose();
       } else {
@@ -218,6 +219,7 @@
     try {
       const res = await apiFetch(`/visitas/${visita.id}`, sessionToken, { method: 'DELETE' });
       if (res.ok) {
+        toasts.show('error', 'Visita excluída.');
         ondelete(visita.id);
         confirmDeleteOpen = false;
         onclose();
@@ -236,16 +238,16 @@
   <div class="flex h-full flex-col">
     <!-- Header -->
     <div class="mb-6">
-      <h2 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
+      <h2 class="text-lg font-semibold text-ui-primary">
         {isReadOnly ? 'Detalhes da Visita' : (duplicateSource ? 'Duplicar Visita' : (visita?.id ? 'Editar Visita' : 'Registrar Visita'))}
       </h2>
-      <p class="mt-1 text-sm text-[rgb(var(--slate-400))]">
+      <p class="mt-1 text-sm text-ui-muted">
         {isReadOnly ? 'Esta visita já foi executada e não pode ser alterada.' : (duplicateSource ? 'Altere os dados e salve para criar uma nova visita.' : 'Preencha os detalhes e os materiais entregues.')}
       </p>
     </div>
 
     <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto pr-2 pb-6">
+    <div class="overflow-y-auto pr-2 pb-4">
       <form
         onsubmit={handleSalvar}
         class="space-y-5"
@@ -257,30 +259,30 @@
           {#if profissionalId && !visita?.profissionalId}
             {#if typeof profissionalId === 'string' && profissionalNome}
               <div class="mb-4">
-                <span class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</span>
-                <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-[rgb(var(--slate-700))] font-medium">
+                <span class="block text-sm font-medium text-ui-body mb-1.5">Profissional</span>
+                <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-ui-body font-medium">
                   {profissionalNome}
                 </div>
               </div>
             {/if}
           {:else if visita?.profissionalId}
             <div class="mb-4">
-              <span class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5">Profissional</span>
-              <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-[rgb(var(--slate-700))] font-medium">
+              <span class="block text-sm font-medium text-ui-body mb-1.5">Profissional</span>
+              <div class="px-3 py-2 bg-[rgb(var(--slate-50))] border border-[rgb(var(--slate-200))] rounded-lg text-sm text-ui-body font-medium">
                 {visita.profissional?.nome || 'Profissional'}
               </div>
             </div>
           {:else if !profissionalId && !visita?.profissionalId}
             <div class="relative">
-              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="profissionalBusca">Selecione o Profissional</label>
+              <label class="block text-sm font-medium text-ui-body mb-1.5" for="profissionalBusca">Selecione o Profissional <span class="text-ui-muted">*</span></label>
               {#if selectedProfissionalForNew}
                 <div class="flex items-center justify-between border border-[rgb(var(--slate-200))] rounded-lg py-2 px-3 bg-indigo-50">
-                  <span class="text-sm font-medium text-[rgb(var(--slate-800))]">{selectedProfissionalForNew.nome}</span>
+                  <span class="text-sm font-medium text-ui-strong">{selectedProfissionalForNew.nome}</span>
                   <button type="button" class="text-xs text-indigo-600 hover:underline" onclick={() => selectedProfissionalForNew = null}>Trocar</button>
                 </div>
               {:else}
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--slate-400))] pointer-events-none">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ui-muted pointer-events-none">
                     <Search class="w-4 h-4" />
                   </span>
                   <input
@@ -303,9 +305,9 @@
                         onclick={() => { selectedProfissionalForNew = prof; isComboBoxOpen = false; searchQuery = ''; }}
                         class="w-full text-left px-4 py-2 text-sm hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer"
                       >
-                        <div class="font-medium text-[rgb(var(--slate-800))]">{prof.nome}</div>
+                        <div class="font-medium text-ui-strong">{prof.nome}</div>
                         {#if prof.especialidade}
-                          <div class="text-xs text-[rgb(var(--slate-500))]">{prof.especialidade.nome}</div>
+                          <div class="text-xs text-ui-secondary">{prof.especialidade.nome}</div>
                         {/if}
                       </button>
                     {/each}
@@ -316,7 +318,7 @@
           {/if}
 
           <div>
-            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="dataVisita">Data e Hora</label>
+            <label class="block text-sm font-medium text-ui-body mb-1.5" for="dataVisita">Data e Hora</label>
             <input
               type="datetime-local"
               id="dataVisita"
@@ -324,19 +326,19 @@
               bind:value={dataVisita}
               required
               disabled={isReadOnly}
-              class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+              class="input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="status">Status</label>
+              <label class="block text-sm font-medium text-ui-body mb-1.5" for="status">Status</label>
               <select
                 id="status"
                 name="status"
                 bind:value={status}
                 disabled={isReadOnly}
-                class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+                class="input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
               >
                 <option value="AGENDADA">Agendada</option>
                 <option value="REALIZADA">Realizada</option>
@@ -346,14 +348,14 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="duracaoMinutos">Duração (min)</label>
+              <label class="block text-sm font-medium text-ui-body mb-1.5" for="duracaoMinutos">Duração (min)</label>
               <input
                 type="number"
                 id="duracaoMinutos"
                 name="duracaoMinutos"
                 bind:value={duracaoMinutos}
                 disabled={isReadOnly}
-                class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+                class="input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
                 placeholder="e.g. 30"
               />
             </div>
@@ -361,41 +363,41 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="objetivoVisita">Objetivo da Visita</label>
+          <label class="block text-sm font-medium text-ui-body mb-1.5" for="objetivoVisita">Objetivo da Visita</label>
           <textarea
             id="objetivoVisita"
             name="objetivoVisita"
             rows="3"
             bind:value={objetivoVisita}
             disabled={isReadOnly}
-            class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+            class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
             placeholder="Apresentação do produto X"
           ></textarea>
         </div>
 
         {#if status === 'REALIZADA' || (isReadOnly && visita?.status === 'REALIZADA')}
           <div>
-            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="resumo">Resumo da Visita / Feedback</label>
+            <label class="block text-sm font-medium text-ui-body mb-1.5" for="resumo">Resumo da Visita / Feedback</label>
             <textarea
               id="resumo"
               name="resumo"
               rows="3"
               bind:value={resumo}
               disabled={isReadOnly}
-              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
               placeholder="O médico gostou da amostra..."
             ></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="proximaAcao">Próxima Ação / Follow-up</label>
+            <label class="block text-sm font-medium text-ui-body mb-1.5" for="proximaAcao">Próxima Ação / Follow-up</label>
             <input
               type="text"
               id="proximaAcao"
               name="proximaAcao"
               bind:value={proximaAcao}
               disabled={isReadOnly}
-              class="input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+              class="input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
               placeholder="Retornar daqui a 30 dias"
             />
           </div>
@@ -403,14 +405,14 @@
 
         {#if status === 'CANCELADA' || (isReadOnly && visita?.status === 'CANCELADA')}
           <div>
-            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="motivoCancelamento">Motivo do Cancelamento</label>
+            <label class="block text-sm font-medium text-ui-body mb-1.5" for="motivoCancelamento">Motivo do Cancelamento</label>
             <textarea
               id="motivoCancelamento"
               name="motivoCancelamento"
               rows="3"
               bind:value={motivoCancelamento}
               disabled={isReadOnly}
-              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
               placeholder="Descreva o motivo do cancelamento..."
             ></textarea>
           </div>
@@ -418,14 +420,14 @@
 
         {#if status === 'NAO_REALIZADA' || (isReadOnly && visita?.status === 'NAO_REALIZADA')}
           <div>
-            <label class="block text-sm font-medium text-[rgb(var(--slate-700))] mb-1.5" for="motivoNaoRealizacao">Motivo da Não Realização</label>
+            <label class="block text-sm font-medium text-ui-body mb-1.5" for="motivoNaoRealizacao">Motivo da Não Realização</label>
             <textarea
               id="motivoNaoRealizacao"
               name="motivoNaoRealizacao"
               rows="3"
               bind:value={motivoNaoRealizacao}
               disabled={isReadOnly}
-              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]"
+              class="resize-none input-base disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary"
               placeholder="Descreva o motivo da não realização..."
             ></textarea>
           </div>
@@ -435,31 +437,25 @@
 
         <!-- Componente de Materiais -->
         <div>
-          <h3 class="text-sm font-semibold text-[rgb(var(--slate-800))] mb-3">Materiais / Amostras</h3>
+          <h3 class="text-sm font-semibold text-ui-strong mb-3">Materiais / Amostras</h3>
           <MaterialSelector {materiaisOptions} bind:selections={selections} {isReadOnly} />
         </div>
       </form>
     </div>
 
     <!-- Footer Actions -->
-    <div class="mt-auto border-t border-[rgb(var(--slate-100))] py-5">
+    <div class="mt-2 border-t border-[rgb(var(--slate-100))] pt-4">
       {#if isReadOnly}
         <Button variant="outline" type="button" onclick={onclose} class="w-full">
           Fechar
         </Button>
       {:else}
-        <div class="flex flex-col-reverse gap-3">
-          {#if canDelete}
-            <Button variant="destructive" type="button" onclick={handleExcluir} disabled={loading} class="w-full">
-              Excluir
-            </Button>
-          {/if}
-
+        <div class="flex flex-col gap-3">
           <Button type="submit" form="visitaForm" disabled={loading || (!profissionalId && !visita?.profissionalId && !selectedProfissionalForNew?.id)} class="w-full">
             {#if loading}
               Salvando...
             {:else}
-              Salvar Visita
+              {visita?.id ? 'Salvar Alterações' : 'Cadastrar Visita'}
             {/if}
           </Button>
 
@@ -473,6 +469,12 @@
               <Volume2 class="w-4 h-4" />
               Gravar com IA
             </button>
+          {/if}
+
+          {#if canDelete}
+            <Button variant="destructive" type="button" onclick={handleExcluir} disabled={loading} class="w-full">
+              Excluir
+            </Button>
           {/if}
 
           <Button variant="outline" type="button" onclick={onclose} disabled={loading} class="w-full">

@@ -31,23 +31,23 @@
 	<title>Erro {status} — MediVisitas</title>
 </svelte:head>
 
-<div class="min-h-screen flex items-center justify-center p-8" style="background-color: #f8f9fa;">
+<div class="min-h-screen flex items-center justify-center p-8" style="background-color: var(--bg-primary);">
 	<div class="text-center max-w-md">
 		<!-- Ícone -->
 		<div class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6"
-			style="background-color: #ffffff; border: 1px solid #e5e7eb;">
+			style="background-color: var(--bg-surface); border: 1px solid var(--border-base);">
 			{config.emoji}
 		</div>
 
 		<!-- Código -->
-		<p class="text-6xl font-bold mb-2" style="color: #e5e7eb;">{status}</p>
+		<p class="text-6xl font-bold mb-2" style="color: var(--border-base);">{status}</p>
 
 		<!-- Título -->
-		<h1 class="text-xl font-semibold mb-2" style="color: #111827;">{config.title}</h1>
+		<h1 class="page-title-marker text-xl font-semibold mb-2" style="color: var(--text-primary);">{config.title}</h1>
 
 		<!-- Descrição -->
-		<p class="text-sm mb-8" style="color: #9ca3af;">
-			{page.error?.message || config.desc}
+		<p class="text-sm mb-8" style="color: var(--text-muted);">
+			{config.desc}
 		</p>
 
 		<!-- Ações -->
@@ -56,7 +56,7 @@
 				href="/dashboard"
 				class="inline-flex items-center gap-2 h-10 px-5 rounded-lg text-sm font-medium text-white
 					transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md"
-				style="background-color: #2563eb;"
+				style="background-color: var(--brand-primary);"
 			>
 				<Home class="w-4 h-4" />
 				Ir para o dashboard
@@ -65,7 +65,7 @@
 				onclick={() => window.location.reload()}
 				class="inline-flex items-center gap-2 h-10 px-5 rounded-lg text-sm font-medium
 					border transition-all duration-200 hover:bg-gray-50 cursor-pointer"
-				style="color: #6b7280; border-color: #e5e7eb;"
+				style="color: var(--text-secondary); border-color: var(--border-base);"
 			>
 				<RotateCcw class="w-4 h-4" />
 				Tentar novamente

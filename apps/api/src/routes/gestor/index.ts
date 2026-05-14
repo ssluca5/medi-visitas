@@ -44,6 +44,15 @@ export default async function gestorRoutes(
     if (!requireOwner(request, reply)) return;
 
     const organizationId = request.organizationId!;
+    const { userId } = request.query as { userId?: string };
+
+    // When filtering by a specific member, scope profissionais and visitas
+    const visitaWhere = userId
+      ? { organizationId, userId }
+      : { organizationId };
+    const profissionalWhere = userId
+      ? { organizationId, deletedAt: null, visitas: { some: { userId } } }
+      : { organizationId, deletedAt: null };
 
     // Aggregations using parallel queries
     const [
@@ -57,18 +66,18 @@ export default async function gestorRoutes(
         where: { organizationId, deletedAt: null },
       }),
       prisma.profissional.count({
-        where: { organizationId, deletedAt: null },
+        where: profissionalWhere,
       }),
       prisma.visita.count({
-        where: { organizationId },
+        where: visitaWhere,
       }),
       prisma.profissional.groupBy({
         by: ["estagioPipeline"],
-        where: { organizationId, deletedAt: null },
+        where: profissionalWhere,
         _count: { _all: true },
       }),
       prisma.visita.findMany({
-        where: { organizationId },
+        where: visitaWhere,
         orderBy: { createdAt: "desc" },
         take: 5,
         include: { profissional: true },
@@ -76,11 +85,11 @@ export default async function gestorRoutes(
     ]);
 
     // Fetch user details for the recent visits
-    const userIds = Array.from(
+    const visitUserIds = Array.from(
       new Set(visitasRecentesData.map((v) => v.userId)),
     );
     const users = await prisma.user.findMany({
-      where: { clerkId: { in: userIds } },
+      where: { clerkId: { in: visitUserIds } },
       select: { clerkId: true, name: true, email: true },
     });
     const userMap = new Map(users.map((u) => [u.clerkId, u]));

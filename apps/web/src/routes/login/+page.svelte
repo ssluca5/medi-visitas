@@ -5,12 +5,16 @@
 	import { ArrowLeft } from 'lucide-svelte';
 	import { useClerkContext, SignIn } from 'svelte-clerk';
 
+	let { data } = $props<{ data: { email: string; redirectUrl: string | null } }>();
+	let redirectUrl = $derived(data.redirectUrl ?? '/dashboard');
+	let signInInitialValues = $derived(data.email ? { emailAddress: data.email } : undefined);
+
 	onMount(async () => {
 		const clerkCtx = useClerkContext();
 		if (clerkCtx?.clerk) {
 			await clerkCtx.clerk.load();
 			if (clerkCtx.clerk.user) {
-				goto('/dashboard');
+				goto(redirectUrl);
 			}
 		}
 	});
@@ -83,18 +87,18 @@
 
 	<!-- ═══ Painel Direito — formulário Clerk customizado ═══ -->
 	<div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-8"
-		style="background-color: #f8f9fa;">
+		style="background-color: var(--bg-primary);">
 
 		<!-- Logo mobile (só em telas pequenas) -->
 		<div class="lg:hidden flex items-center gap-2 mb-8">
-			<span class="text-xl font-bold" style="color: #111827;">MediVisitas</span>
-			<span class="w-2 h-2 rounded-full" style="background-color: #2563eb;"></span>
+			<span class="text-xl font-bold" style="color: var(--text-primary);">MediVisitas</span>
+			<span class="w-2 h-2 rounded-full" style="background-color: var(--brand-primary);"></span>
 		</div>
 
 		<!-- Título acima do componente Clerk -->
 		<div class="w-full max-w-sm mb-6 text-center">
-			<h1 class="text-2xl font-bold" style="color: #111827;">Bem-vindo</h1>
-			<p class="text-sm mt-1" style="color: #6b7280;">
+			<h1 class="page-title-marker text-2xl font-bold" style="color: var(--text-primary);">Bem-vindo</h1>
+			<p class="text-sm mt-1" style="color: var(--text-secondary);">
 				Faça login para acessar sua conta
 			</p>
 		</div>
@@ -109,18 +113,18 @@
 					termsPageUrl: '',
 				},
 				variables: {
-					colorPrimary: '#2563eb',
-					colorBackground: '#ffffff',
-					colorText: '#111827',
-					colorTextSecondary: '#6b7280',
-					colorTextOnPrimaryBackground: '#ffffff',
-					colorInputBackground: '#ffffff',
-					colorInputText: '#111827',
-					colorDanger: '#dc2626',
-					colorSuccess: '#059669',
-					colorWarning: '#f59e0b',
-					colorNeutral: '#6b7280',
-					colorAlphaShade: '#111827',
+					colorPrimary: 'var(--brand-primary)',
+					colorBackground: 'var(--bg-surface)',
+					colorText: 'var(--text-primary)',
+					colorTextSecondary: 'var(--text-secondary)',
+					colorTextOnPrimaryBackground: 'var(--bg-surface)',
+					colorInputBackground: 'var(--bg-surface)',
+					colorInputText: 'var(--text-primary)',
+					colorDanger: 'var(--danger)',
+					colorSuccess: 'var(--status-ativo)',
+					colorWarning: 'var(--pipeline-prospectado)',
+					colorNeutral: 'var(--text-secondary)',
+					colorAlphaShade: 'var(--text-primary)',
 					fontFamily: 'Inter, sans-serif',
 					fontSize: '14px',
 					fontWeight: {
@@ -135,81 +139,83 @@
 					rootBox: 'w-full max-w-sm',
 					card: {
 						boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
-						border: '1px solid #e5e7eb',
+						border: '1px solid var(--border-base)',
 						borderRadius: '16px',
 						padding: '32px',
-						backgroundColor: '#ffffff',
+						backgroundColor: 'var(--bg-surface)',
 					},
 					headerTitle: { display: 'none' },
 					headerSubtitle: { display: 'none' },
 					logoBox: { display: 'none' },
 					logoImage: { display: 'none' },
 					formButtonPrimary: {
-						backgroundColor: '#2563eb',
+						backgroundColor: 'var(--brand-primary)',
 						borderRadius: '10px',
 						height: '44px',
 						fontSize: '14px',
 						fontWeight: '600',
-						'&:hover': { backgroundColor: '#1d4ed8' },
-						'&:focus': { outline: '2px solid #2563eb', outlineOffset: '2px' },
+						'&:hover': { backgroundColor: 'var(--brand-dark)' },
+						'&:focus': { outline: '2px solid var(--brand-primary)', outlineOffset: '2px' },
 					},
 					formFieldInput: {
-						borderColor: '#e5e7eb',
+						borderColor: 'var(--border-base)',
 						borderRadius: '10px',
 						height: '40px',
 						fontSize: '14px',
 						'&:focus': {
-							borderColor: '#2563eb',
+							borderColor: 'var(--brand-primary)',
 							boxShadow: '0 0 0 3px rgba(37,99,235,0.1)',
 						},
 					},
 					formFieldLabel: {
 						fontSize: '13px',
 						fontWeight: '500',
-						color: '#374151',
+						color: 'var(--text-body)',
 					},
 					socialButtonsBlockButton: {
-						borderColor: '#e5e7eb',
+						borderColor: 'var(--border-base)',
 						borderRadius: '10px',
 						height: '40px',
 						fontSize: '14px',
-						color: '#374151',
-						'&:hover': { backgroundColor: '#f9fafb', borderColor: '#d1d5db' },
+						color: 'var(--text-body)',
+						'&:hover': { backgroundColor: 'rgb(var(--slate-50))', borderColor: 'rgb(var(--slate-300))' },
 					},
 					socialButtonsBlockButtonText: {
 						fontSize: '14px',
 						fontWeight: '500',
 					},
-					dividerLine: { backgroundColor: '#e5e7eb' },
-					dividerText: { color: '#9ca3af', fontSize: '12px' },
+					dividerLine: { backgroundColor: 'var(--border-base)' },
+					dividerText: { color: 'var(--text-muted)', fontSize: '12px' },
 					footerActionLink: {
-						color: '#2563eb',
+						color: 'var(--brand-primary)',
 						fontWeight: '500',
 						fontSize: '13px',
-						'&:hover': { color: '#1d4ed8' },
+						'&:hover': { color: 'var(--brand-dark)' },
 					},
 					footerActionText: {
-						color: '#6b7280',
+						color: 'var(--text-secondary)',
 						fontSize: '13px',
 					},
 					footer: { display: 'none' },
 					footerPages: { display: 'none' },
 					footerPagesLink: { display: 'none' },
 					formFieldErrorText: {
-						color: '#dc2626',
+						color: 'var(--danger)',
 						fontSize: '12px',
 					},
 					alertText: { fontSize: '13px' },
 					otpCodeFieldInput: {
-						borderColor: '#e5e7eb',
+						borderColor: 'var(--border-base)',
 						borderRadius: '8px',
-						'&:focus': { borderColor: '#2563eb' },
+						'&:focus': { borderColor: 'var(--brand-primary)' },
 					},
 				},
 			}}
 			routing="path"
 			path="/login"
 			signUpUrl="/onboarding"
+			initialValues={signInInitialValues}
+			forceRedirectUrl={redirectUrl}
 			fallbackRedirectUrl="/dashboard"
 		/>
 
@@ -217,9 +223,9 @@
 		<a
 			href={PUBLIC_LANDING_URL ?? 'http://localhost:4321'}
 			class="mt-6 text-sm transition-colors flex items-center gap-1"
-			style="color: #9ca3af;"
-			onmouseenter={(e) => (e.currentTarget.style.color = '#6b7280')}
-			onmouseleave={(e) => (e.currentTarget.style.color = '#9ca3af')}
+			style="color: var(--text-muted);"
+			onmouseenter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+			onmouseleave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
 		>
 			<ArrowLeft class="w-3.5 h-3.5" />
 			Voltar para o site

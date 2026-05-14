@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { apiFetch } from '$lib/api';
   import { ArrowLeft, CalendarPlus, Calendar, Clock, Package, Pencil, FileText, Target, User, Activity, Briefcase, Heart, Hash, MapPin } from 'lucide-svelte';
   import StatusVisitaBadge from '$lib/components/ui/StatusVisitaBadge.svelte';
@@ -19,23 +19,21 @@
     PotencialPrescricao,
     EstagioPipeline,
     ClassificacaoRelacionamento,
-    TimelineItem,
     VisaoGeralData
   } from '$lib/types';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; profissional?: any; visitas?: any[]; materiais?: any[]; visaoGeral?: any };
   }
 
   let { data }: Props = $props();
 
   let id = $derived($page.params.id);
-  let profissional = $state<Profissional | null>(null);
-  let visitas = $state<Visita[]>([]);
-  let materiaisOptions = $state<MaterialTecnico[]>([]);
-  let timelineItens = $state<TimelineItem[]>([]);
-  let visaoGeralData = $state<VisaoGeralData | null>(null);
-  let loading = $state(true);
+  let profissional = $state<Profissional | null>(untrack(() => data.profissional ?? null));
+  let visitas = $state<Visita[]>(untrack(() => data.visitas ?? []));
+  let materiaisOptions = $state<MaterialTecnico[]>(untrack(() => data.materiais ?? []));
+  let visaoGeralData = $state<VisaoGeralData | null>(untrack(() => data.visaoGeral ?? null));
+  let loading = $state(false);
   let abaAtiva = $state<'visao-geral' | 'visitas' | 'materiais' | 'dados'>('visao-geral');
 
   let visitaSheetOpen = $state(false);
@@ -50,7 +48,7 @@
   };
 
   const estagioConfig: Record<EstagioPipeline, { label: string; class: string }> = {
-    PROSPECTADO: { label: 'Prospectado', class: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]' },
+    PROSPECTADO: { label: 'Prospectado', class: 'bg-[rgb(var(--slate-100))] text-ui-secondary' },
     VISITADO: { label: 'Visitado', class: 'bg-blue-50 text-blue-700' },
     INTERESSADO: { label: 'Interessado', class: 'bg-purple-50 text-purple-700' },
     PRESCRITOR: { label: 'Prescritor', class: 'bg-emerald-50 text-emerald-700' },
@@ -95,9 +93,7 @@
     }
   }
 
-  onMount(() => {
-    loadData();
-  });
+  onMount(() => {});
 
   function handleNovaVisita() {
     visitaEmEdicao = null;
@@ -134,7 +130,7 @@
 
   <!-- Botão Voltar -->
   <div class="flex items-center mb-6">
-    <a href="/dashboard/profissionais" class="flex items-center gap-1.5 text-sm font-medium text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] transition-colors group">
+    <a href="/dashboard/profissionais" class="flex items-center gap-1.5 text-sm font-medium text-ui-secondary hover-text-ui-strong transition-colors group">
       <ArrowLeft class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
       Voltar
     </a>
@@ -154,14 +150,14 @@
 
           <!-- Identificação -->
           <div class="flex flex-col items-center text-center">
-            <div class="w-14 h-14 rounded-full bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-700))] flex items-center justify-center text-xl font-bold mb-3 ring-4 ring-[rgb(var(--slate-50))]">
+            <div class="w-14 h-14 rounded-full bg-[rgb(var(--slate-100))] text-ui-body flex items-center justify-center text-xl font-bold mb-3 ring-4 ring-[rgb(var(--slate-50))]">
               {getInitials(profissional.nome)}
             </div>
-            <h1 class="text-[22px] leading-tight font-bold text-[rgb(var(--slate-900))] mb-1">{getNomeCompleto(profissional)}</h1>
-            <p class="text-sm font-medium text-[rgb(var(--slate-500))] mb-2">
+            <h1 class="page-title-marker text-[22px] leading-tight font-bold text-ui-primary mb-1">{getNomeCompleto(profissional)}</h1>
+            <p class="text-sm font-medium text-ui-secondary mb-2">
               {profissional.especialidade?.nome ?? 'Sem especialidade'}
               {#if profissional.subEspecialidade?.nome}
-                <span class="text-[rgb(var(--slate-300))]"> · </span>{profissional.subEspecialidade.nome}
+                <span class="text-ui-disabled"> · </span>{profissional.subEspecialidade.nome}
               {/if}
             </p>
           </div>
@@ -192,25 +188,25 @@
             {#if profissional.crm}
               <div class="flex justify-between">
                 <span class="eyebrow-text">CRM</span>
-                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{profissional.crm}</span>
+                <span class="text-sm font-medium text-ui-primary">{profissional.crm}</span>
               </div>
             {/if}
             {#if profissional.cpfCnpj}
               <div class="flex justify-between">
                 <span class="eyebrow-text">CPF/CNPJ</span>
-                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{profissional.cpfCnpj}</span>
+                <span class="text-sm font-medium text-ui-primary">{profissional.cpfCnpj}</span>
               </div>
             {/if}
             {#if profissional.sexo}
               <div class="flex justify-between">
                 <span class="eyebrow-text">Sexo</span>
-                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{sexoLabels[profissional.sexo] ?? profissional.sexo}</span>
+                <span class="text-sm font-medium text-ui-primary">{sexoLabels[profissional.sexo] ?? profissional.sexo}</span>
               </div>
             {/if}
             {#if profissional.dataNascimento}
               <div class="flex justify-between">
                 <span class="eyebrow-text">Nasc.</span>
-                <span class="text-sm font-medium text-[rgb(var(--slate-900))]">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
+                <span class="text-sm font-medium text-ui-primary">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</span>
               </div>
             {/if}
           </div>
@@ -218,16 +214,16 @@
           <!-- Observações -->
           {#if profissional.observacoes}
             <hr class="border-[rgb(var(--slate-100))] my-4">
-            <p class="text-sm text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-3 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
+            <p class="text-sm text-ui-secondary leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-3 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
           {/if}
 
           <!-- Botão Editar -->
           <div class="mt-auto pt-6">
             <a
               href="/dashboard/profissionais?editId={profissional.id}"
-              class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-[rgb(var(--slate-700))] bg-white border border-[rgb(var(--slate-200))] hover:border-[rgb(var(--slate-300))] hover:bg-[rgb(var(--slate-50))] hover:shadow-sm rounded-lg py-2.5 transition-all outline-none cursor-pointer"
+              class="flex items-center justify-center gap-2 w-full text-sm font-semibold text-ui-body bg-white border border-[rgb(var(--slate-200))] hover:border-[rgb(var(--slate-300))] hover:bg-[rgb(var(--slate-50))] hover:shadow-sm rounded-lg py-2.5 transition-all outline-none cursor-pointer"
             >
-              <Pencil class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+              <Pencil class="w-3.5 h-3.5 text-ui-muted" />
               Editar Cadastro
             </a>
           </div>
@@ -237,16 +233,16 @@
       <!-- ═══ COLUNA DIREITA: Tabs ═══ -->
       <div class="col-span-1 lg:col-span-2 xl:col-span-3">
         <!-- Tab bar -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex gap-1 bg-white rounded-lg border border-[rgb(var(--slate-200))] p-1 shadow-sm">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="grid w-full grid-cols-2 gap-1 rounded-lg border border-[rgb(var(--slate-200))] bg-white p-1 shadow-sm sm:flex sm:w-auto">
             {#each tabs as tab}
               {@const Icon = tab.icon}
               {@const active = abaAtiva === tab.id}
               <button
                 type="button"
                 onclick={() => { abaAtiva = tab.id; }}
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all duration-200 cursor-pointer
-                  {active ? 'bg-blue-600 text-white shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}
+                class="flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] font-medium transition-all duration-200 cursor-pointer sm:justify-start sm:px-3 sm:text-[13px]
+                  {active ? 'bg-blue-600 text-white shadow-sm' : 'text-ui-secondary hover-text-ui-body hover:bg-[rgb(var(--slate-50))]'}
                 "
               >
                 <Icon class="w-3.5 h-3.5" />
@@ -257,7 +253,7 @@
           <button
             type="button"
             onclick={handleNovaVisita}
-            class="flex items-center gap-2 bg-blue-600 text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-blue-700 will-change-transform shadow-sm transition-all hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:-translate-y-[1px] hover:bg-blue-700 active:scale-[0.98] cursor-pointer sm:w-auto"
           >
             <CalendarPlus class="w-4 h-4" />
             Registrar Visita
@@ -287,7 +283,7 @@
             </div>
           {:else}
             <div class="text-center py-20 bg-white rounded-xl border border-dashed border-[rgb(var(--slate-200))]">
-              <p class="text-sm text-[rgb(var(--slate-500))]">Erro ao carregar dados.</p>
+              <p class="text-sm text-ui-secondary">Erro ao carregar dados.</p>
               <button
                 type="button"
                 onclick={loadData}
@@ -308,11 +304,11 @@
             <div class="text-center py-20 bg-white rounded-xl border border-dashed border-[rgb(var(--slate-200))]">
               <div class="flex justify-center mb-4">
                 <div class="bg-[rgb(var(--slate-100))] p-3 rounded-full">
-                  <Calendar class="w-7 h-7 text-[rgb(var(--slate-400))]" />
+                  <Calendar class="w-7 h-7 text-ui-muted" />
                 </div>
               </div>
-              <p class="text-sm font-medium text-[rgb(var(--slate-600))]">Nenhuma visita futura registrada</p>
-              <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Registre a próxima visita para este profissional.</p>
+              <p class="text-sm font-medium text-ui-secondary">Nenhuma visita futura registrada</p>
+              <p class="text-xs text-ui-muted mt-1">Registre a próxima visita para este profissional.</p>
               <button
                 type="button"
                 onclick={handleNovaVisita}
@@ -339,17 +335,17 @@
                   >
                     <div class="flex items-center justify-between mb-2">
                       <div class="flex items-center gap-2">
-                        <Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
-                        <span class="text-sm font-semibold text-[rgb(var(--slate-700))]">
+                        <Calendar class="w-3.5 h-3.5 text-ui-muted" />
+                        <span class="text-sm font-semibold text-ui-body">
                           {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
                         </span>
-                        <span class="text-[rgb(var(--slate-300))]">·</span>
-                        <span class="text-sm font-semibold text-[rgb(var(--slate-700))]">
+                        <span class="text-ui-disabled">·</span>
+                        <span class="text-sm font-semibold text-ui-body">
                           {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
                         </span>
                         {#if visita.duracaoMinutos}
-                          <span class="text-[rgb(var(--slate-300))]">·</span>
-                          <span class="flex items-center gap-1 text-xs text-[rgb(var(--slate-400))]">
+                          <span class="text-ui-disabled">·</span>
+                          <span class="flex items-center gap-1 text-xs text-ui-muted">
                             <Clock class="w-3 h-3" />{visita.duracaoMinutos}min
                           </span>
                         {/if}
@@ -359,21 +355,21 @@
 
                     {#if visita.objetivoVisita}
                       <div class="flex items-start gap-2 mt-2">
-                        <Target class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] mt-0.5 shrink-0" />
-                        <p class="text-[rgb(var(--slate-600))] text-sm">{visita.objetivoVisita}</p>
+                        <Target class="w-3.5 h-3.5 text-ui-muted mt-0.5 shrink-0" />
+                        <p class="text-ui-secondary text-sm">{visita.objetivoVisita}</p>
                       </div>
                     {/if}
 
                     {#if visita.resumo}
                       <div class="flex items-start gap-2 mt-2">
-                        <FileText class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] mt-0.5 shrink-0" />
-                        <p class="text-[rgb(var(--slate-500))] text-sm">{visita.resumo}</p>
+                        <FileText class="w-3.5 h-3.5 text-ui-muted mt-0.5 shrink-0" />
+                        <p class="text-ui-secondary text-sm">{visita.resumo}</p>
                       </div>
                     {/if}
 
                     {#if visita.materiais && visita.materiais.length > 0}
                       <div class="flex items-center gap-1.5 flex-wrap mt-3 pt-3 border-t border-[rgb(var(--slate-50))]">
-                        <Package class="w-3 h-3 text-[rgb(var(--slate-400))] shrink-0" />
+                        <Package class="w-3 h-3 text-ui-muted shrink-0" />
                         {#each visita.materiais as vm}
                           <span class="bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-1 rounded-md">
                             {vm.quantidade}x {vm.materialTecnico?.nome || 'Material'}
@@ -403,15 +399,15 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
                 <div>
                   <p class="eyebrow-text mb-1">Nome Completo</p>
-                  <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{getNomeCompleto(profissional)}</p>
+                  <p class="text-sm text-ui-secondary mt-1.5">{getNomeCompleto(profissional)}</p>
                 </div>
                 {#if profissional.especialidade}
                   <div>
                     <p class="eyebrow-text mb-1">Especialidade</p>
-                    <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">
+                    <p class="text-sm text-ui-secondary mt-1.5">
                       {profissional.especialidade.nome}
                       {#if profissional.subEspecialidade}
-                        <span class="text-[rgb(var(--slate-400))] font-normal"> · {profissional.subEspecialidade.nome}</span>
+                        <span class="text-ui-muted font-normal"> · {profissional.subEspecialidade.nome}</span>
                       {/if}
                     </p>
                   </div>
@@ -419,7 +415,7 @@
                 {#if profissional.crm}
                   <div>
                     <p class="eyebrow-text mb-1">CRM</p>
-                    <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{profissional.crm}</p>
+                    <p class="text-sm text-ui-secondary mt-1.5">{profissional.crm}</p>
                   </div>
                 {/if}
                 {#if profissional.potencial}
@@ -462,25 +458,25 @@
                   {#if profissional.cpfCnpj}
                     <div>
                       <p class="eyebrow-text mb-1">CPF / CNPJ</p>
-                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{profissional.cpfCnpj}</p>
+                      <p class="text-sm text-ui-secondary mt-1.5">{profissional.cpfCnpj}</p>
                     </div>
                   {/if}
                   {#if profissional.sexo}
                     <div>
                       <p class="eyebrow-text mb-1">Sexo</p>
-                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{sexoLabels[profissional.sexo] ?? profissional.sexo}</p>
+                      <p class="text-sm text-ui-secondary mt-1.5">{sexoLabels[profissional.sexo] ?? profissional.sexo}</p>
                     </div>
                   {/if}
                   {#if profissional.dataNascimento}
                     <div>
                       <p class="eyebrow-text mb-1">Data de Nascimento</p>
-                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                      <p class="text-sm text-ui-secondary mt-1.5">{new Date(profissional.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                     </div>
                   {/if}
                   {#if profissional.tratamento}
                     <div>
                       <p class="eyebrow-text mb-1">Tratamento</p>
-                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{tratamentoLabels[profissional.tratamento] ?? profissional.tratamento}</p>
+                      <p class="text-sm text-ui-secondary mt-1.5">{tratamentoLabels[profissional.tratamento] ?? profissional.tratamento}</p>
                     </div>
                   {/if}
                 </div>
@@ -500,13 +496,13 @@
                   {#if profissional.nomeConjuge}
                     <div>
                       <p class="eyebrow-text mb-1">Nome</p>
-                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{profissional.nomeConjuge}</p>
+                      <p class="text-sm text-ui-secondary mt-1.5">{profissional.nomeConjuge}</p>
                     </div>
                   {/if}
                   {#if profissional.dataNascConjuge}
                     <div>
                       <p class="eyebrow-text mb-1">Data de Nascimento</p>
-                      <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.dataNascConjuge).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
+                      <p class="text-sm text-ui-secondary mt-1.5">{new Date(profissional.dataNascConjuge).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</p>
                     </div>
                   {/if}
                 </div>
@@ -522,7 +518,7 @@
                   </div>
                   <h3 class="eyebrow-text">Observações</h3>
                 </div>
-                <p class="text-sm text-[rgb(var(--slate-600))] leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-4 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
+                <p class="text-sm text-ui-secondary leading-relaxed bg-[rgb(var(--slate-50))]/50 rounded-md p-4 border border-[rgb(var(--slate-100))]/50">{profissional.observacoes}</p>
               </div>
             {/if}
 
@@ -546,18 +542,18 @@
             <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-6">
               <div class="flex items-center gap-2 mb-5">
                 <div class="w-8 h-8 rounded-lg bg-[rgb(var(--slate-100))] flex items-center justify-center">
-                  <Hash class="w-4 h-4 text-[rgb(var(--slate-500))]" />
+                  <Hash class="w-4 h-4 text-ui-secondary" />
                 </div>
                 <h3 class="eyebrow-text">Informações do Sistema</h3>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 <div>
                   <p class="eyebrow-text mb-1">Criado em</p>
-                  <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  <p class="text-sm text-ui-secondary mt-1.5">{new Date(profissional.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div>
                   <p class="eyebrow-text mb-1">Última atualização</p>
-                  <p class="text-sm text-[rgb(var(--slate-600))] mt-1.5">{new Date(profissional.updatedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  <p class="text-sm text-ui-secondary mt-1.5">{new Date(profissional.updatedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
               </div>
             </div>
@@ -567,7 +563,7 @@
     </div>
 {:else}
   <div class="text-center py-20">
-    <p class="text-sm text-[rgb(var(--slate-500))]">Profissional não encontrado.</p>
+    <p class="text-sm text-ui-secondary">Profissional não encontrado.</p>
     <a href="/dashboard/profissionais" class="text-sm text-blue-600 hover:text-blue-700 mt-2 inline-block">Voltar à listagem</a>
   </div>
 {/if}

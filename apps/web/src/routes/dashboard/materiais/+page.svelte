@@ -7,16 +7,16 @@
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
   import EmptyState from '$lib/components/ui/EmptyState.svelte';
   import type { MaterialTecnico, TipoMaterial } from '$lib/types';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
 
   interface Props {
-    data: { sessionToken: string | null };
+    data: { sessionToken: string | null; materiais: MaterialTecnico[] };
   }
 
   let { data }: Props = $props();
 
-  let materiais = $state<MaterialTecnico[]>([]);
-  let loading = $state(true);
+  let materiais = $state<MaterialTecnico[]>(untrack(() => data.materiais ?? []));
+  let loading = $state(false);
   let error = $state<string | null>(null);
 
   // Filters
@@ -59,7 +59,7 @@
     }
   }
 
-  onMount(() => loadMateriais());
+  onMount(() => {});
 
   function handleNovo() {
     materialEmEdicao = null;
@@ -126,8 +126,12 @@
     try {
       const res = await apiFetch(`/materiais/${itemToDelete.id}`, data.sessionToken, { method: 'DELETE' });
       if (res.ok) {
-        toasts.show('success', 'Material excluído');
+        toasts.show('error', 'Material excluído');
         materiais = materiais.filter(m => m.id !== itemToDelete!.id);
+        if (materialEmEdicao?.id === itemToDelete.id) {
+          sheetOpen = false;
+          materialEmEdicao = null;
+        }
       } else {
         toasts.show('error', 'Erro ao excluir material');
       }
@@ -174,7 +178,7 @@
       case 'AMOSTRA': return 'bg-emerald-50 text-emerald-700 border-emerald-200/50';
       case 'APRESENTACAO': return 'bg-indigo-50 text-indigo-700 border-indigo-200/50';
       case 'FOLDER': return 'bg-blue-50 text-blue-700 border-blue-200/50';
-      default: return 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))] border-[rgb(var(--slate-200))]';
+      default: return 'bg-[rgb(var(--slate-100))] text-ui-secondary border-[rgb(var(--slate-200))]';
     }
   }
 </script>
@@ -191,7 +195,7 @@
 		</div>
 		<div>
 			<h1 class="page-title">Materiais & Amostras</h1>
-			<p class="page-description">Cadastre as amostras grátis, folders e apresentações</p>
+			<p class="page-description">Cadastre as amostras grátis, folders e apresentações.</p>
 		</div>
 	</div>
 	<div class="flex items-center gap-2">
@@ -209,7 +213,7 @@
 <div class="card-surface p-4 mb-6">
   <div class="flex flex-col sm:flex-row gap-4">
     <div class="relative flex-1">
-      <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
+      <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ui-muted pointer-events-none" />
       <input
         type="text"
         placeholder="Buscar por nome ou descrição..."
@@ -283,12 +287,12 @@
                   class:border={isAtivo}
                   class:border-indigo-100={isAtivo}
                   class:bg-[rgb(var(--slate-100))]={!isAtivo}
-                  class:text-[rgb(var(--slate-400))]={!isAtivo}
+                  class:text-ui-muted={!isAtivo}
                 >
                   <Package class="h-4 w-4" />
                 </div>
                 <div class="min-w-0">
-                  <p class="table-cell-primary truncate" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
+                  <p class="table-cell-primary truncate" class:text-ui-primary={isAtivo} class:text-ui-muted={!isAtivo}>
                     {material.nome}
                   </p>
                   {#if !isAtivo}
@@ -301,7 +305,7 @@
             </td>
             <td class="table-cell text-left">
               {#if material.descricao}
-                <span class="table-cell-primary font-normal truncate block" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
+                <span class="table-cell-primary font-normal truncate block" class:text-ui-primary={isAtivo} class:text-ui-muted={!isAtivo}>
                   {material.descricao}
                 </span>
               {:else}
@@ -366,10 +370,10 @@
     <div class="space-y-5">
       <!-- Header -->
       <div>
-        <h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
+        <h3 class="text-lg font-semibold text-ui-primary">
           {materialEmEdicao ? 'Editar Material' : 'Novo Material'}
         </h3>
-        <p class="text-sm text-[rgb(var(--slate-400))] mt-1">Preencha os dados para cadastrar</p>
+        <p class="text-sm text-ui-muted mt-1">Preencha os dados para cadastrar</p>
       </div>
 
       <div class="space-y-3">
@@ -398,10 +402,15 @@
 
       <!-- Ações -->
       <div class="pt-4 border-t border-[rgb(var(--slate-100))]">
-        <div class="flex flex-col-reverse gap-3">
+        <div class="flex flex-col gap-3">
           <Button onclick={handleSalvar} disabled={isSaving || !formNome.trim()} class="w-full">
-            {isSaving ? 'Salvando...' : 'Salvar Material'}
+            {isSaving ? 'Salvando...' : materialEmEdicao ? 'Salvar Alterações' : 'Cadastrar Material'}
           </Button>
+          {#if materialEmEdicao}
+            <Button variant="destructive" type="button" onclick={() => handleExcluir(materialEmEdicao!)} class="w-full">
+              Excluir
+            </Button>
+          {/if}
           <Button variant="outline" onclick={() => sheetOpen = false} class="w-full">Cancelar</Button>
         </div>
       </div>

@@ -85,14 +85,14 @@
 	<!-- Conteúdo -->
 	<div class="flex-1 min-w-0">
 		<p
-			class="text-xs {notif.lida ? 'text-[rgb(var(--slate-500))]' : 'font-semibold text-[rgb(var(--slate-900))]'}"
+			class="text-xs {notif.lida ? 'text-ui-secondary' : 'font-semibold text-ui-primary'}"
 		>
 			{notif.titulo}
 		</p>
-		<p class="text-xs mt-0.5 truncate text-[rgb(var(--slate-400))]">
+		<p class="text-xs mt-0.5 truncate text-ui-muted">
 			{notif.mensagem}
 		</p>
-		<p class="text-[10px] mt-1 text-[rgb(var(--slate-300))]">
+		<p class="text-[10px] mt-1 text-ui-disabled">
 			{formatarTempoRelativo(notif.createdAt)}
 		</p>
 	</div>
@@ -103,6 +103,6 @@
 		onclick={deletar}
 		aria-label="Remover notificação"
 	>
-		<X class="w-3 h-3 text-[rgb(var(--slate-400))]" />
+		<X class="w-3 h-3 text-ui-muted" />
 	</button>
 </div>

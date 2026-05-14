@@ -151,7 +151,6 @@
     ],
   };
 
-  const ESTAGIOS = ["PROSPECTADO", "VISITADO", "INTERESSADO", "PRESCRITOR", "FIDELIZADO"];
   const ESTAGIO_OPCOES = [
     { value: "PROSPECTADO", label: "Prospectado", active: "seg-active-blue" },
     { value: "VISITADO", label: "Visitado", active: "seg-active-sky" },
@@ -164,13 +163,6 @@
     { value: "INTERMEDIARIO", label: "Intermediário", active: "seg-active-amber" },
     { value: "FRACO", label: "Fraco", active: "seg-active-rose" },
   ];
-  const LABEL_ESTAGIO: Record<string, string> = {
-    PROSPECTADO: "Prospectado",
-    VISITADO: "Visitado",
-    INTERESSADO: "Interessado",
-    PRESCRITOR: "Prescritor",
-    FIDELIZADO: "Fidelizado",
-  };
   const LABEL_POTENCIAL: Record<string, string> = {
     FORTE: "Forte",
     INTERMEDIARIO: "Intermediário",
@@ -560,7 +552,7 @@
     if (status.includes("CANCEL") || status.includes("REAGEND")) {
       return "bg-[var(--trial-bg)] text-[var(--trial-text)]";
     }
-    if (status === "—") return "bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-500))]";
+    if (status === "—") return "bg-[rgb(var(--slate-100))] text-ui-secondary";
     return "bg-[var(--success-bg)] text-[var(--success-text)]";
   }
 
@@ -706,11 +698,11 @@
   <header class="reports-header">
     <div class="flex min-w-0 items-center gap-4">
       <div class="page-header-icon h-12 w-12 rounded-xl">
-        <BarChart2 class="h-5 w-5 text-white" />
+        <FileText class="h-5 w-5 text-white" />
       </div>
       <div class="min-w-0">
         <h1 class="page-title">Relatórios</h1>
-        <p class="page-description">Crie, filtre e exporte relatórios personalizados</p>
+        <p class="page-description">Crie, filtre e exporte relatórios personalizados.</p>
       </div>
     </div>
 
@@ -760,7 +752,7 @@
           </div>
           <div class="builder-header-tools">
             <div class="search-control">
-              <Search class="h-4 w-4 text-[rgb(var(--slate-400))]" />
+              <Search class="h-4 w-4 text-ui-muted" />
               <input bind:value={buscaTemplate} placeholder="Buscar..." aria-label="Buscar template" />
             </div>
             <button
@@ -1066,7 +1058,7 @@
           <article class="chart-card">
             <div class="chart-header">
               <h3 class="section-title">Por especialidade</h3>
-              <PieChart class="h-4 w-4 text-[rgb(var(--slate-400))]" />
+              <PieChart class="h-4 w-4 text-ui-muted" />
             </div>
 
             {#if distribuicao.length}
@@ -1185,6 +1177,8 @@
 <style>
   .reports-shell {
     min-height: calc(100vh - 4rem);
+    max-width: 100%;
+    overflow-x: clip;
     color: var(--text-primary);
   }
 
@@ -1228,8 +1222,9 @@
   }
 
   .reports-workspace {
-    display: grid;
-    grid-template-columns: minmax(23rem, 0.42fr) minmax(0, 1fr);
+    display: flex;
+    flex-direction: row;
+    min-width: 0;
     min-height: calc(100vh - 10.5rem);
     overflow: hidden;
     border: 1px solid var(--border-base);
@@ -1237,19 +1232,20 @@
     background: var(--bg-surface);
   }
 
-  .workspace-collapsed {
-    grid-template-columns: 4.5rem minmax(0, 1fr);
-  }
-
   .reports-builder {
     display: flex;
-    min-width: 0;
     flex-direction: column;
+    flex-shrink: 0;
+    min-width: 0;
+    width: 24rem;
     border-right: 1px solid var(--border-base);
     background: color-mix(in srgb, var(--bg-primary) 72%, var(--bg-surface));
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: hidden;
   }
 
   .builder-collapsed {
+    width: 4.5rem;
     background: var(--bg-surface);
   }
 
@@ -1274,11 +1270,13 @@
   .builder-scroll,
   .preview-scroll {
     min-height: 0;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .builder-scroll {
     flex: 1;
+    min-width: 0;
     padding: 1.75rem;
   }
 
@@ -1290,7 +1288,7 @@
 
   .builder-section-header {
     display: grid;
-    grid-template-columns: auto minmax(14rem, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: 1rem;
     margin-bottom: 1.25rem;
@@ -1344,7 +1342,7 @@
     align-items: center;
     gap: 0.55rem;
     height: 2.5rem;
-    min-width: 14rem;
+    min-width: 0;
     border: 1px solid var(--border-base);
     border-radius: 12px;
     background: var(--bg-surface);
@@ -1376,6 +1374,7 @@
   .template-card {
     position: relative;
     display: flex;
+    min-width: 0;
     min-height: 11.5rem;
     flex-direction: column;
     align-items: flex-start;
@@ -1448,6 +1447,7 @@
   }
 
   .template-title {
+    max-width: 100%;
     color: var(--text-primary);
     font-size: var(--font-size-body);
     font-weight: 600;
@@ -1455,6 +1455,7 @@
   }
 
   .template-description {
+    max-width: 100%;
     color: var(--text-secondary);
     font-size: var(--font-size-small);
     line-height: var(--line-height-small);
@@ -1482,6 +1483,7 @@
 
   .quick-filters,
   .saved-panel {
+    min-width: 0;
     margin-top: 1.5rem;
     border-radius: 16px;
     background: color-mix(in srgb, var(--bg-primary) 82%, var(--bg-surface));
@@ -1497,6 +1499,7 @@
 
   .field-control {
     display: grid;
+    min-width: 0;
     gap: 0.45rem;
   }
 
@@ -1510,6 +1513,8 @@
 
   .field-control input,
   .field-control select {
+    width: 100%;
+    min-width: 0;
     height: 2.65rem;
     border: 1px solid var(--border-base);
     border-radius: 12px;
@@ -1574,6 +1579,7 @@
   .columns-panel {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
     border-top: 1px solid var(--border-base);
     padding-top: 1rem;
   }
@@ -1595,12 +1601,14 @@
   .save-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
     align-items: end;
     gap: 0.75rem;
     margin-top: 1.25rem;
   }
 
   .saved-panel {
+    min-width: 0;
     background: var(--bg-surface);
     border: 1px solid var(--border-base);
   }
@@ -1655,12 +1663,16 @@
   }
 
   .reports-preview {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     min-width: 0;
     background: color-mix(in srgb, var(--bg-primary) 58%, var(--bg-surface));
   }
 
   .preview-scroll {
     height: 100%;
+    min-width: 0;
     padding: 1.75rem;
   }
 
@@ -1933,7 +1945,9 @@
   }
 
   .table-wrap {
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
   }
 
   table {
@@ -2017,7 +2031,7 @@
   @media (max-width: 720px) {
     .reports-workspace {
       border-radius: 0;
-      margin-inline: -1rem;
+      margin-inline: 0;
     }
 
     .builder-scroll,
@@ -2038,6 +2052,10 @@
     .bar-chart {
       grid-template-columns: repeat(6, minmax(0, 1fr));
       height: 12rem;
+    }
+
+    table {
+      min-width: 34rem;
     }
   }
 </style>

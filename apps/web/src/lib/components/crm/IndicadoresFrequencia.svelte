@@ -18,28 +18,28 @@
   {#if frequencia}
     <div class="space-y-3">
       <div class="flex justify-between">
-        <span class="text-sm text-[rgb(var(--slate-500))]">Média mensal</span>
-        <span class="text-sm font-semibold text-[rgb(var(--slate-800))]">{frequencia.mediaMensal} visitas/mês</span>
+        <span class="text-sm text-ui-secondary">Média mensal</span>
+        <span class="text-sm font-semibold text-ui-strong">{frequencia.mediaMensal} visitas/mês</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-sm text-[rgb(var(--slate-500))]">Maior intervalo</span>
-        <span class="text-sm font-semibold text-[rgb(var(--slate-800))]">{frequencia.maiorIntervalo} dias</span>
+        <span class="text-sm text-ui-secondary">Maior intervalo</span>
+        <span class="text-sm font-semibold text-ui-strong">{frequencia.maiorIntervalo} dias</span>
       </div>
       <hr class="border-[rgb(var(--slate-100))]" />
       <div class="flex justify-between">
-        <span class="text-sm text-[rgb(var(--slate-500))]">Últimos 30 dias</span>
-        <span class="text-sm font-semibold text-[rgb(var(--slate-800))]">{frequencia.ultimos30d} visitas</span>
+        <span class="text-sm text-ui-secondary">Últimos 30 dias</span>
+        <span class="text-sm font-semibold text-ui-strong">{frequencia.ultimos30d} visitas</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-sm text-[rgb(var(--slate-500))]">Últimos 60 dias</span>
-        <span class="text-sm font-semibold text-[rgb(var(--slate-800))]">{frequencia.ultimos60d} visitas</span>
+        <span class="text-sm text-ui-secondary">Últimos 60 dias</span>
+        <span class="text-sm font-semibold text-ui-strong">{frequencia.ultimos60d} visitas</span>
       </div>
       <div class="flex justify-between">
-        <span class="text-sm text-[rgb(var(--slate-500))]">Últimos 90 dias</span>
-        <span class="text-sm font-semibold text-[rgb(var(--slate-800))]">{frequencia.ultimos90d} visitas</span>
+        <span class="text-sm text-ui-secondary">Últimos 90 dias</span>
+        <span class="text-sm font-semibold text-ui-strong">{frequencia.ultimos90d} visitas</span>
       </div>
     </div>
   {:else}
-    <p class="text-sm text-[rgb(var(--slate-400))] text-center py-4">Sem dados de frequência</p>
+    <p class="text-sm text-ui-muted text-center py-4">Sem dados de frequência</p>
   {/if}
 </div>

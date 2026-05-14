@@ -2,7 +2,7 @@ import type { PageServerLoad } from "./$types";
 import { apiFetch } from "$lib/api";
 import { redirect } from "@sveltejs/kit";
 
-export const load: PageServerLoad = async ({ locals, parent }) => {
+export const load: PageServerLoad = async ({ locals, parent, url }) => {
   const token = locals.sessionToken;
   const parentData = await parent();
 
@@ -10,26 +10,34 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
     throw redirect(302, "/dashboard");
   }
 
+  const membroId = url.searchParams.get("membroId") || "";
+
   try {
-    const res = await apiFetch("/gestor/resumo", token);
+    const resumoUrl = membroId
+      ? `/gestor/resumo?userId=${membroId}`
+      : "/gestor/resumo";
 
-    if (!res.ok) {
-      throw new Error(
-        "Falha ao buscar resumo do gestor. Tente novamente mais tarde.",
-      );
-    }
+    const [resumoRes, membrosRes] = await Promise.all([
+      apiFetch(resumoUrl, token),
+      apiFetch("/organizacao/membros", token),
+    ]);
 
-    const resumo = await res.json();
+    const resumo = resumoRes.ok ? await resumoRes.json() : null;
+    const membrosData = membrosRes.ok ? await membrosRes.json() : { data: [] };
 
     return {
       sessionToken: token,
       resumo,
+      membros: membrosData.data || [],
+      membroIdSelecionado: membroId,
     };
   } catch (e) {
     console.error("Erro na carga do painel de gestor:", e);
     return {
       sessionToken: token,
       resumo: null,
+      membros: [],
+      membroIdSelecionado: membroId,
     };
   }
 };
