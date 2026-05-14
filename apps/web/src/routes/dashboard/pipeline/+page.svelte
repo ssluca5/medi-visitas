@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { apiFetch } from '$lib/api';
   import { BarChart3, Users, CalendarCheck, TrendingUp, Download, RefreshCw } from 'lucide-svelte';
   import Button from '$lib/components/ui/Button.svelte';
@@ -27,7 +27,7 @@
   let { data }: Props = $props();
 
   // Estado
-  let pipeline = $state<PipelineResponse | null>(data.pipeline ?? null);
+  let pipeline = $state<PipelineResponse | null>(untrack(() => data.pipeline ?? null));
   let metricas = $state<MetricasPipeline | null>(null);
   let evolucao = $state<EvolucaoPeriodo[]>([]);
   let visitasPeriodo = $state<VisitasPeriodo[]>([]);
@@ -254,7 +254,7 @@
           onclick={() => { granularidade = 'semana'; carregarDados(); }}
           aria-pressed={granularidade === 'semana'}
           aria-label="Visualizar por semana"
-          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'semana' ? 'bg-white text-[rgb(var(--slate-800))] shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'semana' ? 'bg-white text-ui-strong shadow-sm' : 'text-ui-secondary hover-text-ui-body'}"
         >
           Semana
         </button>
@@ -262,7 +262,7 @@
           onclick={() => { granularidade = 'mes'; carregarDados(); }}
           aria-pressed={granularidade === 'mes'}
           aria-label="Visualizar por mês"
-          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'mes' ? 'bg-white text-[rgb(var(--slate-800))] shadow-sm' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+          class="px-4 py-2 rounded-md text-xs font-semibold transition-colors cursor-pointer {granularidade === 'mes' ? 'bg-white text-ui-strong shadow-sm' : 'text-ui-secondary hover-text-ui-body'}"
         >
           Mês
         </button>
@@ -273,7 +273,7 @@
 
 {#if loading}
   <div class="flex items-center justify-center h-64" role="status" aria-live="polite">
-    <RefreshCw class="h-6 w-6 text-[rgb(var(--slate-400))] animate-spin" aria-hidden="true" />
+    <RefreshCw class="h-6 w-6 text-ui-muted animate-spin" aria-hidden="true" />
     <span class="sr-only">Carregando dados do pipeline...</span>
   </div>
 {:else if erro}

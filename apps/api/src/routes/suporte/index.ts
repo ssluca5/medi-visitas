@@ -16,7 +16,17 @@ const SuporteSchema = z.object({
 
 const suporteRoutes: FastifyPluginAsync = async (app) => {
   const esc = (s: string) =>
-    s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+    s.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]!,
+    );
 
   app.post(
     "/",
@@ -64,22 +74,17 @@ const suporteRoutes: FastifyPluginAsync = async (app) => {
           });
 
           if (result.error) {
-            console.error("[Resend Suporte] Erro da API:", result.error);
             request.log.error(
               { err: result.error },
               "Falha ao enviar email de suporte via Resend",
             );
           } else {
-            console.log(
-              "[Resend Suporte] Email enviado com sucesso:",
-              result.data?.id,
+            request.log.info(
+              { emailId: result.data?.id },
+              "Email de suporte enviado via Resend",
             );
           }
         } catch (emailError) {
-          console.error(
-            "[Resend Suporte] Erro detalhado:",
-            JSON.stringify(emailError),
-          );
           request.log.error(
             { err: emailError },
             "Falha na requisição ao enviar email de suporte via Resend",

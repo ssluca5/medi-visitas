@@ -43,11 +43,11 @@
     <div class="text-center py-20 bg-white rounded-xl border border-dashed border-[rgb(var(--slate-200))]">
       <div class="flex justify-center mb-4">
         <div class="bg-[rgb(var(--slate-100))] p-3 rounded-full">
-          <Package class="w-7 h-7 text-[rgb(var(--slate-400))]" />
+          <Package class="w-7 h-7 text-ui-muted" />
         </div>
       </div>
-      <p class="text-sm font-medium text-[rgb(var(--slate-600))]">Nenhum material registrado</p>
-      <p class="text-xs text-[rgb(var(--slate-400))] mt-1">Os materiais entregues nas visitas aparecerão aqui.</p>
+      <p class="text-sm font-medium text-ui-secondary">Nenhum material registrado</p>
+      <p class="text-xs text-ui-muted mt-1">Os materiais entregues nas visitas aparecerão aqui.</p>
     </div>
   {:else}
     <div class="bg-white rounded-xl border border-[rgb(var(--slate-100))] p-5">
@@ -58,8 +58,8 @@
       <div class="space-y-2">
         {#each totaisPorMaterial as mat}
           <div class="flex justify-between items-center">
-            <span class="text-sm text-[rgb(var(--slate-600))]">{mat.nome}</span>
-            <span class="text-sm font-semibold text-[rgb(var(--slate-800))] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md">{mat.quantidade}x</span>
+            <span class="text-sm text-ui-secondary">{mat.nome}</span>
+            <span class="text-sm font-semibold text-ui-strong bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md">{mat.quantidade}x</span>
           </div>
         {/each}
       </div>
@@ -71,7 +71,7 @@
         {#each visitasComMateriais as visita}
           <div class="border border-[rgb(var(--slate-100))] rounded-lg p-4">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-semibold text-[rgb(var(--slate-700))]">{formatData(visita.dataVisita)}</span>
+              <span class="text-sm font-semibold text-ui-body">{formatData(visita.dataVisita)}</span>
               <StatusVisitaBadge status={visita.status} />
             </div>
             <div class="flex flex-wrap gap-2">

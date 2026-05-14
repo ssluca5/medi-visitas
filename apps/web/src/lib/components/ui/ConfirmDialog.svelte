@@ -85,11 +85,11 @@
 						{/if}
 					</div>
 					<div class="flex-1 pt-0.5">
-						<h3 id="confirm-dialog-title" class="text-lg font-semibold text-[rgb(var(--slate-900))]">{title}</h3>
+						<h3 id="confirm-dialog-title" class="text-lg font-semibold text-ui-primary">{title}</h3>
 						{#if description}
 							<div
-								class="text-sm text-[rgb(var(--slate-600))] mt-2 leading-relaxed
-									[&>strong]:text-[rgb(var(--slate-700))] [&>strong]:font-medium
+								class="text-sm text-ui-secondary mt-2 leading-relaxed
+									[&>strong]:text-ui-body [&>strong]:font-medium
 									[&>p+p]:mt-3"
 							>
 								{@render description()}
@@ -105,7 +105,7 @@
 							onclick={onclose}
 							disabled={loading}
 							class="px-4 py-2 rounded-lg text-sm font-medium
-								bg-white border border-[rgb(var(--slate-300))] text-[rgb(var(--slate-700))]
+								bg-white border border-[rgb(var(--slate-300))] text-ui-body
 								will-change-transform hover:bg-[rgb(var(--slate-50))] hover:-translate-y-[1px]
 								active:scale-[0.98] transition-all duration-200
 								cursor-pointer disabled:opacity-50 shadow-sm"
@@ -118,7 +118,7 @@
 							disabled={loading}
 							aria-label={cancelLabel}
 							class="px-4 py-2 rounded-lg text-sm font-medium
-								bg-white border border-[rgb(var(--slate-300))] text-[rgb(var(--slate-700))]
+								bg-white border border-[rgb(var(--slate-300))] text-ui-body
 								will-change-transform hover:bg-[rgb(var(--slate-50))] hover:-translate-y-[1px]
 								active:scale-[0.98] transition-all duration-200
 								cursor-pointer disabled:opacity-50"

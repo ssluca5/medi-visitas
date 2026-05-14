@@ -106,7 +106,9 @@ export async function apiFetch(
       const cloned = res.clone();
       const body = await cloned.json();
       if (body.code === "ORGANIZATION_NOT_FOUND") {
-        window.location.href = "/onboarding";
+        window.location.href = window.location.pathname.startsWith("/dashboard")
+          ? "/logout?motivo=membro_removido"
+          : "/onboarding";
         return res;
       }
     } catch {

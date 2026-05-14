@@ -23,15 +23,15 @@
 </script>
 
 <div class="card-surface p-5">
-  <h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Funil de Conversão</h3>
+  <h3 class="text-sm font-semibold text-ui-body mb-4">Funil de Conversão</h3>
   <div class="grid grid-cols-5 gap-4">
     {#each ETAPAS as etapa}
       {@const count = totaisPorEstagio?.[etapa.key] ?? 0}
       {@const pct = total > 0 ? Math.round((count / total) * 100) : 0}
       <div class="flex flex-col items-center gap-2">
-        <span class="text-[11px] font-medium text-[rgb(var(--slate-500))] truncate w-full text-center">{etapa.label}</span>
-        <span class="text-2xl font-bold text-[rgb(var(--slate-800))]">{pct}%</span>
-        <span class="text-[11px] text-[rgb(var(--slate-400))]">{count} prof.</span>
+        <span class="text-[11px] font-medium text-ui-secondary truncate w-full text-center">{etapa.label}</span>
+        <span class="text-2xl font-bold text-ui-strong">{pct}%</span>
+        <span class="text-[11px] text-ui-muted">{count} prof.</span>
         <div class="w-full h-2 bg-[rgb(var(--slate-100))] rounded-full overflow-hidden">
           <div
             class="h-full rounded-full transition-[width] duration-500 ease-out"

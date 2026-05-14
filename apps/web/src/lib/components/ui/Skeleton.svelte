@@ -11,7 +11,7 @@
 	{#each range(linhas) as i}
 		<div
 			class="h-4 rounded"
-			style="width: {widths[i % widths.length]}%; background-color: #e5e7eb;"
+			style="width: {widths[i % widths.length]}%; background-color: var(--border-base);"
 		></div>
 	{/each}
 </div>

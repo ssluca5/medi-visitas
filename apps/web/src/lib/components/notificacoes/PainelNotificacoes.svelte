@@ -54,7 +54,7 @@
 
 <!-- Header -->
 <div class="flex items-center justify-between px-4 py-3 border-b border-[rgb(var(--slate-200))]">
-	<p class="text-sm font-semibold text-[rgb(var(--slate-900))]">
+	<p class="text-sm font-semibold text-ui-primary">
 		Notificações
 		{#if naoLidasCount > 0}
 			<span
@@ -80,12 +80,12 @@
 <div role="list" aria-label="Lista de notificações" class="max-h-96 overflow-y-auto divide-y divide-[rgb(var(--slate-100))]">
 	{#if loading}
 		<div class="flex items-center justify-center py-8" aria-live="polite">
-			<p class="text-sm text-[rgb(var(--slate-400))]">Carregando...</p>
+			<p class="text-sm text-ui-muted">Carregando...</p>
 		</div>
 	{:else if notificacoes.length === 0}
 		<div class="flex flex-col items-center justify-center py-8 gap-2">
-			<Bell class="w-8 h-8 text-[rgb(var(--slate-200))]" />
-			<p class="text-sm text-[rgb(var(--slate-400))]">Nenhuma notificação</p>
+			<Bell class="w-8 h-8 text-ui-faint" />
+			<p class="text-sm text-ui-muted">Nenhuma notificação</p>
 		</div>
 	{:else}
 		{#each notificacoes as notif (notif.id)}

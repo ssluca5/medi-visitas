@@ -3,7 +3,11 @@ import { verifyClerkToken } from "../../hooks/auth";
 import { resolveTenant } from "../../hooks/tenant";
 import { buildTenantWhere } from "../../lib/tenant";
 import { prisma } from "../../lib/prisma";
-import { getStaticCache, setStaticCache, invalidateCache } from "../../lib/cache";
+import {
+  getStaticCache,
+  setStaticCache,
+  invalidateCache,
+} from "../../lib/cache";
 import { z } from "zod";
 
 // ============================================

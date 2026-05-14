@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import {
@@ -56,8 +56,14 @@
 	}
 
 	// ── Estado ──
-	let profissionais = $state<Profissional[]>(data.profissionais?.data ?? []);
-	let pagination = $state<PaginationInfo>(data.profissionais ? { page: data.profissionais.page ?? 1, pageSize: data.profissionais.pageSize ?? 20, total: data.profissionais.total ?? 0, totalPages: data.profissionais.totalPages ?? 0 } : { page: 1, pageSize: 20, total: 0, totalPages: 0 });
+	let profissionais = $state<Profissional[]>(untrack(() => data.profissionais?.data ?? []));
+	let pagination = $state<PaginationInfo>(
+		untrack(() =>
+			data.profissionais
+				? { page: data.profissionais.page ?? 1, pageSize: data.profissionais.pageSize ?? 20, total: data.profissionais.total ?? 0, totalPages: data.profissionais.totalPages ?? 0 }
+				: { page: 1, pageSize: 20, total: 0, totalPages: 0 },
+		),
+	);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 
@@ -72,7 +78,7 @@
 	);
 
 	// Total real de profissionais cadastrados (sem filtros)
-	let totalCadastrados = $state(data.profissionais?.total ?? 0);
+	let totalCadastrados = $state(untrack(() => data.profissionais?.total ?? 0));
 
 	function limparFiltros() {
 		filtroBusca = '';
@@ -87,7 +93,7 @@
 	let profissionalEmEdicao = $state<ProfissionalFormData | null>(null);
 	let profissionalAtual = $state<Profissional | null>(null);
 	let especialidades = $state<Array<{ id: string; nome: string; categoria: string }>>(
-		normalizeList(data.especialidades)
+		untrack(() => normalizeList(data.especialidades))
 	);
 	let subEspecialidades = $state<SubEspecialidade[]>([]);
 
@@ -195,7 +201,7 @@
 	};
 
 	const estagioConfig: Record<EstagioPipeline, { label: string; class: string }> = {
-		PROSPECTADO: { label: 'Prospectado', class: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]' },
+		PROSPECTADO: { label: 'Prospectado', class: 'bg-[rgb(var(--slate-100))] text-ui-secondary' },
 		VISITADO: { label: 'Visitado', class: 'bg-blue-50 text-blue-700' },
 		INTERESSADO: { label: 'Interessado', class: 'bg-purple-50 text-purple-700' },
 		PRESCRITOR: { label: 'Prescritor', class: 'bg-emerald-50 text-emerald-700' },
@@ -314,7 +320,9 @@
 		}
 	}
 
-	onMount(() => {});
+	onMount(() => {
+		if (especialidades.length === 0) void fetchEspecialidades();
+	});
 
 	// ── Auto-open edit Sheet when navigated from profile "Editar Cadastro" ──
 	let editIdFromUrl = $derived($page.url.searchParams.get('editId'));
@@ -642,7 +650,7 @@
 <div class="card-surface p-4 mb-6" role="search" aria-label="Filtros de profissionais">
 	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 		<div class="relative">
-			<Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--slate-400))] pointer-events-none" />
+			<Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ui-muted pointer-events-none" />
 			<input
 				type="text"
 				placeholder="Buscar por nome ou CRM..."
@@ -746,14 +754,14 @@
 							class:bg-blue-600={isAtivo}
 							class:text-white={isAtivo}
 							class:bg-[rgb(var(--slate-200))]={!isAtivo}
-							class:text-[rgb(var(--slate-400))]={!isAtivo}
+							class:text-ui-muted={!isAtivo}
 						>
 							{prof.nome.charAt(0).toUpperCase()}
 						</div>
 						<div class="min-w-0 flex-1">
 							<p class="table-cell-primary truncate">{prof.nome}</p>
 							<p class="table-cell-secondary truncate">{prof.crm || 'Sem CRM'}</p>
-							<p class="mt-1 text-xs text-[rgb(var(--slate-500))] truncate">
+							<p class="mt-1 text-xs text-ui-secondary truncate">
 								{prof.especialidade?.nome || 'Sem especialidade'}
 								{#if prof.subEspecialidade?.nome}
 									<span> · {prof.subEspecialidade.nome}</span>
@@ -763,7 +771,7 @@
 					</div>
 
 					<div class="mt-3 flex flex-wrap gap-2">
-						<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
+						<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-ui-secondary'}">
 							{potencialConfig[prof.potencial]?.label ?? prof.potencial}
 						</span>
 						<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {estagioConfig[prof.estagioPipeline].class}">
@@ -851,15 +859,15 @@
 									class:to-indigo-600={isAtivo}
 									class:text-white={isAtivo}
 									class:bg-[rgb(var(--slate-200))]={!isAtivo}
-									class:text-[rgb(var(--slate-400))]={!isAtivo}
+									class:text-ui-muted={!isAtivo}
 								>
 									{prof.nome.charAt(0).toUpperCase()}
 								</div>
 								<div class="min-w-0">
-									<p class="table-cell-primary truncate" class:text-[rgb(var(--slate-900))]={isAtivo} class:text-[rgb(var(--slate-400))]={!isAtivo}>
+									<p class="table-cell-primary truncate" class:text-ui-primary={isAtivo} class:text-ui-muted={!isAtivo}>
 										{prof.nome}
 									</p>
-									<p class="table-cell-secondary truncate" class:text-[rgb(var(--slate-400))]={isAtivo} class:text-[rgb(var(--slate-300))]={!isAtivo}>
+									<p class="table-cell-secondary truncate" class:text-ui-muted={isAtivo} class:text-ui-disabled={!isAtivo}>
 										{prof.crm || 'Sem CRM'}
 									</p>
 								</div>
@@ -874,7 +882,7 @@
 							</span>
 						</td>
 						<td class="table-cell text-center">
-							<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
+							<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium {potencialConfig[prof.potencial]?.class ?? 'bg-[rgb(var(--slate-100))] text-ui-secondary'}">
 								{potencialConfig[prof.potencial]?.label ?? prof.potencial}
 							</span>
 						</td>
@@ -972,10 +980,10 @@
 		<div class="space-y-5">
 			<!-- Header -->
 			<div>
-				<h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
+				<h3 class="text-lg font-semibold text-ui-primary">
 					{profissionalEmEdicao ? 'Editar Profissional' : 'Novo Profissional'}
 				</h3>
-				<p class="text-sm text-[rgb(var(--slate-400))] mt-1">
+				<p class="text-sm text-ui-muted mt-1">
 					{profissionalEmEdicao ? 'Atualize os dados abaixo' : 'Preencha os dados para cadastrar'}
 				</p>
 			</div>
@@ -1019,12 +1027,12 @@
 						<div>
 							<label for="prof-crm" class="input-label">CRM</label>
 							<input id="prof-crm" type="text" bind:value={formCrm} class="input-base" placeholder="123456" />
-							<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Registro profissional</p>
+							<p class="text-xs text-ui-muted mt-1">Registro profissional</p>
 						</div>
 						<div>
 							<label for="prof-crm-uf" class="input-label">UF do CRM</label>
 							<input id="prof-crm-uf" type="text" bind:value={formEstado} class="input-base" placeholder="SP" maxlength={2} />
-							<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Estado do registro</p>
+							<p class="text-xs text-ui-muted mt-1">Estado do registro</p>
 						</div>
 					</div>
 
@@ -1056,7 +1064,7 @@
 							disabled
 							class="input-base opacity-60 cursor-not-allowed"
 						/>
-						<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Preenchido automaticamente</p>
+						<p class="text-xs text-ui-muted mt-1">Preenchido automaticamente</p>
 					</div>
 				</div>
 			</section>
@@ -1081,7 +1089,7 @@
 					<!-- Contatos Adicionais -->
 					<div class="mt-2">
 						<div class="flex items-center justify-between mb-2">
-							<span class="text-xs font-medium text-[rgb(var(--slate-500))]">Contatos adicionais</span>
+							<span class="text-xs font-medium text-ui-secondary">Contatos adicionais</span>
 							<button
 								onclick={adicionarContato}
 								type="button"
@@ -1093,7 +1101,7 @@
 						</div>
 
 						{#if formContatos.length === 0}
-							<p class="text-xs text-[rgb(var(--slate-400))] italic py-2">Nenhum contato adicional cadastrado</p>
+							<p class="text-xs text-ui-muted italic py-2">Nenhum contato adicional cadastrado</p>
 						{:else}
 							<div class="space-y-2.5">
 								{#each formContatos as contato, idx}
@@ -1191,11 +1199,11 @@
 							/>
 							{#if buscandoCep}
 								<div class="absolute right-2 top-1/2 -translate-y-1/2">
-									<Loader2 class="h-4 w-4 animate-spin text-[rgb(var(--slate-400))]" />
+									<Loader2 class="h-4 w-4 animate-spin text-ui-muted" />
 								</div>
 							{/if}
 						</div>
-						<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Preenche endereço, bairro, cidade e UF</p>
+						<p class="text-xs text-ui-muted mt-1">Preenche endereço, bairro, cidade e UF</p>
 					</div>
 
 					<!-- Linha 2: Endereço (textarea largura total) -->
@@ -1269,7 +1277,7 @@
 								</button>
 							{/each}
 						</div>
-						<p class="text-xs text-[rgb(var(--slate-400))] mt-1.5">Volume estimado de prescrições</p>
+						<p class="text-xs text-ui-muted mt-1.5">Volume estimado de prescrições</p>
 					</div>
 
 					<!-- Estágio — Segmented Control (cores semânticas) -->
@@ -1292,7 +1300,7 @@
 								</button>
 							{/each}
 						</div>
-						<p class="text-xs text-[rgb(var(--slate-400))] mt-1.5">Acompanhamento do relacionamento</p>
+						<p class="text-xs text-ui-muted mt-1.5">Acompanhamento do relacionamento</p>
 					</div>
 
 					<!-- Classificação do Relacionamento — Grid 3 colunas -->
@@ -1370,15 +1378,15 @@
 
 			<!-- Ações -->
 			<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
-				<div class="flex flex-col-reverse gap-3">
+				<div class="flex flex-col gap-3">
+					<Button type="submit" form="profissionalForm" onclick={handleSalvarProfissional} class="w-full" disabled={!formProfissionalValido}>
+						{profissionalEmEdicao ? 'Salvar Alterações' : 'Cadastrar Profissional'}
+					</Button>
 					{#if profissionalAtual}
 						<Button variant="destructive" type="button" onclick={handleExcluirProfissionalEditando} class="w-full">
 							Excluir
 						</Button>
 					{/if}
-					<Button type="submit" form="profissionalForm" onclick={handleSalvarProfissional} class="w-full" disabled={!formProfissionalValido}>
-						{profissionalEmEdicao ? 'Salvar Alterações' : 'Cadastrar Profissional'}
-					</Button>
 					<Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full">Cancelar</Button>
 				</div>
 			</div>
@@ -1415,12 +1423,12 @@
 						{profissionalConsulta.nome.split(' ').slice(0, 2).map((n: string) => n.charAt(0)).join('').toUpperCase()}
 					</div>
 					<div>
-						<h2 class="text-xl font-bold text-[rgb(var(--slate-900))]">
+						<h2 class="text-xl font-bold text-ui-primary">
 							{profissionalConsulta.tratamento
 								? (tratamentoLabels[profissionalConsulta.tratamento] ?? profissionalConsulta.tratamento) + ' '
 								: ''}{profissionalConsulta.nome}
 						</h2>
-						<p class="text-sm font-medium text-[rgb(var(--slate-500))] mt-0.5">
+						<p class="text-sm font-medium text-ui-secondary mt-0.5">
 							{profissionalConsulta.especialidade?.nome ?? 'Sem especialidade'}{profissionalConsulta.subEspecialidade?.nome ? ` - ${profissionalConsulta.subEspecialidade.nome}` : ''}
 						</p>
 					</div>
@@ -1429,7 +1437,7 @@
 					onclick={() => consultaOpen = false}
 					class="p-2 rounded-lg hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer shrink-0 ml-4"
 				>
-					<X class="w-4 h-4 text-[rgb(var(--slate-400))]" />
+					<X class="w-4 h-4 text-ui-muted" />
 				</button>
 			</div>
 
@@ -1439,7 +1447,7 @@
 					type="button"
 					onclick={() => { consultaTab = 'dados'; }}
 					class="flex-1 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
-						{consultaTab === 'dados' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}"
+						{consultaTab === 'dados' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-ui-secondary hover-text-ui-body hover:bg-[rgb(var(--slate-50))]'}"
 				>
 					Dados
 				</button>
@@ -1447,7 +1455,7 @@
 					type="button"
 					onclick={() => { consultaTab = 'visitas'; if (profissionalConsulta) loadVisitasProfissional(profissionalConsulta.id); }}
 					class="flex-1 px-4 py-3 text-sm font-medium transition-colors cursor-pointer
-						{consultaTab === 'visitas' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))]'}"
+						{consultaTab === 'visitas' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-ui-secondary hover-text-ui-body hover:bg-[rgb(var(--slate-50))]'}"
 				>
 					Últimas Visitas
 				</button>
@@ -1458,42 +1466,42 @@
 				{#if consultaTab === 'dados'}
 					<!-- Bloco: Dados Pessoais -->
 					<div>
-						<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Dados Pessoais</p>
+						<p class="text-xs font-bold text-ui-secondary uppercase tracking-wider mb-3">Dados Pessoais</p>
 						<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 							<!-- CRM -->
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">CRM</p>
-								<p class="text-sm font-semibold {profissionalConsulta.crm ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.crm || '—'}</p>
+								<p class="text-xs text-ui-secondary mb-1">CRM</p>
+								<p class="text-sm font-semibold {profissionalConsulta.crm ? 'text-ui-strong' : 'text-ui-disabled'}">{profissionalConsulta.crm || '—'}</p>
 							</div>
 							<!-- CPF/CNPJ -->
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">CPF/CNPJ</p>
-								<p class="text-sm font-semibold {profissionalConsulta.cpfCnpj ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.cpfCnpj || '—'}</p>
+								<p class="text-xs text-ui-secondary mb-1">CPF/CNPJ</p>
+								<p class="text-sm font-semibold {profissionalConsulta.cpfCnpj ? 'text-ui-strong' : 'text-ui-disabled'}">{profissionalConsulta.cpfCnpj || '—'}</p>
 							</div>
 							<!-- Sexo -->
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Sexo</p>
-								<p class="text-sm font-semibold {profissionalConsulta.sexo ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.sexo ? (sexoLabels[profissionalConsulta.sexo] ?? profissionalConsulta.sexo) : '—'}</p>
+								<p class="text-xs text-ui-secondary mb-1">Sexo</p>
+								<p class="text-sm font-semibold {profissionalConsulta.sexo ? 'text-ui-strong' : 'text-ui-disabled'}">{profissionalConsulta.sexo ? (sexoLabels[profissionalConsulta.sexo] ?? profissionalConsulta.sexo) : '—'}</p>
 							</div>
 							<!-- Nascimento -->
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Nascimento</p>
-								<p class="text-sm font-semibold {profissionalConsulta.dataNascimento ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.dataNascimento ? new Date(profissionalConsulta.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'}</p>
+								<p class="text-xs text-ui-secondary mb-1">Nascimento</p>
+								<p class="text-sm font-semibold {profissionalConsulta.dataNascimento ? 'text-ui-strong' : 'text-ui-disabled'}">{profissionalConsulta.dataNascimento ? new Date(profissionalConsulta.dataNascimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '—'}</p>
 							</div>
 						</div>
 					</div>
 
 					<!-- Bloco: Contato -->
 					<div class="mt-8">
-						<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Contato</p>
+						<p class="text-xs font-bold text-ui-secondary uppercase tracking-wider mb-3">Contato</p>
 						<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Telefone</p>
-								<p class="text-sm font-semibold {profissionalConsulta.telefone ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.telefone || '—'}</p>
+								<p class="text-xs text-ui-secondary mb-1">Telefone</p>
+								<p class="text-sm font-semibold {profissionalConsulta.telefone ? 'text-ui-strong' : 'text-ui-disabled'}">{profissionalConsulta.telefone || '—'}</p>
 							</div>
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Email</p>
-								<p class="text-sm font-semibold {profissionalConsulta.email ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{profissionalConsulta.email || '—'}</p>
+								<p class="text-xs text-ui-secondary mb-1">Email</p>
+								<p class="text-sm font-semibold {profissionalConsulta.email ? 'text-ui-strong' : 'text-ui-disabled'}">{profissionalConsulta.email || '—'}</p>
 							</div>
 						</div>
 					</div>
@@ -1504,23 +1512,23 @@
 						{@const logradouroFull = [end.logradouro, end.numero, end.complemento].filter(Boolean).join(', ')}
 						{@const cidadeUf = [end.cidade, end.estado].filter(Boolean).join('/')}
 						<div class="mt-8">
-							<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Endereço</p>
+							<p class="text-xs font-bold text-ui-secondary uppercase tracking-wider mb-3">Endereço</p>
 							<div class="grid grid-cols-2 gap-x-8 gap-y-4">
 								<div>
-									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">CEP</p>
-									<p class="text-sm font-semibold {end.cep ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{end.cep || '—'}</p>
+									<p class="text-xs text-ui-secondary mb-1">CEP</p>
+									<p class="text-sm font-semibold {end.cep ? 'text-ui-strong' : 'text-ui-disabled'}">{end.cep || '—'}</p>
 								</div>
 								<div>
-									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Logradouro</p>
-									<p class="text-sm font-semibold {logradouroFull ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{logradouroFull || '—'}</p>
+									<p class="text-xs text-ui-secondary mb-1">Logradouro</p>
+									<p class="text-sm font-semibold {logradouroFull ? 'text-ui-strong' : 'text-ui-disabled'}">{logradouroFull || '—'}</p>
 								</div>
 								<div>
-									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Bairro</p>
-									<p class="text-sm font-semibold {end.bairro ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{end.bairro || '—'}</p>
+									<p class="text-xs text-ui-secondary mb-1">Bairro</p>
+									<p class="text-sm font-semibold {end.bairro ? 'text-ui-strong' : 'text-ui-disabled'}">{end.bairro || '—'}</p>
 								</div>
 								<div>
-									<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Cidade/UF</p>
-									<p class="text-sm font-semibold {cidadeUf ? 'text-[rgb(var(--slate-800))]' : 'text-[rgb(var(--slate-300))]'}">{cidadeUf || '—'}</p>
+									<p class="text-xs text-ui-secondary mb-1">Cidade/UF</p>
+									<p class="text-sm font-semibold {cidadeUf ? 'text-ui-strong' : 'text-ui-disabled'}">{cidadeUf || '—'}</p>
 								</div>
 							</div>
 						</div>
@@ -1528,36 +1536,36 @@
 
 					<!-- Bloco: Classificação -->
 					<div class="mt-8">
-						<p class="text-xs font-bold text-[rgb(var(--slate-500))] uppercase tracking-wider mb-3">Classificação</p>
+						<p class="text-xs font-bold text-ui-secondary uppercase tracking-wider mb-3">Classificação</p>
 						<div class="grid grid-cols-3 gap-x-8 gap-y-4">
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Potencial</p>
+								<p class="text-xs text-ui-secondary mb-1">Potencial</p>
 								{#if profissionalConsulta.potencial && potencialConfig[profissionalConsulta.potencial]}
 									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {potencialConfig[profissionalConsulta.potencial].class}">
 										{potencialConfig[profissionalConsulta.potencial].label}
 									</span>
 								{:else}
-									<p class="text-sm font-semibold text-[rgb(var(--slate-300))]">—</p>
+									<p class="text-sm font-semibold text-ui-disabled">—</p>
 								{/if}
 							</div>
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Estágio</p>
+								<p class="text-xs text-ui-secondary mb-1">Estágio</p>
 								{#if profissionalConsulta.estagioPipeline && estagioConfig[profissionalConsulta.estagioPipeline]}
 									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {estagioConfig[profissionalConsulta.estagioPipeline].class}">
 										{estagioConfig[profissionalConsulta.estagioPipeline].label}
 									</span>
 								{:else}
-									<p class="text-sm font-semibold text-[rgb(var(--slate-300))]">—</p>
+									<p class="text-sm font-semibold text-ui-disabled">—</p>
 								{/if}
 							</div>
 							<div>
-								<p class="text-xs text-[rgb(var(--slate-500))] mb-1">Relacionamento</p>
+								<p class="text-xs text-ui-secondary mb-1">Relacionamento</p>
 								{#if profissionalConsulta.classificacao && classificacaoConfig[profissionalConsulta.classificacao]}
 									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium {classificacaoConfig[profissionalConsulta.classificacao].class}">
 										{classificacaoConfig[profissionalConsulta.classificacao].label}
 									</span>
 								{:else}
-									<p class="text-sm font-semibold text-[rgb(var(--slate-300))]">—</p>
+									<p class="text-sm font-semibold text-ui-disabled">—</p>
 								{/if}
 							</div>
 						</div>
@@ -1566,8 +1574,8 @@
 					<!-- Observações -->
 					{#if profissionalConsulta.observacoes}
 						<div class="mt-8">
-							<p class="text-xs font-bold text-[rgb(var(--slate-400))] uppercase tracking-wider mb-2">Observações</p>
-							<p class="text-sm font-semibold text-[rgb(var(--slate-800))]">{profissionalConsulta.observacoes}</p>
+							<p class="text-xs font-bold text-ui-muted uppercase tracking-wider mb-2">Observações</p>
+							<p class="text-sm font-semibold text-ui-strong">{profissionalConsulta.observacoes}</p>
 						</div>
 					{/if}
 
@@ -1581,11 +1589,11 @@
 						<div class="text-center py-16">
 							<div class="flex justify-center mb-3">
 								<div class="bg-[rgb(var(--slate-100))] p-3 rounded-full">
-									<Calendar class="w-6 h-6 text-[rgb(var(--slate-400))]" />
+									<Calendar class="w-6 h-6 text-ui-muted" />
 								</div>
 							</div>
-							<p class="text-sm font-medium text-[rgb(var(--slate-500))]">Nenhuma visita registrada</p>
-							<p class="text-xs text-[rgb(var(--slate-400))] mt-1">Este profissional ainda não possui visitas cadastradas.</p>
+							<p class="text-sm font-medium text-ui-secondary">Nenhuma visita registrada</p>
+							<p class="text-xs text-ui-muted mt-1">Este profissional ainda não possui visitas cadastradas.</p>
 						</div>
 					{:else}
 						<div class="space-y-3">
@@ -1593,33 +1601,33 @@
 								<div class="bg-[rgb(var(--slate-50))] rounded-xl p-4 border border-[rgb(var(--slate-100))] hover:border-[rgb(var(--slate-200))] transition-colors">
 									<div class="flex items-center justify-between mb-2">
 										<div class="flex items-center gap-2 text-sm">
-											<Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
-											<span class="font-semibold text-[rgb(var(--slate-700))]">
+											<Calendar class="w-3.5 h-3.5 text-ui-muted" />
+											<span class="font-semibold text-ui-body">
 												{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(visita.dataVisita))}
 												às {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(visita.dataVisita))}
 											</span>
 										</div>
 										<StatusVisitaBadge status={visita.status} />
 									</div>
-									<div class="flex items-center gap-4 text-xs text-[rgb(var(--slate-500))]">
+									<div class="flex items-center gap-4 text-xs text-ui-secondary">
 										{#if visita.duracaoMinutos}
 											<div class="flex items-center gap-1">
-												<Clock class="w-3 h-3 text-[rgb(var(--slate-400))]" />
+												<Clock class="w-3 h-3 text-ui-muted" />
 												<span>{visita.duracaoMinutos} min</span>
 											</div>
 										{/if}
 										{#if visita.materiais && visita.materiais.length > 0}
 											<div class="flex items-center gap-1">
-												<Package class="w-3 h-3 text-[rgb(var(--slate-400))]" />
+												<Package class="w-3 h-3 text-ui-muted" />
 												<span>{visita.materiais.length} materiais</span>
 											</div>
 										{/if}
 									</div>
 									{#if visita.objetivoVisita}
-										<p class="text-xs text-[rgb(var(--slate-600))] mt-2 line-clamp-2"><span class="font-medium">Objetivo:</span> {visita.objetivoVisita}</p>
+										<p class="text-xs text-ui-secondary mt-2 line-clamp-2"><span class="font-medium">Objetivo:</span> {visita.objetivoVisita}</p>
 									{/if}
 									{#if visita.resumo}
-										<p class="text-xs text-[rgb(var(--slate-600))] mt-1 line-clamp-2"><span class="font-medium">Resumo:</span> {visita.resumo}</p>
+										<p class="text-xs text-ui-secondary mt-1 line-clamp-2"><span class="font-medium">Resumo:</span> {visita.resumo}</p>
 									{/if}
 								</div>
 							{/each}
@@ -1632,7 +1640,7 @@
 			<div class="flex justify-end gap-3 px-6 py-4 border-t border-[rgb(var(--slate-100))]">
 				<button
 					onclick={() => consultaOpen = false}
-					class="px-4 py-2 text-sm font-medium text-[rgb(var(--slate-600))] border border-transparent hover:bg-[rgb(var(--slate-50))] rounded-lg transition-all duration-200 hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
+					class="px-4 py-2 text-sm font-medium text-ui-secondary border border-transparent hover:bg-[rgb(var(--slate-50))] rounded-lg transition-all duration-200 hover:-translate-y-[1px] active:scale-[0.98] cursor-pointer"
 				>
 					Fechar
 				</button>

@@ -121,18 +121,18 @@
 	<div class="flex items-center justify-between px-1 mb-4">
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navSemana(-1)}
 			aria-label="Semana anterior"
 		>
 			<ChevronLeft class="h-5 w-5" />
 		</button>
-		<h3 class="text-lg font-bold text-[rgb(var(--slate-800))]">
+		<h3 class="text-lg font-bold text-ui-strong">
 			{formatMonth(currentDate)}
 		</h3>
 		<button
 			type="button"
-			class="p-1.5 rounded-lg text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
+			class="p-1.5 rounded-lg text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-all cursor-pointer"
 			onclick={() => navSemana(1)}
 			aria-label="Próxima semana"
 		>
@@ -147,10 +147,10 @@
 			<section class="rounded-xl border border-[rgb(var(--slate-200))] bg-white p-3 shadow-sm">
 				<div class="mb-3 flex items-center justify-between">
 					<div>
-						<p class="text-[11px] font-semibold uppercase text-[rgb(var(--slate-400))]">
+						<p class="text-[11px] font-semibold uppercase text-ui-muted">
 							{dayFormatter.format(dia)}
 						</p>
-						<p class="text-sm font-semibold text-[rgb(var(--slate-800))]">
+						<p class="text-sm font-semibold text-ui-strong">
 							{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(dia)}
 						</p>
 					</div>
@@ -169,16 +169,16 @@
 							>
 								<div class="flex items-start justify-between gap-3">
 									<div class="min-w-0">
-										<p class="truncate text-sm font-semibold text-[rgb(var(--slate-800))]">
+										<p class="truncate text-sm font-semibold text-ui-strong">
 											{item.profissional?.nome ?? 'Profissional'}
 										</p>
 										{#if item.profissional?.especialidade}
-											<p class="truncate text-xs text-[rgb(var(--slate-500))]">
+											<p class="truncate text-xs text-ui-secondary">
 												{item.profissional.especialidade.nome}
 											</p>
 										{/if}
 									</div>
-									<span class="shrink-0 text-xs font-medium text-[rgb(var(--slate-500))]">
+									<span class="shrink-0 text-xs font-medium text-ui-secondary">
 										{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(item.dataHoraInicio))}
 									</span>
 								</div>
@@ -188,7 +188,7 @@
 				{:else}
 					<button
 						type="button"
-						class="w-full rounded-lg border border-dashed border-[rgb(var(--slate-200))] px-3 py-3 text-center text-xs font-medium text-[rgb(var(--slate-400))] transition-colors active:bg-[rgb(var(--slate-50))]"
+						class="w-full rounded-lg border border-dashed border-[rgb(var(--slate-200))] px-3 py-3 text-center text-xs font-medium text-ui-muted transition-colors active:bg-[rgb(var(--slate-50))]"
 						onclick={() => onSlotClick?.(dia, 9)}
 					>
 						Nenhum agendamento
@@ -209,7 +209,7 @@
 				>
 					<p
 						class="text-[10px] uppercase tracking-wider font-semibold
-							{isHoje(dia) ? 'text-blue-600 font-bold' : 'text-[rgb(var(--slate-400))]'}"
+							{isHoje(dia) ? 'text-blue-600 font-bold' : 'text-ui-muted'}"
 					>
 						{dayFormatter.format(dia)}
 					</p>
@@ -221,7 +221,7 @@
 								{dateFormatter.format(dia)}
 							</span>
 						{:else}
-							<span class="text-sm font-bold text-[rgb(var(--slate-700))]">
+							<span class="text-sm font-bold text-ui-body">
 								{dateFormatter.format(dia)}
 							</span>
 						{/if}
@@ -237,7 +237,7 @@
 					style="height: 120px;"
 				>
 					<span
-						class="absolute top-1 right-3 text-[11px] font-medium text-[rgb(var(--slate-400))] tabular-nums"
+						class="absolute top-1 right-3 text-[11px] font-medium text-ui-muted tabular-nums"
 					>
 						{String(hora).padStart(2, '0')}:00
 					</span>

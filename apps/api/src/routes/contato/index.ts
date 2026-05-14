@@ -17,7 +17,17 @@ const ContatoEmpresarialSchema = z.object({
 
 const contatoRoutes: FastifyPluginAsync = async (app) => {
   const esc = (s: string) =>
-    s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+    s.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]!,
+    );
 
   app.post(
     "/empresarial",
@@ -56,17 +66,17 @@ const contatoRoutes: FastifyPluginAsync = async (app) => {
           });
 
           if (result.error) {
-            console.error("[Resend] Erro da API:", result.error);
-            console.warn("[Resend] Email não enviado, verificar configuração");
             request.log.error(
               { err: result.error },
               "Falha ao enviar email via Resend (Erro da API)",
             );
           } else {
-            console.log("[Resend] Email enviado com sucesso:", result.data?.id);
+            request.log.info(
+              { emailId: result.data?.id },
+              "Email de contato empresarial enviado via Resend",
+            );
           }
         } catch (emailError) {
-          console.error("[Resend] Erro detalhado:", JSON.stringify(emailError));
           request.log.error(
             { err: emailError },
             "Falha na requisição ao enviar email via Resend",

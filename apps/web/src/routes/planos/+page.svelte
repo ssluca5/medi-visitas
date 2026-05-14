@@ -34,7 +34,7 @@
       preco: 'R$ 79',
       suporte: '48h',
       tag: 'Essencial',
-      tagClasses: 'bg-slate-100 text-slate-700',
+      tagClasses: 'bg-slate-100 text-ui-body',
       features: [
         'Até 100 profissionais cadastrados',
         'Agenda inteligente',
@@ -184,7 +184,7 @@
 
     <!-- 2. Cabeçalho centralizado (funil visual) -->
     <div class="text-center mb-10 flex flex-col items-center">
-      <h1 class="text-3xl md:text-4xl font-bold mb-3" style="color: var(--text-primary);">
+      <h1 class="page-title-marker text-3xl md:text-4xl font-bold mb-3" style="color: var(--text-primary);">
         {data.status === 'SUSPENSO' || data.status === 'CANCELADO'
           ? 'Sua assinatura foi encerrada'
           : 'Planos'}
@@ -298,7 +298,7 @@
             assinar(selectedPlan);
           }
         }}
-        class="w-full max-w-sm h-[52px] bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold text-base rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+        class="w-full max-w-sm h-[52px] bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled-text-ui-muted disabled:cursor-not-allowed text-white font-bold text-base rounded-xl shadow-md shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
       >
         {#if loading === 'PORTAL'}
           Abrindo portal...

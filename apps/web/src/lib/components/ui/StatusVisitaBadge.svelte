@@ -17,7 +17,7 @@
 	};
 
 	const badge = $derived(
-		config[status] ?? { label: status, classes: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]' }
+		config[status] ?? { label: status, classes: 'bg-[rgb(var(--slate-100))] text-ui-secondary' }
 	);
 </script>
 

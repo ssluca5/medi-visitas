@@ -98,7 +98,7 @@
 		<div class="flex items-center gap-3">
 			<select
 				bind:value={filtroLida}
-				class="h-9 px-3 text-sm rounded-lg border border-[rgb(var(--slate-200))] bg-white text-[rgb(var(--slate-700))] cursor-pointer"
+				class="h-9 px-3 text-sm rounded-lg border border-[rgb(var(--slate-200))] bg-white text-ui-body cursor-pointer"
 			>
 				<option value="">Todas</option>
 				<option value="false">Não lidas</option>
@@ -121,7 +121,7 @@
 	<div class="rounded-xl border border-[rgb(var(--slate-200))] overflow-hidden bg-white">
 		{#if loading}
 			<div class="flex items-center justify-center py-12">
-				<p class="text-sm text-[rgb(var(--slate-400))]">Carregando...</p>
+				<p class="text-sm text-ui-muted">Carregando...</p>
 			</div>
 		{:else if notificacoes.length === 0}
 			<EmptyState
@@ -155,15 +155,15 @@
 	{#if totalPages > 1}
 		<div class="flex items-center justify-center gap-3 mt-6">
 			<button
-				class="px-3 py-1.5 text-sm rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-600))] transition-colors duration-200 hover:bg-[rgb(var(--slate-50))] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+				class="px-3 py-1.5 text-sm rounded-lg border border-[rgb(var(--slate-200))] text-ui-secondary transition-colors duration-200 hover:bg-[rgb(var(--slate-50))] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
 				disabled={page === 1}
 				onclick={() => (page = page - 1)}
 			>
 				← Anterior
 			</button>
-			<span class="text-sm text-[rgb(var(--slate-500))]">{page} / {totalPages}</span>
+			<span class="text-sm text-ui-secondary">{page} / {totalPages}</span>
 			<button
-				class="px-3 py-1.5 text-sm rounded-lg border border-[rgb(var(--slate-200))] text-[rgb(var(--slate-600))] transition-colors duration-200 hover:bg-[rgb(var(--slate-50))] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+				class="px-3 py-1.5 text-sm rounded-lg border border-[rgb(var(--slate-200))] text-ui-secondary transition-colors duration-200 hover:bg-[rgb(var(--slate-50))] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
 				disabled={page === totalPages}
 				onclick={() => (page = page + 1)}
 			>

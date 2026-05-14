@@ -65,38 +65,42 @@ const billingRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
-  app.post("/portal", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (request, reply) => {
-    if (request.role !== "OWNER") {
-      return reply
-        .status(403)
-        .send({ error: "Apenas o proprietario pode gerenciar assinatura" });
-    }
+  app.post(
+    "/portal",
+    { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      if (request.role !== "OWNER") {
+        return reply
+          .status(403)
+          .send({ error: "Apenas o proprietario pode gerenciar assinatura" });
+      }
 
-    const org = await prisma.organization.findUnique({
-      where: { id: request.organizationId! },
-      select: { stripeCustomerId: true },
-    });
+      const org = await prisma.organization.findUnique({
+        where: { id: request.organizationId! },
+        select: { stripeCustomerId: true },
+      });
 
-    if (!org) {
-      return reply.status(404).send({ error: "Organizacao nao encontrada" });
-    }
+      if (!org) {
+        return reply.status(404).send({ error: "Organizacao nao encontrada" });
+      }
 
-    if (!org.stripeCustomerId) {
-      return reply
-        .status(400)
-        .send({ error: "Organizacao nao possui assinatura ativa" });
-    }
+      if (!org.stripeCustomerId) {
+        return reply
+          .status(400)
+          .send({ error: "Organizacao nao possui assinatura ativa" });
+      }
 
-    try {
-      const portalUrl = await criarPortal(org.stripeCustomerId);
-      return reply.send({ portalUrl });
-    } catch (err) {
-      request.log.error({ err }, "Stripe portal creation failed");
-      return reply
-        .status(502)
-        .send({ error: "Erro ao criar portal de gerenciamento" });
-    }
-  });
+      try {
+        const portalUrl = await criarPortal(org.stripeCustomerId);
+        return reply.send({ portalUrl });
+      } catch (err) {
+        request.log.error({ err }, "Stripe portal creation failed");
+        return reply
+          .status(502)
+          .send({ error: "Erro ao criar portal de gerenciamento" });
+      }
+    },
+  );
 
   app.get("/status", async (request, reply) => {
     const org = await prisma.organization.findUnique({

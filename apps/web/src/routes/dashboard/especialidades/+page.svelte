@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Plus, Trash2, ChevronDown, ChevronRight, Stethoscope, Power, Play } from 'lucide-svelte';
+	import { Plus, Trash2, ChevronDown, ChevronRight, Stethoscope, Power, Play, Pencil } from 'lucide-svelte';
 	import { apiFetch } from '$lib/api';
 	import { toasts } from '$lib/stores/toast.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -51,6 +51,9 @@
 	let addingSubToEspId = $state<string | null>(null);
 	let formNomeSub = $state('');
 	let savingNewSub = $state(false);
+	let editingSub = $state<{ subId: string; espId: string } | null>(null);
+	let formNomeSubEdit = $state('');
+	let savingEditSub = $state(false);
 
 	// ── Helpers ──
 	function formatarCategoria(cat: string): string {
@@ -375,6 +378,7 @@
 
 	// ── Subespecialidade create ──
 	function handleStartAddSub(espId: string) {
+		editingSub = null;
 		addingSubToEspId = espId;
 		formNomeSub = '';
 		// Garantir que o painel está expandido
@@ -388,6 +392,64 @@
 	function handleCancelAddSub() {
 		addingSubToEspId = null;
 		formNomeSub = '';
+	}
+
+	function handleStartEditSub(sub: SubEspecialidade, espId: string) {
+		addingSubToEspId = null;
+		editingSub = { subId: sub.id, espId };
+		formNomeSubEdit = sub.nome;
+		if (!expandedIds.has(espId)) {
+			const next = new Set(expandedIds);
+			next.add(espId);
+			expandedIds = next;
+		}
+	}
+
+	function handleCancelEditSub() {
+		editingSub = null;
+		formNomeSubEdit = '';
+	}
+
+	async function handleSalvarEditSub(sub: SubEspecialidade) {
+		if (!editingSub || !formNomeSubEdit.trim()) {
+			toasts.show('error', 'Nome da subespecialidade é obrigatório.');
+			return;
+		}
+
+		savingEditSub = true;
+		try {
+			const response = await apiFetch(`/subespecialidades/${sub.id}`, data.sessionToken, {
+				method: 'PUT',
+				body: JSON.stringify({ nome: formNomeSubEdit.trim() })
+			});
+
+			if (response.status === 409) {
+				toasts.show('error', 'Já existe uma subespecialidade com este nome.');
+				return;
+			}
+
+			if (!response.ok) throw new Error(`Erro ${response.status}`);
+			const result = await response.json();
+			const atualizada = result.data;
+
+			especialidades = especialidades.map((e) =>
+				e.id === editingSub?.espId
+					? {
+							...e,
+							subEspecialidades: (e.subEspecialidades || []).map((s) =>
+								s.id === sub.id ? { ...s, nome: atualizada.nome } : s
+							)
+						}
+					: e
+			);
+
+			toasts.show('success', 'Subespecialidade atualizada.');
+			handleCancelEditSub();
+		} catch (err) {
+			toasts.show('error', err instanceof Error ? err.message : 'Erro ao atualizar subespecialidade.');
+		} finally {
+			savingEditSub = false;
+		}
 	}
 
 	async function handleSalvarSub(espId: string) {
@@ -503,7 +565,7 @@
 				<div class="mb-3 flex items-center justify-between">
 					<div class="flex items-center gap-2.5">
 						<div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[rgb(var(--slate-100))]">
-							<Stethoscope class="h-3.5 w-3.5 text-[rgb(var(--slate-500))]" />
+							<Stethoscope class="h-3.5 w-3.5 text-ui-secondary" />
 						</div>
 						<h3 class="section-title">
 							{formatarCategoria(categoria)}
@@ -515,7 +577,7 @@
 						title="Excluir categoria"
 						class="p-1.5 rounded-lg hover:bg-red-50 transition-all duration-200 cursor-pointer"
 					>
-						<Trash2 class="w-3.5 h-3.5 text-[rgb(var(--slate-400))] hover:text-red-500 transition-colors" />
+						<Trash2 class="w-3.5 h-3.5 text-ui-muted hover:text-red-500 transition-colors" />
 					</button>
 				</div>
 
@@ -538,7 +600,7 @@
 								<tr
 									class="group border-t border-[rgb(var(--slate-50))] transition-all duration-200 cursor-pointer hover:bg-[rgb(var(--slate-50))]/60"
 									class:opacity-50={!esp.ativo}
-									onclick={() => handleEditarEspecialidade(esp)}
+									onclick={() => toggleExpand(esp.id)}
 								>
 									<td class="table-cell">
 										{#if subCount > 0}
@@ -548,19 +610,19 @@
 												title={isExpanded ? 'Recolher' : 'Expandir'}
 											>
 												{#if isExpanded}
-													<ChevronDown class="w-4 h-4 text-[rgb(var(--slate-400))]" />
+													<ChevronDown class="w-4 h-4 text-ui-muted" />
 												{:else}
-													<ChevronRight class="w-4 h-4 text-[rgb(var(--slate-400))]" />
+													<ChevronRight class="w-4 h-4 text-ui-muted" />
 												{/if}
 											</button>
 										{/if}
 									</td>
 									<td class="table-cell">
-										<span class="table-cell-primary" class:text-[rgb(var(--slate-400))]={!esp.ativo}>{esp.nome}</span>
+										<span class="table-cell-primary" class:text-ui-muted={!esp.ativo}>{esp.nome}</span>
 									</td>
 									<td class="table-cell text-center">
 										{#if subCount > 0}
-											<span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[rgb(var(--slate-100))] px-1.5 text-[11px] font-medium text-[rgb(var(--slate-600))]">
+											<span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[rgb(var(--slate-100))] px-1.5 text-[11px] font-medium text-ui-secondary">
 												{subCount}
 											</span>
 										{:else}
@@ -573,7 +635,7 @@
 											class:bg-emerald-50={esp.ativo}
 											class:text-emerald-700={esp.ativo}
 											class:bg-[rgb(var(--slate-100))]={!esp.ativo}
-											class:text-[rgb(var(--slate-400))]={!esp.ativo}
+											class:text-ui-muted={!esp.ativo}
 										>
 											{esp.ativo ? 'Ativa' : 'Inativa'}
 										</span>
@@ -581,9 +643,16 @@
 									<td class="table-cell">
 										<div class="flex justify-center items-center gap-0.5">
 											<button
+												onclick={(e) => { e.stopPropagation(); handleEditarEspecialidade(esp); }}
+												title="Editar especialidade"
+												class="p-2 rounded-lg text-ui-secondary opacity-60 hover:opacity-100 hover:text-blue-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+											>
+												<Pencil class="w-3.5 h-3.5 transition-colors" />
+											</button>
+											<button
 												onclick={(e) => { e.stopPropagation(); handleToggleAtivo(esp); }}
 												title={esp.ativo ? 'Inativar' : 'Ativar'}
-												class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {esp.ativo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
+												class="p-2 rounded-lg text-ui-secondary opacity-60 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {esp.ativo ? 'hover:text-amber-600' : 'hover:text-green-600'}"
 											>
 												{#if esp.ativo}
 													<Power class="w-4 h-4" />
@@ -594,7 +663,7 @@
 											<button
 												onclick={(e) => { e.stopPropagation(); handleExcluirEspecialidade(esp); }}
 												title="Excluir"
-												class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+												class="p-2 rounded-lg text-ui-secondary opacity-60 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
 											>
 												<Trash2 class="w-3.5 h-3.5 transition-colors" />
 											</button>
@@ -604,6 +673,7 @@
 								<!-- Sub rows -->
 								{#if isExpanded}
 									{#each esp.subEspecialidades ?? [] as sub (sub.id)}
+										{@const isEditingSub = editingSub?.subId === sub.id}
 										<tr
 											class="border-t border-[rgb(var(--slate-50))] bg-[rgb(var(--slate-50))] transition-all"
 											class:opacity-60={!!sub.deletedAt}
@@ -611,25 +681,71 @@
 										>
 											<td class="p-3.5"></td>
 											<td class="p-3.5 pl-9">
-												<span class="text-sm text-[rgb(var(--slate-500))]">↳ {sub.nome}</span>
+												{#if isEditingSub}
+													<div class="flex items-center gap-2">
+														<span class="text-sm text-ui-muted">↳</span>
+														<input
+															type="text"
+															bind:value={formNomeSubEdit}
+															class="input-base h-8 py-0 text-sm"
+															placeholder="Nome da subespecialidade"
+															onclick={(e) => e.stopPropagation()}
+															onkeydown={(e) => {
+																if (e.key === 'Enter') { e.preventDefault(); handleSalvarEditSub(sub); }
+																if (e.key === 'Escape') handleCancelEditSub();
+															}}
+														/>
+													</div>
+												{:else}
+													<span class="text-sm text-ui-secondary">↳ {sub.nome}</span>
+												{/if}
 											</td>
 											<td class="p-3.5"></td>
 											<td class="p-3.5">
 												{#if sub.deletedAt}
-													<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-400))]">Inativa</span>
+													<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-[rgb(var(--slate-100))] text-ui-muted">Inativa</span>
 												{:else}
 													<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-emerald-50 text-emerald-700">Ativa</span>
 												{/if}
 											</td>
 											<td class="p-3.5">
 												<div class="flex justify-center items-center gap-0.5">
+													{#if isEditingSub}
+														<button
+															onclick={(e) => { e.stopPropagation(); handleSalvarEditSub(sub); }}
+															disabled={savingEditSub || !formNomeSubEdit.trim()}
+															title="Salvar subespecialidade"
+															class="px-2.5 py-1 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+														>
+															{savingEditSub ? 'Salvando...' : 'Salvar'}
+														</button>
+														<button
+															onclick={(e) => { e.stopPropagation(); handleCancelEditSub(); }}
+															title="Cancelar edição"
+															class="px-2.5 py-1 text-xs font-medium rounded-md text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer"
+														>
+															Cancelar
+														</button>
+													{:else}
+														<button
+															onclick={(e) => {
+																e.stopPropagation();
+																handleStartEditSub(sub, esp.id);
+															}}
+															title="Editar subespecialidade"
+															class="p-2 rounded-lg text-ui-secondary opacity-40 hover:opacity-100 hover:text-blue-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+														>
+															<Pencil class="w-3 h-3 transition-colors" />
+														</button>
+													{/if}
 													<button
 														onclick={(e) => {
 															e.stopPropagation();
 															handleToggleSub(sub, esp.id);
 														}}
 														title={sub.deletedAt ? 'Ativar' : 'Inativar'}
-														class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-40 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer {sub.deletedAt ? 'hover:text-green-600' : 'hover:text-amber-600'}"
+														disabled={isEditingSub}
+														class="p-2 rounded-lg text-ui-secondary opacity-40 hover:opacity-100 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-20 {sub.deletedAt ? 'hover:text-green-600' : 'hover:text-amber-600'}"
 													>
 														{#if sub.deletedAt}
 															<Play class="w-4 h-4" />
@@ -643,7 +759,8 @@
 															handleExcluirSub(sub, esp.nome);
 														}}
 														title="Excluir subespecialidade"
-														class="p-2 rounded-lg text-[rgb(var(--slate-500))] opacity-40 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer"
+														disabled={isEditingSub}
+														class="p-2 rounded-lg text-ui-secondary opacity-40 hover:opacity-100 hover:text-red-600 hover:bg-[rgb(var(--slate-100))] transition-all duration-200 cursor-pointer disabled:cursor-not-allowed disabled:opacity-20"
 													>
 														<Trash2
 															class="w-3 h-3 transition-colors"
@@ -659,7 +776,7 @@
 											<td class="p-3.5"></td>
 											<td class="p-2.5 pl-9" colspan="2">
 												<div class="flex items-center gap-2">
-													<span class="text-sm text-[rgb(var(--slate-400))]">↳</span>
+													<span class="text-sm text-ui-muted">↳</span>
 													<input
 														type="text"
 														bind:value={formNomeSub}
@@ -685,7 +802,7 @@
 													</button>
 													<button
 														onclick={(e) => { e.stopPropagation(); handleCancelAddSub(); }}
-														class="px-2.5 py-1 text-xs font-medium rounded-md text-[rgb(var(--slate-500))] hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer"
+														class="px-2.5 py-1 text-xs font-medium rounded-md text-ui-secondary hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer"
 													>
 														Cancelar
 													</button>
@@ -722,17 +839,17 @@
 	{#snippet children()}
 		<div class="space-y-6">
 			<div>
-				<h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
+				<h3 class="text-lg font-semibold text-ui-primary">
 					{especialidadeEmEdicao ? 'Editar Especialidade' : 'Nova Especialidade'}
 				</h3>
-				<p class="text-sm text-[rgb(var(--slate-400))] mt-1">
+				<p class="text-sm text-ui-muted mt-1">
 					{especialidadeEmEdicao ? 'Atualize os dados abaixo' : 'Preencha os dados para cadastrar'}
 				</p>
 			</div>
 
 			<div class="space-y-5">
 				<div>
-					<label for="esp-nome" class="input-label">Nome <span class="text-[rgb(var(--slate-400))]">*</span></label>
+					<label for="esp-nome" class="input-label">Nome <span class="text-ui-muted">*</span></label>
 					<input
 						id="esp-nome"
 						type="text"
@@ -766,7 +883,7 @@
 								categoriaDropdownOpen = !categoriaDropdownOpen;
 							}}
 							class="absolute inset-y-0 right-0 flex items-center px-2.5
-								text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] transition-colors cursor-pointer"
+								text-ui-muted hover-text-ui-secondary transition-colors cursor-pointer"
 						>
 							<ChevronDown
 								class="w-4 h-4 transition-transform duration-200 {categoriaDropdownOpen ? 'rotate-180' : ''}"
@@ -781,7 +898,7 @@
 								<button
 									type="button"
 									onmousedown={() => { formCategoria = cat; categoriaDropdownOpen = false; }}
-									class="w-full px-3 py-2.5 text-left text-sm text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer flex items-center gap-2"
+									class="w-full px-3 py-2.5 text-left text-sm text-ui-body hover:bg-[rgb(var(--slate-50))] transition-colors cursor-pointer flex items-center gap-2"
 								>
 									<span>{cat}</span>
 								</button>
@@ -802,7 +919,7 @@
 							{/if}
 
 							{#if categoriasFiltradas.length === 0 && !formCategoria.trim()}
-								<div class="px-3 py-2.5 text-sm text-[rgb(var(--slate-400))]">
+								<div class="px-3 py-2.5 text-sm text-ui-muted">
 									Digite para criar uma categoria
 								</div>
 							{/if}
@@ -812,15 +929,15 @@
 			</div>
 
 			<div class="pt-4 border-t border-[rgb(var(--slate-100))]">
-				<div class="flex flex-col-reverse gap-3">
+				<div class="flex flex-col gap-3">
+					<Button onclick={handleSalvarEspecialidade} class="w-full" disabled={!formEspecialidadeValido}>
+						{especialidadeEmEdicao ? 'Salvar Alterações' : 'Cadastrar Especialidade'}
+					</Button>
 					{#if especialidadeAtual}
 						<Button variant="destructive" type="button" onclick={handleExcluirEspecialidadeEditando} class="w-full">
 							Excluir
 						</Button>
 					{/if}
-					<Button onclick={handleSalvarEspecialidade} class="w-full" disabled={!formEspecialidadeValido}>
-						{especialidadeEmEdicao ? 'Salvar Alterações' : 'Cadastrar Especialidade'}
-					</Button>
 					<Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full">Cancelar</Button>
 				</div>
 			</div>

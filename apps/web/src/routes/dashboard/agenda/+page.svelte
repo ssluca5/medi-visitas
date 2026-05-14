@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { apiFetch } from '$lib/api';
 	import type {
 		AgendaItem,
@@ -22,7 +22,7 @@
 	let { data }: Props = $props();
 
 	// ── State ──
-	let items = $state<AgendaItem[]>(data.agendaItems ?? []);
+	let items = $state<AgendaItem[]>(untrack(() => data.agendaItems ?? []));
 	let sugestoes = $state<SugestaoProfissional[]>([]);
 	let loading = $state(false);
 	let loadingSugestoes = $state(false);
@@ -238,8 +238,8 @@
 					type="button"
 					class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 						{viewMode === 'semanal'
-						? 'bg-white text-[rgb(var(--slate-800))] shadow-sm'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+						? 'bg-white text-ui-strong shadow-sm'
+						: 'text-ui-secondary hover-text-ui-body'}"
 					onclick={() => (viewMode = 'semanal')}
 					aria-pressed={viewMode === 'semanal'}
 					aria-label="Visualizar por semana"
@@ -251,8 +251,8 @@
 					type="button"
 					class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 						{viewMode === 'mensal'
-						? 'bg-white text-[rgb(var(--slate-800))] shadow-sm'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+						? 'bg-white text-ui-strong shadow-sm'
+						: 'text-ui-secondary hover-text-ui-body'}"
 					onclick={() => (viewMode = 'mensal')}
 					aria-pressed={viewMode === 'mensal'}
 					aria-label="Visualizar por mês"
@@ -268,7 +268,7 @@
 				class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-pointer
 					{showSugestoes
 					? 'border-blue-200 bg-blue-50 text-blue-700'
-					: 'border-[rgb(var(--slate-200))] text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))]'}"
+					: 'border-[rgb(var(--slate-200))] text-ui-secondary hover-text-ui-body'}"
 				onclick={() => (showSugestoes = !showSugestoes)}
 				aria-pressed={showSugestoes}
 				aria-label="Mostrar sugestões de visitas"

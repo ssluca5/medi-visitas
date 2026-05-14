@@ -75,7 +75,11 @@ function temIndicadorConfigurado(data: {
   );
 }
 
-function buildAccessSql(request: { organizationId?: string; userId?: string; role?: string }) {
+function buildAccessSql(request: {
+  organizationId?: string;
+  userId?: string;
+  role?: string;
+}) {
   // OWNER vê todas as metas da organização; MEMBER vê apenas as suas
   if (request.role === "OWNER") {
     return Prisma.sql`"organizationId" = ${request.organizationId} AND "deletedAt" IS NULL`;
@@ -179,8 +183,7 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
 
     if (!temIndicadorConfigurado(data)) {
       return reply.code(400).send({
-        error:
-          "Informe pelo menos um indicador da meta para acompanhamento.",
+        error: "Informe pelo menos um indicador da meta para acompanhamento.",
       });
     }
 
@@ -288,8 +291,7 @@ const metasRoutes: FastifyPluginAsync = async (app) => {
       })
     ) {
       return reply.code(400).send({
-        error:
-          "Informe pelo menos um indicador da meta para acompanhamento.",
+        error: "Informe pelo menos um indicador da meta para acompanhamento.",
       });
     }
 

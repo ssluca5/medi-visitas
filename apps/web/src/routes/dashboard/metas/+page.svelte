@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { Meta } from '$lib/types';
   import { apiFetch } from '$lib/api';
   import { toasts } from '$lib/stores/toast.svelte';
@@ -68,8 +68,8 @@
     return [];
   }
 
-  let metas = $state<Meta[]>(normalizeList(data.metas));
-  let membros = $state<MembroEquipe[]>(normalizeList(data.membros));
+  let metas = $state<Meta[]>(untrack(() => normalizeList(data.metas)));
+  let membros = $state<MembroEquipe[]>(untrack(() => normalizeList(data.membros)));
   let loading = $state(false);
   let loadingMembros = $state(false);
   let saving = $state(false);
@@ -544,6 +544,8 @@
 
   onMount(() => {
     limparForm();
+    if (!data.metas) void fetchMetas();
+    if (podeGerenciarEquipe && membros.length === 0) void fetchMembros();
   });
 </script>
 
@@ -578,8 +580,8 @@
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <!-- Esquerda: Título -->
         <div>
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Visualização</span>
-          <h2 class="text-lg font-bold text-slate-900 mt-0.5">{tituloEscopo}</h2>
+          <span class="text-xs font-bold text-ui-muted uppercase tracking-wider">Visualização</span>
+          <h2 class="text-lg font-bold text-ui-primary mt-0.5">{tituloEscopo}</h2>
         </div>
 
         <!-- Direita: Controles alinhados horizontalmente -->
@@ -627,9 +629,9 @@
       <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
         <Target class="h-5 w-5" />
       </div>
-      <span class="text-sm font-medium text-slate-500">Metas ativas</span>
-      <span class="text-3xl font-bold text-slate-900">{resumo.ativas}</span>
-      <p class="text-xs text-slate-400">
+      <span class="text-sm font-medium text-ui-secondary">Metas ativas</span>
+      <span class="text-3xl font-bold text-ui-primary">{resumo.ativas}</span>
+      <p class="text-xs text-ui-muted">
         <span class="font-medium text-blue-600">{resumo.total}</span> metas no total
       </p>
     </div>
@@ -639,13 +641,13 @@
       <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
         <CheckCircle2 class="h-5 w-5" />
       </div>
-      <span class="text-sm font-medium text-slate-500">Concluídas</span>
+      <span class="text-sm font-medium text-ui-secondary">Concluídas</span>
       <span class="text-3xl font-bold text-emerald-600">{resumo.atingidas}</span>
-      <p class="text-xs text-slate-400">
+      <p class="text-xs text-ui-muted">
         {#if resumo.taxaSucesso >= 50}
           <span class="inline-flex items-center gap-0.5 font-medium text-emerald-600"><TrendingUp class="h-3 w-3" /> {resumo.taxaSucesso}%</span>
         {:else}
-          <span class="inline-flex items-center gap-0.5 font-medium text-slate-500"><TrendingDown class="h-3 w-3" /> {resumo.taxaSucesso}%</span>
+          <span class="inline-flex items-center gap-0.5 font-medium text-ui-secondary"><TrendingDown class="h-3 w-3" /> {resumo.taxaSucesso}%</span>
         {/if}
         taxa de sucesso
       </p>
@@ -656,9 +658,9 @@
       <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600">
         <AlertTriangle class="h-5 w-5" />
       </div>
-      <span class="text-sm font-medium text-slate-500">Em risco</span>
-      <span class="text-3xl font-bold {resumo.emRisco > 0 ? 'text-red-600' : 'text-slate-900'}">{resumo.emRisco}</span>
-      <p class="text-xs text-slate-400">
+      <span class="text-sm font-medium text-ui-secondary">Em risco</span>
+      <span class="text-3xl font-bold {resumo.emRisco > 0 ? 'text-red-600' : 'text-ui-primary'}">{resumo.emRisco}</span>
+      <p class="text-xs text-ui-muted">
         {#if resumo.emRisco > 0}
           <span class="font-medium text-red-500">Atenção necessária</span>
         {:else}
@@ -672,9 +674,9 @@
       <div class="flex h-12 w-12 items-center justify-center rounded-full bg-sky-50 text-sky-600">
         <BarChart3 class="h-5 w-5" />
       </div>
-      <span class="text-sm font-medium text-slate-500">Progresso médio</span>
-      <span class="text-3xl font-bold text-slate-900">{resumo.progressoMedio}%</span>
-      <p class="text-xs text-slate-400">
+      <span class="text-sm font-medium text-ui-secondary">Progresso médio</span>
+      <span class="text-3xl font-bold text-ui-primary">{resumo.progressoMedio}%</span>
+      <p class="text-xs text-ui-muted">
         {#if resumo.progressoMedio >= 70}
           <span class="inline-flex items-center gap-0.5 font-medium text-emerald-600"><TrendingUp class="h-3 w-3" /> Bom ritmo</span>
         {:else if resumo.progressoMedio >= 40}
@@ -689,8 +691,8 @@
   <section class="rounded-xl border bg-white shadow-sm">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4 border-b">
       <div>
-        <h2 class="text-lg font-bold text-slate-900">{tituloEscopo}</h2>
-        <p class="text-sm text-slate-500">{metasFiltradas.length} meta(s) encontrada(s)</p>
+        <h2 class="text-lg font-bold text-ui-primary">{tituloEscopo}</h2>
+        <p class="text-sm text-ui-secondary">{metasFiltradas.length} meta(s) encontrada(s)</p>
       </div>
       <div class="w-full sm:w-64">
         <select class="input-base h-10 w-full py-0" bind:value={statusFiltro}>
@@ -745,7 +747,7 @@
             <div class="absolute top-6 right-6 flex items-center gap-1">
               {#if metasExpandidas.has(meta.id)}
                 <button
-                  class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-blue-50 hover:text-blue-600"
+                  class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-ui-muted transition-all hover:bg-blue-50 hover:text-blue-600"
                   onclick={(event) => { event.stopPropagation(); handleEditarMeta(meta); }}
                   title="Editar meta"
                   data-no-edit
@@ -753,7 +755,7 @@
                   <Pencil class="h-3.5 w-3.5" />
                 </button>
                 <button
-                  class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-red-50 hover:text-red-600"
+                  class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-ui-muted transition-all hover:bg-red-50 hover:text-red-600"
                   onclick={(event) => { event.stopPropagation(); handleExcluirMeta(meta); }}
                   title="Excluir meta"
                   data-no-edit
@@ -762,7 +764,7 @@
                 </button>
               {/if}
               <button
-                class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600"
+                class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-ui-muted transition-all hover:bg-slate-100 hover-text-ui-secondary"
                 onclick={(event) => toggleExpandMeta(event, meta.id)}
                 title={metasExpandidas.has(meta.id) ? 'Recolher detalhes' : 'Expandir detalhes'}
                 data-no-edit
@@ -782,7 +784,7 @@
               </div>
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-3 mb-1">
-                  <h3 class="text-lg font-bold text-slate-900 truncate">{meta.nome}</h3>
+                  <h3 class="text-lg font-bold text-ui-primary truncate">{meta.nome}</h3>
                   <span class="status-chip {statusClass(meta.status)}">{statusLabel(meta.status)}</span>
                   {#if meta.alertas?.prazoCritico}
                     <span class="status-chip status-danger">Prazo crítico</span>
@@ -790,18 +792,18 @@
                     <span class="status-chip status-warning">Em risco</span>
                   {/if}
                 </div>
-                <p class="text-sm text-slate-500">
+                <p class="text-sm text-ui-secondary">
                   {formatarData(meta.dataInicio)} a {formatarData(meta.dataFim)}
                   {#if meta.status === 'ATIVA'}
-                    · <span class="font-medium text-slate-700">{diasRestantes(meta.dataFim)} dia(s) restantes</span>
+                    · <span class="font-medium text-ui-body">{diasRestantes(meta.dataFim)} dia(s) restantes</span>
                   {/if}
                 </p>
                 {#if meta.descricao}
-                  <p class="text-sm text-slate-600 mt-2">{meta.descricao}</p>
+                  <p class="text-sm text-ui-secondary mt-2">{meta.descricao}</p>
                 {/if}
                 {#if podeGerenciarEquipe || meta.plano === 'EQUIPE'}
-                  <p class="mt-1 text-xs text-slate-500">
-                    Responsável: <span class="font-medium text-slate-700">{membroLabel(meta.responsavelId)}</span>
+                  <p class="mt-1 text-xs text-ui-secondary">
+                    Responsável: <span class="font-medium text-ui-body">{membroLabel(meta.responsavelId)}</span>
                   </p>
                 {/if}
               </div>
@@ -815,12 +817,12 @@
                   {@const ind = indicadoresConfigurados[0]}
                   <div class="flex justify-between items-end mb-3">
                     <div>
-                      <p class="text-sm font-semibold text-slate-900 mb-1">{ind.label}</p>
+                      <p class="text-sm font-semibold text-ui-primary mb-1">{ind.label}</p>
                       <span class="status-chip {evolucao.ritmo === 'No ritmo' ? 'status-success' : 'status-warning'}">{evolucao.ritmo}</span>
                     </div>
                     <div class="text-right">
                       <span class="text-3xl font-black text-blue-600">{ind.realizado}</span>
-                      <span class="text-sm font-medium text-slate-500"> / {ind.alvo} realizados</span>
+                      <span class="text-sm font-medium text-ui-secondary"> / {ind.alvo} realizados</span>
                     </div>
                   </div>
                   <div class="w-full bg-slate-200 rounded-full h-3 mb-2 overflow-hidden">
@@ -829,7 +831,7 @@
                       style="width: {clampPercent(ind.percentual)}%; background-color: {barColor(ind.percentual)}"
                     ></div>
                   </div>
-                  <div class="flex justify-between text-xs font-medium text-slate-500">
+                  <div class="flex justify-between text-xs font-medium text-ui-secondary">
                     <span>{Math.round(ind.percentual)}% do objetivo alcançado</span>
                     <span>{evolucao.decorrido}% do tempo decorrido</span>
                   </div>
@@ -837,7 +839,7 @@
                   <!-- Múltiplos indicadores -->
                   <div class="flex items-center justify-between mb-4">
                     <div>
-                      <p class="text-sm font-semibold text-slate-900">Progresso geral</p>
+                      <p class="text-sm font-semibold text-ui-primary">Progresso geral</p>
                       <span class="status-chip mt-1 {evolucao.ritmo === 'No ritmo' ? 'status-success' : 'status-warning'}">{evolucao.ritmo}</span>
                     </div>
                     <div class="text-right">
@@ -857,9 +859,9 @@
                         class="rounded-lg border border-slate-200 bg-white p-3 text-left transition-colors cursor-pointer hover:border-[var(--brand-primary)] hover:bg-[var(--brand-light)] {drilldownAtual?.metaId === meta.id && drilldownAtual?.key === indicador.key ? 'bg-[var(--brand-light)]' : ''}"
                         onclick={(event) => alternarDrilldown(event, meta, indicador.key)}
                       >
-                        <p class="text-xs font-medium text-slate-500">{indicador.label}</p>
-                        <p class="mt-1 text-lg font-bold text-slate-900">
-                          {indicador.realizado}<span class="text-sm font-normal text-slate-400">/{indicador.alvo}</span>
+                        <p class="text-xs font-medium text-ui-secondary">{indicador.label}</p>
+                        <p class="mt-1 text-lg font-bold text-ui-primary">
+                          {indicador.realizado}<span class="text-sm font-normal text-ui-muted">/{indicador.alvo}</span>
                         </p>
                         <div class="mt-2 h-1.5 rounded-full bg-slate-100">
                           <div
@@ -870,7 +872,7 @@
                       </button>
                     {/each}
                   </div>
-                  <div class="flex justify-between text-xs font-medium text-slate-500 mt-3">
+                  <div class="flex justify-between text-xs font-medium text-ui-secondary mt-3">
                     <span>{evolucao.progresso}% do objetivo alcançado</span>
                     <span>{evolucao.decorrido}% do tempo decorrido</span>
                   </div>
@@ -883,12 +885,12 @@
                 <div class="mt-4 rounded-xl border border-blue-200 p-4 animate-slide-down" data-no-edit>
                   <div class="flex items-start justify-between gap-3">
                     <div>
-                      <p class="text-sm font-semibold text-slate-900">{detalhe.label}</p>
-                      <p class="mt-1 text-sm text-slate-500">{detalhe.descricao}</p>
+                      <p class="text-sm font-semibold text-ui-primary">{detalhe.label}</p>
+                      <p class="mt-1 text-sm text-ui-secondary">{detalhe.descricao}</p>
                     </div>
                     <button
                       type="button"
-                      class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                      class="text-sm font-medium text-blue-600 hover-text-ui-brand-strong transition-colors"
                       onclick={(event) => {
                         event.stopPropagation();
                         drilldownAtual = null;
@@ -899,16 +901,16 @@
                   </div>
                   <div class="mt-4 grid gap-3 sm:grid-cols-3">
                     <div class="rounded-lg bg-slate-50 p-3">
-                      <p class="text-xs text-slate-500">Realizado</p>
-                      <p class="mt-1 text-lg font-bold text-slate-900">{detalhe.realizado}</p>
+                      <p class="text-xs text-ui-secondary">Realizado</p>
+                      <p class="mt-1 text-lg font-bold text-ui-primary">{detalhe.realizado}</p>
                     </div>
                     <div class="rounded-lg bg-slate-50 p-3">
-                      <p class="text-xs text-slate-500">Meta</p>
-                      <p class="mt-1 text-lg font-bold text-slate-900">{detalhe.alvo}</p>
+                      <p class="text-xs text-ui-secondary">Meta</p>
+                      <p class="mt-1 text-lg font-bold text-ui-primary">{detalhe.alvo}</p>
                     </div>
                     <div class="rounded-lg bg-slate-50 p-3">
-                      <p class="text-xs text-slate-500">Restante</p>
-                      <p class="mt-1 text-lg font-bold text-slate-900">{detalhe.restante}</p>
+                      <p class="text-xs text-ui-secondary">Restante</p>
+                      <p class="mt-1 text-lg font-bold text-ui-primary">{detalhe.restante}</p>
                     </div>
                   </div>
                 </div>
@@ -925,10 +927,10 @@
   {#snippet children()}
     <div class="space-y-5">
       <div>
-        <h3 class="text-lg font-semibold text-[rgb(var(--slate-900))]">
+        <h3 class="text-lg font-semibold text-ui-primary">
           {metaEmEdicao ? 'Editar Meta' : 'Nova Meta'}
         </h3>
-        <p class="mt-1 text-sm text-[rgb(var(--slate-400))]">
+        <p class="mt-1 text-sm text-ui-muted">
           Defina o periodo, o responsavel e pelo menos um indicador.
         </p>
       </div>
@@ -948,7 +950,7 @@
           </h4>
           <div class="space-y-3">
             <div>
-              <label for="meta-nome" class="input-label">Nome <span class="text-[rgb(var(--slate-400))]">*</span></label>
+              <label for="meta-nome" class="input-label">Nome <span class="text-ui-muted">*</span></label>
               <input id="meta-nome" bind:value={formNome} class="input-base" placeholder="Meta mensal de visitas" />
             </div>
 
@@ -1047,7 +1049,7 @@
         <section>
           <h4 class="section-header">
             <BarChart3 class="h-3.5 w-3.5" />
-            Indicadores <span class="text-[rgb(var(--slate-400))]">*</span>
+            Indicadores <span class="text-ui-muted">*</span>
           </h4>
           <p class="input-hint mb-3">
             Informe pelo menos uma meta: visitas, pipeline ou novos prescritores.
@@ -1072,18 +1074,18 @@
         </section>
       </form>
 
-      <div class="flex flex-col-reverse gap-3 border-t border-[rgb(var(--slate-100))] pt-4">
-        {#if metaEmEdicao}
-          <Button variant="destructive" type="button" onclick={() => handleExcluirMeta(metaEmEdicao!)} class="w-full" disabled={saving}>
-            Excluir
-          </Button>
-        {/if}
+      <div class="flex flex-col gap-3 border-t border-[rgb(var(--slate-100))] pt-4">
         <Button type="submit" form="metaForm" class="w-full gap-2" disabled={saving || !formMetaValido}>
           {#if saving}
             <Loader2 class="h-4 w-4 animate-spin" />
           {/if}
           {metaEmEdicao ? 'Salvar Alterações' : 'Cadastrar Meta'}
         </Button>
+        {#if metaEmEdicao}
+          <Button variant="destructive" type="button" onclick={() => handleExcluirMeta(metaEmEdicao!)} class="w-full" disabled={saving}>
+            Excluir
+          </Button>
+        {/if}
         <Button variant="outline" onclick={() => (sheetOpen = false)} class="w-full" disabled={saving}>
           Cancelar
         </Button>

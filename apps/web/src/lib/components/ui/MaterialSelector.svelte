@@ -38,8 +38,8 @@
 <div class="space-y-4">
   <div class="flex gap-2 items-end">
     <div class="flex-1">
-      <label class="block text-sm font-medium text-gray-700 mb-1" for="materialSelectedId">Material Técnico</label>
-      <select id="materialSelectedId" bind:value={selectedId} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]">
+      <label class="block text-sm font-medium text-ui-body mb-1" for="materialSelectedId">Material Técnico</label>
+      <select id="materialSelectedId" bind:value={selectedId} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary">
         <option value="">-- Selecione --</option>
         {#each materiaisOptions as mat}
           <option value={mat.id}>{mat.nome} ({mat.tipo})</option>
@@ -48,8 +48,8 @@
     </div>
     
     <div class="w-20">
-      <label class="block text-sm font-medium text-gray-700 mb-1" for="materialQtd">Qtd</label>
-      <input id="materialQtd" type="number" min="1" bind:value={quantidade} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-[rgb(var(--slate-50))] disabled:text-[rgb(var(--slate-500))]">
+      <label class="block text-sm font-medium text-ui-body mb-1" for="materialQtd">Qtd</label>
+      <input id="materialQtd" type="number" min="1" bind:value={quantidade} disabled={isReadOnly} class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border disabled:bg-[rgb(var(--slate-50))] disabled-text-ui-secondary">
     </div>
 
     <div>
@@ -59,13 +59,13 @@
 
   {#if selections.length > 0}
     <div class="bg-gray-50 rounded-md border p-3">
-      <h4 class="text-sm font-medium text-gray-700 mb-2">Materiais a Entregar:</h4>
+      <h4 class="text-sm font-medium text-ui-body mb-2">Materiais a Entregar:</h4>
       <ul class="space-y-2">
         {#each selections as sel, i}
           <li class="flex items-center justify-between text-sm bg-white p-2 rounded shadow-sm border border-gray-200">
             <div>
               <span class="font-medium text-indigo-700 bg-indigo-50 px-2 rounded-full text-xs py-0.5">{sel.quantidade}x</span>
-              <span class="ml-2 text-gray-800">{sel.materialTecnico?.nome || 'Material Desconhecido'}</span>
+              <span class="ml-2 text-ui-strong">{sel.materialTecnico?.nome || 'Material Desconhecido'}</span>
             </div>
             <div class={isReadOnly ? "hidden" : "block"}>
               <button type="button" class="text-red-500 hover:text-red-700 p-1" onclick={() => removerMaterial(i)} aria-label="Remover">

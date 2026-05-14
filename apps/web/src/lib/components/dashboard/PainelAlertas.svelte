@@ -16,11 +16,11 @@
 </script>
 
 <div class="card-surface p-5 h-full">
-  <h3 class="text-sm font-semibold text-[rgb(var(--slate-700))] mb-4">Alertas</h3>
+  <h3 class="text-sm font-semibold text-ui-body mb-4">Alertas</h3>
 
   {#if alertas.length === 0}
     <div class="text-center py-8">
-      <p class="text-sm text-[rgb(var(--slate-400))]">Nenhum alerta no momento</p>
+      <p class="text-sm text-ui-muted">Nenhum alerta no momento</p>
     </div>
   {:else}
     <div class="space-y-2.5 max-h-[400px] overflow-y-auto pr-2">
@@ -33,8 +33,8 @@
         >
           <Icon class="h-4 w-4 {config.iconClass} mt-0.5 shrink-0" />
           <div class="min-w-0 flex-1">
-            <p class="text-[13px] font-medium text-[rgb(var(--slate-700))] leading-snug">{alerta.mensagem}</p>
-            <p class="text-[11px] text-[rgb(var(--slate-400))] mt-0.5">{alerta.profissionalNome}</p>
+            <p class="text-[13px] font-medium text-ui-body leading-snug">{alerta.mensagem}</p>
+            <p class="text-[11px] text-ui-muted mt-0.5">{alerta.profissionalNome}</p>
           </div>
         </a>
       {/each}

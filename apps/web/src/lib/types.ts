@@ -287,7 +287,9 @@ export interface Visita {
 
   profissional?: {
     nome: string;
+    potencial?: PotencialPrescricao;
     estagioPipeline?: EstagioPipeline;
+    classificacao?: ClassificacaoRelacionamento | null;
     especialidade?: {
       nome: string;
     } | null;

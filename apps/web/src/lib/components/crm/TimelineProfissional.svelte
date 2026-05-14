@@ -26,7 +26,7 @@
   const statusVisitaClass: Record<string, string> = {
     REALIZADA: 'bg-emerald-50 text-emerald-700',
     CANCELADA: 'bg-red-50 text-red-600',
-    NAO_REALIZADA: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]',
+    NAO_REALIZADA: 'bg-[rgb(var(--slate-100))] text-ui-secondary',
     AGENDADA: 'bg-blue-50 text-blue-700'
   };
 
@@ -34,7 +34,7 @@
     REALIZADO: 'bg-emerald-50 text-emerald-700',
     CANCELADO: 'bg-red-50 text-red-600',
     CONFIRMADO: 'bg-blue-50 text-blue-700',
-    PLANEJADO: 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'
+    PLANEJADO: 'bg-[rgb(var(--slate-100))] text-ui-secondary'
   };
 
   const estagioLabels: Record<string, string> = {
@@ -48,7 +48,7 @@
 
 {#if itens.length === 0}
   <div class="text-center py-12">
-    <p class="text-sm text-[rgb(var(--slate-400))]">Nenhum evento no histórico</p>
+    <p class="text-sm text-ui-muted">Nenhum evento no histórico</p>
   </div>
 {:else}
   <div class="relative ml-3 pl-6 space-y-5">
@@ -73,17 +73,17 @@
           <!-- Header: icon + date -->
           <div class="flex items-center gap-2 mb-2">
             {#if item.tipo === 'VISITA'}
-              <Calendar class="w-3.5 h-3.5 text-[rgb(var(--slate-400))]" />
+              <Calendar class="w-3.5 h-3.5 text-ui-muted" />
             {:else if item.tipo === 'ESTAGIO'}
               <TrendingUp class="w-3.5 h-3.5 text-violet-400" />
             {:else}
               <Clock class="w-3.5 h-3.5 text-amber-400" />
             {/if}
-            <span class="text-[13px] font-semibold text-[rgb(var(--slate-700))]">
+            <span class="text-[13px] font-semibold text-ui-body">
               {formatData(item.data)}
             </span>
-            <span class="text-[rgb(var(--slate-300))]">·</span>
-            <span class="text-[13px] text-[rgb(var(--slate-500))]">
+            <span class="text-ui-disabled">·</span>
+            <span class="text-[13px] text-ui-secondary">
               {formatHora(item.data)}
             </span>
           </div>
@@ -91,26 +91,26 @@
           {#if item.tipo === 'VISITA'}
             <div class="flex items-center gap-2 flex-wrap">
               {#if item.status}
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider {statusVisitaClass[item.status] ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider {statusVisitaClass[item.status] ?? 'bg-[rgb(var(--slate-100))] text-ui-secondary'}">
                   {item.status}
                 </span>
               {/if}
               {#if item.duracaoMinutos}
-                <span class="text-xs text-[rgb(var(--slate-400))]">{item.duracaoMinutos}min</span>
+                <span class="text-xs text-ui-muted">{item.duracaoMinutos}min</span>
               {/if}
             </div>
             {#if item.objetivoVisita}
-              <p class="text-[13px] text-[rgb(var(--slate-600))] mt-1.5">{item.objetivoVisita}</p>
+              <p class="text-[13px] text-ui-secondary mt-1.5">{item.objetivoVisita}</p>
             {/if}
             {#if item.resumo}
-              <p class="text-xs text-[rgb(var(--slate-500))] mt-1">{item.resumo}</p>
+              <p class="text-xs text-ui-secondary mt-1">{item.resumo}</p>
             {/if}
 
           {:else if item.tipo === 'ESTAGIO'}
-            <p class="text-[13px] text-[rgb(var(--slate-600))]">
+            <p class="text-[13px] text-ui-secondary">
               {#if item.estagioAnterior}
-                <span class="text-[rgb(var(--slate-400))]">{estagioLabels[item.estagioAnterior] ?? item.estagioAnterior}</span>
-                <span class="text-[rgb(var(--slate-300))] mx-1">&rarr;</span>
+                <span class="text-ui-muted">{estagioLabels[item.estagioAnterior] ?? item.estagioAnterior}</span>
+                <span class="text-ui-disabled mx-1">&rarr;</span>
               {/if}
               <span class="font-semibold text-violet-700">{estagioLabels[item.estagioNovo ?? ''] ?? item.estagioNovo}</span>
             </p>
@@ -118,21 +118,21 @@
           {:else if item.tipo === 'AGENDAMENTO'}
             <div class="flex items-center gap-2 flex-wrap">
               {#if item.status}
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider {statusAgendaClass[item.status] ?? 'bg-[rgb(var(--slate-100))] text-[rgb(var(--slate-600))]'}">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider {statusAgendaClass[item.status] ?? 'bg-[rgb(var(--slate-100))] text-ui-secondary'}">
                   {item.status}
                 </span>
               {/if}
               {#if item.prioridade}
                 <span class="text-xs font-semibold
-                  {item.prioridade === 'URGENTE' ? 'text-red-600' : item.prioridade === 'ALTA' ? 'text-amber-600' : item.prioridade === 'MEDIA' ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'}
+                  {item.prioridade === 'URGENTE' ? 'text-red-600' : item.prioridade === 'ALTA' ? 'text-amber-600' : item.prioridade === 'MEDIA' ? 'text-blue-600' : 'text-ui-muted'}
                 ">{item.prioridade}</span>
               {/if}
             </div>
             {#if item.dataFim}
-              <p class="text-xs text-[rgb(var(--slate-400))] mt-1">até {formatHora(item.dataFim)}</p>
+              <p class="text-xs text-ui-muted mt-1">até {formatHora(item.dataFim)}</p>
             {/if}
             {#if item.observacoes}
-              <p class="text-xs text-[rgb(var(--slate-500))] mt-1">{item.observacoes}</p>
+              <p class="text-xs text-ui-secondary mt-1">{item.observacoes}</p>
             {/if}
           {/if}
         </div>

@@ -1,5 +1,5 @@
-import type { PageServerLoad } from './$types';
-import { apiFetch } from '$lib/api';
+import type { PageServerLoad } from "./$types";
+import { apiFetch } from "$lib/api";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const token = locals.sessionToken;
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   const params = new URLSearchParams({
     dataInicio: start.toISOString(),
     dataFim: end.toISOString(),
-    pageSize: '100',
+    pageSize: "100",
   });
 
   const res = await apiFetch(`/visitas?${params}`, token);

@@ -41,7 +41,7 @@
 
 <div class="relative">
 	<button
-		class="relative p-2 text-[rgb(var(--slate-400))] hover:text-[rgb(var(--slate-600))] hover:bg-[rgb(var(--slate-100))] rounded-full transition-colors cursor-pointer"
+		class="relative p-2 text-ui-muted hover-text-ui-secondary hover:bg-[rgb(var(--slate-100))] rounded-full transition-colors cursor-pointer"
 		onclick={() => (painelAberto = !painelAberto)}
 		aria-label="Notificações"
 		aria-expanded={painelAberto}

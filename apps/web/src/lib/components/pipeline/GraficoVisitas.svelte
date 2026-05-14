@@ -7,208 +7,124 @@
 
   let { dados }: Props = $props();
 
-  const BAR_GROUP_WIDTH = 52;
-  const BAR_WIDTH = 12;
-  const GAP = 4;
-  const HEIGHT = 300;
-  const PADDING = { top: 16, bottom: 34, left: 10, right: 10 };
+  const STATUS = [
+    {
+      key: 'REALIZADA',
+      label: 'Realizadas',
+      dotClass: 'bg-blue-600',
+      barClass: 'bg-blue-600'
+    },
+    {
+      key: 'AGENDADA',
+      label: 'Agendadas',
+      dotClass: 'bg-sky-300',
+      barClass: 'bg-sky-300'
+    },
+    {
+      key: 'CANCELADA',
+      label: 'Canceladas',
+      dotClass: 'bg-slate-400',
+      barClass: 'bg-slate-400'
+    },
+    {
+      key: 'NAO_REALIZADA',
+      label: 'Não Realizadas',
+      dotClass: 'bg-amber-400',
+      barClass: 'bg-amber-400'
+    }
+  ] as const;
 
-  const chartH = HEIGHT - PADDING.top - PADDING.bottom;
+  type StatusItem = (typeof STATUS)[number];
 
-  const maxValor = $derived(
-    Math.max(1, ...dados.map((d) => Math.max(d.REALIZADA, d.AGENDADA, d.CANCELADA)))
+  const totais = $derived(
+    STATUS.map((status) => ({
+      ...status,
+      total: dados.reduce((sum, item) => sum + Number(item[status.key] || 0), 0)
+    }))
   );
 
-  const svgWidth = $derived(Math.max(400, dados.length * (BAR_GROUP_WIDTH + GAP * 3) + PADDING.left + PADDING.right));
-
-  const COLORS = {
-    REALIZADA: 'rgb(var(--accent))',
-    AGENDADA: 'rgb(186 230 253)',
-    CANCELADA: 'rgb(148 163 184)',
-  };
-
-  // Tooltip state
-  let tooltip = $state<{ x: number; y: number; d: VisitasPeriodo; side: 'above' | 'below' } | null>(null);
-  let containerEl = $state<HTMLDivElement | null>(null);
-  let svgEl = $state<SVGSVGElement | null>(null);
-
-  function hitTest(e: MouseEvent): { d: VisitasPeriodo; side: 'above' | 'below' } | null {
-    if (!svgEl || !containerEl || dados.length === 0) return null;
-
-    const svgRect = svgEl.getBoundingClientRect();
-    const containerRect = containerEl.getBoundingClientRect();
-
-    // Mouse position relative to SVG rendered area
-    const mx = e.clientX - svgRect.left;
-
-    // Scale from rendered SVG pixels to SVG viewBox coordinates
-    const scaleX = svgWidth / svgRect.width;
-    const svgX = mx * scaleX;
-
-    // Check which bar group this x falls into
-    for (let i = 0; i < dados.length; i++) {
-      const x = PADDING.left + i * (BAR_GROUP_WIDTH + GAP * 3) + GAP * 2;
-      if (svgX >= x - GAP && svgX <= x + BAR_GROUP_WIDTH + GAP) {
-        const containerY = e.clientY - containerRect.top;
-        return {
-          d: dados[i],
-          side: containerY < 80 ? 'below' : 'above',
-        };
-      }
-    }
-    return null;
+  function totalPeriodo(item: VisitasPeriodo) {
+    return STATUS.reduce((sum, status) => sum + Number(item[status.key] || 0), 0);
   }
 
-  function handleContainerMouseMove(e: MouseEvent) {
-    const hit = hitTest(e);
-    if (hit && containerEl) {
-      const containerRect = containerEl.getBoundingClientRect();
-      tooltip = {
-        x: e.clientX - containerRect.left,
-        y: e.clientY - containerRect.top,
-        d: hit.d,
-        side: hit.side,
+  function segmentosVisiveis(item: VisitasPeriodo) {
+    const total = totalPeriodo(item);
+
+    return STATUS.map((status) => {
+      const valor = Number(item[status.key] || 0);
+      return {
+        ...status,
+        valor,
+        percentual: total > 0 ? (valor / total) * 100 : 0
       };
-    } else {
-      tooltip = null;
-    }
+    }).filter((status) => status.valor > 0);
   }
 
-  function handleContainerMouseLeave() {
-    tooltip = null;
+  function roundedClass(index: number, total: number) {
+    if (total === 1) return 'rounded-full';
+    if (index === 0) return 'rounded-l-full';
+    if (index === total - 1) return 'rounded-r-full';
+    return '';
+  }
+
+  function segmentTitle(periodo: VisitasPeriodo, status: StatusItem, valor: number) {
+    return `${periodo.label} - ${status.label}: ${valor}`;
   }
 </script>
 
-<div class="card-surface p-5" style="content-visibility: auto; contain-intrinsic-size: 400px 380px;">
-  <div class="mb-4">
-    <h3 class="text-base font-bold text-[rgb(var(--slate-800))]">Visitas por Período</h3>
-    <p class="text-xs text-[rgb(var(--slate-500))] mt-1">Comparativo de status ao longo das semanas</p>
+<div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-full" style="content-visibility: auto; contain-intrinsic-size: 400px 320px;">
+  <div class="mb-6">
+    <h2 class="text-base font-semibold text-ui-primary">Visitas por Período</h2>
+    <p class="mt-1 mb-4 text-sm text-ui-secondary">Distribuição por status em cada período</p>
+
+    {#if dados.length > 0}
+      <div class="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-100 bg-slate-50 lg:grid-cols-4">
+        {#each totais as status, index}
+          <div class="flex min-w-0 items-center justify-center gap-2 px-3 py-3 {index % 2 === 0 ? 'border-r border-slate-100' : ''} {index < 2 ? 'border-b border-slate-100 lg:border-b-0' : ''} {index < totais.length - 1 ? 'lg:border-r lg:border-slate-100' : ''}">
+            <div class="flex min-w-0 items-center gap-2">
+              <div class="size-2.5 shrink-0 rounded-full {status.dotClass}"></div>
+              <span class="truncate text-[11px] font-semibold uppercase text-ui-secondary">{status.label}</span>
+            </div>
+            <span class="shrink-0 text-sm font-semibold text-ui-primary">{status.total}</span>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </div>
+
   {#if dados.length === 0}
-    <div class="flex items-center justify-center h-[300px] rounded-lg border border-dashed border-[rgb(var(--slate-200))]">
-      <p class="text-[11px] text-[rgb(var(--slate-400))]">Sem dados para o período selecionado</p>
+    <div class="flex min-h-[260px] flex-1 items-center justify-center rounded-xl border border-dashed border-slate-200">
+      <p class="text-xs text-ui-muted">Sem dados para o período selecionado</p>
     </div>
   {:else}
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      bind:this={containerEl}
-      class="overflow-x-auto relative h-[300px]"
-      onmousemove={handleContainerMouseMove}
-      onmouseleave={handleContainerMouseLeave}
-    >
-      <svg bind:this={svgEl} width={svgWidth} height={HEIGHT} class="block w-full h-full" viewBox="0 0 {svgWidth} {HEIGHT}" preserveAspectRatio="xMidYMid meet">
-        <!-- Grid lines — dashed, subtle -->
-        {#each [0, 0.25, 0.5, 0.75, 1] as ratio}
-          {@const y = PADDING.top + chartH * (1 - ratio)}
-          <line
-            x1={PADDING.left}
-            y1={y}
-            x2={svgWidth - PADDING.right}
-            y2={y}
-            stroke="#f1f5f9"
-            stroke-width="1"
-            stroke-dasharray="5 5"
-          />
-        {/each}
-
-        {#each dados as d, i}
-          {@const x = PADDING.left + i * (BAR_GROUP_WIDTH + GAP * 3) + GAP * 2}
-          {@const hR = (d.REALIZADA / maxValor) * chartH}
-          {@const hA = (d.AGENDADA / maxValor) * chartH}
-          {@const hC = (d.CANCELADA / maxValor) * chartH}
-
-          <!-- Hover background highlight -->
-          {#if tooltip?.d === d}
-            <rect
-              x={x - GAP}
-              y={PADDING.top}
-              width={BAR_GROUP_WIDTH + GAP * 2}
-              height={chartH}
-              fill="rgba(0,0,0,0.03)"
-              rx="4"
-            />
-          {/if}
-
-          <!-- REALIZADA -->
-          <rect
-            x={x}
-            y={PADDING.top + chartH - hR}
-            width={BAR_WIDTH}
-            height={hR}
-            rx="3"
-            fill={COLORS.REALIZADA}
-            class="transition-[fill,height,y] duration-300"
-          />
-          <!-- AGENDADA -->
-          <rect
-            x={x + BAR_WIDTH + GAP}
-            y={PADDING.top + chartH - hA}
-            width={BAR_WIDTH}
-            height={hA}
-            rx="3"
-            fill={COLORS.AGENDADA}
-            class="transition-[fill,height,y] duration-300"
-          />
-          <!-- CANCELADA -->
-          <rect
-            x={x + (BAR_WIDTH + GAP) * 2}
-            y={PADDING.top + chartH - hC}
-            width={BAR_WIDTH}
-            height={hC}
-            rx="3"
-            fill={COLORS.CANCELADA}
-            class="transition-[fill,height,y] duration-300"
-          />
-
-          <!-- Label -->
-          <text
-            x={x + BAR_GROUP_WIDTH / 2}
-            y={HEIGHT - 8}
-            text-anchor="middle"
-            class="fill-[rgb(var(--slate-400))] text-[10px]"
-          >
-            {d.label}
-          </text>
-        {/each}
-      </svg>
-
-      <!-- Tooltip overlay -->
-      {#if tooltip}
-        <div
-          class="absolute pointer-events-none z-10 bg-[rgb(var(--slate-800))] text-white rounded-lg px-3 py-2 shadow-lg text-[11px] leading-relaxed"
-          style="left: {Math.max(60, Math.min(tooltip.x, (containerEl?.clientWidth ?? 400) - 60))}px; top: {tooltip.y}px; transform: translate(-50%, {tooltip.side === 'above' ? '-100%' : '12px'});"
-        >
-          <p class="font-semibold mb-1">{tooltip.d.label}</p>
-          <div class="flex items-center gap-1.5">
-            <span class="inline-block h-2 w-2 rounded-sm" style="background-color: {COLORS.REALIZADA}"></span>
-            Realizada: <strong>{tooltip.d.REALIZADA}</strong>
+    <div class="flex flex-1 flex-col justify-between gap-4 pt-1">
+      {#each dados as periodo}
+        {@const total = totalPeriodo(periodo)}
+        {@const segmentos = segmentosVisiveis(periodo)}
+        <div class="grid grid-cols-[minmax(4.5rem,6rem)_1fr] items-center gap-3">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-ui-strong">{periodo.label}</p>
+            <p class="text-xs text-ui-muted">{total} visita{total === 1 ? '' : 's'}</p>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="inline-block h-2 w-2 rounded-sm" style="background-color: {COLORS.AGENDADA}"></span>
-            Agendada: <strong>{tooltip.d.AGENDADA}</strong>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="inline-block h-2 w-2 rounded-sm" style="background-color: {COLORS.CANCELADA}"></span>
-            Cancelada: <strong>{tooltip.d.CANCELADA}</strong>
+
+          <div class="h-7 rounded-full bg-slate-100 p-1">
+            {#if total > 0}
+              <div class="flex h-full overflow-hidden rounded-full">
+                {#each segmentos as segmento, index}
+                  <div
+                    class="flex h-full min-w-8 items-center justify-center px-2 text-xs font-bold text-white/90 {segmento.barClass} {roundedClass(index, segmentos.length)}"
+                    style="width: {segmento.percentual}%;"
+                    aria-label={segmentTitle(periodo, segmento, segmento.valor)}
+                    title={segmentTitle(periodo, segmento, segmento.valor)}
+                  >
+                    {segmento.valor}
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </div>
         </div>
-      {/if}
-    </div>
-
-    <!-- Legend -->
-    <div class="flex items-center justify-center gap-4 mt-3">
-      <div class="flex items-center gap-1.5">
-        <div class="h-2.5 w-2.5 rounded-sm" style="background-color: {COLORS.REALIZADA}"></div>
-        <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">Realizada</span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <div class="h-2.5 w-2.5 rounded-sm" style="background-color: {COLORS.AGENDADA}"></div>
-        <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">Agendada</span>
-      </div>
-      <div class="flex items-center gap-1.5">
-        <div class="h-2.5 w-2.5 rounded-sm" style="background-color: {COLORS.CANCELADA}"></div>
-        <span class="text-[11px] text-[rgb(var(--slate-500))] font-medium">Cancelada</span>
-      </div>
+      {/each}
     </div>
   {/if}
 </div>
