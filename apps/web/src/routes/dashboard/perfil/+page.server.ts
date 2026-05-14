@@ -33,12 +33,15 @@ export const load: PageServerLoad = async ({ locals }) => {
               ? me.email
               : (locals.userEmail ?? me.email),
           name: me.name ?? locals.userName,
+          avatarUrl: me.avatarUrl ?? null,
+          role: me.role ?? null,
         }
       : locals.userId
         ? {
             id: locals.userId,
             email: locals.userEmail ?? "",
             name: locals.userName ?? null,
+            avatarUrl: null,
             organizationId: null,
             role: null,
             tourConcluidoEm: null,

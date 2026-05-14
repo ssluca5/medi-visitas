@@ -28,6 +28,7 @@
 
 	interface Props {
 		userName: string;
+		avatarUrl?: string | null;
 		sessionToken: string | null;
 		role?: string;
 		temRelatorios?: boolean;
@@ -37,6 +38,7 @@
 
 	let {
 		userName,
+		avatarUrl,
 		sessionToken,
 		role,
 		temRelatorios = false,
@@ -113,7 +115,7 @@
 		aria-label="Abrir menu de navegação"
 		aria-expanded={drawerOpen}
 		aria-haspopup="dialog"
-		class="p-2 -ml-2 rounded-lg text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-700))] hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer"
+		class="p-2 -ml-2 rounded-lg text-ui-secondary hover-text-ui-body hover:bg-[rgb(var(--slate-100))] transition-colors cursor-pointer"
 	>
 		<Menu class="h-5 w-5" />
 	</button>
@@ -123,7 +125,7 @@
 			<rect width="32" height="32" rx="6" fill="var(--brand-primary)"/>
 			<text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
 		</svg>
-		<h1 class="text-base font-semibold text-[rgb(var(--slate-900))] tracking-tight">MediVisitas</h1>
+		<h1 class="page-title-marker text-base font-semibold text-ui-primary tracking-tight">MediVisitas</h1>
 	</div>
 
 	<div class="relative z-10">
@@ -142,8 +144,8 @@
 					<text x="16" y="23" font-family="Inter,sans-serif" font-weight="700" font-size="20" fill="white" text-anchor="middle">M</text>
 				</svg>
 				<div>
-					<h1 class="text-lg font-semibold tracking-tight text-[rgb(var(--slate-900))] leading-tight">MediVisitas</h1>
-					<p class="text-[10px] text-[rgb(var(--slate-400))] mt-0.5 leading-tight">CRM para Propagandistas</p>
+					<h1 class="page-title-marker text-lg font-semibold tracking-tight text-ui-primary leading-tight">MediVisitas</h1>
+					<p class="text-[10px] text-ui-muted mt-0.5 leading-tight">CRM para Propagandistas</p>
 				</div>
 			</div>
 		</div>
@@ -158,17 +160,17 @@
 					onclick={closeDrawer}
 					aria-current={active ? 'page' : undefined}
 					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {active
-						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary'
+						: 'text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]'}"
 				>
-					<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+					<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-ui-muted'} transition-colors duration-200" />
 					<span>{item.label}</span>
 				</a>
 			{/each}
 
 			{#if !temMetas}
 				<span
-					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed"
+					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-ui-disabled cursor-not-allowed"
 					title="Disponível no Plano Profissional ou Equipe"
 				>
 					<Target class="h-[18px] w-[18px]" />
@@ -182,17 +184,17 @@
 					onclick={closeDrawer}
 					aria-current={activeMetas ? 'page' : undefined}
 					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {activeMetas
-						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary'
+						: 'text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]'}"
 				>
-					<Target class="h-[18px] w-[18px] {activeMetas ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+					<Target class="h-[18px] w-[18px] {activeMetas ? 'text-blue-600' : 'text-ui-muted'} transition-colors duration-200" />
 					<span>Metas</span>
 				</a>
 			{/if}
 
 			<!-- Section divider -->
 			<div class="pt-5 pb-1">
-				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]">
+				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-ui-muted">
 					Cadastros
 				</div>
 			</div>
@@ -205,17 +207,17 @@
 					onclick={closeDrawer}
 					aria-current={active ? 'page' : undefined}
 					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {active
-						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary'
+						: 'text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]'}"
 				>
-					<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+					<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-ui-muted'} transition-colors duration-200" />
 					<span>{item.label}</span>
 				</a>
 			{/each}
 
 			{#if adminItems.length > 0 || role === 'OWNER'}
 				<div class="pt-5 pb-1">
-					<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]">
+					<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-ui-muted">
 						Gestão
 					</div>
 				</div>
@@ -229,20 +231,20 @@
 							onclick={closeDrawer}
 							aria-current={active ? 'page' : undefined}
 							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {active
-								? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
-								: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+								? 'font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary'
+								: 'text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]'}"
 						>
-							<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+							<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-ui-muted'} transition-colors duration-200" />
 							<span>{item.label}</span>
 						</a>
 					{/each}
 				{:else}
-					<span class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed">
+					<span class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-ui-disabled cursor-not-allowed">
 						<Users class="h-[18px] w-[18px]" />
 						<span>Equipe</span>
 						<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Equipe</span>
 					</span>
-					<span class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed">
+					<span class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-ui-disabled cursor-not-allowed">
 						<BarChart3 class="h-[18px] w-[18px]" />
 						<span>Gestor</span>
 						<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Equipe</span>
@@ -251,7 +253,7 @@
 			{/if}
 
 			<div class="pt-5 pb-1">
-				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--slate-400))]">
+				<div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-ui-muted">
 					Conta
 				</div>
 			</div>
@@ -263,14 +265,14 @@
 					onclick={closeDrawer}
 					aria-current={activeRelatorios ? 'page' : undefined}
 					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {activeRelatorios
-						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary'
+						: 'text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]'}"
 				>
-					<FileText class="h-[18px] w-[18px] {activeRelatorios ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+					<FileText class="h-[18px] w-[18px] {activeRelatorios ? 'text-blue-600' : 'text-ui-muted'} transition-colors duration-200" />
 					<span>Relatórios</span>
 				</a>
 			{:else}
-				<span class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[rgb(var(--slate-300))] cursor-not-allowed">
+				<span class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-ui-disabled cursor-not-allowed">
 					<FileText class="h-[18px] w-[18px]" />
 					<span>Relatórios</span>
 					<span class="ml-auto text-[10px] font-semibold" style="color: var(--text-muted);">Pro</span>
@@ -289,10 +291,10 @@
 					onclick={closeDrawer}
 					aria-current={active ? 'page' : undefined}
 					class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition-all duration-200 ease-out cursor-pointer {active
-						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-[rgb(var(--slate-900))]'
-						: 'text-[rgb(var(--slate-500))] hover:text-[rgb(var(--slate-800))] hover:bg-[rgb(var(--slate-50))]'}"
+						? 'font-medium bg-[rgb(var(--slate-100))]/80 text-ui-primary'
+						: 'text-ui-secondary hover-text-ui-strong hover:bg-[rgb(var(--slate-50))]'}"
 				>
-					<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-[rgb(var(--slate-400))]'} transition-colors duration-200" />
+					<Icon class="h-[18px] w-[18px] {active ? 'text-blue-600' : 'text-ui-muted'} transition-colors duration-200" />
 					<span>{item.label}</span>
 				</a>
 			{/each}
@@ -311,9 +313,9 @@
 						<a
 							href={item.href}
 							onclick={closeDrawer}
-							class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-[rgb(var(--slate-700))] transition-colors hover:bg-[rgb(var(--slate-50))] hover:text-[rgb(var(--slate-900))]"
+							class="flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-ui-body transition-colors hover:bg-[rgb(var(--slate-50))] hover-text-ui-primary"
 						>
-							<Icon class="h-4 w-4 text-[rgb(var(--slate-400))]" />
+							<Icon class="h-4 w-4 text-ui-muted" />
 							<span>{item.label}</span>
 						</a>
 					{/each}
@@ -344,13 +346,21 @@
 				class="flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-[rgb(var(--slate-50))] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
 				title="Opções do usuário"
 			>
-				<div
-					class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white shadow-sm"
-				>
-					{userName.charAt(0).toUpperCase()}
-				</div>
+				{#if avatarUrl}
+					<img
+						src={avatarUrl}
+						alt={userName}
+						class="flex h-8 w-8 flex-shrink-0 rounded-full object-cover shadow-sm"
+					/>
+				{:else}
+					<div
+						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white shadow-sm"
+					>
+						{userName.charAt(0).toUpperCase()}
+					</div>
+				{/if}
 				<div class="min-w-0 flex-1">
-					<p class="truncate text-[13px] font-medium text-[rgb(var(--slate-700))]">
+					<p class="truncate text-[13px] font-medium text-ui-body">
 						{userName}
 					</p>
 					<p class="text-[10px] text-blue-600">
@@ -358,7 +368,7 @@
 					</p>
 				</div>
 				<ChevronUp
-					class="h-4 w-4 flex-shrink-0 text-[rgb(var(--slate-400))] transition-transform duration-200 {userMenuOpen
+					class="h-4 w-4 flex-shrink-0 text-ui-muted transition-transform duration-200 {userMenuOpen
 						? ''
 						: 'rotate-180'}"
 				/>
