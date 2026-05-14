@@ -9,7 +9,8 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("@sentry")) return "vendor-sentry";
-          if (id.includes("@clerk") || id.includes("svelte-clerk")) return "vendor-clerk";
+          if (id.includes("@clerk") || id.includes("svelte-clerk"))
+            return "vendor-clerk";
           if (id.includes("lucide-svelte")) return "vendor-icons";
         },
       },

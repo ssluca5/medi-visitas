@@ -147,7 +147,11 @@ describe("calcularProgressoMeta", () => {
   it("ignora indicadores sem meta configurada no progresso geral", async () => {
     setCounts(50, 30, 5);
     const result = await calcularProgressoMeta(
-      makeMeta({ metaVisitas: 100, metaAvancosPipeline: 0, metaPrescritores: 0 }),
+      makeMeta({
+        metaVisitas: 100,
+        metaAvancosPipeline: 0,
+        metaPrescritores: 0,
+      }),
     );
     expect(result.progresso.visitas.percentual).toBe(50);
     expect(result.progresso.avancosPipeline.percentual).toBe(0);

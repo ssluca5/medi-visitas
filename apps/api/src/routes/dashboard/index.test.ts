@@ -12,6 +12,7 @@ let mockPrisma: any;
 let mockVerifyTokenFn: any;
 let app: any;
 let buildAlertas: any;
+let invalidateCache: any;
 
 function mockAuth() {
   mockVerifyTokenFn.mockResolvedValueOnce({ sub: "user_123" });
@@ -96,6 +97,9 @@ describe("Dashboard Routes", () => {
     });
 
     const dashboardRoutes = await import("./index.js");
+    const cacheModule = await import("../../lib/cache.js");
+    invalidateCache = cacheModule.invalidateCache;
+
     app.register(dashboardRoutes.default, { prefix: "/dashboard" });
     await app.ready();
 
@@ -109,6 +113,7 @@ describe("Dashboard Routes", () => {
 
   beforeEach(() => {
     resetMocks();
+    invalidateCache();
   });
 
   // ─── GET /dashboard/resumo ───────────────────────────

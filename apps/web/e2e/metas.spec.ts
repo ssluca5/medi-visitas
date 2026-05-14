@@ -39,7 +39,10 @@ function mockMeta(overrides: Record<string, unknown> = {}) {
  */
 async function setupE2E(
   page: import("@playwright/test").Page,
-  options: { plano?: "PROFISSIONAL" | "EQUIPE"; temGestaoEquipe?: boolean } = {},
+  options: {
+    plano?: "PROFISSIONAL" | "EQUIPE";
+    temGestaoEquipe?: boolean;
+  } = {},
 ) {
   const plano = options.plano ?? "PROFISSIONAL";
   const temGestaoEquipe = options.temGestaoEquipe ?? plano === "EQUIPE";
@@ -142,7 +145,9 @@ test.describe("Tela de Metas", () => {
     ).toBeVisible();
   });
 
-  test("Filled state: renderiza lista de metas com resumo real", async ({ page }) => {
+  test("Filled state: renderiza lista de metas com resumo real", async ({
+    page,
+  }) => {
     await setupE2E(page);
 
     // Override GET metas with data
@@ -242,7 +247,9 @@ test.describe("Tela de Metas", () => {
     await expect(page.locator(".goal")).toHaveCount(0);
   });
 
-  test("Validação: mantém Cadastrar Meta desabilitado quando nome está vazio", async ({ page }) => {
+  test("Validação: mantém Cadastrar Meta desabilitado quando nome está vazio", async ({
+    page,
+  }) => {
     await setupE2E(page);
 
     await page.goto(METAS_PATH);
@@ -255,10 +262,14 @@ test.describe("Tela de Metas", () => {
     await page.fill("#meta-nome", "");
     await page.fill("#meta-visitas", "10");
 
-    await expect(page.getByRole("button", { name: "Cadastrar Meta" })).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Cadastrar Meta" }),
+    ).toBeDisabled();
   });
 
-  test("Validação: mantém Cadastrar Meta desabilitado quando data fim <= data inicio", async ({ page }) => {
+  test("Validação: mantém Cadastrar Meta desabilitado quando data fim <= data inicio", async ({
+    page,
+  }) => {
     await setupE2E(page);
 
     await page.goto(METAS_PATH);
@@ -272,6 +283,8 @@ test.describe("Tela de Metas", () => {
     await page.fill("#meta-data-fim", "2026-01-01");
     await page.fill("#meta-visitas", "10");
 
-    await expect(page.getByRole("button", { name: "Cadastrar Meta" })).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Cadastrar Meta" }),
+    ).toBeDisabled();
   });
 });
